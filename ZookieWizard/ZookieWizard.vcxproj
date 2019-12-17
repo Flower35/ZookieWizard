@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{F777DB68-F840-4F9D-9B65-C73FA56E8F79}</ProjectGuid>
+    <RootNamespace>ZookieWizard</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)include\;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)include\;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\source\kao2ar\Archive.cpp" />
+    <ClCompile Include="..\source\kao2ar\AxisList.cpp" />
+    <ClCompile Include="..\source\kao2ar\Collection.cpp" />
+    <ClCompile Include="..\source\kao2ar\eAnimate.cpp" />
+    <ClCompile Include="..\source\kao2ar\eObject.cpp" />
+    <ClCompile Include="..\source\kao2ar\eString.cpp" />
+    <ClCompile Include="..\source\kao2ar\kao2ar.cpp" />
+    <ClCompile Include="..\source\kao2ar\StaticPool.cpp" />
+    <ClCompile Include="..\source\kao2ar\TypeInfo.cpp" />
+    <ClCompile Include="..\source\kao2engine\Actor.cpp" />
+    <ClCompile Include="..\source\kao2engine\ActorClassWhen.cpp" />
+    <ClCompile Include="..\source\kao2engine\ActorInstanceWhen.cpp" />
+    <ClCompile Include="..\source\kao2engine\AfterInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\AndInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\Anim.cpp" />
+    <ClCompile Include="..\source\kao2engine\AnimDumper.cpp" />
+    <ClCompile Include="..\source\kao2engine\BaseMsgInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\BaseStatusInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\BlockInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\BoolInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\e3fCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\e3fXArray.cpp" />
+    <ClCompile Include="..\source\kao2engine\eActionTable.cpp" />
+    <ClCompile Include="..\source\kao2engine\eActivate.cpp" />
+    <ClCompile Include="..\source\kao2engine\eActorCollision.cpp" />
+    <ClCompile Include="..\source\kao2engine\eAddNode.cpp" />
+    <ClCompile Include="..\source\kao2engine\eAddPowerUp.cpp" />
+    <ClCompile Include="..\source\kao2engine\eALBox.cpp" />
+    <ClCompile Include="..\source\kao2engine\eALZoneSensor.cpp" />
+    <ClCompile Include="..\source\kao2engine\eAmbientLight.cpp" />
+    <ClCompile Include="..\source\kao2engine\eAnimNotyfier.cpp" />
+    <ClCompile Include="..\source\kao2engine\eAnimState.cpp" />
+    <ClCompile Include="..\source\kao2engine\eAskYesNo.cpp" />
+    <ClCompile Include="..\source\kao2engine\eBaseballBieg.cpp" />
+    <ClCompile Include="..\source\kao2engine\eBasePhysics.cpp" />
+    <ClCompile Include="..\source\kao2engine\eBeeAttack.cpp" />
+    <ClCompile Include="..\source\kao2engine\eBezierSplineNode.cpp" />
+    <ClCompile Include="..\source\kao2engine\eBillboard.cpp" />
+    <ClCompile Include="..\source\kao2engine\eBitmap.cpp" />
+    <ClCompile Include="..\source\kao2engine\eBlockIndexCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eBoids.cpp" />
+    <ClCompile Include="..\source\kao2engine\eBombaExplodujaca.cpp" />
+    <ClCompile Include="..\source\kao2engine\eBonusBieg.cpp" />
+    <ClCompile Include="..\source\kao2engine\eBonusShooting.cpp" />
+    <ClCompile Include="..\source\kao2engine\eBoxZone.cpp" />
+    <ClCompile Include="..\source\kao2engine\eBubbleFlakes.cpp" />
+    <ClCompile Include="..\source\kao2engine\eButterfly.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCamera.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCameraCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCameraDeflector.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCameraFOVCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCameraShaker.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCameraTarget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCameraZonePacket.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCinemaMode.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCloneChild.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCollision.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCollisionCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCollisionCylinder.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCollisionMesh.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCollisionMgr.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCollisionPrimitive.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCollisionSphere.cpp" />
+    <ClCompile Include="..\source\kao2engine\eColorCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCredits.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCtrlBase.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCylinderIsectGadget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCylinderShape.cpp" />
+    <ClCompile Include="..\source\kao2engine\eCylNode.cpp" />
+    <ClCompile Include="..\source\kao2engine\eDemoPlayer.cpp" />
+    <ClCompile Include="..\source\kao2engine\eDirectionalLight.cpp" />
+    <ClCompile Include="..\source\kao2engine\eDirectionCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eDirectionCtrlEx.cpp" />
+    <ClCompile Include="..\source\kao2engine\eDisableGeo.cpp" />
+    <ClCompile Include="..\source\kao2engine\eDoubleCameraTarget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eDzwig.cpp" />
+    <ClCompile Include="..\source\kao2engine\eEggsFactory.cpp" />
+    <ClCompile Include="..\source\kao2engine\eEggsNotStatic.cpp" />
+    <ClCompile Include="..\source\kao2engine\eEggTarget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eElectricity.cpp" />
+    <ClCompile Include="..\source\kao2engine\eEmptyCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eEnemyMapUpgrader.cpp" />
+    <ClCompile Include="..\source\kao2engine\eEnergy.cpp" />
+    <ClCompile Include="..\source\kao2engine\eEnumNavi.cpp" />
+    <ClCompile Include="..\source\kao2engine\eEnvironment.cpp" />
+    <ClCompile Include="..\source\kao2engine\eExtraAlbox.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFloat.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFloatCtrlObject.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFloatObject.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFloatPair.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFloatTriple.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFlock.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFlockAway.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFlockEx.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFlyingObjectCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFlyingTarget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFocMill471Deflector.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFogEnv.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFollowCameraCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFollowWPF.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFootPrints.cpp" />
+    <ClCompile Include="..\source\kao2engine\eForrestFlakes.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFreeRotate.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFSMB.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFSOp.cpp" />
+    <ClCompile Include="..\source\kao2engine\eFSSprite.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGameCamera.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGeoArray.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGeoEdge.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGeometry.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGeoSet.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGlobalCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGlobalLightCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGloveTarget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGoUpAndDown.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGravitation.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGravity.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGroundTest.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGroup.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGroupCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGroupManager.cpp" />
+    <ClCompile Include="..\source\kao2engine\eGroupMsgForward.cpp" />
+    <ClCompile Include="..\source\kao2engine\eHeroParent.cpp" />
+    <ClCompile Include="..\source\kao2engine\eHistory.cpp" />
+    <ClCompile Include="..\source\kao2engine\eHitForceCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eIceCubeMarks.cpp" />
+    <ClCompile Include="..\source\kao2engine\eIcePhysics.cpp" />
+    <ClCompile Include="..\source\kao2engine\eJumpPhysics.cpp" />
+    <ClCompile Include="..\source\kao2engine\eKalmar.cpp" />
+    <ClCompile Include="..\source\kao2engine\eKaoKiller.cpp" />
+    <ClCompile Include="..\source\kao2engine\eKasztanCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eKolec.cpp" />
+    <ClCompile Include="..\source\kao2engine\eLavaFlakes.cpp" />
+    <ClCompile Include="..\source\kao2engine\eLeafCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eLevelChanger.cpp" />
+    <ClCompile Include="..\source\kao2engine\eLight.cpp" />
+    <ClCompile Include="..\source\kao2engine\eLightBlinker.cpp" />
+    <ClCompile Include="..\source\kao2engine\eLinearCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eLineEmiter.cpp" />
+    <ClCompile Include="..\source\kao2engine\eLinkToObject.cpp" />
+    <ClCompile Include="..\source\kao2engine\eLisajoux.cpp" />
+    <ClCompile Include="..\source\kao2engine\eLookAtCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eLookAtMeKao.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMarks.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMaterial.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMaterialState.cpp" />
+    <ClCompile Include="..\source\kao2engine\eModifier.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMorpherMod.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMorpherTarget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMotorboatCameraCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMotorboatCameraCtrl4.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMotorowki.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMoveTo.cpp" />
+    <ClCompile Include="..\source\kao2engine\EmptyVoidInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMultiBlockIndexCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMultiCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMultiTargetThrower.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMultiTransform.cpp" />
+    <ClCompile Include="..\source\kao2engine\eMusicManager.cpp" />
+    <ClCompile Include="..\source\kao2engine\eNaviCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eNaviPoint.cpp" />
+    <ClCompile Include="..\source\kao2engine\eNearestNavi.cpp" />
+    <ClCompile Include="..\source\kao2engine\eNeckCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eNode.cpp" />
+    <ClCompile Include="..\source\kao2engine\eNPCMap.cpp" />
+    <ClCompile Include="..\source\kao2engine\eObjectChain.cpp" />
+    <ClCompile Include="..\source\kao2engine\eObjectLinker.cpp" />
+    <ClCompile Include="..\source\kao2engine\eObserver.cpp" />
+    <ClCompile Include="..\source\kao2engine\eOctopussy2ndTarget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eOMB.cpp" />
+    <ClCompile Include="..\source\kao2engine\eOmniLight.cpp" />
+    <ClCompile Include="..\source\kao2engine\eOscilationCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePadGadget.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePadRot.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePadSeqeunce.cpp" />
+    <ClCompile Include="..\source\kao2engine\eParentListener.cpp" />
+    <ClCompile Include="..\source\kao2engine\eParticleCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eParticleEmiter.cpp" />
+    <ClCompile Include="..\source\kao2engine\eParticleGeometry.cpp" />
+    <ClCompile Include="..\source\kao2engine\eParticleManager.cpp" />
+    <ClCompile Include="..\source\kao2engine\eParticleSet.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePathCamCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePathConstrainCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePathCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePathFinder.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePersistentFloatRef.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePhysics.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePhyTriMesh.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePivot.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePlaneEmiter.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePlanktonFlakes.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePlaszczka.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePointEmiter.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePosCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePowerBar.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePowerUp.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePrimitive.cpp" />
+    <ClCompile Include="..\source\kao2engine\eProxy.cpp" />
+    <ClCompile Include="..\source\kao2engine\ePushableObject.cpp" />
+    <ClCompile Include="..\source\kao2engine\eRain.cpp" />
+    <ClCompile Include="..\source\kao2engine\eReadySteadyGo.cpp" />
+    <ClCompile Include="..\source\kao2engine\eRealTimeClock.cpp" />
+    <ClCompile Include="..\source\kao2engine\eRefCounter.cpp" />
+    <ClCompile Include="..\source\kao2engine\eRndNavi.cpp" />
+    <ClCompile Include="..\source\kao2engine\eRollCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eRotCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eScene.cpp" />
+    <ClCompile Include="..\source\kao2engine\eScreenCounter.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSecondCameraTarget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSetCollisionFlags.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSetRotation.cpp" />
+    <ClCompile Include="..\source\kao2engine\eShadowCaster.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSimpleCR.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSkyManager.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSnd.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSndEmiter.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSndEmiterAmb.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSndEmiterBox.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSndEmiterOmni.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSnow.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSnowboardJumpPhysics.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSnowboardOrientation.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSnowboardPhysics.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSnowboardRampPhysics.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSnowCameraCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSoundCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSpeaking.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSphereEmiter.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSphNode.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSpider.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSpline3D.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSplineBase.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSplineHintFollowCameraCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSplineSwim.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSplineWalk.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSpringTrunk2.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSRPCombineCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eStaticSnd.cpp" />
+    <ClCompile Include="..\source\kao2engine\eStrafeCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eStrafeTarget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eString2.cpp" />
+    <ClCompile Include="..\source\kao2engine\eSwitelikKao.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTargetGenerator.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTargeting.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTeleportCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTexTransform.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTexture.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTextWriter.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTextWriterEx.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTextWriterFields2.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTimerGadget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTorpedoMode.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTouchSensor.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTraceGadget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTrack.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTransform.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTriMesh.cpp" />
+    <ClCompile Include="..\source\kao2engine\eTurnCollisionOff.cpp" />
+    <ClCompile Include="..\source\kao2engine\eVibrate.cpp" />
+    <ClCompile Include="..\source\kao2engine\eVisibilityCtrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eWalk.cpp" />
+    <ClCompile Include="..\source\kao2engine\eWalkingPhysics.cpp" />
+    <ClCompile Include="..\source\kao2engine\eWalkWPF.cpp" />
+    <ClCompile Include="..\source\kao2engine\eWaterCircles.cpp" />
+    <ClCompile Include="..\source\kao2engine\eWaterPhysics.cpp" />
+    <ClCompile Include="..\source\kao2engine\eWaterTarget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eWhaleManager.cpp" />
+    <ClCompile Include="..\source\kao2engine\eWhalePhysics.cpp" />
+    <ClCompile Include="..\source\kao2engine\eXRefManager.cpp" />
+    <ClCompile Include="..\source\kao2engine\eXRefProxy.cpp" />
+    <ClCompile Include="..\source\kao2engine\eXRefTarget.cpp" />
+    <ClCompile Include="..\source\kao2engine\eXYZEulerRotation.cpp" />
+    <ClCompile Include="..\source\kao2engine\eXYZPoint3Ctrl.cpp" />
+    <ClCompile Include="..\source\kao2engine\eZone.cpp" />
+    <ClCompile Include="..\source\kao2engine\Float.cpp" />
+    <ClCompile Include="..\source\kao2engine\Gadget.cpp" />
+    <ClCompile Include="..\source\kao2engine\GadgetClassWhen.cpp" />
+    <ClCompile Include="..\source\kao2engine\GadgetInstanceWhen.cpp" />
+    <ClCompile Include="..\source\kao2engine\GadgetRef.cpp" />
+    <ClCompile Include="..\source\kao2engine\IfElseInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\IfInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\Key.cpp" />
+    <ClCompile Include="..\source\kao2engine\Log.cpp" />
+    <ClCompile Include="..\source\kao2engine\McastClassInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\McastInstanceInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\MeWhen.cpp" />
+    <ClCompile Include="..\source\kao2engine\MsgDumper.cpp" />
+    <ClCompile Include="..\source\kao2engine\MsgInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\Namespace.cpp" />
+    <ClCompile Include="..\source\kao2engine\NodeRef.cpp" />
+    <ClCompile Include="..\source\kao2engine\NodeRefSendInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\NotInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\OwnerUpdateInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\Property.cpp" />
+    <ClCompile Include="..\source\kao2engine\Rnd.cpp" />
+    <ClCompile Include="..\source\kao2engine\SendInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\SessionFloat.cpp" />
+    <ClCompile Include="..\source\kao2engine\ShiftInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\State.cpp" />
+    <ClCompile Include="..\source\kao2engine\StateDumper.cpp" />
+    <ClCompile Include="..\source\kao2engine\StaticMsgInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\StaticStatusInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\StatusInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\StringProperty.cpp" />
+    <ClCompile Include="..\source\kao2engine\StringSection.cpp" />
+    <ClCompile Include="..\source\kao2engine\SuperInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\Timer.cpp" />
+    <ClCompile Include="..\source\kao2engine\VoidInstruction.cpp" />
+    <ClCompile Include="..\source\kao2engine\When.cpp" />
+    <ClCompile Include="..\source\kao2engine\WorldWhen.cpp" />
+    <ClCompile Include="..\source\ZookieWizard\ZookieWizard.cpp" />
+    <ClCompile Include="..\source\ZookieWizard\ZookieWizardGUI.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\resource\ZookieWizard\WinRC.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

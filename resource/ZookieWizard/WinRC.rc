@@ -1,0 +1,89 @@
+#include <winresrc.h>
+
+#include <ZookieWizard/GUI_defines.h>
+
+
+////////////////////////////////////////////////////////////////
+// Zasoby z innych plików
+////////////////////////////////////////////////////////////////
+
+IDM_ICON ICON "kao2ar.ico"
+IDM_BITMAP BITMAP "logo.bmp"
+
+
+////////////////////////////////////////////////////////////////
+// Wersja pliku
+////////////////////////////////////////////////////////////////
+
+#define Wersja_Num 0,0,1,0
+#define Wersja_Txt "0.0.1.0\0"
+
+1 VERSIONINFO
+
+// Wersja Pliku
+FILEVERSION Wersja_Num
+
+// Wersja Produktu
+PRODUCTVERSION Wersja_Num
+
+// 32-bitowa wersja Microsoft Windows
+FILEOS VOS__WINDOWS32
+
+// Rodzaj pliku: Aplikacja
+FILETYPE VFT_APP
+
+// Atrybuty pliku
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEFLAGS 0
+
+{
+	BLOCK "StringFileInfo"
+	{
+		// Language code = 0x0415 (Polish)
+		// Character set = 1252 (Multilingual)
+		BLOCK "041504E4"
+		{
+            VALUE "FileDescription", "Zookie Wizard — ""Kao the Kangaroo: Round 2"" editor"
+            VALUE "ProductName", "Zookie Wizard"
+
+            VALUE "CompanyName", "Flower35 (Radek Krzyœków)"
+            VALUE "LegalCopyright", "(c) Radek Krzyœków (2019)"
+
+            VALUE "FileVersion", Wersja_Txt
+			VALUE "ProductVersion", Wersja_Txt
+
+			VALUE "OriginalFilename", "ZookieWizard.exe"
+			VALUE "InternalName", "ZookieWizard"
+		}
+	}
+	BLOCK "VarFileInfo"
+    {
+		VALUE "Translation", 0x0415, 0x04E4
+	}
+}
+
+
+////////////////////////////////////////////////////////////////
+// Menu
+////////////////////////////////////////////////////////////////
+
+IDM_MENU MENU
+{
+	POPUP "&Kao"
+    {
+		MENUITEM "&Kao the Kangaroo", IDM_MENU_KAO_SET
+	}
+	POPUP "&Engine"
+    {
+		MENUITEM "&1) Kangurek Kao: Runda 2 [PL]", IDM_MENU_VERSION_1
+		MENUITEM "&2) Kao the Kangaroo: Round 2 [EU]", IDM_MENU_VERSION_2
+		MENUITEM "&3) Kao: Tajemnica Wulkanu", IDM_MENU_VERSION_3
+	}
+	POPUP "&Archive"
+    {
+		MENUITEM "&Open Ar", IDM_MENU_AR_OPEN
+		MENUITEM "&Save Ar", IDM_MENU_AR_SAVE
+		MENUITEM "Export &Scripts", IDM_MENU_AR_EXPORT_SCRIPTS
+		MENUITEM "Export &Proxies", IDM_MENU_AR_EXPORT_PROXIES
+	}
+}
