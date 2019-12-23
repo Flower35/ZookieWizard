@@ -50,6 +50,9 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
+            eString getStringRepresentation() override;
+            void setName(eString new_name);
+
             eTexture* getIthTexture(int32_t i);
 
             bool hasInvisibleInName();

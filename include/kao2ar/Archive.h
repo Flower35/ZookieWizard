@@ -82,7 +82,7 @@ namespace ZookieWizard
             Archive& operator = (const Archive &newAr);
 
             bool open(eString filename, int32_t mode, int32_t engine_version);
-            void close();
+            void close(bool hide);
 
             /* State determining */
 
@@ -119,6 +119,8 @@ namespace ZookieWizard
 
             void copySceneFromMe(eScene** target);
             void setMyParentScene(eScene* pointer);
+
+            void writeStructureToTextFile();
     };
 
 }

@@ -41,7 +41,12 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
+
             void renderObject(float time, int32_t draw_flags) override;
+
+            void setTargetName(eString new_target);
+            void setCategory(int32_t new_category);
     };
 
 

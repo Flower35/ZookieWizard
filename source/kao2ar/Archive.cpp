@@ -27,7 +27,7 @@ namespace ZookieWizard
             parentObject = nullptr;
         }
 
-        close();
+        close(true);
 
         /* Acquire new directory */
 
@@ -373,9 +373,7 @@ namespace ZookieWizard
 
         /* Close the "*.ar" file */
 
-        myFile.close();
-
-        deleteTempStrPtrs();
+        close(false);
 
         return true;
     }
@@ -469,9 +467,12 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Ar: close
     ////////////////////////////////////////////////////////////////
-    void Archive::close()
+    void Archive::close(bool hide)
     {
-        selectedObject = nullptr;
+        if (hide)
+        {
+            selectedObject = nullptr;
+        }
 
         myFile.close();
 
@@ -1126,9 +1127,43 @@ namespace ZookieWizard
 
         parentObject = pointer;
 
-        if (nullptr != pointer)
+        if (nullptr != parentObject)
         {
-            pointer->incRef();
+            parentObject->incRef();
+
+            selectedObject = parentObject;
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Ar: show scene as a structured text file
+    ////////////////////////////////////////////////////////////////
+    void Archive::writeStructureToTextFile()
+    {
+        FileOperator text_file;
+        eString output_path_str;
+        char* output_path;
+
+        if (nullptr != parentObject)
+        {
+            output_path_str = mediaDirectory + "ar.log";
+            output_path = output_path_str.getText();
+
+            text_file.setDir(output_path);
+            text_file.createDir();
+
+            if (!text_file.open(output_path, 0))
+            {
+                throw ErrorMessage
+                (
+                    "Archive::writeStructureToTextFile():\n" \
+                    "Could not open file: \"%s\"",
+                    output_path
+                );
+            }
+
+            parentObject->writeStructureToTextFile(text_file, 0);
         }
     }
 

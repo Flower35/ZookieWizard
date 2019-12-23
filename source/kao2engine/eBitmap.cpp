@@ -651,7 +651,7 @@ namespace ZookieWizard
                 }
                 catch (ErrorMessage &e)
                 {
-                    e.display(GUI::myWindows[GUI::windowID::WINDOW_MAIN]);
+                    e.display();
                 }
             }
 
@@ -670,6 +670,15 @@ namespace ZookieWizard
                 "non-empty eBitmapEvaulator pointer!"
             );
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: set filename path
+    ////////////////////////////////////////////////////////////////
+    void eBitmap::setPath(eString new_path)
+    {
+        path = new_path;
     }
 
 

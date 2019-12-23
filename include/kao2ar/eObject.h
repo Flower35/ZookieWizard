@@ -32,6 +32,7 @@ namespace ZookieWizard
             virtual eString getStringRepresentation();
             virtual eString generateScriptText();
             virtual eString getLogPrintMessage();
+            virtual void writeStructureToTextFile(FileOperator &file, int32_t indentation);
 
             virtual void renderObject(float time, int32_t draw_flags);
     };

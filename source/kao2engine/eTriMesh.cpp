@@ -96,6 +96,8 @@ namespace ZookieWizard
     {
         bool is_invisible = true;
 
+        int32_t i, texID;
+
         GLuint tex_name = 0;
         eTexture* test_texture;
 
@@ -112,17 +114,29 @@ namespace ZookieWizard
         {
             if (nullptr != geo)
             {
-                if (nullptr != material)
+                /* (--dsp--) `i < geo->getTextureCoordsCount()` */
+                /* (--dsp--) `i < 1` */
+
+                for (i = 0; i < 1; i++)
                 {
-                    test_texture = material->getIthTexture(0);
-
-                    if (nullptr != test_texture)
+                    if (nullptr != material)
                     {
-                        tex_name = test_texture->getTextureName();
-                    }
-                }
+                        texID = geo->getTextureId(i);
 
-                geo->draw(tex_name);
+                        test_texture = material->getIthTexture(texID);
+
+                        if (nullptr != test_texture)
+                        {
+                            tex_name = test_texture->getTextureName();
+                        }
+                        else
+                        {
+                            tex_name = 0;
+                        }
+                    }
+
+                    geo->draw(tex_name, i);
+                }
             }
         }
     }
@@ -134,6 +148,54 @@ namespace ZookieWizard
     eGeoSet* eTriMesh::getGeoSetLink()
     {
         return geo;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTriMesh: set GeoSet pointer
+    ////////////////////////////////////////////////////////////////
+    void eTriMesh::setGeoSet(eGeoSet* new_geo)
+    {
+        if (nullptr != geo)
+        {
+            geo->decRef();
+        }
+
+        geo = new_geo;
+
+        if (nullptr != geo)
+        {
+            geo->incRef();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTriMesh: set Material pointer
+    ////////////////////////////////////////////////////////////////
+    void eTriMesh::setMaterial(eMaterial* new_material)
+    {
+        if (nullptr != material)
+        {
+            material->decRef();
+        }
+
+        material = new_material;
+
+        if (nullptr != material)
+        {
+            material->incRef();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTriMesh: set boundary box
+    ////////////////////////////////////////////////////////////////
+    void eTriMesh::setBoundaryBox(ePoint3 new_min, ePoint3 new_max)
+    {
+        boxBoundMin = new_min;
+        boxBoundMax = new_max;
     }
 
 }

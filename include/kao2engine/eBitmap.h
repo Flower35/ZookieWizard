@@ -48,10 +48,7 @@ namespace ZookieWizard
             bool isUsingPalette();
             int getBytesPerPixel();
 
-            void generateTexture();
             void deleteTexture();
-
-            void loadFromFile(Archive &ar);
 
         public:
 
@@ -60,6 +57,11 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
+
+            void generateTexture();
+
+            void setPath(eString new_path);
+            void loadFromFile(Archive &ar);
 
             GLuint getTextureName();
     };

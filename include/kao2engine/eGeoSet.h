@@ -46,9 +46,19 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
-            void draw(GLuint tex_name);
+            int32_t getTextureCoordsCount();
+            int32_t getTextureId(int32_t i);
+
+            void draw(GLuint tex_name, int32_t texID);
             void generateDisplayList(int32_t texID, bool c);
             void prepareForDrawing();
+
+            void setVerticesArray(eGeoArray<ePoint4>* new_vertices_array);
+            void setIndicesOffsets(eGeoArray<ushort>* new_indices_offets);
+            void setIndicesArray(eGeoArray<ushort>* new_indices_array);
+            void setTextureCoordsArray(eGeoArray<ePoint2>* new_uv_array);
+            void setColorsArray(eGeoArray<ePoint4>* new_colors_array);
+            void setTwoIntegers(int32_t a, int32_t b);
     };
 
 

@@ -43,6 +43,15 @@ namespace ZookieWizard
 
             eString getStringRepresentation() override;
             eString getLogPrintMessage() override;
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
+
+            void setName(eString new_name);
+
+            eNode* getParentNode();
+            void setParentNode(eNode* new_parent);
+
+            void setFlags(int32_t bits_to_apply);
+            void unsetFlags(int32_t bits_to_erase);
     };
 
 

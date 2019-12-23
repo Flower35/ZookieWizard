@@ -106,7 +106,7 @@ namespace ZookieWizard
         }
         catch (ErrorMessage &e)
         {
-            e.display(GUI::myWindows[GUI::windowID::WINDOW_MAIN]);
+            e.display();
         }
     }
 
@@ -133,7 +133,7 @@ namespace ZookieWizard
             }
             catch (ErrorMessage &e)
             {
-                e.display(GUI::myWindows[GUI::windowID::WINDOW_MAIN]);
+                e.display();
             }
         }
     }

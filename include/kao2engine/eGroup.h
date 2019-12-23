@@ -32,7 +32,14 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
+
             void renderObject(float time, int32_t draw_flags) override;
+
+            eNode* getIthChild(int32_t i);
+            void appendChild(eNode* o);
+            void deleteIthChild(int32_t i);
+            void findAndDeleteChild(eNode* o);
     };
 
 

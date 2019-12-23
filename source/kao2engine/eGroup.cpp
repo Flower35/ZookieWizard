@@ -51,6 +51,59 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eGroup: get i-th node
+    ////////////////////////////////////////////////////////////////
+    eNode* eGroup::getIthChild(int32_t i)
+    {
+        return (eNode*)nodes.getIthChild(i);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: append new node
+    ////////////////////////////////////////////////////////////////
+    void eGroup::appendChild(eNode* o)
+    {
+        eGroup* previous_parent;
+
+        if (nullptr != o)
+        {
+            previous_parent = (eGroup*)o->getParentNode();
+
+            if (nullptr != previous_parent)
+            {
+                if (previous_parent->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                {
+                    previous_parent->findAndDeleteChild(o);
+                }
+            }
+
+            nodes.appendChild(o);
+
+            o->setParentNode(this);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: delete i-th node
+    ////////////////////////////////////////////////////////////////
+    void eGroup::deleteIthChild(int32_t i)
+    {
+        nodes.deleteIthChild(i);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: delete specific node
+    ////////////////////////////////////////////////////////////////
+    void eGroup::findAndDeleteChild(eNode* o)
+    {
+        nodes.findAndDeleteChild(o);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eGroup: render each child node
     ////////////////////////////////////////////////////////////////
     void eGroup::renderObject(float time, int32_t draw_flags)
@@ -65,6 +118,28 @@ namespace ZookieWizard
             if (nullptr != test_node)
             {
                 test_node->renderObject(time, draw_flags);
+            }
+        }
+    }
+    
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eGroup::writeStructureToTextFile(FileOperator &file, int32_t indentation)
+    {
+        int32_t i;
+        eNode* test_node;
+
+        eNode::writeStructureToTextFile(file, indentation);
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            test_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != test_node)
+            {
+                test_node->writeStructureToTextFile(file, (indentation + 1));
             }
         }
     }

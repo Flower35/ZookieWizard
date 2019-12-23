@@ -63,12 +63,27 @@ namespace ZookieWizard
     eString eObject::getLogPrintMessage()
     {
         char bufor[64];
-
         TypeInfo* info = getType();
 
         sprintf_s(bufor, 64, "( 0x%08X - %s )", info->id, info->name);
 
         return bufor;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eObject: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eObject::writeStructureToTextFile(FileOperator &file, int32_t indentation)
+    {
+        char bufor[64];
+        TypeInfo* info = getType();
+
+        sprintf_s(bufor, 64, "[%08X] %s", info->id, info->name);
+
+        ArFunctions::writeNewLine(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
     }
 
 

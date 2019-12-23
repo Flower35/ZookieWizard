@@ -155,6 +155,48 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eProxy: set target name
+    ////////////////////////////////////////////////////////////////
+    void eProxy::setTargetName(eString new_target)
+    {
+        targetFile = new_target;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eProxy: set category
+    ////////////////////////////////////////////////////////////////
+    void eProxy::setCategory(int32_t new_category)
+    {
+        category = new_category;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eProxy: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eProxy::writeStructureToTextFile(FileOperator &file, int32_t indentation)
+    {
+        char bufor[128];
+
+        eNode::writeStructureToTextFile(file, indentation);
+
+        sprintf_s
+        (
+            bufor,
+            128,
+            " - proxy target: [%d] \"%s\"",
+            category,
+            targetFile.getText()
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eProxy: render
     ////////////////////////////////////////////////////////////////
     void eProxy::renderObject(float time, int32_t draw_flags)

@@ -13,94 +13,15 @@ namespace ZookieWizard
         const char* WINDOW_CLASS_NAME_1 = "ZookieWizard::GUI::WindowClassOne";
         const char* WINDOW_CLASS_NAME_2 = "ZookieWizard::GUI::WindowClassTwo";
 
-        HWND myWindows[windowID::WINDOWS_COUNT] = {0};
+        HWND myWindowsGroupMain[2] = {NULL};
+        HWND myWindowsGroupAr[7] = {NULL};
+        HWND myWindowsGroupDenis[4] = {NULL};
+
+        int32_t myWindowsCurrentGroup = 1;
+
         HBITMAP myWindowsLogo = NULL;
         HFONT myWindowsFont = NULL;
-        HDC openGL_DeviceContext = NULL;
-        HGLRC openGL_RenderingContext = NULL;
-
-        int32_t mousePosAndButton[3] = {0, 0, 0};
-        float backgroundColor[3] = {0, 1.0f, 1.0f};
-        bool isOrthoMode = false;
-        testCameraStruct testCamera;
-
-        int32_t myDrawFlags = 0;
-
-        testCameraStruct::testCameraStruct()
-        {
-            reset();
-        }
-
-        void testCameraStruct::reset()
-        {
-            pos_x = 0;
-            pos_y = (-1000);
-            pos_z = 0;
-
-            look_x = 0;
-            look_y = 1.0;
-            look_z = 0;
-
-            pitch = 0;
-            yaw = 0;
-        }
-
-
-        ////////////////////////////////////////////////////////////////
-        // Renderer window procedure
-        ////////////////////////////////////////////////////////////////
-        LRESULT CALLBACK procedureOfRenderWindow(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
-        {
-            switch (Msg)
-            {
-                case WM_LBUTTONDOWN:
-                {
-                    mousePosAndButton[0] = LOWORD(lParam);
-                    mousePosAndButton[1] = HIWORD(lParam);
-                    mousePosAndButton[2] = 1;
-
-                    break;
-                }
-
-                case WM_RBUTTONDOWN:
-                {
-                    mousePosAndButton[0] = LOWORD(lParam);
-                    mousePosAndButton[1] = HIWORD(lParam);
-                    mousePosAndButton[2] = 2;
-
-                    break;
-                }
-
-                case WM_LBUTTONUP:
-                case WM_RBUTTONUP:
-                {
-                    mousePosAndButton[2] = 0;
-
-                    break;
-                }
-
-                case WM_MOUSEMOVE:
-                {
-                    if (mousePosAndButton[2] > 0)
-                    {
-                        moveCameraAndLook
-                        (
-                            (LOWORD(lParam) - mousePosAndButton[0]),
-                            (HIWORD(lParam) - mousePosAndButton[1])
-                        );
-
-                        mousePosAndButton[0] = LOWORD(lParam);
-                        mousePosAndButton[1] = HIWORD(lParam);
-                    }
-
-                    break;
-                }
-            }
-
-            return DefWindowProc(hWnd, Msg, wParam, lParam);
-        }
-
-
+        
 
         ////////////////////////////////////////////////////////////////
         // Main window procedure
@@ -184,6 +105,20 @@ namespace ZookieWizard
                             break;
                         }
 
+                        case IDM_MENU_DENIS_OPEN:
+                        {
+                            openDenisLevel();
+
+                            break;
+                        }
+
+                        case IDM_MENU_DENIS_CONVERT:
+                        {
+                            convertDenisLevel();
+
+                            break;
+                        }
+
                         case IDM_MENU_AR_OPEN:
                         {
                             openOrSaveAr(AR_MODE_READ);
@@ -212,11 +147,38 @@ namespace ZookieWizard
                             break;
                         }
 
+                        case IDM_MENU_AR_EXPORT_STRUCTURE:
+                        {
+                            writeArStructureToTextFile();
+
+                            break;
+                        }
+
                         case IDM_EDITBOX_MEDIADIR:
                         {
                             if (EN_CHANGE == HIWORD(wParam))
                             {
                                 GetWindowText((HWND)lParam, currentWorkingDirectory, 256);
+                            }
+
+                            break;
+                        }
+
+                        case IDM_EDITBOX_DENISDIR:
+                        {
+                            if (EN_CHANGE == HIWORD(wParam))
+                            {
+                                GetWindowText((HWND)lParam, denisDirectory, 256);
+                            }
+
+                            break;
+                        }
+
+                        case IDM_EDITBOX_DENISLVL:
+                        {
+                            if (EN_CHANGE == HIWORD(wParam))
+                            {
+                                GetWindowText((HWND)lParam, denisLevelName, 256);
                             }
 
                             break;
@@ -279,6 +241,34 @@ namespace ZookieWizard
                                     myDrawFlags &= (~ drawFlags::DRAW_FLAG_PROXIES);
                                 }
                             }
+
+                            break;
+                        }
+
+                        case IDM_BUTTON_PAGE_PREV:
+                        {
+                            myWindowsCurrentGroup--;
+
+                            if (myWindowsCurrentGroup < 1)
+                            {
+                                myWindowsCurrentGroup = 1;
+                            }
+
+                            changeWindowGroup();
+
+                            break;
+                        }
+
+                        case IDM_BUTTON_PAGE_NEXT:
+                        {
+                            myWindowsCurrentGroup++;
+
+                            if (myWindowsCurrentGroup > 2)
+                            {
+                                myWindowsCurrentGroup = 2;
+                            }
+
+                            changeWindowGroup();
 
                             break;
                         }
@@ -363,7 +353,7 @@ namespace ZookieWizard
 
                         MoveWindow
                         (
-                            myWindows[windowID::WINDOW_RENDER],
+                            myWindowsGroupMain[1],
                             RECT_RENDER_X1,
                             RECT_RENDER_Y1,
                             (new_width - RECT_RENDER_X1),
@@ -393,6 +383,9 @@ namespace ZookieWizard
             HWND test_hwnd;
 
             WNDCLASSEX window_classes[2];
+
+            const int WINDOW_HEIGHT = 24;
+            const int WINDOW_PADDING = 16;
 
             /********************************/
             /* Register window classes */
@@ -456,12 +449,12 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* Create main window */
+            /* [GROUP 1/3] Create main window */
 
             const DWORD pos_x = ((GetSystemMetrics(SM_CXSCREEN) - RECT_WINDOW_X) / 2);
             const DWORD pos_y = ((GetSystemMetrics(SM_CYSCREEN) - RECT_WINDOW_Y) / 2);
 
-            myWindows[windowID::WINDOW_MAIN] = CreateWindow
+            test_hwnd = CreateWindow
             (
                 WINDOW_CLASS_NAME_1,
                 "Zookie Wizard",
@@ -476,15 +469,17 @@ namespace ZookieWizard
                 NULL
             );
 
-            if (0 == myWindows[windowID::WINDOW_MAIN])
+            if (0 == test_hwnd)
             {
                 return false;
             }
 
-            /********************************/
-            /* Create renderer window */
+            myWindowsGroupMain[0] = test_hwnd;
 
-            myWindows[windowID::WINDOW_RENDER] = CreateWindow
+            /********************************/
+            /* [GROUP 1/3] Create renderer window */
+
+            test_hwnd = CreateWindow
             (
                 WINDOW_CLASS_NAME_2,
                 NULL,
@@ -493,19 +488,71 @@ namespace ZookieWizard
                 RECT_RENDER_Y1,
                 RECT_RENDER_X2,
                 RECT_RENDER_Y2,
-                myWindows[windowID::WINDOW_MAIN],
+                myWindowsGroupMain[0],
                 NULL,
                 hInstance,
                 NULL
             );
 
-            if (0 == myWindows[windowID::WINDOW_RENDER])
+            if (0 == test_hwnd)
             {
                 return false;
             }
 
+            myWindowsGroupMain[1] = test_hwnd;
+
             /********************************/
-            /* Create dummy label */
+            /* [GROUP 1/3] Create button (previous page) */
+
+            test_hwnd = CreateWindow
+            (
+                "BUTTON",
+                "<<",
+                (WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON),
+                RECT_TABS_X1 + (0 * 32) + (0 * WINDOW_PADDING),
+                RECT_TABS_Y1 + (0 * WINDOW_HEIGHT) + (0 * WINDOW_PADDING),
+                32,
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_BUTTON_PAGE_PREV,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+            
+            /********************************/
+            /* [GROUP 1/3] Create button (next page) */
+
+            test_hwnd = CreateWindow
+            (
+                "BUTTON",
+                ">>",
+                (WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON),
+                RECT_TABS_X1 + (1 * 32) + (1 * WINDOW_PADDING),
+                RECT_TABS_Y1 + (0 * WINDOW_HEIGHT) + (0 * WINDOW_PADDING),
+                32,
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_BUTTON_PAGE_NEXT,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            /********************************/
+            /* [GROUP 2/3] Create dummy label */
 
             test_hwnd = CreateWindow
             (
@@ -513,10 +560,10 @@ namespace ZookieWizard
                 "Working directory (\"/media/\"):",
                 (WS_CHILD | WS_VISIBLE),
                 RECT_TABS_X1,
-                RECT_TABS_Y1 + (0 * 24) + (0 * 16),
+                RECT_TABS_Y1 + (1 * WINDOW_HEIGHT) + (1 * WINDOW_PADDING),
                 RECT_TABS_X2,
-                24,
-                myWindows[windowID::WINDOW_MAIN],
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
                 NULL,
                 hInstance,
                 NULL
@@ -524,20 +571,22 @@ namespace ZookieWizard
 
             SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
 
+            myWindowsGroupAr[0] = test_hwnd;
+
             /********************************/
-            /* Create editbox window */
+            /* [GROUP 2/3] Create editbox window */
 
             test_hwnd = CreateWindowEx
             (
                 WS_EX_CLIENTEDGE,
                 "EDIT",
                 NULL,
-                (WS_CHILD | WS_VISIBLE),
+                (WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL),
                 RECT_TABS_X1,
-                RECT_TABS_Y1 + (1 * 24) + (0 * 16),
+                RECT_TABS_Y1 + (2 * WINDOW_HEIGHT) + (1 * WINDOW_PADDING),
                 RECT_TABS_X2,
-                24,
-                myWindows[windowID::WINDOW_MAIN],
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
                 (HMENU)IDM_EDITBOX_MEDIADIR,
                 hInstance,
                 NULL
@@ -550,19 +599,21 @@ namespace ZookieWizard
 
             SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
 
+            myWindowsGroupAr[1] = test_hwnd;
+
             /********************************/
-            /* Create button */
+            /* [GROUP 2/3] Create button */
 
             test_hwnd = CreateWindow
             (
                 "BUTTON",
-                "reset camera",
+                "Reset Camera",
                 (WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON),
                 RECT_TABS_X1,
-                RECT_TABS_Y1 + (2 * 24) + (1 * 16),
+                RECT_TABS_Y1 + (3 * WINDOW_HEIGHT) + (2 * WINDOW_PADDING),
                 RECT_TABS_X2,
-                24,
-                myWindows[windowID::WINDOW_MAIN],
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
                 (HMENU)IDM_BUTTON_RESET_CAMERA,
                 hInstance,
                 NULL
@@ -575,8 +626,10 @@ namespace ZookieWizard
 
             SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
 
+            myWindowsGroupAr[2] = test_hwnd;
+
             /********************************/
-            /* Create checkboxes */
+            /* [GROUP 2/3] Create checkboxes */
 
             const int checkboxes_ids[drawFlags::DRAW_FLAGS_COUNT] =
             {
@@ -600,10 +653,10 @@ namespace ZookieWizard
                     checkboxes_names[i],
                     (WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX),
                     RECT_TABS_X1,
-                    RECT_TABS_Y1 + ((i + 3) * 24) + (2 * 16),
+                    RECT_TABS_Y1 + ((4 + i) * WINDOW_HEIGHT) + (3 * WINDOW_PADDING),
                     RECT_TABS_X2,
-                    24,
-                    myWindows[windowID::WINDOW_MAIN],
+                    WINDOW_HEIGHT,
+                    myWindowsGroupMain[0],
                     (HMENU)checkboxes_ids[i],
                     hInstance,
                     NULL
@@ -615,10 +668,12 @@ namespace ZookieWizard
                 }
 
                 SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+                myWindowsGroupAr[3 + i] = test_hwnd;
             }
 
             /********************************/
-            /* Create dummy label */
+            /* [GROUP 2/3] Create dummy label */
 
             test_hwnd = CreateWindow
             (
@@ -630,10 +685,10 @@ namespace ZookieWizard
                     "This project is in alpha stage.",
                 (WS_CHILD | WS_VISIBLE),
                 RECT_TABS_X1,
-                RECT_TABS_Y1 + ((drawFlags::DRAW_FLAGS_COUNT + 3) * 24) + (3 * 16),
+                RECT_TABS_Y1 + ((drawFlags::DRAW_FLAGS_COUNT + 4) * WINDOW_HEIGHT) + (4 * WINDOW_PADDING),
                 RECT_TABS_X2,
-                (5 * 24),
-                myWindows[windowID::WINDOW_MAIN],
+                (5 * WINDOW_HEIGHT),
+                myWindowsGroupMain[0],
                 NULL,
                 hInstance,
                 NULL
@@ -641,10 +696,113 @@ namespace ZookieWizard
 
             SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
 
+            myWindowsGroupAr[6] = test_hwnd;
+            
+            /********************************/
+            /* [GROUP 3/3] Create dummy label */
+
+            test_hwnd = CreateWindow
+            (
+                "STATIC",
+                "Denis game directory:",
+                (WS_CHILD),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (1 * WINDOW_HEIGHT) + (1 * WINDOW_PADDING),
+                RECT_TABS_X2,
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                NULL,
+                hInstance,
+                NULL
+            );
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupDenis[0] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 3/3] Create editbox window */
+
+            test_hwnd = CreateWindowEx
+            (
+                WS_EX_CLIENTEDGE,
+                "EDIT",
+                NULL,
+                (WS_CHILD | ES_AUTOHSCROLL),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (2 * WINDOW_HEIGHT) + (1 * WINDOW_PADDING),
+                RECT_TABS_X2,
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_EDITBOX_DENISDIR,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupDenis[1] = test_hwnd;
+
+            
+            /********************************/
+            /* [GROUP 3/3] Create dummy label */
+
+            test_hwnd = CreateWindow
+            (
+                "STATIC",
+                "Which level do you want to load?",
+                (WS_CHILD),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (3 * WINDOW_HEIGHT) + (2 * WINDOW_PADDING),
+                RECT_TABS_X2,
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                NULL,
+                hInstance,
+                NULL
+            );
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupDenis[2] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 3/3] Create editbox window */
+
+            test_hwnd = CreateWindowEx
+            (
+                WS_EX_CLIENTEDGE,
+                "EDIT",
+                NULL,
+                (WS_CHILD | ES_AUTOHSCROLL),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (4 * WINDOW_HEIGHT) + (2 * WINDOW_PADDING),
+                RECT_TABS_X2,
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_EDITBOX_DENISLVL,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupDenis[3] = test_hwnd;
+
             /********************************/
             /* WinApi creation completed. :) */
 
-            ShowWindow(myWindows[windowID::WINDOW_MAIN], SW_SHOW);
+            ShowWindow(myWindowsGroupMain[0], SW_SHOW);
 
             return true;
         }
@@ -663,7 +821,7 @@ namespace ZookieWizard
             {
                 wglDeleteContext(openGL_RenderingContext);
 
-                ReleaseDC(myWindows[windowID::WINDOW_RENDER], openGL_DeviceContext);
+                ReleaseDC(myWindowsGroupMain[1], openGL_DeviceContext);
             }
 
             /* Close/Unload others */
@@ -679,6 +837,30 @@ namespace ZookieWizard
             }
         }
         
+        
+        ////////////////////////////////////////////////////////////////
+        // Set window group visibility
+        ////////////////////////////////////////////////////////////////
+        void changeWindowGroup()
+        {
+            int32_t i;
+            int show_status;
+
+            show_status = (1 == myWindowsCurrentGroup) ? SW_SHOW : SW_HIDE;
+
+            for (i = 0; i < 7; i++)
+            {
+                ShowWindow(myWindowsGroupAr[i], show_status);
+            }
+
+            show_status = (2 == myWindowsCurrentGroup) ? SW_SHOW : SW_HIDE;
+
+            for (i = 0; i < 4; i++)
+            {
+                ShowWindow(myWindowsGroupDenis[i], show_status);
+            }
+        }
+
 
         ////////////////////////////////////////////////////////////////
         // Window loop: Is main window still open?
@@ -700,296 +882,6 @@ namespace ZookieWizard
             }
 
             return stillActive;
-        }
-
-
-        ////////////////////////////////////////////////////////////////
-        // Prepare OpenGL window
-        ////////////////////////////////////////////////////////////////
-        bool prepareRendering()
-        {
-            int pixel_format;
-            PIXELFORMATDESCRIPTOR pfd = {0};
-
-            openGL_DeviceContext = GetDC(myWindows[windowID::WINDOW_RENDER]);
-
-            pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-            pfd.nVersion = 1;
-            pfd.iLayerType = PFD_MAIN_PLANE;
-            pfd.dwFlags = (PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER);
-            pfd.cDepthBits = 32;
-            pfd.cColorBits = 24;
-            pfd.iPixelType = PFD_TYPE_RGBA;
-
-            pixel_format = ChoosePixelFormat(openGL_DeviceContext, &pfd);
-
-            if (FALSE == SetPixelFormat(openGL_DeviceContext, pixel_format, &pfd))
-            {
-                return false;
-            }
-
-            if (NULL == (openGL_RenderingContext = wglCreateContext(openGL_DeviceContext)))
-            {
-                return false;
-            }
-
-            if (FALSE == wglMakeCurrent(openGL_DeviceContext, openGL_RenderingContext))
-            {
-                return false;
-            }
-
-            /* Triangles cropping */
-            glCullFace(GL_FRONT);
-
-            /* Wireframe */
-            glPolygonMode(GL_BACK, GL_LINE);
-
-            /* Depth testing */
-            glClearDepth(1.0f);
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_LEQUAL);
-
-            /* Transparent textures */
-            //// glEnable(GL_BLEND);
-            //// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            //// glBlendEquation(GL_FUNC_ADD);
-
-            /* Default perspective */
-            setPerspective(RECT_RENDER_X2, RECT_RENDER_Y2);
-
-            return true;
-        }
-
-
-        ////////////////////////////////////////////////////////////////
-        // Prepare OpenGL window
-        ////////////////////////////////////////////////////////////////
-        void setPerspective(GLsizei new_width, GLsizei new_height)
-        {
-            float p_x = 1.0f;
-            float p_y = 1.0f;
-
-            /* DO NOT DIVICE BY ZERO! */
-            if (0 == new_width)
-            {
-                new_width = 1;
-            }
-            if (0 == new_height)
-            {
-                new_height = 1;
-            }
-
-            /* Set background color for this scene */
-            glClearColor
-            (
-                backgroundColor[0], // Red
-                backgroundColor[1], // Green
-                backgroundColor[2], // Blue
-                1.0 // Alpha
-            );
-
-            glViewport(0, 0, new_width, new_height);
-
-            /* Begin with the projection matrix */
-            glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
-
-            if (isOrthoMode)
-            {
-                /* Calculate proportions */
-                if (new_height > new_width)
-                {
-                    p_y = (float)new_height / (float)new_width;
-                }
-                else if (new_height < new_width)
-                {
-                    p_x = (float)new_width / (float)new_height;
-                }
-
-                glOrtho
-                (
-                    (-p_x), // left
-                    p_x, // right
-                    (-p_y), // top
-                    p_y, // bottom
-                    0.0, // zNear
-                    1.0 // zFar
-                );
-            }
-            else
-            {
-                gluPerspective
-                (
-                    45.0, // field of view
-                    ((GLfloat)new_width / (GLfloat)new_height), // aspect ratio
-                    1.0, // zNear
-                    160000.0 // zFar
-                );
-            }
-
-            /* Finish with the model matrix */
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
-        }
-
-
-        ////////////////////////////////////////////////////////////////
-        // Change OpenGL viewing
-        ////////////////////////////////////////////////////////////////
-        void changeView(bool change_to_perspective_view)
-        {
-            float to_be_changed = false;
-            RECT rc;
-
-            if ((!change_to_perspective_view) && (!isOrthoMode))
-            {
-                isOrthoMode = true;
-                to_be_changed = true;
-            }
-
-            if (change_to_perspective_view && isOrthoMode)
-            {
-                isOrthoMode = false;
-                to_be_changed = true;
-            }
-
-            if (to_be_changed)
-            {
-                GetWindowRect(myWindows[windowID::WINDOW_RENDER], &rc);
-                setPerspective((rc.right - rc.left), (rc.bottom - rc.top));
-            }
-        }
-
-
-        ////////////////////////////////////////////////////////////////
-        // Try to use mouse to move camera around...
-        ////////////////////////////////////////////////////////////////
-        void moveCameraAndLook(int32_t x, int32_t y)
-        {
-            bool calculations = false;
-
-            const double ROTATING_SPEED = 0.01;
-            const double STRAFING_SPEED = 100.0;
-
-            if (!isOrthoMode)
-            {
-                /* 1 (LMB): rotate camera */
-                /* 2 (RMB): pan camera */
-
-                switch (mousePosAndButton[2])
-                {
-                    case 1:
-                    {
-                        /* Modify "rot_Z" */
-
-                        if (x > 0) // look to the right (ADD)
-                        {
-                            testCamera.yaw += ((double)x * ROTATING_SPEED);
-                        }
-                        else if (x < 0) // look to the left (SUBTRACT)
-                        {
-                            testCamera.yaw -= ((double)(-x) * ROTATING_SPEED);
-                        }
-
-                        /* Modify "rot_X" */
-
-                        if (y > 0) // look down (SUBTRACT)
-                        {
-                            testCamera.pitch -= ((double)y * ROTATING_SPEED);
-                        }
-                        else if (y < 0) // look up (ADD)
-                        {
-                            testCamera.pitch += ((double)(-y) * ROTATING_SPEED);
-                        }
-
-                        calculations = true;
-                        break;
-                    }
-
-                    case 2:
-                    {
-                        if (x > 0) // move to the right
-                        {
-                            testCamera.pos_x += (testCamera.look_y * STRAFING_SPEED);
-                            testCamera.pos_y -= (testCamera.look_x * STRAFING_SPEED);
-                        }
-                        else if (x < 0) // move to the left
-                        {
-                            testCamera.pos_x -= (testCamera.look_y * STRAFING_SPEED);
-                            testCamera.pos_y += (testCamera.look_x * STRAFING_SPEED);
-                        }
-
-                        if (y > 0) // move backwards
-                        {
-                            testCamera.pos_x -= (testCamera.look_x * STRAFING_SPEED);
-                            testCamera.pos_y -= (testCamera.look_y * STRAFING_SPEED);
-                            testCamera.pos_z -= (testCamera.look_z * STRAFING_SPEED);
-                        }
-                        else if (y < 0) // move forwards
-                        {
-                            testCamera.pos_x += (testCamera.look_x * STRAFING_SPEED);
-                            testCamera.pos_y += (testCamera.look_y * STRAFING_SPEED);
-                            testCamera.pos_z += (testCamera.look_z * STRAFING_SPEED);
-                        }
-
-                        break;
-                    }
-                }
-
-                /* Get camera direction */
-
-                if (calculations)
-                {
-                    if (testCamera.pitch > (M_PI / 2.0 - 0.0001))
-                    {
-                        testCamera.pitch = (M_PI / 2.0 - 0.0001);
-                    }
-                    else if (testCamera.pitch < - (M_PI / 2.0 - 0.0001))
-                    {
-                        testCamera.pitch = - (M_PI / 2.0 - 0.0001);
-                    }
-                    
-                    if ((testCamera.yaw > (2.0 * M_PI)) || (testCamera.yaw < (- 2.0 * M_PI)))
-                    {
-                        testCamera.yaw = 0;
-                    }
-
-                    testCamera.look_x = cos(testCamera.pitch) * sin(testCamera.yaw);
-                    testCamera.look_y = cos(testCamera.pitch) * cos(testCamera.yaw);
-                    testCamera.look_z = sin(testCamera.pitch);
-                }
-
-                /* Load identity before making eye contact... */
-                glLoadIdentity();
-
-                gluLookAt
-                (
-                    testCamera.pos_x, // eyes X
-                    testCamera.pos_y, // eyes Y
-                    testCamera.pos_z, // eyes Z
-                    (testCamera.pos_x + testCamera.look_x), // center X
-                    (testCamera.pos_y + testCamera.look_y), // center Y
-                    (testCamera.pos_z + testCamera.look_z), // center Z
-                    0, // up X
-                    0, // up Y
-                    1.0 // up Z
-                );
-            }
-        }
-
-
-        ////////////////////////////////////////////////////////////////
-        // Render current scene
-        ////////////////////////////////////////////////////////////////
-        void render()
-        {
-            glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-            moveCameraAndLook(0, 0);
-
-            myARs[0].renderScene(0, myDrawFlags);
-
-            SwapBuffers(openGL_DeviceContext);
         }
 
     }

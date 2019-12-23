@@ -61,6 +61,19 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eTransform: set xform
+    ////////////////////////////////////////////////////////////////
+    void eTransform::setXForm(eSRP new_xform)
+    {
+        form01 = new_xform;
+
+        form02 = form01;
+
+        form01.getMatrix().transpose(transposedMatrix);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eTransform: reposition the model in 3D space
     ////////////////////////////////////////////////////////////////
     void eTransform::renderObject(float time, int32_t draw_flags)

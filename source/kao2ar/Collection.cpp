@@ -144,6 +144,49 @@ namespace ZookieWizard
 
         count++;
     }
+    
+
+    ////////////////////////////////////////////////////////////////
+    // Take out i-th object from group
+    ////////////////////////////////////////////////////////////////
+    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    void Collection<Func>::deleteIthChild(int32_t i)
+    {
+        if ((i >= 0) && (i < count))
+        {
+            children[i]->decRef();
+            children[i] = nullptr;
+
+            /* Shift every next child back */
+
+            for (i++; i < count; i++)
+            {
+                children[i - 1] = children[i];
+                children[i] = nullptr;
+            }
+
+            count--;
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Take out specific object from group
+    ////////////////////////////////////////////////////////////////
+    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    void Collection<Func>::findAndDeleteChild(eRefCounter* o)
+    {
+        int32_t i;
+
+        for (i = 0; i < count; i++)
+        {
+            if (o == children[i])
+            {
+                deleteIthChild(i);
+                return;
+            }
+        }
+    }
 
 
     ////////////////////////////////////////////////////////////////

@@ -31,6 +31,8 @@ namespace ZookieWizard
 
             T* getData();
             int32_t getLength();
+
+            void setup(int32_t new_length, T* new_data);
     };
 
 

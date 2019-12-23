@@ -42,11 +42,6 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
-        private:
-
-            void insertNewItem_seriesA(int32_t item);
-            void insertNewItem_seriesB(eALBox* item);
-
         public:
 
             eCollisionMgr();
@@ -60,6 +55,9 @@ namespace ZookieWizard
             void function_00499390(AxisList arg1[3][2]);
             void save_ALBox(int32_t offset, eALBox* pointer);
             void function_004994E0(int32_t offset);
+
+            void insertNewItem_seriesA(int32_t item);
+            void insertNewItem_seriesB(eALBox* item);
 
             int32_t get_ALBoxes_array_size();
             eALBox** get_ALBoxes_array();

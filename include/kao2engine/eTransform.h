@@ -35,6 +35,8 @@ namespace ZookieWizard
             TypeInfo* getType() override;
 
             void renderObject(float time, int32_t draw_flags) override;
+
+            void setXForm(eSRP new_xform);
     };
 
 

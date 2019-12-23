@@ -39,7 +39,7 @@ namespace ZookieWizard
         /*[0x10]*/ parent = nullptr;
         /*[0x14]*/ name = s;
         /*[0x18]*/ unknown_18 = nullptr;
-        /*[0x1C]*/ flags = 0x294D;
+        /*[0x1C]*/ flags = 0x249D;
         /*[0x30]*/ flags02 = 0x00FF;
         /*[0x34]*/ unknown_34 = nullptr;
         /*[0x2C]*/ sphBound[3] = -1.0f;
@@ -57,7 +57,7 @@ namespace ZookieWizard
         /*[0x0C]*/ unknown_0C = 0x00FFFFFF;
         /*[0x10]*/ parent = nullptr;
         /*[0x18]*/ unknown_18 = nullptr;
-        /*[0x1C]*/ flags = 0x294D;
+        /*[0x1C]*/ flags = 0x249D;
         /*[0x30]*/ flags02 = 0x00FF;
         /*[0x34]*/ unknown_34 = nullptr;
         /*[0x2C]*/ sphBound[3] = -1.0f;
@@ -159,6 +159,48 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eNode: set name
+    ////////////////////////////////////////////////////////////////
+    void eNode::setName(eString new_name)
+    {
+        name = new_name;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: get parent node
+    ////////////////////////////////////////////////////////////////
+    eNode* eNode::getParentNode()
+    {
+        return parent;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: set parent node
+    ////////////////////////////////////////////////////////////////
+    void eNode::setParentNode(eNode* new_parent)
+    {
+        parent = new_parent;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: apply or erase flag bits
+    ////////////////////////////////////////////////////////////////
+
+    void eNode::setFlags(int32_t bits_to_apply)
+    {
+        flags |= bits_to_apply;
+    }
+
+    void eNode::unsetFlags(int32_t bits_to_erase)
+    {
+        flags &= (~bits_to_erase);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eNode: print
     ////////////////////////////////////////////////////////////////
     eString eNode::getLogPrintMessage()
@@ -170,6 +212,79 @@ namespace ZookieWizard
         result += "\"";
 
         return result;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eNode::writeStructureToTextFile(FileOperator &file, int32_t indentation)
+    {
+        char bufor[512];
+        TypeInfo* info = getType();
+
+        sprintf_s
+        (
+            bufor,
+            512,
+            "[%08X] %s (\"%s\")",
+            info->id,
+            info->name,
+            name.getText()
+        );
+
+        ArFunctions::writeNewLine(file, indentation);
+        file << bufor;
+
+
+        sprintf_s
+        (
+            bufor,
+            512,
+            " - flags: %08X",
+            flags
+        );
+
+        ArFunctions::writeNewLine(file, indentation);
+        file << bufor;
+
+        if (nullptr != parent)
+        {
+            info = parent->getType();
+
+            sprintf_s
+            (
+                bufor,
+                512,
+                " - parent: [%08X] %s (\"%s\")",
+                info->id,
+                info->name,
+                parent->getStringRepresentation().getText()
+            );
+
+            ArFunctions::writeNewLine(file, indentation);
+            file << bufor;
+        }
+
+        if (nullptr != unknown_18)
+        {
+            info = unknown_18->getType();
+
+            sprintf_s
+            (
+                bufor,
+                512,
+                " - albox: [%08X] %s (ptr=%08X)",
+                info->id,
+                info->name,
+                (int32_t)unknown_18
+            );
+
+            ArFunctions::writeNewLine(file, indentation);
+            file << bufor;
+        }
+
+        ArFunctions::writeNewLine(file, 0);
     }
 
 }

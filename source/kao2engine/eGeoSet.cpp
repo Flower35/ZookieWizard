@@ -78,7 +78,7 @@ namespace ZookieWizard
 
         if (0 != displayList)
         {
-            glDeleteLists(displayList, ((0 == texCoordsCount) ? 0x01 : texCoordsCount));
+            glDeleteLists(displayList, getTextureCoordsCount());
         }
 
         unknown_5C->decRef();
@@ -186,27 +186,30 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGeoSet: draw
     ////////////////////////////////////////////////////////////////
-    void eGeoSet::draw(GLuint tex_name)
+    void eGeoSet::draw(GLuint tex_name, int32_t texID)
     {
         if (0 != displayList)
         {
-            if (0 != tex_name)
+            if ((texID >= 0) && (texID < 4))
             {
-                glEnable(GL_TEXTURE_2D);
-                glBindTexture(GL_TEXTURE_2D, tex_name);
-            }
-            else
-            {
-                glDisable(GL_TEXTURE_2D);
-            }
+                if (0 != tex_name)
+                {
+                    glEnable(GL_TEXTURE_2D);
+                    glBindTexture(GL_TEXTURE_2D, tex_name);
+                }
+                else
+                {
+                    glDisable(GL_TEXTURE_2D);
+                }
 
-            GUI::changeView(true);
+                GUI::changeView(true);
 
-            glCallList(displayList);
+                glCallList(displayList + texID);
 
-            if (0 != tex_name)
-            {
-                glDisable(GL_TEXTURE_2D);
+                if (0 != tex_name)
+                {
+                    glDisable(GL_TEXTURE_2D);
+                }
             }
         }
     }
@@ -214,6 +217,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eGeoSet: generate OpenGL Display List
+    // <kao2.0046A190>
     ////////////////////////////////////////////////////////////////
     void eGeoSet::generateDisplayList(int32_t texID, bool c)
     {
@@ -263,7 +267,7 @@ namespace ZookieWizard
 
         /* (--dsp--) COLORS (disabled: no dynamic lights in renderer) */
 
-        if (false && (false == c))
+        if ((false) && (false == c))
         {
             if (nullptr != colorsArray)
             {
@@ -367,18 +371,13 @@ namespace ZookieWizard
             /* (--dsp--) lists are NOT generated for animated meshes */
             if ((true) || (0 == (0x00000100 & unknown_08)))
             {
-                b = texCoordsCount;
-
-                if (0 == b)
-                {
-                    b = 1;
-                }
+                b = getTextureCoordsCount();
 
                 lists = glGenLists(b);
 
                 for (a = 0; a < b; a++)
                 {
-                    /* (--dsp--) (colorArray) <kao2.0046A679> */
+                    /* (--dsp--) (colorsArray) <kao2.0046A679> */
 
                     glNewList((lists + a), GL_COMPILE);
 
@@ -390,6 +389,136 @@ namespace ZookieWizard
                 displayList = lists;
             }
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoSet: texture coordinates functions (used with eTriMesh)
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eGeoSet::getTextureCoordsCount()
+    {
+        if (0 == texCoordsCount)
+        {
+            return 1;
+        }
+
+        return texCoordsCount;
+    }
+
+    int32_t eGeoSet::getTextureId(int32_t i)
+    {
+        if ((i >= 0) && (i < 4))
+        {
+            return texCoordsId[i];
+        }
+
+        return 0;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoSet: set arrays
+    ////////////////////////////////////////////////////////////////
+
+    void eGeoSet::setVerticesArray(eGeoArray<ePoint4>* new_vertices_array)
+    {
+        if (nullptr != verticesArray[0])
+        {
+            verticesArray[0]->decRef();
+        }
+
+        verticesArray[0] = new_vertices_array;
+
+        if (nullptr != verticesArray[0])
+        {
+            verticesArray[0]->incRef();
+        }
+    }
+
+    void eGeoSet::setIndicesOffsets(eGeoArray<ushort>* new_indices_offets)
+    {
+        if (nullptr != indicesOffsets)
+        {
+            indicesOffsets->decRef();
+        }
+
+        indicesOffsets = new_indices_offets;
+
+        if (nullptr != indicesOffsets)
+        {
+            indicesOffsets->incRef();
+        }
+    }
+
+    void eGeoSet::setIndicesArray(eGeoArray<ushort>* new_indices_array)
+    {
+        if (nullptr != indicesArray)
+        {
+            indicesArray->decRef();
+        }
+
+        indicesArray = new_indices_array;
+
+        if (nullptr != indicesArray)
+        {
+            indicesArray->incRef();
+        }
+    }
+
+    void eGeoSet::setTextureCoordsArray(eGeoArray<ePoint2>* new_uv_array)
+    {
+        int32_t i;
+
+        for (i = 0; i < 4; i++)
+        {
+            if (nullptr != texCoordsArray[i])
+            {
+                texCoordsArray[i]->decRef();
+
+                texCoordsArray[i] = nullptr;
+            }
+
+            texCoordsId[i] = 0;
+        }
+
+        texCoordsArray[0] = new_uv_array;
+        texCoordsId[0] = 0;
+
+        if (nullptr != texCoordsArray[0])
+        {
+            texCoordsArray[0]->incRef();
+
+            texCoordsCount = 1;
+        }
+        else
+        {
+            texCoordsCount = 0;
+        }
+    }
+
+    void eGeoSet::setColorsArray(eGeoArray<ePoint4>* new_colors_array)
+    {
+        if (nullptr != colorsArray)
+        {
+            colorsArray->decRef();
+        }
+
+        colorsArray = new_colors_array;
+
+        if (nullptr != colorsArray)
+        {
+            colorsArray->incRef();
+        }
+    }
+
+    void eGeoSet::setTwoIntegers(int32_t a, int32_t b)
+    {
+        /* Object is not drawn when [0x0C] is ZERO */
+        /* [0x08] is usually 0x0F, [0x0C] is usualy vertices/colors/normals length */
+
+        unknown_08 = a;
+        indicesCount = b;
     }
 
 }

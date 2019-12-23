@@ -60,6 +60,11 @@ namespace ZookieWizard
         /*[0x14]*/ unknown_14 = 0;
         /*[0x28]*/ unknown_28 = 0;
         /*[0x2C]*/ unknown_2C = 0;
+
+        if (nullptr != x)
+        {
+            textures.appendChild(x);
+        }
     }
 
     eMaterial::~eMaterial()
@@ -172,6 +177,24 @@ namespace ZookieWizard
     eTexture* eMaterial::getIthTexture(int32_t i)
     {
         return (eTexture*)textures.getIthChild(i);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterial: get name
+    ////////////////////////////////////////////////////////////////
+    eString eMaterial::getStringRepresentation()
+    {
+        return name;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterial: set name
+    ////////////////////////////////////////////////////////////////
+    void eMaterial::setName(eString new_name)
+    {
+        name = new_name;
     }
 
 

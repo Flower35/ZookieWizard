@@ -10,6 +10,9 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
+/* `std::time` */
+#include <ctime>
+
 /* Win32 app */
 #include <Windows.h>
 
@@ -31,6 +34,8 @@
 
 namespace ZookieWizard
 {
+    extern const char* MESSAGE_TITLE_INFO;
+    extern const char* MESSAGE_TITLE_ERROR;
 
     ////////////////////////////////////////////////////////////////
     // FILE OPERATOR STRUCTURE
@@ -72,107 +77,17 @@ namespace ZookieWizard
 
             ErrorMessage(const char* message, ...);
 
-            void display(HWND windows);
+            void display();
     };
 
-
-    ////////////////////////////////////////////////////////////////
-    // GUI
-    ////////////////////////////////////////////////////////////////
-
-    namespace GUI
-    {
-        /*** Properties ***/
-
-            #include <ZookieWizard/GUI_defines.h>
-
-            enum windowID
-            {
-                WINDOW_MAIN = 0,
-                WINDOW_RENDER,
-
-                WINDOWS_COUNT
-            };
-
-            struct testCameraStruct
-            {
-                double pos_x;
-                double pos_y;
-                double pos_z;
-
-                double look_x;
-                double look_y;
-                double look_z;
-
-                double pitch;
-                double yaw;
-
-                testCameraStruct();
-                void reset();
-            };
-
-            extern HWND myWindows[windowID::WINDOWS_COUNT];
-            extern HBITMAP myWindowsLogo;
-            extern HFONT myWindowsFont;
-            extern HDC openGL_DeviceContext;
-            extern HGLRC openGL_RenderingContext;
-
-            extern int32_t mousePosAndButton[3];
-            extern float backgroundColor[3];
-            extern bool isOrthoMode;
-            extern testCameraStruct testCamera;
-
-            enum drawFlags
-            {
-                DRAW_FLAG_INVISIBLE = (1 << 0),
-                DRAW_FLAG_BOXZONES = (1 << 1),
-                DRAW_FLAG_PROXIES = (1 << 2),
-
-                DRAW_FLAGS_COUNT = 3
-            };
-
-            extern int32_t myDrawFlags;
-
-        /*** Methods ***/
-
-            bool createWindows(HINSTANCE hInstance);
-            bool prepareRendering();
-
-            LRESULT CALLBACK procedureOfRenderWindow(HWND, UINT, WPARAM, LPARAM);
-            LRESULT CALLBACK procedureOfMainWindow(HWND, UINT, WPARAM, LPARAM);
-
-            bool isAppRunning();
-            void render();
-            void setPerspective(GLsizei, GLsizei);
-            void changeView(bool);
-            void moveCameraAndLook(int32_t, int32_t);
-            
-            void closeWindows();
-    }
-
-    
-    ////////////////////////////////////////////////////////////////
-    // miscellaneous
-    ////////////////////////////////////////////////////////////////
-
-    class Archive;
-
-    /*** Variables ***/
-
-        static const int MAX_OPEN_ARCHIVES = 2;
-        extern int archivesInUse;
-        extern Archive myARs[MAX_OPEN_ARCHIVES];
-
-        extern OPENFILENAME ofn;
-
-        extern int currentGameVersion;
-        extern char currentWorkingDirectory[256];
-
-    /*** Functions ***/
-
-        void openOrSaveAr(int);
-        void setGameVersion(int);
-
 }
+
+
+////////////////////////////////////////////////////////////////
+// Other headers
+////////////////////////////////////////////////////////////////
+
+#include <ZookieWizard/ZookieWizardGUI.h>
+#include <ZookieWizard/ZookieWizardMisc.h>
 
 #endif

@@ -373,6 +373,27 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eScene: set background color
+    ////////////////////////////////////////////////////////////////
+    void eScene::setBackgroundColor(GLfloat new_color[3])
+    {
+        color[0] = new_color[0];
+        color[1] = new_color[1];
+        color[2] = new_color[2];
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eScene: set compile strings (while creating new level)
+    ////////////////////////////////////////////////////////////////
+    void eScene::setCompileStrings(eString str_a, eString str_b)
+    {
+        compileStrA = str_a;
+        compileStrB = str_b;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eScene: get collision manager
     ////////////////////////////////////////////////////////////////
     eCollisionMgr* eScene::getCollisionManager()
