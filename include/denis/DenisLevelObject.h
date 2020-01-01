@@ -50,10 +50,11 @@ namespace ZookieWizard
 
             void serialize(DenisFileOperator &file, int32_t current_type);
 
-            eGroup* convertToKao2
+            void convertToKao2
             (
                 int32_t object_type,
-                int32_t object_id, 
+                int32_t object_id,
+                eGroup* parent_group,
                 int32_t materials_count,
                 eMaterial** materials_list
             );

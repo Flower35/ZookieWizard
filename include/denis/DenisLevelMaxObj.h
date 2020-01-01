@@ -7,6 +7,8 @@ namespace ZookieWizard
 {
     struct DenisLevelWObj;
 
+    class eGroup;
+
     ////////////////////////////////////////////////////////////////
     // Kao the Kangaroo: World Object proxy ("max Object")
     ////////////////////////////////////////////////////////////////
@@ -37,6 +39,8 @@ namespace ZookieWizard
             ~DenisLevelMaxObj();
 
             void serialize(DenisFileOperator &file, DenisLevelWObj* wobj, int32_t wobj_count);
+
+            void convertToKao2(int32_t maxobj_id, eGroup* parent_group, DenisLevelWObj &wobj);
     };
 
 }

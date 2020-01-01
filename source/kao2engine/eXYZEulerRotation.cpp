@@ -50,7 +50,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eXYZEulerRotation::ctrlApplyTransform(eQuat* e, float time)
     {
-        float x, y, z, cx, cy, cz, sx, sy, sz;
+        float x, y, z;
 
         if (nullptr != e)
         {
@@ -89,17 +89,7 @@ namespace ZookieWizard
 
             /* Euler rotation to Quaternion conversion */
 
-            cx = std::cosf(x/2);
-            cy = std::cosf(y/2);
-            cz = std::cosf(z/2);
-            sx = std::sinf(x/2);
-            sz = std::sinf(y/2);
-            sy = std::sinf(z/2);
-
-            e->w = (cx * cy * cz) + (sx * sy * sz);
-            e->z = (sx * cy * cz) - (cx * cy * sz);
-            e->y = (cx * sy * cz) + (sx * cy * sz);
-            e->x = (cx * cy * sz) - (sx * sy * cz);
+            e->fromEulerAngles(false, x, y, z);
         }
     }
 

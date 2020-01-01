@@ -63,7 +63,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eBitmap: load image from file
     ////////////////////////////////////////////////////////////////
-    void eBitmap::loadFromFile(Archive &ar)
+    void eBitmap::loadFromFile(eString directory)
     {
         FileOperator file;
         eString result;
@@ -78,7 +78,7 @@ namespace ZookieWizard
 
         /* Get path and open file */
 
-        result += ar.getMediaDir();
+        result += directory;
         result += path;
 
         theLog.print(eString(" @ LOADING BITMAP: \"") + result + "\"\n");
@@ -645,7 +645,7 @@ namespace ZookieWizard
             {
                 try
                 {
-                    loadFromFile(ar);
+                    loadFromFile(ar.getMediaDir());
 
                     isLoadedFromExternalFile = true;
                 }
@@ -688,6 +688,37 @@ namespace ZookieWizard
     GLuint eBitmap::getTextureName()
     {
         return texture_name_id;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: set transparency color
+    ////////////////////////////////////////////////////////////////
+    void eBitmap::setTransparencyColor(uint32_t color)
+    {
+        int32_t i;
+
+        if (bitmapType::PAL8_RGBX8 == type)
+        {
+            type = bitmapType::PAL8_RGBA8;
+
+            /* shift RGBX -> BGRX */
+            color = ((color & 0x0000FF00) | ((color >> 16) & 0x000000FF) | ((color << 16) & 0x00FF0000));
+
+            for (i = 0; i < 256; i++)
+            {
+                if ((0x00FFFFFF & palette[i]) == (0x00FFFFFF & color))
+                {
+                    /* Set alpha to 0 */
+                    palette[i] = palette[i] & 0x00FFFFFF;
+                }
+                else
+                {
+                    /* Set alpha to 255 */
+                    palette[i] = palette[i] | 0xFF000000;
+                }
+            }
+        }
     }
 
 }

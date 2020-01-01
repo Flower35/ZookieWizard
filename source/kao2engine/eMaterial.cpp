@@ -57,8 +57,8 @@ namespace ZookieWizard
         /*[0x20]*/ unknown_20 = 0;
         /*[0x22]*/ unknown_22 = 0;
 
-        /*[0x14]*/ unknown_14 = 0;
-        /*[0x28]*/ unknown_28 = 0;
+        /*[0x14]*/ materialFlags = 0x00;
+        /*[0x28]*/ transpLayer = 0;
         /*[0x2C]*/ unknown_2C = 0;
 
         if (nullptr != x)
@@ -85,7 +85,7 @@ namespace ZookieWizard
         textures.serialize(ar, &E_TEXTURE_TYPEINFO);
 
         /* [0x14] unknown */
-        ar.readOrWrite(&unknown_14, 0x01);
+        ar.readOrWrite(&materialFlags, 0x01);
 
         /* [0x18] Material state */
         if (ar.getVersion() >= 0x74)
@@ -164,7 +164,7 @@ namespace ZookieWizard
         ar.serializeString(name);
 
         /* [0x28] unknown */
-        ar.readOrWrite(&unknown_28, 0x04);
+        ar.readOrWrite(&transpLayer, 0x04);
 
         /* [0x2C] unknown */
         ar.readOrWrite(&unknown_2C, 0x04);
@@ -204,6 +204,21 @@ namespace ZookieWizard
     bool eMaterial::hasInvisibleInName()
     {
         return std::strstr(name.getText(), "invisible");
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterial: apply or erase flag bits
+    ////////////////////////////////////////////////////////////////
+
+    void eMaterial::setMaterialFlags(uint8_t bits_to_apply)
+    {
+        materialFlags |= bits_to_apply;
+    }
+
+    void eMaterial::unsetMaterialFlags(uint8_t bits_to_erase)
+    {
+        materialFlags &= (~bits_to_erase);
     }
 
 }

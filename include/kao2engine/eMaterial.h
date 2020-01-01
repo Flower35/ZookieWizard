@@ -30,13 +30,13 @@ namespace ZookieWizard
         protected:
 
             /*[0x08-0x10]*/ Collection<ArFunctions::serialize_eRefCounter> textures;
-            /*[0x14]*/ uint8_t unknown_14;
+            /*[0x14]*/ uint8_t materialFlags;
             /*[0x18]*/ eMaterialState* state;
             /*[0x1C]*/ int32_t unknown_1C;
             /*[0x20]*/ int16_t unknown_20;
             /*[0x22]*/ int16_t unknown_22;
             /*[0x24]*/ eString name;
-            /*[0x28]*/ int32_t unknown_28;
+            /*[0x28]*/ int32_t transpLayer;
             /*[0x2C]*/ float unknown_2C;
 
 
@@ -56,6 +56,9 @@ namespace ZookieWizard
             eTexture* getIthTexture(int32_t i);
 
             bool hasInvisibleInName();
+
+            void setMaterialFlags(uint8_t bits_to_apply);
+            void unsetMaterialFlags(uint8_t bits_to_erase);
     };
 
 

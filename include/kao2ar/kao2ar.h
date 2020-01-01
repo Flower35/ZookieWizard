@@ -85,6 +85,8 @@ namespace ZookieWizard
         float w;
 
         ePoint4();
+        ePoint4(float initializer);
+        ePoint4(float, float, float, float);
 
         void serialize(Archive &ar);
     };
@@ -122,18 +124,26 @@ namespace ZookieWizard
         eQuat& operator * (float);
 
         void normalize();
+
+        void fromEulerAngles(bool, float, float, float);
     };
 
-    struct eMatrix
+    struct eMatrix4x4
     {
         float m[4][4];
 
-        eMatrix();
+        eMatrix4x4();
 
+        void identity();
         void transpose(float result[16]);
+
+        void setRotationZ(float angle);
+        void setRotationY(float angle);
+        void setRotationX(float angle);
     };
 
-    eMatrix operator * (eMatrix a, eMatrix b);
+    eMatrix4x4 operator * (eMatrix4x4 a, eMatrix4x4 b);
+    ePoint4 operator * (eMatrix4x4 a, ePoint4 p);
 
     /* `sizeof(eSRP) == 0x20` (32 bytes) */
     struct eSRP
@@ -145,7 +155,7 @@ namespace ZookieWizard
         eSRP();
         eSRP(float initializer);
         
-        eMatrix getMatrix();
+        eMatrix4x4 getMatrix();
 
         void serialize(Archive &ar);
     };

@@ -22,6 +22,7 @@ namespace ZookieWizard
             /*[0x68-0x84]*/ eSRP form02;
             /*[0xA8]*/ eCtrl<eSRP>* ctrl;
 
+            eSRP currentXForm;
             float transposedMatrix[16];
 
         /*** Methods ***/

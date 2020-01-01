@@ -76,7 +76,7 @@ namespace ZookieWizard
             DenisLevelMap(eString new_name);
             ~DenisLevelMap();
 
-            void serialize(DenisFileOperator &file);
+            void openAndSerialize(DenisFileOperator &file);
             void destroy();
 
             eString getName();

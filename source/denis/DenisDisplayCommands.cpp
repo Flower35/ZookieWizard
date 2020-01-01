@@ -245,9 +245,23 @@ namespace ZookieWizard
 
             if ((textures[i].index >= 0) && (textures[i].index < materials_count))
             {
-                trimesh_name += materials_list[textures[i].index]->getStringRepresentation();
+                j = 4 * textures[i].index;
 
-                test_trimesh->setMaterial(materials_list[textures[i].index]);
+                if (i >= texturesCount[0])
+                {
+                    /* Use material with "2-sided" flag enabled */
+                    j += 2;
+                }
+
+                if (0 != textures[i].transparency)
+                {
+                    /* Use material with "alpha test" flags enabled */
+                    j++;
+                }
+
+                trimesh_name += materials_list[j]->getStringRepresentation();
+
+                test_trimesh->setMaterial(materials_list[j]);
 
                 /* Trying out different "eNode" flags combinations */
 
@@ -327,21 +341,17 @@ namespace ZookieWizard
                 {
                     /* Clone last index to the first place to create "degenerate triangle" */
 
-                    test_indices_array_data[total_indices] = total_vertices;
+                    m = total_vertices + textures[i].faces[j].verticesCount - 1;
 
-                    text_uv_data[total_vertices].u = 0;
-                    text_uv_data[total_vertices].v = 0;
+                    test_indices_array_data[total_indices] = m;
                 }
 
                 for (k = 0; k < textures[i].faces[j].verticesCount; k++)
                 {
                     /* Write indices in reverse! (l = resulting index, m = source index) */
 
-                    /* Turns out that I am writing indices in order, but reversing vertices? xD */
-                    /* That's why when creating "degenerate triangle" I need to clone first index, not last */
-
                     l = total_indices + textures[i].faces[j].verticesCount - 1 - k;
-                    m = total_vertices + textures[i].faces[j].verticesCount - 1 - k;
+                    m = total_vertices + k;
 
                     if (0 == (textures[i].faces[j].verticesCount % 2))
                     {
@@ -368,7 +378,7 @@ namespace ZookieWizard
                     test_colors_data[m].x = (vertices[l].c.color_red / 255.0f);
                     test_colors_data[m].y = (vertices[l].c.color_green / 255.0f);
                     test_colors_data[m].z = (vertices[l].c.color_blue / 255.0f);
-                    test_colors_data[m].w = (vertices[l].c.alpha / 255.0f);
+                    test_colors_data[m].w = (8.0f - textures[i].transparency) / 8.0f;
                 }
 
                 test_indices_offsets_data[j] = textures[i].faces[j].verticesCount;

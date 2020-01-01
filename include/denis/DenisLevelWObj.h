@@ -3,8 +3,11 @@
 
 #include <denis/Denis.h>
 
+#include <denis/DenisAnimmesh.h>
+
 namespace ZookieWizard
 {
+    class eGroup;
 
     ////////////////////////////////////////////////////////////////
     // Kao the Kangaroo: World Object Reference
@@ -14,10 +17,10 @@ namespace ZookieWizard
     {
         /*** Properties ***/
 
-            uint8_t name[32];
+            char name[32];
             int32_t vertexCount;
 
-            /* (...) */
+            DenisAnimmesh mesh;
 
         /*** Methods ***/
 
@@ -25,6 +28,8 @@ namespace ZookieWizard
             ~DenisLevelWObj();
 
             void serialize(DenisFileOperator &file);
+
+            void loadMesh(DenisFileOperator &file);
     };
 
 }

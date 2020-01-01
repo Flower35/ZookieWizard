@@ -72,6 +72,14 @@ namespace ZookieWizard
         w = 0;
     }
 
+    ePoint4::ePoint4(float initializer)
+    : x(initializer), y(initializer), z(initializer), w(initializer)
+    {}
+
+    ePoint4::ePoint4(float _x, float _y, float _z, float _w)
+    : x(_x), y(_y), z(_z), w(_w)
+    {}
+
     void ePoint4::serialize(Archive &ar)
     {
         ar.readOrWrite(&x, 0x04);
@@ -148,12 +156,35 @@ namespace ZookieWizard
         }
     }
 
+    void eQuat::fromEulerAngles(bool transposed, float alpha, float beta, float gamma)
+    {
+        /* [X][Y][Z] rotation order */
+
+        float t = transposed ? (-1.0f) : 1.0f;
+
+        float s1 = std::sinf(alpha / 2);
+        float s2 = std::sinf(beta / 2);
+        float s3 = std::sinf(gamma / 2);
+        float c1 = std::cosf(alpha / 2);
+        float c2 = std::cosf(beta / 2);
+        float c3 = std::cosf(gamma / 2);
+
+        x = t * (c2 * c3 * s1 - c1 * s2 * s3);
+        y = t * (c2 * s1 * s3 + c1 * c3 * s2);
+        z = t * (c1 * c2 * s3 - c3 * s1 * s2);
+        w = c1 * c2 * c3 + s1 * s2 * s3;
+    }
 
     ////////////////////////////////////////////////////////////////
-    // Kao2 data structure: Matrix
+    // Kao2 data structure: Matrix [4x4]
     ////////////////////////////////////////////////////////////////
 
-    eMatrix::eMatrix()
+    eMatrix4x4::eMatrix4x4()
+    {
+        identity();
+    }
+
+    void eMatrix4x4::identity()
     {
         float value;
         int32_t rows;
@@ -170,9 +201,9 @@ namespace ZookieWizard
         }
     }
 
-    eMatrix operator * (eMatrix a, eMatrix b)
+    eMatrix4x4 operator * (eMatrix4x4 a, eMatrix4x4 b)
     {
-        eMatrix c;
+        eMatrix4x4 c;
         int32_t i, j, k;
 
         for (i = 0; i < 4; i++)
@@ -190,8 +221,27 @@ namespace ZookieWizard
 
         return c;
     }
+    
+    ePoint4 operator * (eMatrix4x4 a, ePoint4 p)
+    {
+        float b[4] = {p.x, p.y, p.z, p.w};
+        float c[4];
+        int32_t i, j;
 
-    void eMatrix::transpose(float result[16])
+        for (i = 0; i < 4; i++)
+        {
+            c[i] = 0;
+
+            for (j = 0; j < 4; j++)
+            {
+                c[i] += a.m[i][j] * b[j];
+            }
+        }
+
+        return ePoint4(c[0], c[1], c[2], c[3]);
+    }
+
+    void eMatrix4x4::transpose(float result[16])
     {
         int32_t columns;
         int32_t rows;
@@ -204,6 +254,85 @@ namespace ZookieWizard
             }
         }
     }
+
+    void eMatrix4x4::setRotationZ(float angle)
+    {
+        float cosinus = std::cosf(angle);
+        float sinus = std::sinf(angle);
+
+        m[0][0] = cosinus;
+        m[0][1] = (- sinus);
+        m[0][2] = 0;
+        m[0][3] = 0;
+
+        m[1][0] = sinus;
+        m[1][1] = cosinus;
+        m[1][2] = 0;
+        m[1][3] = 0;
+
+        m[2][0] = 0;
+        m[2][1] = 0;
+        m[2][2] = 1.0f;
+        m[2][3] = 0;
+
+        m[3][0] = 0;
+        m[3][1] = 0;
+        m[3][2] = 0;
+        m[3][3] = 1.0f;
+    }
+
+    void eMatrix4x4::setRotationY(float angle)
+    {
+        float cosinus = std::cosf(angle);
+        float sinus = std::sinf(angle);
+
+        m[0][0] = cosinus;
+        m[0][1] = 0;
+        m[0][2] = sinus;
+        m[0][3] = 0;
+
+        m[1][0] = 0;
+        m[1][1] = 1.0f;
+        m[1][2] = 0;
+        m[1][3] = 0;
+
+        m[2][0] = (- sinus);
+        m[2][1] = 0;
+        m[2][2] = cosinus;
+        m[2][3] = 0;
+
+        m[3][0] = 0;
+        m[3][1] = 0;
+        m[3][2] = 0;
+        m[3][3] = 1.0f;
+    }
+
+    void eMatrix4x4::setRotationX(float angle)
+    {
+        float cosinus = std::cosf(angle);
+        float sinus = std::sinf(angle);
+
+        m[0][0] = 1.0f;
+        m[0][1] = 0;
+        m[0][2] = 0;
+        m[0][3] = 0;
+
+        m[1][0] = 0;
+        m[1][1] = cosinus;
+        m[1][2] = (- sinus);
+        m[1][3] = 0;
+
+        m[2][0] = 0;
+        m[2][1] = sinus;
+        m[2][2] = cosinus;
+        m[2][3] = 0;
+
+        m[3][0] = 0;
+        m[3][1] = 0;
+        m[3][2] = 0;
+        m[3][3] = 1.0f;
+    }
+
 
     ////////////////////////////////////////////////////////////////
     // Kao2 data structure: Scale Rotation Position
@@ -232,25 +361,25 @@ namespace ZookieWizard
         ar.readOrWrite(&(pos.z), 0x04);
     }
 
-    eMatrix eSRP::getMatrix()
+    eMatrix4x4 eSRP::getMatrix()
     {
-        eMatrix rotationMatrix;
-        eMatrix translationMatrix;
-        eMatrix scaleMatrix;
+        eMatrix4x4 rotationMatrix;
+        eMatrix4x4 translationMatrix;
+        eMatrix4x4 scaleMatrix;
 
-        rotationMatrix.m[0][0] = 1 - 2 * rot.y * rot.y - 2 * rot.z * rot.z;
-        rotationMatrix.m[1][0] = 2 * rot.x * rot.y - 2 * rot.z * rot.w;
-        rotationMatrix.m[2][0] = 2 * rot.x * rot.z + 2 * rot.y * rot.w;
+        rotationMatrix.m[0][0] = 1 - 2 * (rot.y * rot.y + rot.z * rot.z);
+        rotationMatrix.m[1][0] = 2 * (rot.x * rot.y - rot.z * rot.w);
+        rotationMatrix.m[2][0] = 2 * (rot.x * rot.z + rot.y * rot.w);
         rotationMatrix.m[3][0] = 0;
 
-        rotationMatrix.m[0][1] = 2 * rot.x * rot.y + 2 * rot.z * rot.w;
-        rotationMatrix.m[1][1] = 1 - 2 * rot.x * rot.x - 2 * rot.z * rot.z;
-        rotationMatrix.m[2][1] = 2 * rot.y * rot.z - 2 * rot.x * rot.w;
+        rotationMatrix.m[0][1] = 2 * (rot.x * rot.y + rot.z * rot.w);
+        rotationMatrix.m[1][1] = 1 - 2 * (rot.x * rot.x + rot.z * rot.z);
+        rotationMatrix.m[2][1] = 2 * (rot.y * rot.z - rot.x * rot.w);
         rotationMatrix.m[3][1] = 0;
 
-        rotationMatrix.m[0][2] = 2 * rot.x * rot.z - 2 * rot.y * rot.w;
-        rotationMatrix.m[1][2] = 2 * rot.y * rot.z + 2 * rot.x * rot.w;
-        rotationMatrix.m[2][2] = 1 - 2 * rot.x * rot.x - 2 * rot.y * rot.y;
+        rotationMatrix.m[0][2] = 2 * (rot.x * rot.z - rot.y * rot.w);
+        rotationMatrix.m[1][2] = 2 * (rot.y * rot.z + rot.x * rot.w);
+        rotationMatrix.m[2][2] = 1 - 2 * (rot.x * rot.x + rot.y * rot.y);
         rotationMatrix.m[3][2] = 0;
 
         rotationMatrix.m[0][3] = 0;
@@ -298,8 +427,8 @@ namespace ZookieWizard
         scaleMatrix.m[2][3] = 0;
         scaleMatrix.m[3][3] = 1.0f;
 
-        /* Matrices must be applied in reverse order */
-        /* ((T x R) x S) */
+        /* Matrices must be multiplied in reverse order */
+        /* (T x (R x (S x Vector))) */
 
         return ((translationMatrix * rotationMatrix) * scaleMatrix);
     }

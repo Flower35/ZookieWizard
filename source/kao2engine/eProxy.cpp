@@ -48,7 +48,7 @@ namespace ZookieWizard
         eXRefTarget* test_xref_taget;
         eXRefProxy* test_xref_proxy;
 
-        if (ar.checkGameEngine(GAME_VERSION_KAO_TW_PC, GAME_VERSION_KAO_TW_PC) && ar.isInDebugMode() && ar.isInWriteMode())
+        if ((0 == (0x00010000 & flags)) && ar.isInWriteMode())
         {
             /* Serialize "eNode" and "eTransform" (zero elements in "eGroup!") */
 
@@ -73,9 +73,8 @@ namespace ZookieWizard
 
         /********************************/
         /* Loading external models... */
-        /* CURRENTLY NEEDED ONLY WITH "kao_tw" ENGINE */
 
-        if (ar.checkGameEngine(GAME_VERSION_KAO_TW_PC, GAME_VERSION_KAO_TW_PC) && ar.isInDebugMode() && ar.isInReadMode())
+        if ((0 == (0x00010000 & flags)) && ar.isInReadMode())
         {
             if (nodes.getSize() <= 0)
             {
@@ -177,9 +176,16 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eProxy::writeStructureToTextFile(FileOperator &file, int32_t indentation)
     {
+        int32_t i;
+        eNode* test_node;
+
         char bufor[128];
 
+        /* "eNode" parent class */
+
         eNode::writeStructureToTextFile(file, indentation);
+
+        /* "eProxy" additional info */
 
         sprintf_s
         (
@@ -193,6 +199,18 @@ namespace ZookieWizard
         ArFunctions::writeIndentation(file, indentation);
         file << bufor;
         ArFunctions::writeNewLine(file, 0);
+
+        /* "eGroup" parent class */
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            test_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != test_node)
+            {
+                test_node->writeStructureToTextFile(file, (indentation + 1));
+            }
+        }
     }
 
 

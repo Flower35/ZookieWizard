@@ -76,10 +76,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\source\denis\Denis.cpp" />
+    <ClCompile Include="..\source\denis\DenisAnimmesh.cpp" />
+    <ClCompile Include="..\source\denis\DenisAnimmeshRender.cpp" />
     <ClCompile Include="..\source\denis\DenisDisplayCommands.cpp" />
     <ClCompile Include="..\source\denis\DenisLevelBillboard.cpp" />
     <ClCompile Include="..\source\denis\DenisLevelBonus.cpp" />
     <ClCompile Include="..\source\denis\DenisLevelMap.cpp" />
+    <ClCompile Include="..\source\denis\DenisLevelMapConvert.cpp" />
     <ClCompile Include="..\source\denis\DenisLevelMaxObj.cpp" />
     <ClCompile Include="..\source\denis\DenisLevelObject.cpp" />
     <ClCompile Include="..\source\denis\DenisLevelSample.cpp" />

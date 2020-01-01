@@ -996,6 +996,15 @@
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardRender.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\denis\DenisAnimmesh.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\denis\DenisAnimmeshRender.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\denis\DenisLevelMapConvert.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resource\ZookieWizard\WinRC.rc">

@@ -5,6 +5,7 @@
 
 namespace ZookieWizard
 {
+    class eGroup;
 
     ////////////////////////////////////////////////////////////////
     // Kao the Kangaroo: Bonus structure
@@ -24,6 +25,8 @@ namespace ZookieWizard
             ~DenisLevelBonus();
 
             void serialize(DenisFileOperator &file);
+
+            void convertToKao2(int32_t bonus_id, eGroup* parent_group);
     };
 
 }

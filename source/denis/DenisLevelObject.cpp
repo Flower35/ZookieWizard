@@ -201,10 +201,11 @@ namespace ZookieWizard
     // Level Object: convert from Kao1 to Kao2
     ////////////////////////////////////////////////////////////////
 
-    eGroup* DenisLevelObject::convertToKao2
+    void DenisLevelObject::convertToKao2
     (
         int32_t object_type,
         int32_t object_id,
+        eGroup* parent_group,
         int32_t materials_count,
         eMaterial** materials_list
     )
@@ -222,6 +223,8 @@ namespace ZookieWizard
         group_name += name;
 
         test_group = new eGroup();
+        test_group->incRef();
+
         test_group->setName(group_name);
 
         /********************************/
@@ -243,9 +246,14 @@ namespace ZookieWizard
         );
 
         /********************************/
-        /* Return this object */
+        /* Append this object */
 
-        return test_group;
+        if (nullptr != parent_group)
+        {
+            parent_group->appendChild(test_group);
+        }
+
+        test_group->decRef();
     }
 
 }

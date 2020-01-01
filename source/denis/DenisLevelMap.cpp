@@ -9,10 +9,7 @@
 #include <denis/DenisLevelBillboard.h>
 #include <denis/DenisLevelBonus.h>
 
-#include <kao2engine/eScene.h>
 #include <kao2engine/eMaterial.h>
-#include <kao2engine/eEnvironment.h>
-#include <kao2engine/eProxy.h>
 
 namespace ZookieWizard
 {
@@ -168,20 +165,20 @@ namespace ZookieWizard
 
     void DenisLevelMap::createMaterialsList(DenisFileOperator &file)
     {
-        int32_t i;
+        int32_t i, j;
 
         deleteMaterialsList();
 
-        materialsList = new eMaterial* [texturesCount];
+        materialsList = new eMaterial* [4 * texturesCount];
 
         for (i = 0; i < texturesCount; i++)
         {
-            materialsList[i] = textures[i].convertToKao2(file);
-
-            if (nullptr != materialsList[i])
+            for (j = 0; j < 4; j++)
             {
-                materialsList[i]->incRef();
+                materialsList[4 * i + j] = nullptr;
             }
+
+            textures[i].convertToKao2(file, &(materialsList[4 * i]));
         }
     }
 
@@ -196,7 +193,7 @@ namespace ZookieWizard
 
         if (nullptr != materialsList)
         {
-            for (i = 0; i < texturesCount; i++)
+            for (i = 0; i < (4 * texturesCount); i++)
             {
                 if (nullptr != materialsList[i])
                 {
@@ -214,7 +211,7 @@ namespace ZookieWizard
     // Level Map: serialization
     ////////////////////////////////////////////////////////////////
 
-    void DenisLevelMap::serialize(DenisFileOperator &file)
+    void DenisLevelMap::openAndSerialize(DenisFileOperator &file)
     {
         int32_t i, j;
 
@@ -762,118 +759,6 @@ namespace ZookieWizard
         }
 
         return result;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Level Map: convert from Kao1 to Kao2
-    ////////////////////////////////////////////////////////////////
-
-    eScene* DenisLevelMap::convertToKao2(DenisFileOperator &file)
-    {
-        int32_t i;
-        eString test_str;
-        eString current_name;
-
-        std::time_t current_time;
-        std::tm time_info;
-        char time_bufor[32];
-        
-        eGroup* test_group = nullptr;
-        eScene* result_scene = nullptr;
-        eEnvironment* global_env = nullptr;
-        eCollisionMgr* test_collision = nullptr;
-        eProxy* test_proxy = nullptr;
-
-        eSRP kao_starting_place;
-
-        /********************************/
-        /* Get current time and date */
-
-        std::time(&current_time);
-        localtime_s(&time_info, &current_time);
-
-        std::strftime(time_bufor, 32, "%c", &time_info);
-
-        /********************************/
-        /* Load and prepare textures */
-
-        createMaterialsList(file);
-
-        /********************************/
-        /* Create new scene and new environment */
-
-        result_scene = new eScene();
-        result_scene->setFlags(0x70071000);
-
-        global_env = new eEnvironment("global_env");
-        global_env->setFlags(0x70000000);
-
-        test_collision = result_scene->getCollisionManager();
-
-        /********************************/
-        /* Set scene name and creation details */
-
-        current_name = getName();
-
-        test_str = "$root of ";
-        test_str += current_name;
-
-        result_scene->setName(test_str);
-
-        test_str = "converted with ZookieWizard at ";
-        test_str += time_bufor;
-        test_str += "\r\n";
-
-        result_scene->setCompileStrings(test_str, current_name);
-
-        result_scene->setBackgroundColor(GUI::backgroundColor);
-
-        /********************************/
-        /* Add environment (and update its parent) */
-
-        result_scene->appendChild(global_env);
-
-        /********************************/
-        /* Add one collision entry */
-
-        test_collision->insertNewItem_seriesA(0);
-
-        /********************************/
-        /* Convert meshes */
-
-        for (i = 0; i < objectsCount[DENIS_LEVEL_OBJECT_TYPE_STATIC]; i++)
-        {
-            test_group = objects[DENIS_LEVEL_OBJECT_TYPE_STATIC][i].convertToKao2
-            (
-                DENIS_LEVEL_OBJECT_TYPE_STATIC,
-                i,
-                texturesCount,
-                materialsList
-            );
-
-            global_env->appendChild(test_group);
-        }
-
-        /********************************/
-        /* Add Kao's starting position */
-
-        kao_starting_place.pos.x = kaoPos[0];
-        kao_starting_place.pos.y = kaoPos[2];
-        kao_starting_place.pos.z = kaoPos[1] + 100.0f;
-
-        test_proxy = new eProxy();
-        test_proxy->setName("kao01");
-        test_proxy->setTargetName("");
-        test_proxy->setCategory(1);
-        test_proxy->setXForm(kao_starting_place);
-
-        global_env->appendChild(test_proxy);
-
-        /********************************/
-        /* Finish! */
-
-        return result_scene;
     }
 
 }

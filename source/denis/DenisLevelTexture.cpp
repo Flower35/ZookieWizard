@@ -4,8 +4,6 @@
 #include <kao2engine/eTexture.h>
 #include <kao2engine/eBitmap.h>
 
-#include <kao2ar/Archive.h>
-
 namespace ZookieWizard
 {
 
@@ -68,28 +66,45 @@ namespace ZookieWizard
     // Level Texture: convert from Kao1 to Kao2
     ////////////////////////////////////////////////////////////////
 
-    eMaterial* DenisLevelTexture::convertToKao2(DenisFileOperator &file)
+    void DenisLevelTexture::convertToKao2(DenisFileOperator &file, eMaterial** materials_list)
     {
+        int32_t i;
+
+        uint8_t test_flags[4] =
+        {
+            0x00, // normal
+            0x0E, // + "transparent" + "alpha test"
+            0x01, // + "2-sided"
+            0x0F // + "2-sided" + "transparent" + "alpha test"
+        };
+
         eMaterial* test_material = nullptr;
         eTexture* test_texture = nullptr;
         eBitmap* test_bitmap = nullptr;
 
         eString bitmap_path;
-        Archive test_ar(file.workingDirectory);
 
         /********************************/
-        /* Create bitmap, texture, then material */
+        /* Create bitmap and texture */
 
         bitmap_path = "world/textures/8BIT/";
         bitmap_path += name;
         bitmap_path += ".bmp";
 
         test_bitmap = new eBitmap();
+        test_bitmap->incRef();
+
         test_bitmap->setPath(bitmap_path);
 
         try
         {
-            test_bitmap->loadFromFile(test_ar);
+            test_bitmap->loadFromFile(file.workingDirectory);
+
+            if (isTransparent)
+            {
+                test_bitmap->setTransparencyColor(0x00000000);
+            }
+
             test_bitmap->generateTexture();
         }
         catch (ErrorMessage &e)
@@ -100,14 +115,25 @@ namespace ZookieWizard
         }
 
         test_texture = new eTexture(test_bitmap);
+        test_texture->incRef();
 
-        test_material = new eMaterial(test_texture);
-        test_material->setName(name);
+        test_bitmap->decRef();
 
         /********************************/
-        /* (--dsp--) is default collision ICE ??? */
+        /* Create four types of materials */
 
-        return test_material;
+        for (i = 0; i < 4; i++)
+        {
+            test_material = new eMaterial(test_texture);
+
+            test_material->setName(name);
+            test_material->setMaterialFlags(test_flags[i]);
+
+            materials_list[i] = test_material;
+            test_material->incRef();
+        }
+
+        test_texture->decRef();
     }
 
 }

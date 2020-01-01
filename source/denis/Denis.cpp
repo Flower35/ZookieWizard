@@ -199,16 +199,56 @@ namespace ZookieWizard
 
     DenisEulerRotation::DenisEulerRotation()
     {
-        x = 0;
-        y = 0;
-        z = 0;
+        alpha = 0;
+        beta = 0;
+        gamma = 0;
     }
 
     void DenisEulerRotation::serialize(DenisFileOperator &file)
     {
-        file.readOrWrite(&x, 0x02);
-        file.readOrWrite(&y, 0x02);
-        file.readOrWrite(&z, 0x02);
+        file.readOrWrite(&alpha, 0x02);
+        file.readOrWrite(&beta, 0x02);
+        file.readOrWrite(&gamma, 0x02);
+    }
+    
+    void DenisEulerRotation::toEulerAngles(bool isAnimmesh, float &x, float &y, float &z)
+    {
+        if (isAnimmesh)
+        {
+            /* Clockwise rotation, originally [X] and [Z] angles are negated */
+            /* For CCW rotatnion we need [Y] angle to be negative */
+
+            x = alpha / float(0x8000) * float(M_PI);
+            y = ((-beta) & 0x0000FFFF) / float(0x8000) * float(M_PI);
+            z = gamma / float(0x8000) * float(M_PI);
+        }
+        else
+        {
+            /* "max mesh" angles are stored in [Z][Y][X] order */
+            /* This order of matrix multiplications gives [X][Y][Z] rotation in result */
+            /* For CCW rotation we need all angles to be negative */
+
+            z = ((-alpha) & 0x0000FFFF) / float(0x8000) * float(M_PI);
+            y = ((-beta) & 0x0000FFFF) / float(0x8000) * float(M_PI);
+            x = ((-gamma) & 0x0000FFFF) / float(0x8000) * float(M_PI);
+        }
+    }
+
+    void DenisEulerRotation::toQuaternion(float result[4])
+    {
+        /* <kao.00410590> */
+
+        float s1 = std::sinf((-alpha) / 2.0f);
+        float s2 = std::sinf(beta / 2.0f);
+        float s3 = std::sinf((-gamma) / 2.0f);
+        float c1 = std::cosf((-alpha) / 2.0f);
+        float c2 = std::cosf(beta / 2.0f);
+        float c3 = std::cosf((-gamma) / 2.0f);
+
+        result[0] = c2 * c3 * s1 - c1 * s2 * s3;
+        result[1] = - (c2 * s1 * s3 + c1 * c3 * s2);
+        result[2] = c1 * c2 * s3 - c3 * s1 * s2;
+        result[3] = c1 * c2 * c3 + s1 * s2 * s3;
     }
 
 }

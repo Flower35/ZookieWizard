@@ -53,7 +53,9 @@ namespace ZookieWizard
 
         if (ar.isInReadMode())
         {
-            form01.getMatrix().transpose(transposedMatrix);
+            currentXForm = form01;
+
+            currentXForm.getMatrix().transpose(transposedMatrix);
         }
 
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
@@ -66,10 +68,10 @@ namespace ZookieWizard
     void eTransform::setXForm(eSRP new_xform)
     {
         form01 = new_xform;
-
         form02 = form01;
+        currentXForm = form01;
 
-        form01.getMatrix().transpose(transposedMatrix);
+        currentXForm.getMatrix().transpose(transposedMatrix);
     }
 
 
@@ -78,9 +80,9 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eTransform::renderObject(float time, int32_t draw_flags)
     {
-        glPushMatrix();
-
         /* Apply Transformation (on top of previous ones) */
+
+        glPushMatrix();
 
         glMultMatrixf(transposedMatrix);
 

@@ -320,7 +320,7 @@ namespace ZookieWizard
             myDenisLevels[0].destroy();
             myDenisLevels[0] = DenisLevelMap(denisLevelName);
 
-            myDenisLevels[0].serialize(file);
+            myDenisLevels[0].openAndSerialize(file);
 
             theLog.print
             (

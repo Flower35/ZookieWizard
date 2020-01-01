@@ -34,6 +34,8 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
+
             void saveMyScript(Archive &ar);
     };
 

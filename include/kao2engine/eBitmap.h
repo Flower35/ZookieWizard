@@ -61,9 +61,11 @@ namespace ZookieWizard
             void generateTexture();
 
             void setPath(eString new_path);
-            void loadFromFile(Archive &ar);
+            void loadFromFile(eString directory);
 
             GLuint getTextureName();
+
+            void setTransparencyColor(uint32_t color);
     };
 
 

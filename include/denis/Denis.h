@@ -153,15 +153,18 @@ namespace ZookieWizard
     {
         /*** Properties ***/
 
-            uint16_t x;
-            uint16_t y;
-            uint16_t z;
+            uint16_t alpha;
+            uint16_t beta;
+            uint16_t gamma;
 
         /*** Methods ***/
 
             DenisEulerRotation();
 
             void serialize(DenisFileOperator &file);
+
+            void toEulerAngles(bool isAnimmesh, float &x, float &y, float &z);
+            void toQuaternion(float result[4]);
     };
 
 }

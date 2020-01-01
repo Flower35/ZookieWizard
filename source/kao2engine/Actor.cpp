@@ -99,6 +99,61 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // Actor: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void Actor::writeStructureToTextFile(FileOperator &file, int32_t indentation)
+    {
+        int32_t i;
+        eNode* test_node;
+
+        char bufor[128];
+        eString test_str;
+
+        /* "eNode" parent class */
+
+        eNode::writeStructureToTextFile(file, indentation);
+
+        /* "Actor" additional info */
+
+        if (scriptPath.getLength() > 0)
+        {
+            if ('?' == scriptPath.getText()[0])
+            {
+                test_str = "<?>";
+            }
+            else
+            {
+                test_str = scriptPath;
+            }
+        }
+
+        sprintf_s
+        (
+            bufor,
+            128,
+            " - script: \"%s\"",
+            test_str.getText()
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        /* "eGroup" parent class */
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            test_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != test_node)
+            {
+                test_node->writeStructureToTextFile(file, (indentation + 1));
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Actor: save script file
     ////////////////////////////////////////////////////////////////
     void Actor::saveMyScript(Archive &ar)
