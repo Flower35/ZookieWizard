@@ -483,11 +483,175 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Ar: render scene, starting from selected object
     ////////////////////////////////////////////////////////////////
-    void Archive::renderScene(float time, int32_t draw_flags)
+    void Archive::renderScene(int32_t draw_flags)
     {
+        eSRP default_srp;
+
         if (nullptr != selectedObject)
         {
-            selectedObject->renderObject(time, draw_flags);
+            selectedObject->renderObject(nullptr, draw_flags, default_srp);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Ar: change selected object
+    // (-4) resets selection to root node
+    // (-3) updates list for parrent node
+    // (-2) toggles node visibility
+    // (-1) updates list for current selection
+    ////////////////////////////////////////////////////////////////
+    void Archive::changeSelectedObject(int32_t child_id)
+    {
+        int32_t i;
+        bool update_list = false;
+        char bufor[32];
+
+        eGroup* test_group;
+        eNode* test_node;
+        eString test_str;
+
+        switch (child_id)
+        {
+            case (-4):
+            {
+                selectedObject = parentObject;
+                update_list = true;
+                break;
+            }
+
+            case (-3):
+            {
+                if (nullptr == selectedObject)
+                {
+                    return;
+                }
+
+                if (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
+                {
+                    test_node = ((eNode*)selectedObject)->getParentNode();
+                    if (nullptr != test_node)
+                    {
+                        selectedObject = test_node;
+                        update_list = true;
+                    }
+                }
+
+                break;
+            }
+
+            case (-2):
+            {
+                if (nullptr == selectedObject)
+                {
+                    return;
+                }
+
+                if (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
+                {
+                    test_node = (eNode*)selectedObject;
+                    
+                    if (0x01 & test_node->getFlags())
+                    {
+                        test_node->unsetFlags(0x01);
+                    }
+                    else
+                    {
+                        test_node->setFlags(0x01);
+                    }
+
+                    update_list = true;
+                }
+
+                break;
+            }
+
+            case (-1):
+            {
+                update_list = true;
+                break;
+            }
+
+            default:
+            {
+                if (nullptr == selectedObject)
+                {
+                    return;
+                }
+
+                if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                {
+                    test_group = (eGroup*)selectedObject;
+                    test_node = test_group->getIthChild(child_id);
+
+                    if (nullptr != test_node)
+                    {
+                        selectedObject = test_node;
+                        update_list = true;
+                    }
+                }
+            }
+        }
+
+        if (update_list)
+        {
+            GUI::updateNodesList((-1), nullptr);
+
+            if (nullptr == selectedObject)
+            {
+                return;
+            }
+
+            sprintf_s(bufor, 32, "(%s)", selectedObject->getType()->name);
+
+            test_str = "Selected node: ";
+            test_str += bufor;
+            test_str += "\n\"";
+            test_str += selectedObject->getStringRepresentation();
+            test_str += "\"";
+
+            if (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
+            {
+                test_node = (eNode*)selectedObject;
+
+                if (0x01 & (test_node->getFlags()))
+                {
+                    test_str += "\n[Enabled]";
+                }
+                else
+                {
+                    test_str += "\n[Disabled]";
+                }
+            }
+
+            GUI::updateNodesList((-1), &test_str);
+
+
+            if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+            {
+                test_group = (eGroup*)selectedObject;
+
+                for (i = 0; i < test_group->getNodesCount(); i++)
+                {
+                    sprintf_s(bufor, 32, "[%d] ", i);
+                    test_str = bufor;
+
+                    test_node = test_group->getIthChild(i);
+
+                    if (nullptr != test_node)
+                    {
+                        sprintf_s(bufor, 32, "(%s) ", test_node->getType()->name);
+                        test_str += bufor;
+                        test_str += test_node->getStringRepresentation();
+                    }
+                    else
+                    {
+                        test_str += "<< NULL >>";
+                    }
+
+                    GUI::updateNodesList(0, &test_str);
+                }
+            }
         }
     }
 

@@ -20,8 +20,8 @@ namespace ZookieWizard
     {
         /*** Properties ***/
 
-            eTransform* bone;
-            float matrix[4][4];
+            eTransform* xform;
+            eMatrix4x4 matrix;
 
         /*** Methods ***/
 
@@ -45,12 +45,12 @@ namespace ZookieWizard
             /*[0x0C]*/ eGeoSet* geo;
             /*[0x10]*/ eGeoArray<ePhyVertex>* vertices;
             
-            /*[0x14]*/ int32_t matrixCount;
-            /*[0x18]*/ int32_t matrixMaxLength;
-            /*[0x1C]*/ eBoneBase* matrix;
+            /*[0x14]*/ int32_t bonesCount;
+            /*[0x18]*/ int32_t bonesMaxLength;
+            /*[0x1C]*/ eBoneBase* bones;
 
-            /*[0x20]*/ eGeoArray<ePoint4>* unknown_20;
-            /*[0x24]*/ eGeoArray<ePoint4>* unknown_24;
+            /*[0x20]*/ eGeoArray<ePoint4>* defaultVertices;
+            /*[0x24]*/ eGeoArray<ePoint4>* defaultNormals;
             /*[0x28]*/ eMorpherMod* morph;
 
         /*** Methods ***/
@@ -64,6 +64,9 @@ namespace ZookieWizard
             TypeInfo* getType() override;
 
             eString getLogPrintMessage() override;
+
+            void prepareMatrices(int32_t draw_flags);
+            void animateVertices();
     };
 
 

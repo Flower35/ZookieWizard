@@ -57,8 +57,8 @@ namespace ZookieWizard
             ar_flags = 0;
             ar.readOrWrite(&ar_flags, 0x04);
             
-            form01.serialize(ar);
-            form02.serialize(ar);
+            defaultTransform[0].serialize(ar);
+            defaultTransform[1].serialize(ar);
 
             ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
         }
@@ -217,11 +217,11 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eProxy: render
     ////////////////////////////////////////////////////////////////
-    void eProxy::renderObject(float time, int32_t draw_flags)
+    void eProxy::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
     {
         if (GUI::drawFlags::DRAW_FLAG_PROXIES & draw_flags)
         {
-            eTransform::renderObject(time, draw_flags);
+            eTransform::renderObject(anim, draw_flags, parent_srp);
 
             /* (--dsp--) use `glCallList()` here !!! */
 
@@ -238,47 +238,47 @@ namespace ZookieWizard
 
             /* Cube Front */
 
-            glVertex3f(form01.pos.x - CUBE_WIDTH, form01.pos.y - CUBE_WIDTH_FRONT, form01.pos.z - CUBE_WIDTH);
-            glVertex3f(form01.pos.x + CUBE_WIDTH, form01.pos.y - CUBE_WIDTH_FRONT, form01.pos.z - CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
             
-            glVertex3f(form01.pos.x + CUBE_WIDTH, form01.pos.y - CUBE_WIDTH_FRONT, form01.pos.z - CUBE_WIDTH);
-            glVertex3f(form01.pos.x + CUBE_WIDTH, form01.pos.y - CUBE_WIDTH_FRONT, form01.pos.z + CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z + CUBE_WIDTH);
 
-            glVertex3f(form01.pos.x + CUBE_WIDTH, form01.pos.y - CUBE_WIDTH_FRONT, form01.pos.z + CUBE_WIDTH);
-            glVertex3f(form01.pos.x - CUBE_WIDTH, form01.pos.y - CUBE_WIDTH_FRONT, form01.pos.z + CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z + CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z + CUBE_WIDTH);
 
-            glVertex3f(form01.pos.x - CUBE_WIDTH, form01.pos.y - CUBE_WIDTH_FRONT, form01.pos.z + CUBE_WIDTH);
-            glVertex3f(form01.pos.x - CUBE_WIDTH, form01.pos.y - CUBE_WIDTH_FRONT, form01.pos.z - CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z + CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
 
             /* Cube Back */
 
-            glVertex3f(form01.pos.x - CUBE_WIDTH, form01.pos.y + CUBE_WIDTH, form01.pos.z - CUBE_WIDTH);
-            glVertex3f(form01.pos.x + CUBE_WIDTH, form01.pos.y + CUBE_WIDTH, form01.pos.z - CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z - CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z - CUBE_WIDTH);
 
-            glVertex3f(form01.pos.x + CUBE_WIDTH, form01.pos.y + CUBE_WIDTH, form01.pos.z - CUBE_WIDTH);
-            glVertex3f(form01.pos.x + CUBE_WIDTH, form01.pos.y + CUBE_WIDTH, form01.pos.z + CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z - CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z + CUBE_WIDTH);
 
-            glVertex3f(form01.pos.x + CUBE_WIDTH, form01.pos.y + CUBE_WIDTH, form01.pos.z + CUBE_WIDTH);
-            glVertex3f(form01.pos.x - CUBE_WIDTH, form01.pos.y + CUBE_WIDTH, form01.pos.z + CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z + CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z + CUBE_WIDTH);
 
-            glVertex3f(form01.pos.x - CUBE_WIDTH, form01.pos.y + CUBE_WIDTH, form01.pos.z + CUBE_WIDTH);
-            glVertex3f(form01.pos.x - CUBE_WIDTH, form01.pos.y + CUBE_WIDTH, form01.pos.z - CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z + CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z - CUBE_WIDTH);
 
             /* Cube Left */
 
-            glVertex3f(form01.pos.x - CUBE_WIDTH, form01.pos.y + CUBE_WIDTH, form01.pos.z + CUBE_WIDTH);
-            glVertex3f(form01.pos.x - CUBE_WIDTH, form01.pos.y - CUBE_WIDTH_FRONT, form01.pos.z + CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z + CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z + CUBE_WIDTH);
 
-            glVertex3f(form01.pos.x - CUBE_WIDTH, form01.pos.y + CUBE_WIDTH, form01.pos.z - CUBE_WIDTH);
-            glVertex3f(form01.pos.x - CUBE_WIDTH, form01.pos.y - CUBE_WIDTH_FRONT, form01.pos.z - CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z - CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
 
             /* Cube Right */
 
-            glVertex3f(form01.pos.x + CUBE_WIDTH, form01.pos.y + CUBE_WIDTH, form01.pos.z + CUBE_WIDTH);
-            glVertex3f(form01.pos.x + CUBE_WIDTH, form01.pos.y - CUBE_WIDTH_FRONT, form01.pos.z + CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z + CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z + CUBE_WIDTH);
 
-            glVertex3f(form01.pos.x + CUBE_WIDTH, form01.pos.y + CUBE_WIDTH, form01.pos.z - CUBE_WIDTH);
-            glVertex3f(form01.pos.x + CUBE_WIDTH, form01.pos.y - CUBE_WIDTH_FRONT, form01.pos.z - CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z - CUBE_WIDTH);
+            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
 
             /* Stop drawing lines */
 

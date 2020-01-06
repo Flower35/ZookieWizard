@@ -31,9 +31,11 @@ namespace ZookieWizard
                 void reset();
             };
 
-            extern HWND myWindowsGroupMain[2];
-            extern HWND myWindowsGroupAr[7];
+            extern HWND myWindowsGroupMain[3];
+            extern HWND myWindowsGroupAr[8];
             extern HWND myWindowsGroupDenis[4];
+            extern HWND myWindowsGroupAnimation[5];
+            extern HWND myWindowsGroupNodes[5];
 
             extern int32_t myWindowsCurrentGroup;
 
@@ -52,11 +54,18 @@ namespace ZookieWizard
                 DRAW_FLAG_INVISIBLE = (1 << 0),
                 DRAW_FLAG_BOXZONES = (1 << 1),
                 DRAW_FLAG_PROXIES = (1 << 2),
+                DRAW_FLAG_ANIMS = (1 << 3),
 
-                DRAW_FLAGS_COUNT = 3
+                DRAW_FLAGS_COUNT = 4
             };
 
             extern int32_t myDrawFlags;
+
+            extern float timePrevious;
+            extern float timeCurrent;
+            extern bool timeUpdate;
+            extern int32_t animationID;
+            extern int32_t animationFPS;
 
         /*** Functions ***/
 
@@ -74,6 +83,12 @@ namespace ZookieWizard
             
             void closeWindows();
             void changeWindowGroup();
+            void updateNodesList(int32_t, void*);
+
+            float timerGet();
+            void timerReset();
+            float timerGetCurrent();
+            float timerGetFrames();
     }
 }
 

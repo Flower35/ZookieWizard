@@ -70,11 +70,11 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefTarget: render child scene in parent scene
     ////////////////////////////////////////////////////////////////
-    void eXRefTarget::renderObject(float time, int32_t draw_flags)
+    void eXRefTarget::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
     {
         if (nullptr != scene)
         {
-            scene->renderObject(time, draw_flags);
+            scene->renderObject(anim, draw_flags, parent_srp);
         }
     }
 

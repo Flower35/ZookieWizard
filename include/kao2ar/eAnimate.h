@@ -1,8 +1,7 @@
-#ifndef H_KAO2_VTRACK
-#define H_KAO2_VTRACK
+#ifndef H_KAO2_ANIMATE
+#define H_KAO2_ANIMATE
 
 #include <kao2engine/eAnimState.h>
-#include <kao2engine/eTrack.h>
 
 #include <kao2ar/Collection.h>
 
@@ -34,6 +33,8 @@ namespace ZookieWizard
             ~eAnimate();
 
             void serialize(Archive &ar);
+
+            void setAnimation(int32_t anim_id, float time);
     };
 
     namespace ArFunctions

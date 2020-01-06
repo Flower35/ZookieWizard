@@ -49,7 +49,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eBoxZone: rener
     ////////////////////////////////////////////////////////////////
-    void eBoxZone::renderObject(float time, int32_t draw_flags)
+    void eBoxZone::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
     {
         if (GUI::drawFlags::DRAW_FLAG_BOXZONES & draw_flags)
         {

@@ -20,6 +20,12 @@ namespace ZookieWizard
 
         int32_t myDrawFlags = 0;
 
+        float timePrevious = 0;
+        float timeCurrent = 0;
+        bool timeUpdate = false;
+        int32_t animationID = 0;
+        int32_t animationFPS = 1;
+
         testCameraStruct::testCameraStruct()
         {
             reset();
@@ -102,6 +108,10 @@ namespace ZookieWizard
         {
             int pixel_format;
             PIXELFORMATDESCRIPTOR pfd = {0};
+
+            /* Reset global timer */
+            timerReset();
+            timeUpdate = true;
 
             openGL_DeviceContext = GetDC(myWindowsGroupMain[1]);
 
@@ -375,13 +385,82 @@ namespace ZookieWizard
         ////////////////////////////////////////////////////////////////
         void render()
         {
+            char bufor[64];
+            float time;
+
+            /* Get time at the beginning */
+
+            time = timerGetCurrent();
+
+            /* Render one frame */
+
             glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
             moveCameraAndLook(0, 0);
 
-            myARs[0].renderScene(0, myDrawFlags);
+            myARs[0].renderScene(myDrawFlags);
 
             SwapBuffers(openGL_DeviceContext);
+
+            /* Get time at the end and update window title */
+
+            time = timerGetCurrent() - time;
+
+            if (time > 0)
+            {
+                sprintf_s(bufor, 64, "Zookie Wizard (%.2f fps)", (1.0f / time));
+            }
+            else
+            {
+                sprintf_s(bufor, 64, "Zookie Wizard");
+            }
+
+            SetWindowText(myWindowsGroupMain[0], bufor);
+        }
+
+
+        ////////////////////////////////////////////////////////////////
+        // Timer functions
+        ////////////////////////////////////////////////////////////////
+
+        float timerGet()
+        {
+            static LARGE_INTEGER s_frequency;
+
+            if (QueryPerformanceFrequency(&s_frequency))
+            {
+                LARGE_INTEGER now;
+                QueryPerformanceCounter(&now);
+
+                return (float)((1000LL * now.QuadPart) / s_frequency.QuadPart) / 1000.0f;
+            }
+            else
+            {
+                return (float)GetTickCount() / 1000.0f;
+            }
+        }
+
+        void timerReset()
+        {
+            timePrevious = timerGet();
+            timeCurrent = 0;
+        }
+
+        float timerGetCurrent()
+        {
+            if (timeUpdate)
+            {
+                timeCurrent = timerGet() - timePrevious;
+            }
+
+            /* Return time in seconds */
+            return timeCurrent;
+        }
+
+        float timerGetFrames()
+        {
+            /* [s] x [frame/s] = [frame] */
+            return timerGetCurrent() * animationFPS;
         }
 
     }

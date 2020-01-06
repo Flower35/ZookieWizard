@@ -69,9 +69,9 @@ namespace ZookieWizard
         ePoint3(float initializer);
         ePoint3(float, float, float);
 
-        ePoint3& operator + (const ePoint3&);
-        ePoint3& operator - (const ePoint3&);
-        ePoint3& operator * (float);
+        ePoint3 operator + (const ePoint3&);
+        ePoint3 operator - (const ePoint3&);
+        ePoint3 operator * (float);
 
         void serialize(Archive &ar);
     };
@@ -87,6 +87,11 @@ namespace ZookieWizard
         ePoint4();
         ePoint4(float initializer);
         ePoint4(float, float, float, float);
+
+        ePoint4 operator + (const ePoint4&);
+        ePoint4 operator * (float);
+
+        void normalize();
 
         void serialize(Archive &ar);
     };
@@ -119,14 +124,17 @@ namespace ZookieWizard
         eQuat(float initializer);
         eQuat(float, float, float, float);
 
-        eQuat& operator+(const eQuat&);
-        eQuat& operator-(const eQuat&);
-        eQuat& operator * (float);
+        eQuat operator + (const eQuat&);
+        eQuat operator - (const eQuat&);
+        eQuat operator * (const eQuat&);
+        eQuat operator * (float);
 
         void normalize();
 
         void fromEulerAngles(bool, float, float, float);
     };
+
+    ePoint3 operator * (ePoint3 pos, eQuat rot);
 
     struct eMatrix4x4
     {
@@ -137,6 +145,8 @@ namespace ZookieWizard
         void identity();
         void transpose(float result[16]);
 
+        void serialize(Archive &ar);
+
         void setRotationZ(float angle);
         void setRotationY(float angle);
         void setRotationX(float angle);
@@ -144,6 +154,9 @@ namespace ZookieWizard
 
     eMatrix4x4 operator * (eMatrix4x4 a, eMatrix4x4 b);
     ePoint4 operator * (eMatrix4x4 a, ePoint4 p);
+
+    /* Global Bones Matrices */
+    extern eMatrix4x4 theBonesMatrices[40];
 
     /* `sizeof(eSRP) == 0x20` (32 bytes) */
     struct eSRP
@@ -156,8 +169,11 @@ namespace ZookieWizard
         eSRP(float initializer);
         
         eMatrix4x4 getMatrix();
+        eMatrix4x4 getInverseMatrix();
 
         void serialize(Archive &ar);
+
+        eSRP applyAnotherSRP(const eSRP &parent);
     };
 
     /* "eAnimState", "eTrack": */

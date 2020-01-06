@@ -18,11 +18,10 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x48-0x64]*/ eSRP form01;
-            /*[0x68-0x84]*/ eSRP form02;
+            /*[0x48-0x84]*/ eSRP defaultTransform[2];
             /*[0xA8]*/ eCtrl<eSRP>* ctrl;
 
-            eSRP currentXForm;
+            eSRP modifiedTransform[2];
             float transposedMatrix[16];
 
         /*** Methods ***/
@@ -35,9 +34,11 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
-            void renderObject(float time, int32_t draw_flags) override;
+            void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
+            void updateSRP(eAnimate* anim, eSRP &parent_srp) override;
 
             void setXForm(eSRP new_xform);
+            eSRP getXForm();
     };
 
 

@@ -30,7 +30,7 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
-            void renderObject(float time, int32_t draw_flags) override;
+            void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
 
             eGeoSet* getGeoSetLink();
             void setGeoSet(eGeoSet* new_geo);

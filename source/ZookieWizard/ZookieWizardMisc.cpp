@@ -186,6 +186,11 @@ namespace ZookieWizard
                 "================================\n"
             );
 
+            if (AR_MODE_READ == mode)
+            {
+                myARs[0].changeSelectedObject(-4);
+            }
+
             if (false == skip_creating_new_ar)
             {
                 ar_name = ar_name.getFilename();
@@ -379,6 +384,8 @@ namespace ZookieWizard
             test_scene = myDenisLevels[0].convertToKao2(file);
 
             myARs[0].setMyParentScene(test_scene);
+            
+            myARs[0].changeSelectedObject(-4);
 
             sprintf_s
             (

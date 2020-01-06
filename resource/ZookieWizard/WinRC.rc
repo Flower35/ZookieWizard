@@ -47,7 +47,7 @@ FILEFLAGS 0
             VALUE "ProductName", "Zookie Wizard"
 
             VALUE "CompanyName", "Flower35 (Radek Krzyœków)"
-            VALUE "LegalCopyright", "(c) Radek Krzyœków (2019)"
+            VALUE "LegalCopyright", "(c) Radek Krzyœków (2020)"
 
             VALUE "FileVersion", Wersja_Txt
 			VALUE "ProductVersion", Wersja_Txt

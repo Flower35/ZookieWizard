@@ -63,11 +63,11 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefProxy: render in scene
     ////////////////////////////////////////////////////////////////
-    void eXRefProxy::renderObject(float time, int32_t draw_flags)
+    void eXRefProxy::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
     {
         if (nullptr != target)
         {
-            target->renderObject(time, draw_flags);
+            target->renderObject(anim, draw_flags, parent_srp);
         }
     }
 

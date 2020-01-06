@@ -90,7 +90,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eObject: 3D rendering
     ////////////////////////////////////////////////////////////////
-    void eObject::renderObject(float time, int32_t draw_flags)
+    void eObject::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
     {}
 
 }

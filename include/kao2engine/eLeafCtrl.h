@@ -55,7 +55,7 @@ namespace ZookieWizard
         private:
 
             int getKeyframeId(float time);
-
+            T interpolate(float ratio, T &first, T &second, T &other);
     };
 
 

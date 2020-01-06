@@ -131,10 +131,47 @@ namespace ZookieWizard
                     j = k - 1;
                 }
             }
-            while (j < j);
+            while (i < j);
         }
 
         return i;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: animation function
+    // Interpolate between keyframes
+    // "LERP" for "float" and "ePoint3"
+    // "SLERP" for "eQuat"
+    ////////////////////////////////////////////////////////////////
+    
+    float eLeafCtrl<float>::interpolate(float ratio, float &first, float &second, float &other)
+    {
+        float result = (first * (1.0f - ratio)) + (second * ratio);
+
+        return (result + other);
+    }
+
+    ePoint3 eLeafCtrl<ePoint3>::interpolate(float ratio, ePoint3 &first, ePoint3 &second, ePoint3 &other)
+    {
+        /* <kao2.004A0500> */
+
+        ePoint3 result = (first * (1.0f - ratio)) + (second * ratio);
+
+        return (result + other);
+    }
+
+    eQuat eLeafCtrl<eQuat>::interpolate(float ratio, eQuat &first, eQuat &second, eQuat &other)
+    {
+        /* <kao2.004A4741> */
+
+        eQuat result = (first * (1.0f - ratio)) + (second * ratio);
+
+        result = result + other;
+
+        result.normalize();
+
+        return result;
     }
 
 
@@ -266,15 +303,7 @@ namespace ZookieWizard
 
                 float ratio = (time - keys[id].time) / (keys[id + 1].time - keys[id].time);
 
-                /* (--dsp--) some multiplications */
-
-                /* (--dsp--) SLERP interpolation for "eQuat" */
-
-                float inv_ratio = 1.0f - ratio;
-
-                (*e) = (keys[id].data[0] * inv_ratio) + (keys[id + 1].data[0] * ratio);
-
-                (*e) = (*e) + test;
+                (*e) = interpolate(ratio, keys[id].data[0], keys[id + 1].data[0], test);
             }
         }
     }

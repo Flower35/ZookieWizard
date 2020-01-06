@@ -43,7 +43,7 @@ namespace ZookieWizard
 
             void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
 
-            void renderObject(float time, int32_t draw_flags) override;
+            void renderObject(eAnimate* anim, int32_t draw_flag, eSRP &parent_srp) override;
 
             void setTargetName(eString new_target);
             void setCategory(int32_t new_category);

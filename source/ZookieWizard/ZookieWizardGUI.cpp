@@ -13,9 +13,11 @@ namespace ZookieWizard
         const char* WINDOW_CLASS_NAME_1 = "ZookieWizard::GUI::WindowClassOne";
         const char* WINDOW_CLASS_NAME_2 = "ZookieWizard::GUI::WindowClassTwo";
 
-        HWND myWindowsGroupMain[2] = {NULL};
-        HWND myWindowsGroupAr[7] = {NULL};
+        HWND myWindowsGroupMain[3] = {NULL};
+        HWND myWindowsGroupAr[8] = {NULL};
         HWND myWindowsGroupDenis[4] = {NULL};
+        HWND myWindowsGroupAnimation[5] = {NULL};
+        HWND myWindowsGroupNodes[5] = {NULL};
 
         int32_t myWindowsCurrentGroup = 1;
 
@@ -28,6 +30,9 @@ namespace ZookieWizard
         ////////////////////////////////////////////////////////////////
         LRESULT CALLBACK procedureOfMainWindow(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
         {
+            int32_t i;
+            char bufor[8];
+
             switch (Msg)
             {
                 /********************************/
@@ -164,7 +169,7 @@ namespace ZookieWizard
                             break;
                         }
 
-                        case IDM_EDITBOX_DENISDIR:
+                        case IDM_EDITBOX_DENIS_DIR:
                         {
                             if (EN_CHANGE == HIWORD(wParam))
                             {
@@ -174,11 +179,112 @@ namespace ZookieWizard
                             break;
                         }
 
-                        case IDM_EDITBOX_DENISLVL:
+                        case IDM_EDITBOX_DENIS_LVL:
                         {
                             if (EN_CHANGE == HIWORD(wParam))
                             {
                                 GetWindowText((HWND)lParam, denisLevelName, 256);
+                            }
+
+                            break;
+                        }
+
+                        case IDM_EDITBOX_ANIM_ID:
+                        {
+                            if (EN_CHANGE == HIWORD(wParam))
+                            {
+                                GetWindowText((HWND)lParam, bufor, 8);
+
+                                i = std::atoi(bufor);
+
+                                if (i < 0)
+                                {
+                                    i = 0;
+                                }
+
+                                if (animationID != i)
+                                {
+                                    animationID = i;
+                                    timerReset();
+                                }
+                            }
+
+                            break;
+                        }
+
+                        case IDM_EDITBOX_ANIM_FPS:
+                        {
+                            if (EN_CHANGE == HIWORD(wParam))
+                            {
+                                GetWindowText((HWND)lParam, bufor, 8);
+
+                                i = std::atoi(bufor);
+
+                                if (i >= 1)
+                                {
+                                    animationFPS = i;
+                                }
+                                else
+                                {
+                                    animationFPS = 1;
+                                }
+                            }
+
+                            break;
+                        }
+
+                        case IDM_LISTBOX_NODES:
+                        {
+                            if (LBN_DBLCLK == HIWORD(wParam))
+                            {
+                                i = SendMessage((HWND)lParam, LB_GETCURSEL, 0, 0);
+
+                                if (i == LB_ERR)
+                                {
+                                    i = (-1);
+                                }
+
+                                myARs[0].changeSelectedObject(i);
+                            }
+
+                            break;
+                        }
+
+                        case IDM_BUTTON_RESET_NODES:
+                        {
+                            if (BN_CLICKED == HIWORD(wParam))
+                            {
+                                myARs[0].changeSelectedObject(-4);
+                            }
+
+                            break;
+                        }
+
+                        case IDM_BUTTON_PARENT_NODE:
+                        {
+                            if (BN_CLICKED == HIWORD(wParam))
+                            {
+                                myARs[0].changeSelectedObject(-3);
+                            }
+
+                            break;
+                        }
+
+                        case IDM_BUTTON_TOGGLE_NODE:
+                        {
+                            if (BN_CLICKED == HIWORD(wParam))
+                            {
+                                myARs[0].changeSelectedObject(-2);
+                            }
+
+                            break;
+                        }
+
+                        case IDM_BUTTON_RESET_TIMER:
+                        {
+                            if (BN_CLICKED == HIWORD(wParam))
+                            {
+                                timerReset();
                             }
 
                             break;
@@ -245,6 +351,23 @@ namespace ZookieWizard
                             break;
                         }
 
+                        case IDM_CHECKBOX_RENDER_ANIMS:
+                        {
+                            if (BN_CLICKED == HIWORD(wParam))
+                            {
+                                if (BST_CHECKED == SendMessage((HWND)lParam, BM_GETCHECK, 0, 0))
+                                {
+                                    myDrawFlags |= drawFlags::DRAW_FLAG_ANIMS;
+                                }
+                                else
+                                {
+                                    myDrawFlags &= (~ drawFlags::DRAW_FLAG_ANIMS);
+                                }
+                            }
+
+                            break;
+                        }
+
                         case IDM_BUTTON_PAGE_PREV:
                         {
                             myWindowsCurrentGroup--;
@@ -263,9 +386,9 @@ namespace ZookieWizard
                         {
                             myWindowsCurrentGroup++;
 
-                            if (myWindowsCurrentGroup > 2)
+                            if (myWindowsCurrentGroup > 4)
                             {
-                                myWindowsCurrentGroup = 2;
+                                myWindowsCurrentGroup = 4;
                             }
 
                             changeWindowGroup();
@@ -449,7 +572,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [GROUP 1/3] Create main window */
+            /* [GROUP 0/4] Create main window */
 
             const DWORD pos_x = ((GetSystemMetrics(SM_CXSCREEN) - RECT_WINDOW_X) / 2);
             const DWORD pos_y = ((GetSystemMetrics(SM_CYSCREEN) - RECT_WINDOW_Y) / 2);
@@ -477,7 +600,7 @@ namespace ZookieWizard
             myWindowsGroupMain[0] = test_hwnd;
 
             /********************************/
-            /* [GROUP 1/3] Create renderer window */
+            /* [GROUP 0/4] Create renderer window */
 
             test_hwnd = CreateWindow
             (
@@ -502,7 +625,7 @@ namespace ZookieWizard
             myWindowsGroupMain[1] = test_hwnd;
 
             /********************************/
-            /* [GROUP 1/3] Create button (previous page) */
+            /* [GROUP 0/4] Create button (previous page) */
 
             test_hwnd = CreateWindow
             (
@@ -527,7 +650,7 @@ namespace ZookieWizard
             SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
             
             /********************************/
-            /* [GROUP 1/3] Create button (next page) */
+            /* [GROUP 0/4] Create button (next page) */
 
             test_hwnd = CreateWindow
             (
@@ -552,7 +675,29 @@ namespace ZookieWizard
             SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
 
             /********************************/
-            /* [GROUP 2/3] Create dummy label */
+            /* [GROUP 0/4] Create page label */
+
+            test_hwnd = CreateWindow
+            (
+                "STATIC",
+                "",
+                (WS_CHILD | WS_VISIBLE),
+                RECT_TABS_X1 + (2 * 32) + (2 * WINDOW_PADDING),
+                RECT_TABS_Y1 + (0 * WINDOW_HEIGHT) + (0 * WINDOW_PADDING),
+                160,
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                NULL,
+                hInstance,
+                NULL
+            );
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupMain[2] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 1/4] Create dummy label */
 
             test_hwnd = CreateWindow
             (
@@ -574,7 +719,7 @@ namespace ZookieWizard
             myWindowsGroupAr[0] = test_hwnd;
 
             /********************************/
-            /* [GROUP 2/3] Create editbox window */
+            /* [GROUP 1/4] Create editbox window */
 
             test_hwnd = CreateWindowEx
             (
@@ -602,7 +747,7 @@ namespace ZookieWizard
             myWindowsGroupAr[1] = test_hwnd;
 
             /********************************/
-            /* [GROUP 2/3] Create button */
+            /* [GROUP 1/4] Create button */
 
             test_hwnd = CreateWindow
             (
@@ -629,20 +774,22 @@ namespace ZookieWizard
             myWindowsGroupAr[2] = test_hwnd;
 
             /********************************/
-            /* [GROUP 2/3] Create checkboxes */
+            /* [GROUP 1/4] Create checkboxes */
 
             const int checkboxes_ids[drawFlags::DRAW_FLAGS_COUNT] =
             {
                 IDM_CHECKBOX_RENDER_INVISIBLE,
                 IDM_CHECKBOX_RENDER_BOXZONES,
-                IDM_CHECKBOX_RENDER_PROXIES
+                IDM_CHECKBOX_RENDER_PROXIES,
+                IDM_CHECKBOX_RENDER_ANIMS
             };
 
             const char* checkboxes_names[drawFlags::DRAW_FLAGS_COUNT] =
             {
                 "draw INVISIBLE MESHES",
                 "draw BOX ZONES",
-                "draw PROXIES"
+                "draw PROXIES",
+                "update ANIMATIONS"
             };
 
             for (i = 0; i < drawFlags::DRAW_FLAGS_COUNT; i++)
@@ -673,7 +820,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [GROUP 2/3] Create dummy label */
+            /* [GROUP 1/4] Create dummy label */
 
             test_hwnd = CreateWindow
             (
@@ -696,10 +843,10 @@ namespace ZookieWizard
 
             SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
 
-            myWindowsGroupAr[6] = test_hwnd;
+            myWindowsGroupAr[3 + drawFlags::DRAW_FLAGS_COUNT] = test_hwnd;
             
             /********************************/
-            /* [GROUP 3/3] Create dummy label */
+            /* [GROUP 2/4] Create dummy label */
 
             test_hwnd = CreateWindow
             (
@@ -721,7 +868,7 @@ namespace ZookieWizard
             myWindowsGroupDenis[0] = test_hwnd;
 
             /********************************/
-            /* [GROUP 3/3] Create editbox window */
+            /* [GROUP 2/4] Create editbox window */
 
             test_hwnd = CreateWindowEx
             (
@@ -734,7 +881,7 @@ namespace ZookieWizard
                 RECT_TABS_X2,
                 WINDOW_HEIGHT,
                 myWindowsGroupMain[0],
-                (HMENU)IDM_EDITBOX_DENISDIR,
+                (HMENU)IDM_EDITBOX_DENIS_DIR,
                 hInstance,
                 NULL
             );
@@ -750,7 +897,7 @@ namespace ZookieWizard
 
             
             /********************************/
-            /* [GROUP 3/3] Create dummy label */
+            /* [GROUP 2/4] Create dummy label */
 
             test_hwnd = CreateWindow
             (
@@ -772,7 +919,7 @@ namespace ZookieWizard
             myWindowsGroupDenis[2] = test_hwnd;
 
             /********************************/
-            /* [GROUP 3/3] Create editbox window */
+            /* [GROUP 2/4] Create editbox window */
 
             test_hwnd = CreateWindowEx
             (
@@ -785,7 +932,7 @@ namespace ZookieWizard
                 RECT_TABS_X2,
                 WINDOW_HEIGHT,
                 myWindowsGroupMain[0],
-                (HMENU)IDM_EDITBOX_DENISLVL,
+                (HMENU)IDM_EDITBOX_DENIS_LVL,
                 hInstance,
                 NULL
             );
@@ -800,7 +947,267 @@ namespace ZookieWizard
             myWindowsGroupDenis[3] = test_hwnd;
 
             /********************************/
+            /* [GROUP 3/4] Create dummy label */
+
+            test_hwnd = CreateWindow
+            (
+                "STATIC",
+                "Animation ID",
+                (WS_CHILD),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (1 * WINDOW_HEIGHT) + (1 * WINDOW_PADDING),
+                RECT_TABS_X2,
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                NULL,
+                hInstance,
+                NULL
+            );
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupAnimation[0] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 3/4] Create editbox window */
+
+            test_hwnd = CreateWindowEx
+            (
+                WS_EX_CLIENTEDGE,
+                "EDIT",
+                "0",
+                (WS_CHILD | ES_AUTOHSCROLL),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (2 * WINDOW_HEIGHT) + (1 * WINDOW_PADDING),
+                RECT_TABS_X2,
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_EDITBOX_ANIM_ID,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupAnimation[1] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 3/4] Create button */
+
+            test_hwnd = CreateWindow
+            (
+                "BUTTON",
+                "Reset Timer",
+                (WS_CHILD | BS_DEFPUSHBUTTON),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (3 * WINDOW_HEIGHT) + (2 * WINDOW_PADDING),
+                RECT_TABS_X2,
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_BUTTON_RESET_TIMER,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupAnimation[2] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 3/4] Create dummy label */
+
+            test_hwnd = CreateWindow
+            (
+                "STATIC",
+                "Frames per second",
+                (WS_CHILD),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (4 * WINDOW_HEIGHT) + (3 * WINDOW_PADDING),
+                RECT_TABS_X2,
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                NULL,
+                hInstance,
+                NULL
+            );
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupAnimation[3] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 3/4] Create editbox window */
+
+            test_hwnd = CreateWindowEx
+            (
+                WS_EX_CLIENTEDGE,
+                "EDIT",
+                "1",
+                (WS_CHILD | ES_AUTOHSCROLL),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (5 * WINDOW_HEIGHT) + (3 * WINDOW_PADDING),
+                RECT_TABS_X2,
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_EDITBOX_ANIM_FPS,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupAnimation[4] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 4/4] Create dummy label */
+
+            test_hwnd = CreateWindow
+            (
+                "STATIC",
+                "",
+                (WS_CHILD),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (1 * WINDOW_HEIGHT) + (1 * WINDOW_PADDING),
+                RECT_TABS_X2,
+                (2 * WINDOW_HEIGHT),
+                myWindowsGroupMain[0],
+                NULL,
+                hInstance,
+                NULL
+            );
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupNodes[0] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 4/4] Create button */
+
+            test_hwnd = CreateWindow
+            (
+                "BUTTON",
+                "^ Archive Root",
+                (WS_CHILD | BS_DEFPUSHBUTTON),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (3 * WINDOW_HEIGHT) + (2 * WINDOW_PADDING),
+                (RECT_TABS_X2 / 2) - (WINDOW_PADDING / 2),
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_BUTTON_RESET_NODES,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupNodes[1] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 4/4] Create button */
+
+            test_hwnd = CreateWindow
+            (
+                "BUTTON",
+                "^ Parent Node",
+                (WS_CHILD | BS_DEFPUSHBUTTON),
+                RECT_TABS_X1 + (RECT_TABS_X2 / 2) + (WINDOW_PADDING / 2),
+                RECT_TABS_Y1 + (3 * WINDOW_HEIGHT) + (2 * WINDOW_PADDING),
+                (RECT_TABS_X2 / 2) - (WINDOW_PADDING / 2),
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_BUTTON_PARENT_NODE,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupNodes[2] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 4/4] Create button */
+
+            test_hwnd = CreateWindow
+            (
+                "BUTTON",
+                "Toggle Node",
+                (WS_CHILD | BS_DEFPUSHBUTTON),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (4 * WINDOW_HEIGHT) + (3 * WINDOW_PADDING),
+                (RECT_TABS_X2 / 2) - (WINDOW_PADDING / 2),
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_BUTTON_TOGGLE_NODE,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupNodes[3] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 4/4] Create listbox window */
+
+            test_hwnd = CreateWindowEx
+            (
+                WS_EX_CLIENTEDGE,
+                "LISTBOX",
+                NULL,
+                (WS_CHILD | WS_HSCROLL | WS_VSCROLL | LBS_DISABLENOSCROLL | LBS_HASSTRINGS | LBS_NOTIFY),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (5 * WINDOW_HEIGHT) + (4 * WINDOW_PADDING),
+                RECT_TABS_X2,
+                256,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_LISTBOX_NODES,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupNodes[4] = test_hwnd;
+
+            /********************************/
             /* WinApi creation completed. :) */
+
+            changeWindowGroup();
 
             ShowWindow(myWindowsGroupMain[0], SW_SHOW);
 
@@ -846,9 +1253,19 @@ namespace ZookieWizard
             int32_t i;
             int show_status;
 
+            char bufor[256];
+
+            const char* page_names[4] = 
+            {
+                "theAR",
+                "Denis",
+                "Animation",
+                "Nodes list"
+            };
+
             show_status = (1 == myWindowsCurrentGroup) ? SW_SHOW : SW_HIDE;
 
-            for (i = 0; i < 7; i++)
+            for (i = 0; i < 8; i++)
             {
                 ShowWindow(myWindowsGroupAr[i], show_status);
             }
@@ -858,6 +1275,64 @@ namespace ZookieWizard
             for (i = 0; i < 4; i++)
             {
                 ShowWindow(myWindowsGroupDenis[i], show_status);
+            }
+
+            show_status = (3 == myWindowsCurrentGroup) ? SW_SHOW : SW_HIDE;
+
+            for (i = 0; i < 5; i++)
+            {
+                ShowWindow(myWindowsGroupAnimation[i], show_status);
+            }
+
+            show_status = (4 == myWindowsCurrentGroup) ? SW_SHOW : SW_HIDE;
+
+            for (i = 0; i < 5; i++)
+            {
+                ShowWindow(myWindowsGroupNodes[i], show_status);
+            }
+
+            sprintf_s
+            (
+                bufor,
+                256,
+                "Page [%d/4] %s",
+                myWindowsCurrentGroup,
+                page_names[myWindowsCurrentGroup - 1]
+            );
+
+            SetWindowText(myWindowsGroupMain[2], bufor);
+        }
+
+
+        ////////////////////////////////////////////////////////////////
+        // Update ListBox of nodes
+        ////////////////////////////////////////////////////////////////
+        void updateNodesList(int32_t mode, void* param)
+        {
+            eString* test_str = (eString*)param;
+            HWND label = myWindowsGroupNodes[0];
+            HWND listbox = GetDlgItem(myWindowsGroupMain[0], IDM_LISTBOX_NODES);
+
+            if ((NULL == label) || (NULL == listbox))
+            {
+                return;
+            }
+
+            if (nullptr != test_str)
+            {
+                if (mode < 0)
+                {
+                    SetWindowText(label, test_str->getText());
+                }
+                else
+                {
+                    SendMessage(listbox, LB_ADDSTRING, 0, (LPARAM)(test_str->getText()));
+                }
+            }
+            else
+            {
+                SetWindowText(label, "");
+                SendMessage(listbox, LB_RESETCONTENT, 0, 0);
             }
         }
 

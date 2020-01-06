@@ -17,7 +17,7 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x08]*/ int aID; // ID tracka w arrayu innego obiektu do animacji.
+            /*[0x08]*/ int32_t aID; // ID tracka w arrayu innego obiektu do animacji.
             /*[0x0C]*/ float unknown0C;
             /*[0x10]*/ float time; // ogólny czas liczony w "keyframes", wci¹¿ roœnie.
             /*[0x14]*/ float unknown14;
@@ -30,7 +30,7 @@ namespace ZookieWizard
             /*[0x30]*/ float w;
             /*[0x34]*/ float startFrame; // kopia z eTrack[0x08]
             /*[0x38]*/ float endFrame; // kopia z eTrack[0x10]
-            /*[0x3C]*/ int loopType; // kopia z eTrack[0x14]
+            /*[0x3C]*/ int32_t loopType; // kopia z eTrack[0x14]
             /*[0x40]*/ float bef;
             /*[0x44]*/ float bet;
 
@@ -46,6 +46,9 @@ namespace ZookieWizard
 
             float getTime();
             int getAnimId();
+
+            void setTime(float current_time);
+            void setAnimId(int32_t current_anim_id);
     };
 
 

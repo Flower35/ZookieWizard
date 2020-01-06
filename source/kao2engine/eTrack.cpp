@@ -80,4 +80,18 @@ namespace ZookieWizard
     }
 
 
+    ////////////////////////////////////////////////////////////////
+    // eTrack: get times
+    ////////////////////////////////////////////////////////////////
+
+    float eTrack::getStartFrame()
+    {
+        return startFrame;
+    }
+
+    float eTrack::getEndFrame()
+    {
+        return endFrame;
+    }
+
 }

@@ -25,31 +25,34 @@ namespace ZookieWizard
     : x(_x), y(_y), z(_z)
     {}
 
-    ePoint3& ePoint3::operator + (const ePoint3 &point)
+    ePoint3 ePoint3::operator + (const ePoint3 &point)
     {
-        x = x + point.x;
-        y = y + point.y;
-        z = z + point.z;
-
-        return *this;
+        return ePoint3
+        (
+            x + point.x,
+            y + point.y,
+            z + point.z
+        );
     }
 
-    ePoint3& ePoint3::operator - (const ePoint3 &point)
+    ePoint3 ePoint3::operator - (const ePoint3 &point)
     {
-        x = x - point.x;
-        y = y - point.y;
-        z = z - point.z;
-
-        return *this;
+        return ePoint3
+        (
+            x - point.x,
+            y - point.y,
+            z - point.z
+        );
     }
 
-    ePoint3& ePoint3::operator * (float scalar)
+    ePoint3 ePoint3::operator * (float scalar)
     {
-        x = x * scalar;
-        y = y * scalar;
-        z = z * scalar;
-
-        return *this;
+        return ePoint3
+        (
+            x * scalar,
+            y * scalar,
+            z * scalar
+        );
     }
 
     void ePoint3::serialize(Archive &ar)
@@ -80,6 +83,41 @@ namespace ZookieWizard
     : x(_x), y(_y), z(_z), w(_w)
     {}
 
+    ePoint4 ePoint4::operator + (const ePoint4 &point)
+    {
+        return ePoint4
+        (
+            x + point.x,
+            y + point.y,
+            z + point.z,
+            w + point.w
+        );
+    }
+
+    ePoint4 ePoint4::operator * (float scalar)
+    {
+        return ePoint4
+        (
+            x * scalar,
+            y * scalar,
+            z * scalar,
+            w * scalar
+        );
+    }
+
+    void ePoint4::normalize()
+    {
+        float length = sqrtf((x * x) + (y * y) + (z * z) + (w * w));
+
+        if (0 != length)
+        {
+            x = x / length;
+            y = y / length;
+            z = z / length;
+            w = w / length;
+        }
+    }
+
     void ePoint4::serialize(Archive &ar)
     {
         ar.readOrWrite(&x, 0x04);
@@ -109,43 +147,61 @@ namespace ZookieWizard
     : x(_x), y(_y), z(_z), w(_w)
     {}
 
-    eQuat& eQuat::operator + (const eQuat &quaternion)
+    eQuat eQuat::operator + (const eQuat &quaternion)
     {
-        x = x + quaternion.x;
-        y = y + quaternion.y;
-        z = z + quaternion.z;
-        w = w + quaternion.w;
+        eQuat result
+        (
+            x + quaternion.x,
+            y + quaternion.y,
+            z + quaternion.z,
+            w + quaternion.w
+        );
 
-        normalize();
+        result.normalize();
 
-        return *this;
+        return result;
     }
 
-    eQuat& eQuat::operator - (const eQuat &quaternion)
+    eQuat eQuat::operator - (const eQuat &quaternion)
     {
-        x = x - quaternion.x;
-        y = y - quaternion.y;
-        z = z - quaternion.z;
-        w = w - quaternion.w;
+        eQuat result
+        (
+            x - quaternion.x,
+            y - quaternion.y,
+            z - quaternion.z,
+            w - quaternion.w
+        );
 
-        normalize();
+        result.normalize();
 
-        return *this;
+        return result;
     }
 
-    eQuat& eQuat::operator * (float scalar)
+    eQuat eQuat::operator * (const eQuat &quat)
     {
-        x = x * scalar;
-        y = y * scalar;
-        z = z * scalar;
-        w = w * scalar;
+        return eQuat
+        (
+            (y * quat.z - z * quat.y) + (w * quat.x) + (quat.w * x),
+            (z * quat.x - x * quat.z) + (w * quat.y) + (quat.w * y),
+            (x * quat.y - y * quat.x) + (w * quat.z) + (quat.w * z),
+            (w * quat.w) - (x * quat.x + y * quat.y + z * quat.z)
+        );
+    }
 
-        return *this;
+    eQuat eQuat::operator * (float scalar)
+    {
+        return eQuat
+        (
+            x * scalar,
+            y * scalar,
+            z * scalar,
+            w * scalar
+        );
     }
 
     void eQuat::normalize()
     {
-        float length = sqrtf((x *x) + (y * y) + (z * z) + (w * w));
+        float length = sqrtf((x * x) + (y * y) + (z * z) + (w * w));
 
         if (0 != length)
         {
@@ -153,6 +209,10 @@ namespace ZookieWizard
             y = y / length;
             z = z / length;
             w = w / length;
+        }
+        else
+        {
+            w = 1.0f;
         }
     }
 
@@ -174,6 +234,28 @@ namespace ZookieWizard
         z = t * (c1 * c2 * s3 - c3 * s1 * s2);
         w = c1 * c2 * c3 + s1 * s2 * s3;
     }
+    
+    /* <kao2.004AB070> */
+    ePoint3 operator * (ePoint3 pos, eQuat rot)
+    {
+        ePoint3 result;
+
+        result.x
+            = (1.0f - (2 * rot.z * rot.z + 2 * rot.y * rot.y)) * pos.x
+            + (2 * rot.y * rot.x + 2 * rot.z * rot.w) * pos.y
+            + (2 * rot.z * rot.x - 2 * rot.y * rot.w) * pos.z;
+        result.y
+            = (2 * rot.y * rot.x - 2 * rot.z * rot.w) * pos.x
+            + (1.0f - (2 * rot.z * rot.z + 2 * rot.x * rot.x)) * pos.y
+            + (2 * rot.z * rot.y + 2 * rot.x * rot.w) * pos.z;
+        result.z
+            = (2 * rot.z * rot.x + 2 * rot.y * rot.w) * pos.x
+            + (2 * rot.z * rot.y - 2 * rot.x * rot.w) * pos.y
+            + (1.0f - (2 * rot.x * rot.x + 2 * rot.y * rot.y)) * pos.z;
+
+        return result;
+    }
+
 
     ////////////////////////////////////////////////////////////////
     // Kao2 data structure: Matrix [4x4]
@@ -255,6 +337,21 @@ namespace ZookieWizard
         }
     }
 
+    void eMatrix4x4::serialize(Archive &ar)
+    {
+        int32_t columns;
+        int32_t rows;
+
+        for (rows = 0; rows < 4; rows++)
+        {
+            for (columns = 0; columns < 4; columns++)
+            {
+                /* Matrices for Bones are stored in transposition */
+                 ar.readOrWrite(&(m[columns][rows]), 0x04);
+            }
+        }
+    }
+
     void eMatrix4x4::setRotationZ(float angle)
     {
         float cosinus = std::cosf(angle);
@@ -332,6 +429,9 @@ namespace ZookieWizard
         m[3][2] = 0;
         m[3][3] = 1.0f;
     }
+
+    /* Global Bones Matrices */
+    eMatrix4x4 theBonesMatrices[40];
 
 
     ////////////////////////////////////////////////////////////////
@@ -431,6 +531,88 @@ namespace ZookieWizard
         /* (T x (R x (S x Vector))) */
 
         return ((translationMatrix * rotationMatrix) * scaleMatrix);
+    }
+
+    /* <kao2.004AB580> */
+    eMatrix4x4 eSRP::getInverseMatrix()
+    {
+        eMatrix4x4 rotationMatrix;
+        eMatrix4x4 scaleMatrix;
+        eMatrix4x4 transformMatrix;
+
+        float new_scale = 1.0f / scale;
+        ePoint4 new_pos;
+
+        rotationMatrix.m[0][0] = 1 - 2 * (rot.y * rot.y + rot.z * rot.z);
+        rotationMatrix.m[0][1] = 2 * (rot.x * rot.y - rot.z * rot.w);
+        rotationMatrix.m[0][2] = 2 * (rot.x * rot.z + rot.y * rot.w);
+        rotationMatrix.m[0][3] = 0;
+
+        rotationMatrix.m[1][0] = 2 * (rot.x * rot.y + rot.z * rot.w);
+        rotationMatrix.m[1][1] = 1 - 2 * (rot.x * rot.x + rot.z * rot.z);
+        rotationMatrix.m[1][2] = 2 * (rot.y * rot.z - rot.x * rot.w);
+        rotationMatrix.m[1][3] = 0;
+
+        rotationMatrix.m[2][0] = 2 * (rot.x * rot.z - rot.y * rot.w);
+        rotationMatrix.m[2][1] = 2 * (rot.y * rot.z + rot.x * rot.w);
+        rotationMatrix.m[2][2] = 1 - 2 * (rot.x * rot.x + rot.y * rot.y);
+        rotationMatrix.m[2][3] = 0;
+
+        rotationMatrix.m[3][0] = 0;
+        rotationMatrix.m[3][1] = 0;
+        rotationMatrix.m[3][2] = 0;
+        rotationMatrix.m[3][3] = 1.0f;
+
+        scaleMatrix.m[0][0] = new_scale;
+        scaleMatrix.m[0][1] = 0;
+        scaleMatrix.m[0][2] = 0;
+        scaleMatrix.m[0][3] = 0;
+
+        scaleMatrix.m[1][0] = 0;
+        scaleMatrix.m[1][1] = new_scale;
+        scaleMatrix.m[1][2] = 0;
+        scaleMatrix.m[1][3] = 0;
+
+        scaleMatrix.m[2][0] = 0;
+        scaleMatrix.m[2][1] = 0;
+        scaleMatrix.m[2][2] = new_scale;
+        scaleMatrix.m[2][3] = 0;
+
+        scaleMatrix.m[3][0] = 0;
+        scaleMatrix.m[3][1] = 0;
+        scaleMatrix.m[3][2] = 0;
+        scaleMatrix.m[3][3] = 1.0f;
+
+        transformMatrix = scaleMatrix * rotationMatrix;
+
+        new_pos = transformMatrix * ePoint4(pos.x, pos.y, pos.z, 0);
+
+        transformMatrix.m[0][3] = - new_pos.x;
+        transformMatrix.m[1][3] = - new_pos.y;
+        transformMatrix.m[2][3] = - new_pos.z;
+        transformMatrix.m[3][3] = 1.0f;
+
+        return transformMatrix;
+    }
+
+    /* <kao2.004AB070> */
+    eSRP eSRP::applyAnotherSRP(const eSRP &parent)
+    {
+        eSRP result;
+
+        /* Change current rotation */
+
+        result.rot = rot * parent.rot;
+
+        /* Apply parent rotation, scale and position to current position */
+
+        result.pos = (((pos * parent.rot) * parent.scale) + parent.pos);
+
+        /* Multiply current scale and parent scale */
+
+        result.scale = scale * parent.scale;
+
+        return result;
     }
 
 

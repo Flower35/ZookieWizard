@@ -190,4 +190,6 @@ namespace ZookieWizard
 
     template class eGeoArray<ePoint4>;
 
+    template class eGeoArray<ePhyVertex>;
+
 }

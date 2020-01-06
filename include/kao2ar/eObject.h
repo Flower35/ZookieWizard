@@ -5,13 +5,8 @@
 
 namespace ZookieWizard
 {
-
-    ////////////////////////////////////////////////////////////////
-    // KAO2 ARCHIVE REFERENCE
-    ////////////////////////////////////////////////////////////////
-
     class Archive;
-
+    struct eAnimate;
 
     ////////////////////////////////////////////////////////////////
     // KAO2 OBJECT INTERFACE
@@ -34,7 +29,7 @@ namespace ZookieWizard
             virtual eString getLogPrintMessage();
             virtual void writeStructureToTextFile(FileOperator &file, int32_t indentation);
 
-            virtual void renderObject(float time, int32_t draw_flags);
+            virtual void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp);
     };
 
 

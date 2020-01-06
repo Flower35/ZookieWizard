@@ -78,6 +78,7 @@ namespace ZookieWizard
         ar.readOrWrite(&bef, 0x04);
         ar.readOrWrite(&bet, 0x04);
     }
+    
 
     ////////////////////////////////////////////////////////////////
     // eAnimState: get time for animations
@@ -87,12 +88,31 @@ namespace ZookieWizard
         return citt;
     }
 
+
     ////////////////////////////////////////////////////////////////
-    // eAnimState: get animation ID for animations
+    // eAnimState: get animation ID
     ////////////////////////////////////////////////////////////////
     int eAnimState::getAnimId()
     {
         return aID;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eAnimState: set time for animations
+    ////////////////////////////////////////////////////////////////
+    void eAnimState::setTime(float current_time)
+    {
+        citt = current_time;
+    }
+    
+
+    ////////////////////////////////////////////////////////////////
+    // eAnimState: set animation ID
+    ////////////////////////////////////////////////////////////////
+    void eAnimState::setAnimId(int32_t current_anim_id)
+    {
+        aID = current_anim_id;
     }
 
 }

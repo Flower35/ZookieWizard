@@ -34,7 +34,7 @@ namespace ZookieWizard
     eNode::eNode(eString s, eNode* x)
     : ePrimitive()
     {
-        /*[0x08]*/ scene = nullptr;
+        /*[0x08]*/ previousTransform = nullptr;
         /*[0x0C]*/ unknown_0C = 0x00FFFFFF;
         /*[0x10]*/ parent = nullptr;
         /*[0x14]*/ name = s;
@@ -53,7 +53,7 @@ namespace ZookieWizard
     eNode::eNode()
     : ePrimitive()
     {
-        /*[0x08]*/ scene = nullptr;
+        /*[0x08]*/ previousTransform = nullptr;
         /*[0x0C]*/ unknown_0C = 0x00FFFFFF;
         /*[0x10]*/ parent = nullptr;
         /*[0x18]*/ unknown_18 = nullptr;
@@ -146,7 +146,20 @@ namespace ZookieWizard
         {
             ar.readOrWrite(&visGroup, 0x04);
         }
+
+        if (ar.isInReadMode())
+        {
+            /* Setup for animations */
+            setPreviousTransform();
+        }
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eGroup" / "eTransform")
+    ////////////////////////////////////////////////////////////////
+    void eNode::updateSRP(eAnimate* anim, eSRP &parent_srp)
+    {}
 
 
     ////////////////////////////////////////////////////////////////
@@ -168,20 +181,47 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eNode: get parent node
+    // eNode: get or set parent node
     ////////////////////////////////////////////////////////////////
+
     eNode* eNode::getParentNode()
     {
         return parent;
     }
 
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: set parent node
-    ////////////////////////////////////////////////////////////////
     void eNode::setParentNode(eNode* new_parent)
     {
         parent = new_parent;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: get or set previous transform
+    // <kao2.00477A20> (setup)
+    ////////////////////////////////////////////////////////////////
+
+    eTransform* eNode::getPreviousTransform()
+    {
+        return previousTransform;
+    }
+
+    void eNode::setPreviousTransform()
+    {
+        eNode* test_node = parent;
+
+        while (nullptr != test_node)
+        {
+            if (test_node->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+            {
+                break;
+            }
+            else
+            {
+                test_node = test_node->parent;
+            }
+        }
+
+        previousTransform = (eTransform*)test_node;
     }
 
 
@@ -197,6 +237,11 @@ namespace ZookieWizard
     void eNode::unsetFlags(int32_t bits_to_erase)
     {
         flags &= (~bits_to_erase);
+    }
+
+    int32_t eNode::getFlags()
+    {
+        return flags;
     }
 
 

@@ -78,7 +78,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefManager: render each child eXRefTarget
     ////////////////////////////////////////////////////////////////
-    void eXRefManager::renderObject(float time, int32_t draw_flags)
+    void eXRefManager::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
     {
         int32_t i;
         eXRefTarget* test_xref_taget;
@@ -91,7 +91,7 @@ namespace ZookieWizard
 
                 if (nullptr != test_xref_taget)
                 {
-                    test_xref_taget->renderObject(time, draw_flags);
+                    test_xref_taget->renderObject(anim, draw_flags, parent_srp);
                 }
             }
         }

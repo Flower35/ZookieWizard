@@ -51,6 +51,15 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eGroup: get nodes count
+    ////////////////////////////////////////////////////////////////
+    int32_t eGroup::getNodesCount()
+    {
+        return nodes.getSize();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eGroup: get i-th node
     ////////////////////////////////////////////////////////////////
     eNode* eGroup::getIthChild(int32_t i)
@@ -106,10 +115,18 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGroup: render each child node
     ////////////////////////////////////////////////////////////////
-    void eGroup::renderObject(float time, int32_t draw_flags)
+    void eGroup::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
     {
         int32_t i;
         eNode* test_node;
+
+        if (0 == (GUI::drawFlags::DRAW_FLAG_INVISIBLE & draw_flags))
+        {
+            if (0 == (0x01 & flags))
+            {
+                return;
+            }
+        }
 
         for (i = 0; i < nodes.getSize(); i++)
         {
@@ -117,11 +134,13 @@ namespace ZookieWizard
 
             if (nullptr != test_node)
             {
-                test_node->renderObject(time, draw_flags);
+                /* `0x01 & (test_node->getFlags() >> 0x0A)` */
+
+                test_node->renderObject(anim, draw_flags, parent_srp);
             }
         }
     }
-    
+
 
     ////////////////////////////////////////////////////////////////
     // eGroup: export readable structure

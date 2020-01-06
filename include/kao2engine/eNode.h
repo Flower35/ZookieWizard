@@ -6,7 +6,7 @@
 namespace ZookieWizard
 {
     class eALBox;
-    class eScene;
+    class eTransform;
 
     ////////////////////////////////////////////////////////////////
     // eNode interface
@@ -19,7 +19,7 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x08]*/ eScene* scene;
+            /*[0x08]*/ eTransform* previousTransform;
             /*[0x0C]*/ int32_t unknown_0C;
             /*[0x10]*/ eNode* parent;
             /*[0x14]*/ eString name;
@@ -45,13 +45,19 @@ namespace ZookieWizard
             eString getLogPrintMessage() override;
             void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
 
+            virtual void updateSRP(eAnimate* anim, eSRP &parent_srp);
+
             void setName(eString new_name);
 
             eNode* getParentNode();
             void setParentNode(eNode* new_parent);
 
+            eTransform* getPreviousTransform();
+            void setPreviousTransform();
+
             void setFlags(int32_t bits_to_apply);
             void unsetFlags(int32_t bits_to_erase);
+            int32_t getFlags();
     };
 
 

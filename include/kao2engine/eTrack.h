@@ -33,6 +33,9 @@ namespace ZookieWizard
             TypeInfo* getType() override;
 
             eString getLogPrintMessage() override;
+
+            float getStartFrame();
+            float getEndFrame();
     };
 
 

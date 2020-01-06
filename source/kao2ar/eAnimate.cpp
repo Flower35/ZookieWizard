@@ -1,6 +1,8 @@
 #include <kao2ar/eAnimate.h>
 #include <kao2ar/Archive.h>
 
+#include <kao2engine/eTrack.h>
+
 namespace ZookieWizard
 {
 
@@ -135,6 +137,7 @@ namespace ZookieWizard
         }
     }
 
+
     ////////////////////////////////////////////////////////////////
     // Structure serialization
     // <kao2.004B6F50> <kao_tw.00450E90>
@@ -210,4 +213,32 @@ namespace ZookieWizard
         ar.readOrWrite(&unknown34, 0x04);
         ar.readOrWrite(&unknown38, 0x01);
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eAnimate: set animation timer (time is passed in frames)
+    ////////////////////////////////////////////////////////////////
+    void eAnimate::setAnimation(int32_t anim_id, float time)
+    {
+        eTrack* test_track;
+        float first_frame;
+        float length_in_frames;
+
+        if ((anim_id >= 0) && (anim_id < tracks.getSize()))
+        {
+            state[0].setAnimId(anim_id);
+
+            test_track = (eTrack*)tracks.getIthChild(anim_id);
+
+            if (nullptr != test_track)
+            {
+                first_frame = test_track->getStartFrame();
+                length_in_frames = test_track->getEndFrame() - first_frame;
+                time = first_frame + fmod(time, length_in_frames);
+
+                state[0].setTime(time);
+            }
+        }
+    }
+
 }

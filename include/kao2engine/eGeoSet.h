@@ -31,7 +31,7 @@ namespace ZookieWizard
             /*[0x3C]*/ eGeoArray<ePoint4>* colorsArray;
             /*[0x40-0x4C]*/ int32_t texCoordsId[4];
             /*[0x50]*/ GLuint displayList;
-            /*[0x54]*/ int32_t verticesCurrent;
+            /*[0x54]*/ int32_t currentSet;
             /*[0x58]*/ ePhyTriMesh* phy;
             /*[0x5C]*/ eGeoArray<eABB>* unknown_5C;
 
@@ -49,8 +49,8 @@ namespace ZookieWizard
             int32_t getTextureCoordsCount();
             int32_t getTextureId(int32_t i);
 
-            void draw(GLuint tex_name, int32_t texID);
-            void generateDisplayList(int32_t texID, bool c);
+            void draw(eAnimate* anim, int32_t draw_flags, GLuint tex_name, int32_t texID);
+            void displayVertexBufferObject(int32_t texID, bool c);
             void prepareForDrawing();
 
             void setVerticesArray(eGeoArray<ePoint4>* new_vertices_array);
@@ -59,6 +59,9 @@ namespace ZookieWizard
             void setTextureCoordsArray(eGeoArray<ePoint2>* new_uv_array);
             void setColorsArray(eGeoArray<ePoint4>* new_colors_array);
             void setTwoIntegers(int32_t a, int32_t b);
+
+            eGeoArray<ePoint4>* getVerticesArray();
+            eGeoArray<ePoint4>* getNormalsArray();
     };
 
 

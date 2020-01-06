@@ -81,8 +81,8 @@ namespace ZookieWizard
 
         eNode::serialize(ar);
 
-        form01.serialize(ar);
-        form02.serialize(ar);
+        defaultTransform[0].serialize(ar);
+        defaultTransform[1].serialize(ar);
 
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
 

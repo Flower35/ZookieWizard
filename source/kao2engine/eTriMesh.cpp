@@ -92,7 +92,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTriMesh: render
     ////////////////////////////////////////////////////////////////
-    void eTriMesh::renderObject(float time, int32_t draw_flags)
+    void eTriMesh::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
     {
         bool is_invisible = true;
 
@@ -135,7 +135,7 @@ namespace ZookieWizard
                         }
                     }
 
-                    geo->draw(tex_name, i);
+                    geo->draw(anim, draw_flags, tex_name, i);
                 }
             }
         }

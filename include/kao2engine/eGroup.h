@@ -34,8 +34,9 @@ namespace ZookieWizard
 
             void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
 
-            void renderObject(float time, int32_t draw_flags) override;
+            void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
 
+            int32_t getNodesCount();
             eNode* getIthChild(int32_t i);
             void appendChild(eNode* o);
             void deleteIthChild(int32_t i);

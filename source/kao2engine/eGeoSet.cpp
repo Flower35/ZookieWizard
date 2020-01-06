@@ -62,7 +62,7 @@ namespace ZookieWizard
 
         /*[0x08]*/ unknown_08 = 0;
         /*[0x50]*/ displayList = 0;
-        /*[0x54]*/ verticesCurrent = 0;
+        /*[0x54]*/ currentSet = 0;
         /*[0x10]*/ texCoordsCount = 1;
 
         /*[0x40-0x4C]*/
@@ -186,30 +186,40 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGeoSet: draw
     ////////////////////////////////////////////////////////////////
-    void eGeoSet::draw(GLuint tex_name, int32_t texID)
+    void eGeoSet::draw(eAnimate* anim, int32_t draw_flags, GLuint tex_name, int32_t texID)
     {
-        if (0 != displayList)
+        if ((texID >= 0) && (texID < 4))
         {
-            if ((texID >= 0) && (texID < 4))
+            if (0 != tex_name)
             {
-                if (0 != tex_name)
-                {
-                    glEnable(GL_TEXTURE_2D);
-                    glBindTexture(GL_TEXTURE_2D, tex_name);
-                }
-                else
-                {
-                    glDisable(GL_TEXTURE_2D);
-                }
+                glEnable(GL_TEXTURE_2D);
+                glBindTexture(GL_TEXTURE_2D, tex_name);
+            }
+            else
+            {
+                glDisable(GL_TEXTURE_2D);
+            }
 
-                GUI::changeView(true);
+            GUI::changeView(true);
 
+            if (0 != displayList)
+            {
                 glCallList(displayList + texID);
-
-                if (0 != tex_name)
+            }
+            else
+            {
+                if (nullptr != phy)
                 {
-                    glDisable(GL_TEXTURE_2D);
+                    phy->prepareMatrices(draw_flags);
+                    phy->animateVertices();
                 }
+
+                displayVertexBufferObject(texID, false);
+            }
+
+            if (0 != tex_name)
+            {
+                glDisable(GL_TEXTURE_2D);
             }
         }
     }
@@ -219,7 +229,7 @@ namespace ZookieWizard
     // eGeoSet: generate OpenGL Display List
     // <kao2.0046A190>
     ////////////////////////////////////////////////////////////////
-    void eGeoSet::generateDisplayList(int32_t texID, bool c)
+    void eGeoSet::displayVertexBufferObject(int32_t texID, bool c)
     {
         int32_t i;
         int32_t j;
@@ -233,7 +243,7 @@ namespace ZookieWizard
             0x04,
             GL_FLOAT,
             0,
-            verticesArray[verticesCurrent]->getData()
+            verticesArray[currentSet]->getData()
         );
 
         /* TEXTURE */
@@ -253,7 +263,7 @@ namespace ZookieWizard
 
         /* NORMALS */
 
-        if (nullptr != normalsArray[verticesCurrent])
+        if (nullptr != normalsArray[currentSet])
         {
             glEnableClientState(GL_NORMAL_ARRAY);
 
@@ -261,7 +271,7 @@ namespace ZookieWizard
             (
                 GL_FLOAT,
                 0x10,
-                normalsArray[verticesCurrent]->getData()
+                normalsArray[currentSet]->getData()
             );
         };
 
@@ -368,8 +378,11 @@ namespace ZookieWizard
                 unknown_08 |= 0x00001000;
             }
 
-            /* (--dsp--) lists are NOT generated for animated meshes */
-            if ((true) || (0 == (0x00000100 & unknown_08)))
+            /* (--dsp--) DEBUG */
+            //// unknown_08 &= (~0x00000100);
+
+            /* Lists are NOT generated for animated meshes */
+            if (0 == (0x00000100 & unknown_08))
             {
                 b = getTextureCoordsCount();
 
@@ -377,11 +390,11 @@ namespace ZookieWizard
 
                 for (a = 0; a < b; a++)
                 {
-                    /* (--dsp--) (colorsArray) <kao2.0046A679> */
+                    /* (--dsp--) "eDrawContext" <kao2.0046A679> */
 
                     glNewList((lists + a), GL_COMPILE);
 
-                    generateDisplayList(a, false);
+                    displayVertexBufferObject(a, false);
 
                     glEndList();
                 }
@@ -519,6 +532,21 @@ namespace ZookieWizard
 
         unknown_08 = a;
         indicesCount = b;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoSet: get arrays
+    ////////////////////////////////////////////////////////////////
+    
+    eGeoArray<ePoint4>* eGeoSet::getVerticesArray()
+    {
+        return verticesArray[currentSet];
+    }
+
+    eGeoArray<ePoint4>* eGeoSet::getNormalsArray()
+    {
+        return normalsArray[currentSet];
     }
 
 }
