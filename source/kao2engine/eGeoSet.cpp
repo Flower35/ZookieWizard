@@ -210,7 +210,7 @@ namespace ZookieWizard
             {
                 if (nullptr != phy)
                 {
-                    phy->prepareMatrices(draw_flags);
+                    phy->prepareMatrices(GUI::drawFlags::DRAW_FLAG_ANIMS & draw_flags);
                     phy->animateVertices();
                 }
 

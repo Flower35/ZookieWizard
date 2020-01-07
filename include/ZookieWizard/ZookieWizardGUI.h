@@ -61,7 +61,7 @@ namespace ZookieWizard
 
             extern int32_t myDrawFlags;
 
-            extern float timePrevious;
+            extern LONGLONG timePrevious;
             extern float timeCurrent;
             extern bool timeUpdate;
             extern int32_t animationID;
@@ -85,7 +85,7 @@ namespace ZookieWizard
             void changeWindowGroup();
             void updateNodesList(int32_t, void*);
 
-            float timerGet();
+            LONGLONG timerGet();
             void timerReset();
             float timerGetCurrent();
             float timerGetFrames();

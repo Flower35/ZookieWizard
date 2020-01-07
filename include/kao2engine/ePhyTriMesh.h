@@ -65,7 +65,7 @@ namespace ZookieWizard
 
             eString getLogPrintMessage() override;
 
-            void prepareMatrices(int32_t draw_flags);
+            void prepareMatrices(bool update);
             void animateVertices();
     };
 

@@ -20,7 +20,7 @@ namespace ZookieWizard
 
         int32_t myDrawFlags = 0;
 
-        float timePrevious = 0;
+        LONGLONG timePrevious = 0;
         float timeCurrent = 0;
         bool timeUpdate = false;
         int32_t animationID = 0;
@@ -423,8 +423,10 @@ namespace ZookieWizard
         // Timer functions
         ////////////////////////////////////////////////////////////////
 
-        float timerGet()
+        LONGLONG timerGet()
         {
+            /* Returns time in miliseconds */
+
             static LARGE_INTEGER s_frequency;
 
             if (QueryPerformanceFrequency(&s_frequency))
@@ -432,11 +434,11 @@ namespace ZookieWizard
                 LARGE_INTEGER now;
                 QueryPerformanceCounter(&now);
 
-                return (float)((1000LL * now.QuadPart) / s_frequency.QuadPart) / 1000.0f;
+                return (1000LL * now.QuadPart / s_frequency.QuadPart);
             }
             else
             {
-                return (float)GetTickCount() / 1000.0f;
+                return GetTickCount();
             }
         }
 
@@ -448,12 +450,15 @@ namespace ZookieWizard
 
         float timerGetCurrent()
         {
+            /* Return time in seconds */
+
             if (timeUpdate)
             {
-                timeCurrent = timerGet() - timePrevious;
+                /* Subtract 64-bit integers, then convert to float */
+
+                timeCurrent = (timerGet() - timePrevious) / 1000.0f;
             }
 
-            /* Return time in seconds */
             return timeCurrent;
         }
 

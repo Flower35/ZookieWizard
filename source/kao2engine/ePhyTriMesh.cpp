@@ -213,7 +213,7 @@ namespace ZookieWizard
     // ePhyTriMesh: prepare matrices
     // <kao2.004B1F70>
     ////////////////////////////////////////////////////////////////
-    void ePhyTriMesh::prepareMatrices(int32_t draw_flags)
+    void ePhyTriMesh::prepareMatrices(bool update)
     {
         int32_t i;
         
@@ -226,7 +226,7 @@ namespace ZookieWizard
 
         /* Load prior transformation with inverse matrix */
 
-        if (nullptr != tri)
+        if (update && (nullptr != tri))
         {
             test_transform = tri->getPreviousTransform();
 
@@ -240,7 +240,7 @@ namespace ZookieWizard
 
         for (i = 0; i < bonesCount; i++)
         {
-            if (GUI::drawFlags::DRAW_FLAG_ANIMS & draw_flags)
+            if (update)
             {
                 xform_matrix = bones[i].xform->getXForm().getMatrix();
 

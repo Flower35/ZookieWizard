@@ -268,19 +268,10 @@ namespace ZookieWizard
 
     void eMatrix4x4::identity()
     {
-        float value;
-        int32_t rows;
-        int32_t columns;
-
-        for (rows = 0; rows < 4; rows++)
-        {
-            for (columns = 0; columns < 4; columns++)
-            {
-                value = (rows != columns) ? 0 : 1.0f;
-
-                m[rows][columns] = value;
-            }
-        }
+        m[0][0] = 1.0f; m[0][1] = 0; m[0][2] = 0; m[0][3] = 0;
+        m[1][0] = 0; m[1][1] = 1.0f; m[1][2] = 0; m[1][3] = 0;
+        m[2][0] = 0; m[2][1] = 0; m[2][2] = 1.0f; m[2][3] = 0;
+        m[3][0] = 0; m[3][1] = 0; m[3][2] = 0; m[3][3] = 1.0f;
     }
 
     eMatrix4x4 operator * (eMatrix4x4 a, eMatrix4x4 b)
@@ -463,136 +454,59 @@ namespace ZookieWizard
 
     eMatrix4x4 eSRP::getMatrix()
     {
-        eMatrix4x4 rotationMatrix;
-        eMatrix4x4 translationMatrix;
-        eMatrix4x4 scaleMatrix;
-
-        rotationMatrix.m[0][0] = 1 - 2 * (rot.y * rot.y + rot.z * rot.z);
-        rotationMatrix.m[1][0] = 2 * (rot.x * rot.y - rot.z * rot.w);
-        rotationMatrix.m[2][0] = 2 * (rot.x * rot.z + rot.y * rot.w);
-        rotationMatrix.m[3][0] = 0;
-
-        rotationMatrix.m[0][1] = 2 * (rot.x * rot.y + rot.z * rot.w);
-        rotationMatrix.m[1][1] = 1 - 2 * (rot.x * rot.x + rot.z * rot.z);
-        rotationMatrix.m[2][1] = 2 * (rot.y * rot.z - rot.x * rot.w);
-        rotationMatrix.m[3][1] = 0;
-
-        rotationMatrix.m[0][2] = 2 * (rot.x * rot.z - rot.y * rot.w);
-        rotationMatrix.m[1][2] = 2 * (rot.y * rot.z + rot.x * rot.w);
-        rotationMatrix.m[2][2] = 1 - 2 * (rot.x * rot.x + rot.y * rot.y);
-        rotationMatrix.m[3][2] = 0;
-
-        rotationMatrix.m[0][3] = 0;
-        rotationMatrix.m[1][3] = 0;
-        rotationMatrix.m[2][3] = 0;
-        rotationMatrix.m[3][3] = 1.0f;
-
-        translationMatrix.m[0][0] = 1.0f;
-        translationMatrix.m[1][0] = 0;
-        translationMatrix.m[2][0] = 0;
-        translationMatrix.m[3][0] = 0;
+        eMatrix4x4 transformMatrix;
         
-        translationMatrix.m[0][1] = 0;
-        translationMatrix.m[1][1] = 1.0f;
-        translationMatrix.m[2][1] = 0;
-        translationMatrix.m[3][1] = 0;
-        
-        translationMatrix.m[0][2] = 0;
-        translationMatrix.m[1][2] = 0;
-        translationMatrix.m[2][2] = 1.0f;
-        translationMatrix.m[3][2] = 0;
-        
-        translationMatrix.m[0][3] = pos.x;
-        translationMatrix.m[1][3] = pos.y;
-        translationMatrix.m[2][3] = pos.z;
-        translationMatrix.m[3][3] = 1.0f;
+        /* Inverse quaternion */
 
-        scaleMatrix.m[0][0] = scale;
-        scaleMatrix.m[1][0] = 0;
-        scaleMatrix.m[2][0] = 0;
-        scaleMatrix.m[3][0] = 0;
+        float invquat_x = - rot.x;
+        float invquat_y = - rot.y;
+        float invquat_z = - rot.z;
+        float invquat_w = rot.w;
 
-        scaleMatrix.m[0][1] = 0;
-        scaleMatrix.m[1][1] = scale;
-        scaleMatrix.m[2][1] = 0;
-        scaleMatrix.m[3][1] = 0;
-
-        scaleMatrix.m[0][2] = 0;
-        scaleMatrix.m[1][2] = 0;
-        scaleMatrix.m[2][2] = scale;
-        scaleMatrix.m[3][2] = 0;
-
-        scaleMatrix.m[0][3] = 0;
-        scaleMatrix.m[1][3] = 0;
-        scaleMatrix.m[2][3] = 0;
-        scaleMatrix.m[3][3] = 1.0f;
-
-        /* Matrices must be multiplied in reverse order */
         /* (T x (R x (S x Vector))) */
 
-        return ((translationMatrix * rotationMatrix) * scaleMatrix);
+        transformMatrix.m[0][0] = scale * (1 - 2 * (invquat_y * invquat_y + invquat_z * invquat_z));
+        transformMatrix.m[0][1] = scale * (2 * (invquat_x * invquat_y - invquat_z * invquat_w));
+        transformMatrix.m[0][2] = scale * (2 * (invquat_x * invquat_z + invquat_y * invquat_w));
+        transformMatrix.m[0][3] = pos.x;
+
+        transformMatrix.m[1][0] = scale * (2 * (invquat_x * invquat_y + invquat_z * invquat_w));
+        transformMatrix.m[1][1] = scale * (1 - 2 * (invquat_x * invquat_x + invquat_z * invquat_z));
+        transformMatrix.m[1][2] = scale * (2 * (invquat_y * invquat_z - invquat_x * invquat_w));
+        transformMatrix.m[1][3] = pos.y;
+
+        transformMatrix.m[2][0] = scale * (2 * (invquat_x * invquat_z - invquat_y * invquat_w));
+        transformMatrix.m[2][1] = scale * (2 * (invquat_y * invquat_z + invquat_x * invquat_w));
+        transformMatrix.m[2][2] = scale * (1 - 2 * (invquat_x * invquat_x + invquat_y * invquat_y));
+        transformMatrix.m[2][3] = pos.z;
+
+        return transformMatrix;
     }
 
     /* <kao2.004AB580> */
     eMatrix4x4 eSRP::getInverseMatrix()
     {
-        eMatrix4x4 rotationMatrix;
-        eMatrix4x4 scaleMatrix;
-        eMatrix4x4 transformMatrix;
+        eMatrix4x4 result;
 
-        float new_scale = 1.0f / scale;
-        ePoint4 new_pos;
+        float inv_scale = 1.0f / scale;
 
-        rotationMatrix.m[0][0] = 1 - 2 * (rot.y * rot.y + rot.z * rot.z);
-        rotationMatrix.m[0][1] = 2 * (rot.x * rot.y - rot.z * rot.w);
-        rotationMatrix.m[0][2] = 2 * (rot.x * rot.z + rot.y * rot.w);
-        rotationMatrix.m[0][3] = 0;
+        result.m[0][0] = inv_scale * (1 - 2 * (rot.y * rot.y + rot.z * rot.z));
+        result.m[0][1] = inv_scale * (2 * (rot.x * rot.y - rot.z * rot.w));
+        result.m[0][2] = inv_scale * (2 * (rot.x * rot.z + rot.y * rot.w));
 
-        rotationMatrix.m[1][0] = 2 * (rot.x * rot.y + rot.z * rot.w);
-        rotationMatrix.m[1][1] = 1 - 2 * (rot.x * rot.x + rot.z * rot.z);
-        rotationMatrix.m[1][2] = 2 * (rot.y * rot.z - rot.x * rot.w);
-        rotationMatrix.m[1][3] = 0;
+        result.m[1][0] = inv_scale * (2 * (rot.x * rot.y + rot.z * rot.w));
+        result.m[1][1] = inv_scale * (1 - 2 * (rot.x * rot.x + rot.z * rot.z));
+        result.m[1][2] = inv_scale * (2 * (rot.y * rot.z - rot.x * rot.w));
 
-        rotationMatrix.m[2][0] = 2 * (rot.x * rot.z - rot.y * rot.w);
-        rotationMatrix.m[2][1] = 2 * (rot.y * rot.z + rot.x * rot.w);
-        rotationMatrix.m[2][2] = 1 - 2 * (rot.x * rot.x + rot.y * rot.y);
-        rotationMatrix.m[2][3] = 0;
+        result.m[2][0] = inv_scale * (2 * (rot.x * rot.z - rot.y * rot.w));
+        result.m[2][1] = inv_scale * (2 * (rot.y * rot.z + rot.x * rot.w));
+        result.m[2][2] = inv_scale * (1 - 2 * (rot.x * rot.x + rot.y * rot.y));
 
-        rotationMatrix.m[3][0] = 0;
-        rotationMatrix.m[3][1] = 0;
-        rotationMatrix.m[3][2] = 0;
-        rotationMatrix.m[3][3] = 1.0f;
+        result.m[0][3] = - (result.m[0][0] * pos.x + result.m[0][1] * pos.y + result.m[0][2] * pos.z);
+        result.m[1][3] = - (result.m[1][0] * pos.x + result.m[1][1] * pos.y + result.m[1][2] * pos.z);
+        result.m[2][3] = - (result.m[2][0] * pos.x + result.m[2][1] * pos.y + result.m[2][2] * pos.z);
 
-        scaleMatrix.m[0][0] = new_scale;
-        scaleMatrix.m[0][1] = 0;
-        scaleMatrix.m[0][2] = 0;
-        scaleMatrix.m[0][3] = 0;
-
-        scaleMatrix.m[1][0] = 0;
-        scaleMatrix.m[1][1] = new_scale;
-        scaleMatrix.m[1][2] = 0;
-        scaleMatrix.m[1][3] = 0;
-
-        scaleMatrix.m[2][0] = 0;
-        scaleMatrix.m[2][1] = 0;
-        scaleMatrix.m[2][2] = new_scale;
-        scaleMatrix.m[2][3] = 0;
-
-        scaleMatrix.m[3][0] = 0;
-        scaleMatrix.m[3][1] = 0;
-        scaleMatrix.m[3][2] = 0;
-        scaleMatrix.m[3][3] = 1.0f;
-
-        transformMatrix = scaleMatrix * rotationMatrix;
-
-        new_pos = transformMatrix * ePoint4(pos.x, pos.y, pos.z, 0);
-
-        transformMatrix.m[0][3] = - new_pos.x;
-        transformMatrix.m[1][3] = - new_pos.y;
-        transformMatrix.m[2][3] = - new_pos.z;
-        transformMatrix.m[3][3] = 1.0f;
-
-        return transformMatrix;
+        return result;
     }
 
     /* <kao2.004AB070> */
