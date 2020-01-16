@@ -1,6 +1,8 @@
 #include <kao2engine/eScene.h>
 #include <kao2ar/Archive.h>
 
+#include <utilities/ColladaExporter.h>
+
 namespace ZookieWizard
 {
 
@@ -367,6 +369,73 @@ namespace ZookieWizard
                 {
                     visSetB[i].serialize(ar);
                 }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eScene: COLLADA exporting
+    ////////////////////////////////////////////////////////////////
+    void eScene::writeNodeToXmlFile(ColladaExporter &exporter)
+    {
+        int32_t i;
+        char bufor[16];
+        eNode* test_node;
+
+        switch (exporter.getState())
+        {
+            case COLLADA_EXPORTER_STATE_LIGHTS:
+            case COLLADA_EXPORTER_STATE_CAMERAS:
+            case COLLADA_EXPORTER_STATE_EFFECTS:
+            case COLLADA_EXPORTER_STATE_IMAGES:
+            case COLLADA_EXPORTER_STATE_MATERIALS:
+            case COLLADA_EXPORTER_STATE_GEOMETRIES:
+            case COLLADA_EXPORTER_STATE_CONTROLLERS:
+            case COLLADA_EXPORTER_STATE_ANIMATIONS:
+            {
+                eGroup::writeNodeToXmlFile(exporter);
+
+                break;
+            }
+
+            case COLLADA_EXPORTER_STATE_VISUAL_SCENES:
+            {
+                exporter.openTag("visual_scene");
+
+                i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_SCENE, this, true);
+                sprintf_s(bufor, 16, "Scene%d", i);
+                exporter.insertTagAttrib("id", bufor);
+                exporter.insertTagAttrib("name", name);
+
+                /* "eGroup" could exist as independent node (without parent "eTransform") */
+                /* That's why we are not calling `eGroup::writeNodeToXmlFile()` */
+
+                for (i = 0; i < nodes.getSize(); i++)
+                {
+                    test_node = (eNode*)nodes.getIthChild(i);
+
+                    if (nullptr != test_node)
+                    {
+                        test_node->writeNodeToXmlFile(exporter);
+                    }
+                }
+
+                exporter.closeTag(); // "visual_scene"
+
+                break;
+            }
+
+            case COLLADA_EXPORTER_STATE_SCENE:
+            {
+                i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_SCENE, this, false);
+                sprintf_s(bufor, 16, "#Scene%d", i);
+
+                exporter.openTag("instance_visual_scene");
+                exporter.insertTagAttrib("url", bufor);
+                exporter.closeTag();
+
+                break;
             }
         }
     }

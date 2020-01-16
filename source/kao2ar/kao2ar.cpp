@@ -234,7 +234,36 @@ namespace ZookieWizard
         z = t * (c1 * c2 * s3 - c3 * s1 * s2);
         w = c1 * c2 * c3 + s1 * s2 * s3;
     }
-    
+
+    void eQuat::toEulerAngles(bool inverse, float &alpha, float &beta, float &gamma)
+    {
+        double a, b;
+        float x = inverse ? (- (this->x)) : (this->x);
+        float y = inverse ? (- (this->y)) : (this->y);
+        float z = inverse ? (- (this->z)) : (this->z);
+
+        /* [X] angle */
+        a = 2 * (w * x + y * z);
+        b = 1 - 2 * (x * x + y * y);
+        alpha = (float)std::atan2(a, b);
+
+        /* [Y] angle */
+        a = 2 * (w * y - z * x);
+        if (std::abs(a) >= 1)
+        {
+            beta = (float)std::copysign(M_PI / 2.0, a);
+        }
+        else
+        {
+            beta = (float)std::asin(a);
+        }
+
+        /* [Z] angle */
+        a = 2 * (w * z + x * y);
+        b = 1 - 2 * (y * y + z * z);
+        gamma = (float)std::atan2(a, b);
+    }
+
     /* <kao2.004AB070> */
     ePoint3 operator * (ePoint3 pos, eQuat rot)
     {

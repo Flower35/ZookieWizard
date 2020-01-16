@@ -1005,6 +1005,12 @@
     <ClCompile Include="..\source\denis\DenisLevelMapConvert.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\utilities\ColladaExporter.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\kao2engine\TriMeshExporting.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resource\ZookieWizard\WinRC.rc">

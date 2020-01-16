@@ -63,10 +63,18 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
+            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+
             eString getLogPrintMessage() override;
 
             void prepareMatrices(bool update);
             void animateVertices();
+
+            eTransform* getArmatureParent();
+
+        private:
+
+            void sortBoneIndices();
     };
 
 

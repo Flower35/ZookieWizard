@@ -1,6 +1,8 @@
 #include <kao2engine/eGroup.h>
 #include <kao2ar/Archive.h>
 
+#include <utilities/ColladaExporter.h>
+
 namespace ZookieWizard
 {
 
@@ -161,6 +163,74 @@ namespace ZookieWizard
                 test_node->writeStructureToTextFile(file, (indentation + 1));
             }
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: COLLADA exporting
+    ////////////////////////////////////////////////////////////////
+    void eGroup::writeNodeToXmlFile(ColladaExporter &exporter)
+    {
+        int32_t i;
+        char bufor[64];
+        eNode* test_node;
+
+        switch (exporter.getState())
+        {
+            case COLLADA_EXPORTER_STATE_LIGHTS:
+            case COLLADA_EXPORTER_STATE_CAMERAS:
+            case COLLADA_EXPORTER_STATE_EFFECTS:
+            case COLLADA_EXPORTER_STATE_IMAGES:
+            case COLLADA_EXPORTER_STATE_MATERIALS:
+            case COLLADA_EXPORTER_STATE_GEOMETRIES:
+            case COLLADA_EXPORTER_STATE_CONTROLLERS:
+            case COLLADA_EXPORTER_STATE_ANIMATIONS:
+            {
+                /* Collecting objects for COLLADA libraries... */
+
+                for (i = 0; i < nodes.getSize(); i++)
+                {
+                    test_node = (eNode*)nodes.getIthChild(i);
+
+                    if (nullptr != test_node)
+                    {
+                        test_node->writeNodeToXmlFile(exporter);
+                    }
+                }
+
+                break;
+            }
+
+            case COLLADA_EXPORTER_STATE_VISUAL_SCENES:
+            {
+                /* "eGroup" could exist as independent node (without parent "eTransform") */
+
+                exporter.openTag("node");
+
+                i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_NODE, this, true);
+                sprintf_s(bufor, 64, "Node%d", i);
+                exporter.insertTagAttrib("id", bufor);
+                exporter.insertTagAttrib("name", name);
+
+                /* Iterate child nodes as usual */
+
+                for (i = 0; i < nodes.getSize(); i++)
+                {
+                    test_node = (eNode*)nodes.getIthChild(i);
+
+                    if (nullptr != test_node)
+                    {
+                        test_node->writeNodeToXmlFile(exporter);
+                    }
+                }
+
+                exporter.closeTag(); // "node"
+
+                break;
+            }
+        }
+
+        
     }
 
 }

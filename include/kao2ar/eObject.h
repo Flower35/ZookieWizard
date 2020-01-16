@@ -7,6 +7,7 @@ namespace ZookieWizard
 {
     class Archive;
     struct eAnimate;
+    class ColladaExporter;
 
     ////////////////////////////////////////////////////////////////
     // KAO2 OBJECT INTERFACE
@@ -28,6 +29,7 @@ namespace ZookieWizard
             virtual eString generateScriptText();
             virtual eString getLogPrintMessage();
             virtual void writeStructureToTextFile(FileOperator &file, int32_t indentation);
+            virtual void writeNodeToXmlFile(ColladaExporter &exporter);
 
             virtual void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp);
     };

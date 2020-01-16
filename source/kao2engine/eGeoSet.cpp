@@ -549,4 +549,24 @@ namespace ZookieWizard
         return normalsArray[currentSet];
     }
 
+    eGeoArray<ePoint2>* eGeoSet::getTextureCoordsArray()
+    {
+        return texCoordsArray[0];
+    }
+
+    eGeoArray<ushort>* eGeoSet::getIndicesOffsets()
+    {
+        return indicesOffsets;
+    }
+
+    eGeoArray<ushort>* eGeoSet::getIndicesArray()
+    {
+        return indicesArray;
+    }
+
+    ePhyTriMesh* eGeoSet::getPhyTriMesh()
+    {
+        return phy;
+    }
+
 }

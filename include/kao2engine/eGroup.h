@@ -33,6 +33,7 @@ namespace ZookieWizard
             TypeInfo* getType() override;
 
             void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
+            void writeNodeToXmlFile(ColladaExporter &exporter) override;
 
             void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
 

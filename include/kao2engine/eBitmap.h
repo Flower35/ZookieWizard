@@ -58,10 +58,15 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
+            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+
             void generateTexture();
 
             void setPath(eString new_path);
+            eString getPath();
+
             void loadFromFile(eString directory);
+            void exportImageFile(eString directory);
 
             GLuint getTextureName();
 

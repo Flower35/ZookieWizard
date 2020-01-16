@@ -281,7 +281,6 @@ namespace ZookieWizard
         ArFunctions::writeNewLine(file, indentation);
         file << bufor;
 
-
         sprintf_s
         (
             bufor,

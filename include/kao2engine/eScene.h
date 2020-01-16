@@ -101,6 +101,8 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
+            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+
             void setBackgroundColor(GLfloat new_color[3]);
             void setCompileStrings(eString str_a, eString str_b);
 

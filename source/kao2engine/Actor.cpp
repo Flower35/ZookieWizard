@@ -2,6 +2,7 @@
 #include <kao2ar/Archive.h>
 
 #include <kao2engine/Log.h>
+#include <kao2engine/eTrack.h>
 
 namespace ZookieWizard
 {
@@ -108,6 +109,7 @@ namespace ZookieWizard
 
         char bufor[128];
         eString test_str;
+        eTrack* test_track;
 
         /* "eNode" parent class */
 
@@ -138,6 +140,25 @@ namespace ZookieWizard
         ArFunctions::writeIndentation(file, indentation);
         file << bufor;
         ArFunctions::writeNewLine(file, 0);
+
+        /* "ePivot" additional info */
+
+        for (i = 0; i < animations.tracks.getSize(); i++)
+        {
+            test_track = (eTrack*)animations.tracks.getIthChild(i);
+            sprintf_s
+            (
+                bufor,
+                128,
+                " - track [%d]: \"%s\"",
+                i,
+                test_track->getName().getText()
+            );
+
+            ArFunctions::writeIndentation(file, indentation);
+            file << bufor;
+            ArFunctions::writeNewLine(file, 0);
+        }
 
         /* "eGroup" parent class */
 

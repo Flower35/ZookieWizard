@@ -36,6 +36,7 @@ namespace ZookieWizard
 
             float getStartFrame();
             float getEndFrame();
+            eString getName();
     };
 
 

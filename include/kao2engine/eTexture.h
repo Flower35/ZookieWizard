@@ -34,7 +34,10 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
+            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+
             GLuint getTextureName();
+            eBitmap* getBitmap();
     };
 
 

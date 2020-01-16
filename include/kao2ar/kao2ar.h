@@ -132,6 +132,7 @@ namespace ZookieWizard
         void normalize();
 
         void fromEulerAngles(bool, float, float, float);
+        void toEulerAngles(bool, float&, float&, float&);
     };
 
     ePoint3 operator * (ePoint3 pos, eQuat rot);

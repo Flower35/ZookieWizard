@@ -23,6 +23,7 @@ namespace ZookieWizard
 
             eSRP modifiedTransform[2];
             float transposedMatrix[16];
+            bool jointType;
 
         /*** Methods ***/
 
@@ -34,11 +35,16 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
+            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+
             void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
             void updateSRP(eAnimate* anim, eSRP &parent_srp) override;
 
             void setXForm(eSRP new_xform);
             eSRP getXForm();
+
+            void setTypeToJoint(bool is_joint);
+            bool isJointNode();
     };
 
 

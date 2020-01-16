@@ -122,6 +122,7 @@ namespace ZookieWizard
             void setMyParentScene(eScene* pointer);
 
             void writeStructureToTextFile();
+            void writeStructureToXmlFile(eString filename);
     };
 
 }

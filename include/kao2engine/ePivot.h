@@ -32,6 +32,8 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
+
             void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
             void updateSRP(eAnimate* anim, eSRP &parent_srp) override;
     };

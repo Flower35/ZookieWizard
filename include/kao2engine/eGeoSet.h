@@ -62,6 +62,10 @@ namespace ZookieWizard
 
             eGeoArray<ePoint4>* getVerticesArray();
             eGeoArray<ePoint4>* getNormalsArray();
+            eGeoArray<ePoint2>* getTextureCoordsArray();
+            eGeoArray<ushort>* getIndicesOffsets();
+            eGeoArray<ushort>* getIndicesArray();
+            ePhyTriMesh* getPhyTriMesh();
     };
 
 

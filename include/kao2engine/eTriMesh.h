@@ -30,6 +30,8 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
 
+            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+
             void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
 
             eGeoSet* getGeoSetLink();

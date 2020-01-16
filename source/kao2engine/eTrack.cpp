@@ -94,4 +94,13 @@ namespace ZookieWizard
         return endFrame;
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eTrack: get animation name
+    ////////////////////////////////////////////////////////////////
+    eString eTrack::getName()
+    {
+        return name;
+    }
+
 }

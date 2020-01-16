@@ -44,7 +44,6 @@ namespace ZookieWizard
         int32_t archive_flags = 0;
         DWORD ofn_flags = 0;
 
-        const char* title = "ZookieWizard — info";
         const char* ofn_title = nullptr;
         const char* final_msg = nullptr;
 
@@ -409,6 +408,77 @@ namespace ZookieWizard
                 "==            oops!           ==\n" \
                 "================================\n"
             );
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // miscellaneous: Export Kao2 Archive to COLLADA "*.dae" format
+    ////////////////////////////////////////////////////////////////
+
+    void exportArToCollada()
+    {
+        int32_t result;
+        eString filename;
+        char bufor[256];
+
+        try
+        {
+            bufor[0] = 0x00;
+
+            ofn.lpstrFile = bufor;
+            ofn.nMaxFile = 256;
+            ofn.lpstrTitle = "Saving COLADA document...";
+            ofn.lpstrFilter = "COLLADA document (*.dae)\0*.dae\0";
+            ofn.Flags = (OFN_OVERWRITEPROMPT);
+
+            result = GetSaveFileName(&ofn);
+
+            if (0 == result)
+            {
+                return;
+            }
+
+            /* Set filename and save XML document */
+
+            filename = bufor;
+
+            theLog.print
+            (
+                "================================\n" \
+                "==            BEGIN           ==\n" \
+                "================================\n"
+            );
+
+            myARs[0].writeStructureToXmlFile(filename);
+
+            theLog.print
+            (
+                "================================\n" \
+                "==          FINISHED          ==\n" \
+                "================================\n"
+            );
+
+            sprintf_s
+            (
+                bufor,
+                256,
+                "<\"%s\">\n\nCOLLADA document exported successfully! :)",
+                filename.getText()
+            );
+
+            MessageBox(GUI::myWindowsGroupMain[0], bufor, MESSAGE_TITLE_INFO, MB_ICONINFORMATION);
+        }
+        catch (ErrorMessage &e)
+        {
+            theLog.print
+            (
+                "================================\n" \
+                "==            oops!           ==\n" \
+                "================================\n"
+            );
+
+            e.display();
         }
     }
 

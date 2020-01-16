@@ -1,6 +1,8 @@
 #include <kao2engine/ePivot.h>
 #include <kao2ar/Archive.h>
 
+#include <kao2engine/eTrack.h>
+
 namespace ZookieWizard
 {
 
@@ -67,6 +69,55 @@ namespace ZookieWizard
                 "ePivot::serialize():\n" \
                 "non-empty group member is not supported!"
             );
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePivot: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void ePivot::writeStructureToTextFile(FileOperator &file, int32_t indentation)
+    {
+        int32_t i;
+        eNode* test_node;
+        eTrack* test_track;
+
+        char bufor[128];
+        eString test_str;
+
+        /* "eNode" parent class */
+
+        eNode::writeStructureToTextFile(file, indentation);
+
+        /* "ePivot" additional info */
+
+        for (i = 0; i < animations.tracks.getSize(); i++)
+        {
+            test_track = (eTrack*)animations.tracks.getIthChild(i);
+            sprintf_s
+            (
+                bufor,
+                128,
+                " - track [%d]: \"%s\"",
+                i,
+                test_track->getName().getText()
+            );
+
+            ArFunctions::writeIndentation(file, indentation);
+            file << bufor;
+            ArFunctions::writeNewLine(file, 0);
+        }
+
+        /* "eGroup" parent class */
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            test_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != test_node)
+            {
+                test_node->writeStructureToTextFile(file, (indentation + 1));
+            }
         }
     }
 

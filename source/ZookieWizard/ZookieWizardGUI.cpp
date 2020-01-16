@@ -159,6 +159,13 @@ namespace ZookieWizard
                             break;
                         }
 
+                        case IDM_MENU_AR_EXPORT_COLLADA:
+                        {
+                            exportArToCollada();
+
+                            break;
+                        }
+
                         case IDM_EDITBOX_MEDIADIR:
                         {
                             if (EN_CHANGE == HIWORD(wParam))

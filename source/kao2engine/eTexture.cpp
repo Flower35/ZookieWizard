@@ -4,6 +4,8 @@
 #include <kao2engine/eTexTransform.h>
 #include <kao2engine/eBitmap.h>
 
+#include <utilities/ColladaExporter.h>
+
 namespace ZookieWizard
 {
 
@@ -79,6 +81,67 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eTexture: COLLADA exporting
+    ////////////////////////////////////////////////////////////////
+    void eTexture::writeNodeToXmlFile(ColladaExporter &exporter)
+    {
+        int32_t i;
+        char bufor[64];
+
+        if (exporter.objectRefAlreadyExists(COLLADA_EXPORTER_OBJ_EFFECT, this))
+        {
+            /* Texture was already exported */
+            return;
+        }
+
+        exporter.openTag("effect");
+
+        i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_EFFECT, this, true);
+        sprintf_s(bufor, 64, "Texture%d", i);
+        exporter.insertTagAttrib("id", bufor);
+
+        exporter.openTag("profile_COMMON");
+
+        exporter.openTag("newparam");
+        exporter.insertTagAttrib("sid", "texture-sampler");
+
+        exporter.openTag("sampler2D");
+
+        if (nullptr != bmp)
+        {
+            exporter.openTag("instance_image");
+
+            i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_IMAGE, bmp, false);
+            sprintf_s(bufor, 64, "#Bitmap%d", i);
+            exporter.insertTagAttrib("url", bufor);
+
+            exporter.closeTag(); // "instance_image"
+        }
+
+        exporter.closeTag(); // "sampler2D"
+        exporter.closeTag(); // "newparam"
+
+        exporter.openTag("technique");
+        exporter.insertTagAttrib("sid", "common");
+
+        exporter.openTag("lambert");
+        exporter.openTag("diffuse");
+
+        exporter.openTag("texture");
+        exporter.insertTagAttrib("texture", "texture-sampler");
+        exporter.insertTagAttrib("texcoord", "UVMap");
+
+        exporter.closeTag(); // "texture"
+        exporter.closeTag(); // "diffuse"
+        exporter.closeTag(); // "lambert"
+        exporter.closeTag(); // "technique"
+
+        exporter.closeTag(); // "profile_COMMON"
+        exporter.closeTag(); // "effect"
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eTexture: get texture name (used with eTriMesh)
     ////////////////////////////////////////////////////////////////
     GLuint eTexture::getTextureName()
@@ -89,6 +152,15 @@ namespace ZookieWizard
         }
 
         return 0;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTexture: get bitmap pointer
+    ////////////////////////////////////////////////////////////////
+    eBitmap* eTexture::getBitmap()
+    {
+        return bmp;
     }
 
 }

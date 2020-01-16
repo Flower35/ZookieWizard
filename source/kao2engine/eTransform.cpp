@@ -1,6 +1,8 @@
 #include <kao2engine/eTransform.h>
 #include <kao2ar/Archive.h>
 
+#include <utilities/ColladaExporter.h>
+
 namespace ZookieWizard
 {
 
@@ -32,6 +34,8 @@ namespace ZookieWizard
         /*[0xA8]*/ ctrl = nullptr;
 
         defaultTransform[0].getMatrix().transpose(transposedMatrix);
+
+        jointType = false;
     }
 
     eTransform::~eTransform()
@@ -151,6 +155,120 @@ namespace ZookieWizard
         modifiedTransform[1] = modifiedTransform[0].applyAnotherSRP(parent_srp);
 
         /* (--dsp--) <kao2.0047BD9A> (update "eALBox" if exists) */
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: COLLADA exporting
+    ////////////////////////////////////////////////////////////////
+    void eTransform::writeNodeToXmlFile(ColladaExporter &exporter)
+    {
+        int32_t i;
+        float alpha, beta, gamma;
+        char bufor[64];
+        eNode* test_node;
+
+        switch (exporter.getState())
+        {
+            case COLLADA_EXPORTER_STATE_LIGHTS:
+            case COLLADA_EXPORTER_STATE_CAMERAS:
+            case COLLADA_EXPORTER_STATE_EFFECTS:
+            case COLLADA_EXPORTER_STATE_IMAGES:
+            case COLLADA_EXPORTER_STATE_MATERIALS:
+            case COLLADA_EXPORTER_STATE_GEOMETRIES:
+            case COLLADA_EXPORTER_STATE_CONTROLLERS:
+            case COLLADA_EXPORTER_STATE_ANIMATIONS:
+            {
+                /* Collecting objects for COLLADA libraries... */
+
+                eGroup::writeNodeToXmlFile(exporter);
+
+                break;
+            }
+
+            case COLLADA_EXPORTER_STATE_VISUAL_SCENES:
+            {
+                exporter.openTag("node");
+
+                i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_NODE, this, true);
+                sprintf_s(bufor, 64, "Node%d", i);
+                exporter.insertTagAttrib("id", bufor);
+                exporter.insertTagAttrib("name", name);
+
+                if (jointType)
+                {
+                    exporter.insertTagAttrib("sid", bufor);
+                    exporter.insertTagAttrib("type", "JOINT");
+                }
+                else
+                {
+                    exporter.insertTagAttrib("type", "NODE");
+                }
+                
+                alpha = modifiedTransform[0].scale;
+                sprintf_s(bufor, 64, "%f %f %f", alpha, alpha, alpha);
+                exporter.openTag("scale");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag();
+
+                modifiedTransform[0].rot.toEulerAngles(true, alpha, beta, gamma);
+
+                sprintf_s(bufor, 64, "0 0 1 %f", (gamma / 180.0 * M_PI));
+                exporter.openTag("rotate");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag();
+
+                sprintf_s(bufor, 64, "0 1 0 %f", (beta / 180.0 * M_PI));
+                exporter.openTag("rotate");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag();
+
+                sprintf_s(bufor, 64, "1 0 0 %f", (alpha / 180.0 * M_PI));
+                exporter.openTag("rotate");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag();
+
+                alpha = defaultTransform[0].pos.x;
+                beta = defaultTransform[0].pos.y;
+                gamma = defaultTransform[0].pos.z;
+                sprintf_s(bufor, 64, "%f %f %f", alpha, beta, gamma);
+                exporter.openTag("translate");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag();
+
+                /* "eGroup" could exist as independent node (without parent "eTransform") */
+                /* That's why we are not calling `eGroup::writeNodeToXmlFile()` */
+
+                for (i = 0; i < nodes.getSize(); i++)
+                {
+                    test_node = (eNode*)nodes.getIthChild(i);
+
+                    if (nullptr != test_node)
+                    {
+                        test_node->writeNodeToXmlFile(exporter);
+                    }
+                }
+
+                exporter.closeTag(); // "node"
+
+                break;
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: set node type (helpful when exporting)
+    ////////////////////////////////////////////////////////////////
+
+    void eTransform::setTypeToJoint(bool is_joint)
+    {
+        jointType = is_joint;
+    }
+
+    bool eTransform::isJointNode()
+    {
+        return jointType;
     }
 
 }

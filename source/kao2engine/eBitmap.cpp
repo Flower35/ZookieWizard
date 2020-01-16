@@ -3,6 +3,8 @@
 
 #include <kao2engine/Log.h>
 
+#include <utilities/ColladaExporter.h>
+
 namespace ZookieWizard
 {
 
@@ -344,6 +346,19 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eBitmap: export image to file
+    ////////////////////////////////////////////////////////////////
+    void eBitmap::exportImageFile(eString directory)
+    {
+        throw ErrorMessage
+        (
+            "Bitmap::exportImageFile():\n" \
+            "NOT SUPPORTED..."
+        );
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eBitmap: generate OpenGL texture
     ////////////////////////////////////////////////////////////////
     void eBitmap::generateTexture()
@@ -531,7 +546,6 @@ namespace ZookieWizard
     }
 
 
-
     ////////////////////////////////////////////////////////////////
     // eBitmap serialization
     // <kao2.00470B50>
@@ -674,11 +688,47 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eBitmap: set filename path
+    // eBitmap: COLLADA exporting
     ////////////////////////////////////////////////////////////////
+    void eBitmap::writeNodeToXmlFile(ColladaExporter &exporter)
+    {
+        int32_t i;
+        char bufor[64];
+
+        if (exporter.objectRefAlreadyExists(COLLADA_EXPORTER_OBJ_IMAGE, this))
+        {
+            /* Bitmap was already exported */
+            return;
+        }
+
+        exporter.openTag("image");
+
+        i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_IMAGE, this, true);
+        sprintf_s(bufor, 64, "Bitmap%d", i);
+        exporter.insertTagAttrib("id", bufor);
+
+        exporter.openTag("init_from");
+        exporter.openTag("ref");
+        exporter.writeInsideTag(path);
+
+        exporter.closeTag(); // "ref"
+        exporter.closeTag(); // "init_from"
+        exporter.closeTag(); // "image"
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: set and get filename path
+    ////////////////////////////////////////////////////////////////
+
     void eBitmap::setPath(eString new_path)
     {
         path = new_path;
+    }
+
+    eString eBitmap::getPath()
+    {
+        return path;
     }
 
 

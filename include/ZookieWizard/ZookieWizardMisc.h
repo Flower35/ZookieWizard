@@ -36,6 +36,8 @@ namespace ZookieWizard
 
         void openDenisLevel();
         void convertDenisLevel();
+
+        void exportArToCollada();
 }
 
 #endif

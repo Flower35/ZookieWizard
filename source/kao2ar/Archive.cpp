@@ -5,6 +5,8 @@
 
 #include <kao2engine/eScene.h>
 
+#include <utilities/ColladaExporter.h>
+
 namespace ZookieWizard
 {
 
@@ -1328,6 +1330,31 @@ namespace ZookieWizard
             }
 
             parentObject->writeStructureToTextFile(text_file, 0);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Ar: show scene as XML file
+    ////////////////////////////////////////////////////////////////
+    void Archive::writeStructureToXmlFile(eString filename)
+    {
+        eNode* test_node;
+        ColladaExporter exporter;
+
+        if (nullptr != parentObject)
+        {
+            if (parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
+            {
+                test_node = (eNode*)parentObject;
+                
+                exporter.openXml(filename);
+
+                while (exporter.continueExporting())
+                {
+                    test_node->writeNodeToXmlFile(exporter);
+                }
+            }
         }
     }
 
