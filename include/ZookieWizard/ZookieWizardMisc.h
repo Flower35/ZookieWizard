@@ -38,6 +38,8 @@ namespace ZookieWizard
         void convertDenisLevel();
 
         void exportArToCollada();
+        void exportTrimeshToObj();
+        void importTrimeshFromObj();
 }
 
 #endif

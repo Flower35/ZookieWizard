@@ -54,6 +54,7 @@ namespace ZookieWizard
             void prepareForDrawing();
 
             void setVerticesArray(eGeoArray<ePoint4>* new_vertices_array);
+            void setNormalsArray(eGeoArray<ePoint4>* new_normals_array);
             void setIndicesOffsets(eGeoArray<ushort>* new_indices_offets);
             void setIndicesArray(eGeoArray<ushort>* new_indices_array);
             void setTextureCoordsArray(eGeoArray<ePoint2>* new_uv_array);
@@ -63,6 +64,7 @@ namespace ZookieWizard
             eGeoArray<ePoint4>* getVerticesArray();
             eGeoArray<ePoint4>* getNormalsArray();
             eGeoArray<ePoint2>* getTextureCoordsArray();
+            eGeoArray<ePoint4>* getColorsArray();
             eGeoArray<ushort>* getIndicesOffsets();
             eGeoArray<ushort>* getIndicesArray();
             ePhyTriMesh* getPhyTriMesh();

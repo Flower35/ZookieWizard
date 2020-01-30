@@ -39,10 +39,13 @@ namespace ZookieWizard
 
         void writeIndentation(FileOperator &fo, int32_t indentation);
         void writeNewLine(FileOperator &fo, int32_t indentation);
+
+        int32_t splitString(eString &source, eString* destination, int32_t max_entries);
     }
 
     FileOperator& operator << (FileOperator &fo, const char* str);
     FileOperator& operator << (FileOperator &fo, const eString &str);
+    void operator << (eString &str, FileOperator &fo);
 
 
     ////////////////////////////////////////////////////////////////

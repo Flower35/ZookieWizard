@@ -378,9 +378,6 @@ namespace ZookieWizard
                 unknown_08 |= 0x00001000;
             }
 
-            /* (--dsp--) DEBUG */
-            //// unknown_08 &= (~0x00000100);
-
             /* Lists are NOT generated for animated meshes */
             if (0 == (0x00000100 & unknown_08))
             {
@@ -446,6 +443,21 @@ namespace ZookieWizard
         if (nullptr != verticesArray[0])
         {
             verticesArray[0]->incRef();
+        }
+    }
+
+    void eGeoSet::setNormalsArray(eGeoArray<ePoint4>* new_normals_array)
+    {
+        if (nullptr != normalsArray[0])
+        {
+            normalsArray[0]->decRef();
+        }
+
+        normalsArray[0] = new_normals_array;
+
+        if (nullptr != normalsArray[0])
+        {
+            normalsArray[0]->incRef();
         }
     }
 
@@ -552,6 +564,11 @@ namespace ZookieWizard
     eGeoArray<ePoint2>* eGeoSet::getTextureCoordsArray()
     {
         return texCoordsArray[0];
+    }
+
+    eGeoArray<ePoint4>* eGeoSet::getColorsArray()
+    {
+        return colorsArray;
     }
 
     eGeoArray<ushort>* eGeoSet::getIndicesOffsets()

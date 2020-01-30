@@ -123,6 +123,8 @@ namespace ZookieWizard
 
             void writeStructureToTextFile();
             void writeStructureToXmlFile(eString filename);
+            void writeSelectedObjectToObjFile(eString filename);
+            void appendToSelectedObjectFromObjFile(eString filename);
     };
 
 }

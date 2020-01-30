@@ -53,12 +53,19 @@ namespace ZookieWizard
             eString getStringRepresentation() override;
             void setName(eString new_name);
 
+            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+
             eTexture* getIthTexture(int32_t i);
+            void appendTexture(eTexture* new_texture);
 
             bool hasInvisibleInName();
 
             void setMaterialFlags(uint8_t bits_to_apply);
             void unsetMaterialFlags(uint8_t bits_to_erase);
+
+            void setMaterialState(eMaterialState* new_mtl_state);
+            eMaterialState* getMaterialState();
+
     };
 
 

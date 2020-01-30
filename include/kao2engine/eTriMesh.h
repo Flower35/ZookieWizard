@@ -34,10 +34,12 @@ namespace ZookieWizard
 
             void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
 
-            eGeoSet* getGeoSetLink();
             void setGeoSet(eGeoSet* new_geo);
             void setMaterial(eMaterial* new_material);
             void setBoundaryBox(ePoint3 new_min, ePoint3 new_max);
+
+            eGeoSet* getGeoSetLink();
+            eMaterial* getMaterial();
     };
 
 

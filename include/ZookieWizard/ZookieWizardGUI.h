@@ -35,7 +35,7 @@ namespace ZookieWizard
             extern HWND myWindowsGroupAr[8];
             extern HWND myWindowsGroupDenis[4];
             extern HWND myWindowsGroupAnimation[5];
-            extern HWND myWindowsGroupNodes[5];
+            extern HWND myWindowsGroupNodes[8];
 
             extern int32_t myWindowsCurrentGroup;
 

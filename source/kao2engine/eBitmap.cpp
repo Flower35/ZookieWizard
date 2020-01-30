@@ -350,11 +350,206 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eBitmap::exportImageFile(eString directory)
     {
-        throw ErrorMessage
-        (
-            "Bitmap::exportImageFile():\n" \
-            "NOT SUPPORTED..."
-        );
+        FileOperator file;
+        eString result;
+        char* full_path;
+
+        int32_t a, b, x, y, output_size;
+        bool bmp_ext = true;
+        uint8_t* output_pixels = nullptr;
+
+        char header[0x36];
+
+        /* Get path and open file */
+
+        result += directory;
+        result += path;
+
+        theLog.print(eString(" @ EXPORTING BITMAP: \"") + result + "\"\n");
+
+        full_path = result.getText();
+        
+        file.setDir(full_path);
+        file.createDir();
+
+        if (!file.open(full_path, (FILE_OPERATOR_MODE_BINARY)))
+        {
+            throw ErrorMessage
+            (
+                "Bitmap::exportImageFile():\n" \
+                "Could not open file: \"%s\"",
+                full_path
+            );
+        }
+
+        /* Check file format and set headers */
+        std::memset(header, 0x00, 0x36);
+
+        if (result.hasExtension("bmp"))
+        {
+            bmp_ext = true;
+
+            a = getBytesPerPixel() * width * height;
+            b = isUsingPalette();
+
+            header[0x00] = 'B';
+            header[0x01] = 'M';
+            *(int32_t*)&(header[0x02]) = (b ? 0x0400 : 0) + 0x36 + a;
+            header[0x0A] = 0x36;
+            header[0x0B] = b ? 0x04 : 0x00;
+            header[0x0E] = 0x28;
+            *(int32_t*)&(header[0x12]) = width;
+            *(int32_t*)&(header[0x16]) = height;
+            header[0x1A] = 0x01;
+            header[0x1C] = b ? 0x08 : 0x18;
+            *(int32_t*)&(header[0x22]) = a;
+        }
+        else if (result.hasExtension("tga"))
+        {
+            bmp_ext = false;
+
+            header[0x02] = 0x02;
+            *(int16_t*)&(header[0x0C]) = width;
+            *(int16_t*)&(header[0x0E]) = height;
+            header[0x10] = 0x08 * getBytesPerPixelOutput(bmp_ext);
+            header[0x11] = 0x08;
+        }
+        else
+        {
+            throw ErrorMessage
+            (
+                "eBitmap::exportImageFile():\n"
+                "unsupported file extension! [%s]",
+                path.getText()
+            );
+        }
+
+        /* Prepare output block */
+        output_size = width * height * getBytesPerPixelOutput(bmp_ext);
+        output_pixels = new uint8_t [output_size];
+        
+        /********************************/
+        /* Check "eBitmap" configurations */
+        /* (vertical flip) */
+
+        if ((!bmp_ext) && (bitmapType::PAL8_RGBA8 == type))
+        {
+            /* TGA, 8-bit -> 32-bit */
+
+            for (y = 0; y < height; y++)
+            {
+                for (x = 0; x < width; x++)
+                {
+                    b = palette[pixels[y * width + x]];
+
+                    b = ((b & 0xFF00FF00) | ((b >> 16) & 0x000000FF) | ((b << 16) & 0x00FF0000));
+
+                    a = (4 * width * height) - (4 * (y+1) * width) + (4 * x);
+
+                    *(int32_t*)&(output_pixels[a]) = b;
+                }
+            }
+        }
+        else if (bmp_ext && (bitmapType::PAL8_RGBA8 == type))
+        {
+            /* BMP, 8-bit (256 colors) */
+
+            for (y = 0; y < height; y++)
+            {
+                std::memcpy
+                (
+                    output_pixels + width*y,
+                    pixels + width*height - width*(y+1),
+                    width
+                );
+            }
+        }
+        else if ((!bmp_ext) && (bitmapType::RGBA8 == type))
+        {
+            /* TGA, 32-bit (Truecolor) */
+
+            for (y = 0; y < height; y++)
+            {
+                for (x = 0; x < width; x++)
+                {
+                    b = *(int32_t*)&(pixels[(4 * y * width) + (4 * x)]);
+
+                    b = ((b & 0xFF00FF00) | ((b >> 16) & 0x000000FF) | ((b << 16) & 0x00FF0000));
+
+                    a = (4 * width * height) - (4 * (y+1) * width) + (4 * x);
+
+                    *(int32_t*)&(output_pixels[a]) = b;
+                }
+            }
+        }
+        else if (bmp_ext && (bitmapType::RGB8 == type))
+        {
+            /* BMP, 24-bit */
+
+            for (y = 0; y < height; y++)
+            {
+                for (x = 0; x < width; x++)
+                {
+                    b = (3 * y * width) + (3 * x);
+
+                    a = (3 * width * height) - (3 * (y+1) * width) + (3 * x);
+
+                    output_pixels[a + 0] = pixels[b + 2];
+                    output_pixels[a + 1] = pixels[b + 1];
+                    output_pixels[a + 2] = pixels[b + 0];
+                }
+            }
+        }
+        else if (bmp_ext && (bitmapType::RGBA8 == type))
+        {
+            /* BMP, 32-bit -> 24-bit */
+
+            for (y = 0; y < height; y++)
+            {
+                for (x = 0; x < width; x++)
+                {
+                    b = (4 * y * width) + (4 * x);
+
+                    a = (3 * width * height) - (3 * (y+1) * width) + (3 * x);
+
+                    output_pixels[a + 0] = pixels[b + 2];
+                    output_pixels[a + 1] = pixels[b + 1];
+                    output_pixels[a + 2] = pixels[b + 0];
+                }
+            }
+        }
+        else
+        {
+            throw ErrorMessage
+            (
+                "eBitmap::exportImageFile():\n"
+                "unsupported output configuation! [%s] [%s]",
+                (bmp_ext ? "bmp" : "tga"),
+                getTypeName()
+            );
+        }
+
+        /* Save header */
+        file.write(header, (bmp_ext ? 0x36 : 0x12));
+
+        /* Save palette [BGRA -> RGBA] */
+        if (bmp_ext && isUsingPalette())
+        {
+            for (a = 0; a < 256; a++)
+            {
+                b = palette[a];
+                b = ((b & 0xFF00FF00) | ((b >> 16) & 0x000000FF) | ((b << 16) & 0x00FF0000));
+                file.write(&b, 0x04);
+            }
+        }
+
+        /* Save output colors */
+        file.write(output_pixels, output_size);
+
+        if (nullptr != output_pixels)
+        {
+            delete[](output_pixels);
+        }
     }
 
 
@@ -470,6 +665,7 @@ namespace ZookieWizard
         }
     }
 
+
     ////////////////////////////////////////////////////////////////
     // eBitmap: delete texture
     // <kao2.00470F10>
@@ -517,6 +713,77 @@ namespace ZookieWizard
             default:
             {
                 return 0x00;
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: cakculate bytes per pixel when exporting 
+    ////////////////////////////////////////////////////////////////
+    int eBitmap::getBytesPerPixelOutput(bool bmp_ext)
+    {
+        switch (type)
+        {
+            case bitmapType::RGBA8:
+            {
+                return (bmp_ext ? 0x03 : 0x04);
+            }
+
+            case bitmapType::PAL8_RGBA8:
+            {
+                return (bmp_ext ? 0x01: 0x04);
+            }
+
+            case bitmapType::RGB8:
+            case bitmapType::RGBX8:
+            {
+                return 0x03;
+            }
+
+            default:
+            {
+                return 0x01;
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: show object type
+    ////////////////////////////////////////////////////////////////
+    const char* eBitmap::getTypeName()
+    {
+        switch (type)
+        {
+            case bitmapType::RGBA8:
+            {
+                return "RGBA8";
+            }
+
+            case bitmapType::RGB8:
+            {
+                return "RGB8";
+            }
+
+            case bitmapType::PAL8_RGBA8:
+            {
+                return "PAL8_RGBA8";
+            }
+
+            case bitmapType::PAL8_RGBX8:
+            {
+                return "PAL8_RGBX8";
+            }
+
+            case bitmapType::RGBX8:
+            {
+                return "RGBX8";
+            }
+
+            default:
+            {
+                return "<???>";
             }
         }
     }
@@ -714,6 +981,9 @@ namespace ZookieWizard
         exporter.closeTag(); // "ref"
         exporter.closeTag(); // "init_from"
         exporter.closeTag(); // "image"
+
+        /* Actually export the image to hard drive */
+        exportImageFile(exporter.getWorkingDirectory());
     }
 
 

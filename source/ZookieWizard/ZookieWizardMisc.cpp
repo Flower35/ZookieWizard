@@ -147,6 +147,7 @@ namespace ZookieWizard
             theLog.print
             (
                 "================================\n" \
+                "==       ARCHIVE OPENING      ==\n" \
                 "==            BEGIN           ==\n" \
                 "================================\n"
             );
@@ -181,13 +182,14 @@ namespace ZookieWizard
             theLog.print
             (
                 "================================\n" \
+                "==       ARCHIVE OPENING      ==\n" \
                 "==          FINISHED          ==\n" \
                 "================================\n"
             );
 
             if (AR_MODE_READ == mode)
             {
-                myARs[0].changeSelectedObject(-4);
+                myARs[0].changeSelectedObject(-5);
             }
 
             if (false == skip_creating_new_ar)
@@ -212,6 +214,7 @@ namespace ZookieWizard
             theLog.print
             (
                 "================================\n" \
+                "==       ARCHIVE OPENING      ==\n" \
                 "==            oops!           ==\n" \
                 "================================\n"
             );
@@ -317,6 +320,7 @@ namespace ZookieWizard
             theLog.print
             (
                 "================================\n" \
+                "==      DENIS LVL OPENING     ==\n" \
                 "==            BEGIN           ==\n" \
                 "================================\n"
             );
@@ -329,6 +333,7 @@ namespace ZookieWizard
             theLog.print
             (
                 "================================\n" \
+                "==      DENIS LVL OPENING     ==\n" \
                 "==          FINISHED          ==\n" \
                 "================================\n"
             );
@@ -350,6 +355,7 @@ namespace ZookieWizard
             theLog.print
             (
                 "================================\n" \
+                "==      DENIS LVL OPENING     ==\n" \
                 "==            oops!           ==\n" \
                 "================================\n"
             );
@@ -376,6 +382,7 @@ namespace ZookieWizard
             theLog.print
             (
                 "================================\n" \
+                "==    DENIS LVL CONVERTING    ==\n" \
                 "==            BEGIN           ==\n" \
                 "================================\n"
             );
@@ -384,7 +391,15 @@ namespace ZookieWizard
 
             myARs[0].setMyParentScene(test_scene);
             
-            myARs[0].changeSelectedObject(-4);
+            myARs[0].changeSelectedObject(-5);
+
+            theLog.print
+            (
+                "================================\n" \
+                "==    DENIS LVL CONVERTING    ==\n" \
+                "==          FINISHED          ==\n" \
+                "================================\n"
+            );
 
             sprintf_s
             (
@@ -405,6 +420,7 @@ namespace ZookieWizard
             theLog.print
             (
                 "================================\n" \
+                "==    DENIS LVL CONVERTING    ==\n" \
                 "==            oops!           ==\n" \
                 "================================\n"
             );
@@ -446,6 +462,7 @@ namespace ZookieWizard
             theLog.print
             (
                 "================================\n" \
+                "==    COLLADA DAE EXPORTING   ==\n" \
                 "==            BEGIN           ==\n" \
                 "================================\n"
             );
@@ -455,6 +472,7 @@ namespace ZookieWizard
             theLog.print
             (
                 "================================\n" \
+                "==    COLLADA DAE EXPORTING   ==\n" \
                 "==          FINISHED          ==\n" \
                 "================================\n"
             );
@@ -474,6 +492,155 @@ namespace ZookieWizard
             theLog.print
             (
                 "================================\n" \
+                "==    COLLADA DAE EXPORTING   ==\n" \
+                "==            oops!           ==\n" \
+                "================================\n"
+            );
+
+            e.display();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // miscellaneous: Export Kao2 Mesh to WAVEFRONT "*.obj" format
+    ////////////////////////////////////////////////////////////////
+
+    void exportTrimeshToObj()
+    {
+        int32_t result;
+        eString filename;
+        char bufor[256];
+
+        try
+        {
+            bufor[0] = 0x00;
+
+            ofn.lpstrFile = bufor;
+            ofn.nMaxFile = 256;
+            ofn.lpstrTitle = "Saving OBJ document...";
+            ofn.lpstrFilter = "Wavefront OBJ document (*.obj)\0*.obj\0";
+            ofn.Flags = (OFN_OVERWRITEPROMPT);
+
+            result = GetSaveFileName(&ofn);
+
+            if (0 == result)
+            {
+                return;
+            }
+
+            /* Set filename and save OBJ document */
+
+            filename = bufor;
+
+            theLog.print
+            (
+                "================================\n" \
+                "==   WAVEFRONT OBJ EXPORTING  ==\n" \
+                "==            BEGIN           ==\n" \
+                "================================\n"
+            );
+
+            myARs[0].writeSelectedObjectToObjFile(filename);
+
+            theLog.print
+            (
+                "================================\n" \
+                "==   WAVEFRONT OBJ EXPORTING  ==\n" \
+                "==          FINISHED          ==\n" \
+                "================================\n"
+            );
+
+            sprintf_s
+            (
+                bufor,
+                256,
+                "<\"%s\">\n\nOBJ document exported successfully! :)",
+                filename.getText()
+            );
+
+            MessageBox(GUI::myWindowsGroupMain[0], bufor, MESSAGE_TITLE_INFO, MB_ICONINFORMATION);
+        }
+        catch (ErrorMessage &e)
+        {
+            theLog.print
+            (
+                "================================\n" \
+                "==   WAVEFRONT OBJ EXPORTING  ==\n" \
+                "==            oops!           ==\n" \
+                "================================\n"
+            );
+
+            e.display();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // miscellaneous: Impoty Kao2 Mesh from WAVEFRONT "*.obj" format
+    ////////////////////////////////////////////////////////////////
+
+    void importTrimeshFromObj()
+    {
+        int32_t result;
+        eString filename;
+        char bufor[256];
+
+        try
+        {
+            bufor[0] = 0x00;
+
+            ofn.lpstrFile = bufor;
+            ofn.nMaxFile = 256;
+            ofn.lpstrTitle = "Opening OBJ document...";
+            ofn.lpstrFilter = "Wavefront OBJ document (*.obj)\0*.obj\0";
+            ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
+
+            result = GetOpenFileName(&ofn);
+
+            if (0 == result)
+            {
+                return;
+            }
+
+            /* Set filename and read OBJ document */
+
+            filename = bufor;
+
+            theLog.print
+            (
+                "================================\n" \
+                "==   WAVEFRONT OBJ IMPORTING  ==\n" \
+                "==            BEGIN           ==\n" \
+                "================================\n"
+            );
+
+            myARs[0].appendToSelectedObjectFromObjFile(filename);
+
+            theLog.print
+            (
+                "================================\n" \
+                "==   WAVEFRONT OBJ IMPORTING  ==\n" \
+                "==          FINISHED          ==\n" \
+                "================================\n"
+            );
+
+            sprintf_s
+            (
+                bufor,
+                256,
+                "<\"%s\">\n\nOBJ document imported successfully! :)",
+                filename.getText()
+            );
+
+            MessageBox(GUI::myWindowsGroupMain[0], bufor, MESSAGE_TITLE_INFO, MB_ICONINFORMATION);
+        }
+        catch (ErrorMessage &e)
+        {
+            theLog.print
+            (
+                "================================\n" \
+                "==   WAVEFRONT OBJ IMPORTING  ==\n" \
                 "==            oops!           ==\n" \
                 "================================\n"
             );

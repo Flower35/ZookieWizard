@@ -1011,6 +1011,12 @@
     <ClCompile Include="..\source\kao2engine\TriMeshExporting.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\utilities\WavefrontObjExporter.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\utilities\WavefrontObjImporter.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resource\ZookieWizard\WinRC.rc">

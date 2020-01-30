@@ -17,7 +17,7 @@ namespace ZookieWizard
         HWND myWindowsGroupAr[8] = {NULL};
         HWND myWindowsGroupDenis[4] = {NULL};
         HWND myWindowsGroupAnimation[5] = {NULL};
-        HWND myWindowsGroupNodes[5] = {NULL};
+        HWND myWindowsGroupNodes[8] = {NULL};
 
         int32_t myWindowsCurrentGroup = 1;
 
@@ -261,7 +261,7 @@ namespace ZookieWizard
                         {
                             if (BN_CLICKED == HIWORD(wParam))
                             {
-                                myARs[0].changeSelectedObject(-4);
+                                myARs[0].changeSelectedObject(-5);
                             }
 
                             break;
@@ -271,7 +271,7 @@ namespace ZookieWizard
                         {
                             if (BN_CLICKED == HIWORD(wParam))
                             {
-                                myARs[0].changeSelectedObject(-3);
+                                myARs[0].changeSelectedObject(-4);
                             }
 
                             break;
@@ -282,6 +282,36 @@ namespace ZookieWizard
                             if (BN_CLICKED == HIWORD(wParam))
                             {
                                 myARs[0].changeSelectedObject(-2);
+                            }
+
+                            break;
+                        }
+
+                        case IDM_BUTTON_DELETE_NODE:
+                        {
+                            if (BN_CLICKED == HIWORD(wParam))
+                            {
+                                myARs[0].changeSelectedObject(-3);
+                            }
+
+                            break;
+                        }
+
+                        case IDM_BUTTON_EXPORT_TRIMESH:
+                        {
+                            if (BN_CLICKED == HIWORD(wParam))
+                            {
+                                exportTrimeshToObj();
+                            }
+
+                            break;
+                        }
+
+                        case IDM_BUTTON_IMPORT_TRIMESH:
+                        {
+                            if (BN_CLICKED == HIWORD(wParam))
+                            {
+                                importTrimeshFromObj();
                             }
 
                             break;
@@ -1184,6 +1214,87 @@ namespace ZookieWizard
             myWindowsGroupNodes[3] = test_hwnd;
 
             /********************************/
+            /* [GROUP 4/4] Create button */
+
+            test_hwnd = CreateWindow
+            (
+                "BUTTON",
+                "Delete Node",
+                (WS_CHILD | BS_DEFPUSHBUTTON),
+                RECT_TABS_X1 + (RECT_TABS_X2 / 2) + (WINDOW_PADDING / 2),
+                RECT_TABS_Y1 + (4 * WINDOW_HEIGHT) + (3 * WINDOW_PADDING),
+                (RECT_TABS_X2 / 2) - (WINDOW_PADDING / 2),
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_BUTTON_DELETE_NODE,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupNodes[4] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 4/4] Create button */
+
+            test_hwnd = CreateWindow
+            (
+                "BUTTON",
+                "Export TriMesh",
+                (WS_CHILD | BS_DEFPUSHBUTTON),
+                RECT_TABS_X1,
+                RECT_TABS_Y1 + (5 * WINDOW_HEIGHT) + (4 * WINDOW_PADDING),
+                (RECT_TABS_X2 / 2) - (WINDOW_PADDING / 2),
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_BUTTON_EXPORT_TRIMESH,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupNodes[5] = test_hwnd;
+
+            /********************************/
+            /* [GROUP 4/4] Create button */
+
+            test_hwnd = CreateWindow
+            (
+                "BUTTON",
+                "Import TriMesh",
+                (WS_CHILD | BS_DEFPUSHBUTTON),
+                RECT_TABS_X1 + (RECT_TABS_X2 / 2) + (WINDOW_PADDING / 2),
+                RECT_TABS_Y1 + (5 * WINDOW_HEIGHT) + (4 * WINDOW_PADDING),
+                (RECT_TABS_X2 / 2) - (WINDOW_PADDING / 2),
+                WINDOW_HEIGHT,
+                myWindowsGroupMain[0],
+                (HMENU)IDM_BUTTON_IMPORT_TRIMESH,
+                hInstance,
+                NULL
+            );
+
+            if (0 == test_hwnd)
+            {
+                return false;
+            }
+
+            SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
+
+            myWindowsGroupNodes[6] = test_hwnd;
+
+            /********************************/
             /* [GROUP 4/4] Create listbox window */
 
             test_hwnd = CreateWindowEx
@@ -1193,7 +1304,7 @@ namespace ZookieWizard
                 NULL,
                 (WS_CHILD | WS_HSCROLL | WS_VSCROLL | LBS_DISABLENOSCROLL | LBS_HASSTRINGS | LBS_NOTIFY),
                 RECT_TABS_X1,
-                RECT_TABS_Y1 + (5 * WINDOW_HEIGHT) + (4 * WINDOW_PADDING),
+                RECT_TABS_Y1 + (6 * WINDOW_HEIGHT) + (5 * WINDOW_PADDING),
                 RECT_TABS_X2,
                 256,
                 myWindowsGroupMain[0],
@@ -1209,7 +1320,7 @@ namespace ZookieWizard
 
             SendMessage(test_hwnd, WM_SETFONT, (WPARAM)myWindowsFont, FALSE);
 
-            myWindowsGroupNodes[4] = test_hwnd;
+            myWindowsGroupNodes[7] = test_hwnd;
 
             /********************************/
             /* WinApi creation completed. :) */
@@ -1293,7 +1404,7 @@ namespace ZookieWizard
 
             show_status = (4 == myWindowsCurrentGroup) ? SW_SHOW : SW_HIDE;
 
-            for (i = 0; i < 5; i++)
+            for (i = 0; i < 8; i++)
             {
                 ShowWindow(myWindowsGroupNodes[i], show_status);
             }

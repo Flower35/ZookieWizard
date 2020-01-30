@@ -17,11 +17,11 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x08-0x14]*/ float unknown_08[4];
-            /*[0x18-0x24]*/ float unknown_18[4];
-            /*[0x28-0x34]*/ float unknown_28[4];
-            /*[0x38-0x44]*/ float unknown_38[4];
-            /*[0x48]*/ float unknown_48;
+            /*[0x08-0x14]*/ float ambient[4];
+            /*[0x18-0x24]*/ float diffuse[4];
+            /*[0x28-0x34]*/ float emissive[4];
+            /*[0x38-0x44]*/ float specular[4];
+            /*[0x48]*/ float shininess;
             /*[0x4C]*/ bool unknown_4C;
 
         /*** Methods ***/
@@ -33,6 +33,16 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() override;
+
+            void getAmbientColor(float* values);
+            void getDiffuseColor(float* values);
+            void getSpecularColor(float* values);
+            float getShininess();
+
+            void setAmbientColor(float* values);
+            void setDiffuseColor(float* values);
+            void setSpecularColor(float* values);
+            void setShininess(float value);
     };
 
 

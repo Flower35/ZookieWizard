@@ -141,6 +141,11 @@ namespace ZookieWizard
         return false;
     }
 
+    bool FileOperator::endOfFileReached()
+    {
+        return file.eof();
+    }
+
 
     ////////////////////////////////////////////////////////////////
     // Error Message functions

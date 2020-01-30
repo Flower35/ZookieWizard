@@ -403,6 +403,8 @@
     <ClCompile Include="..\source\kao2engine\When.cpp" />
     <ClCompile Include="..\source\kao2engine\WorldWhen.cpp" />
     <ClCompile Include="..\source\utilities\ColladaExporter.cpp" />
+    <ClCompile Include="..\source\utilities\WavefrontObjExporter.cpp" />
+    <ClCompile Include="..\source\utilities\WavefrontObjImporter.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizard.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardGUI.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardMisc.cpp" />

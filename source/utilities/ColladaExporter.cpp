@@ -16,8 +16,8 @@ namespace ZookieWizard
         tags = new ColladaExporterTag [16];
 
         objRefsCount = 0;
-        objRefsMaxLength = 512; // (--dsp--) "32768"
-        objRefs = new ColladaExporterObjRef [512];
+        objRefsMaxLength = 1024; // (--dsp--) "32768"
+        objRefs = new ColladaExporterObjRef [1024];
     }
 
 
@@ -69,7 +69,7 @@ namespace ZookieWizard
                 case '/':
                 case '\\':
                 {
-                    workingDirectory = filename.getSubstring(0, i);
+                    workingDirectory = filename.getSubstring(0, (i + 1));
 
                     return;
                 }
@@ -599,7 +599,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ColladaExporter: get working directory
     ////////////////////////////////////////////////////////////////
-    eString ColladaExporter::getWorkngDirectory()
+    eString ColladaExporter::getWorkingDirectory()
     {
         return workingDirectory;
     }

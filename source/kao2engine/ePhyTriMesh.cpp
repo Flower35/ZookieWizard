@@ -174,7 +174,9 @@ namespace ZookieWizard
                 );
             }
 
-            sortBoneIndices();
+            /********************************/
+            /* (--dsp--) This leads to some broken animations (eg. beavers) */
+            //// sortBoneIndices();
         }
 
         /* MorpherMod */
@@ -898,6 +900,9 @@ namespace ZookieWizard
 
         if (k != bonesCount)
         {
+            /* (--dsp--) "02_korzenie.ar" -> "dynia_³odyga_itd." */
+            return;
+
             throw ErrorMessage
             (
                 "ePhyTriMesh::sortBoneIndices():\n" \

@@ -33,15 +33,16 @@ namespace ZookieWizard
         int32_t total_indices;
         int32_t total_triangles;
         eGeoArray<ePoint4>* vertices = geo->getVerticesArray();
+        eGeoArray<ePoint4>* colors =  geo->getColorsArray();
         eGeoArray<ePoint4>* normals =  geo->getNormalsArray();
         eGeoArray<ePoint2>* mapping = geo->getTextureCoordsArray();
         eGeoArray<ushort>* indices_offsets = geo->getIndicesOffsets();
         eGeoArray<ushort>* indices = geo->getIndicesArray();
 
-        const char* array_names[3] = {"positions", "normals", "mapping"};
+        const char* array_names[4] = {"positions", "colors", "normals", "mapping"};
         const char* semantic_names[6] = {"VERTEX", "NORMAL", "TEXCOORD", "vertices", "normals", "mapping"};
-        void* array_pointers[3] = {vertices, normals, mapping};
-        const char* accessor_params[5] = {"X", "Y", "Z", "S", "T"};
+        void* array_pointers[4] = {vertices, colors, normals, mapping};
+        const char* accessor_params[9] = {"X", "Y", "Z", "S", "T", "R", "G", "B", "A"};
 
         switch (exporter.getState())
         {
@@ -97,35 +98,9 @@ namespace ZookieWizard
 
             case COLLADA_EXPORTER_STATE_MATERIALS:
             {
-                if (exporter.objectRefAlreadyExists(COLLADA_EXPORTER_OBJ_MATERIAL, material))
-                {
-                    /* Material was already exported */
-                    return;
-                }
-
                 if (nullptr != material)
                 {
-                    exporter.openTag("material");
-
-                    mat_id = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_MATERIAL, material, true);
-                    sprintf_s(bufor, 64, "Material%d", mat_id);
-                    exporter.insertTagAttrib("id", bufor);
-                    exporter.insertTagAttrib("name", material->getStringRepresentation());
-
-                    test_texture = material->getIthTexture(0);
-
-                    if (nullptr != test_texture)
-                    {
-                        exporter.openTag("instance_effect");
-
-                        i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_EFFECT, test_texture, false);
-                        sprintf_s(bufor, 64, "#Texture%d", i);
-                        exporter.insertTagAttrib("url", bufor);
-
-                        exporter.closeTag(); // "instance_effect"
-                    }
-
-                    exporter.closeTag(); // "material"
+                    material->writeNodeToXmlFile(exporter);
                 }
 
                 break;
@@ -151,7 +126,7 @@ namespace ZookieWizard
                 /********************************/
                 /* Write vertrices data */
 
-                for (i = 0; i < 3; i++)
+                for (i = 0; i < 4; i++)
                 {
                     if (nullptr != array_pointers[i])
                     {
@@ -176,7 +151,16 @@ namespace ZookieWizard
                                 break;
                             }
 
-                            case 1: // VERTEX NORMALS
+                            case 1: // VERTEX COLORS
+                            {
+                                array_length = colors->getLength();
+                                array_data4 = colors->getData();
+                                k = 4;
+
+                                break;
+                            }
+
+                            case 2: // VERTEX NORMALS
                             {
                                 array_length = normals->getLength();
                                 array_data4 = normals->getData();
@@ -185,7 +169,7 @@ namespace ZookieWizard
                                 break;
                             }
 
-                            case 2: // VERTEX UV MAPPING
+                            case 3: // VERTEX UV MAPPING
                             {
                                 array_length = mapping->getLength();
                                 array_data2 = mapping->getData();
@@ -201,7 +185,7 @@ namespace ZookieWizard
                         switch (i)
                         {
                             case 0: // VERTEX POSITIONS
-                            case 1: // VERTEX NORMALS
+                            case 2: // VERTEX NORMALS
                             {
                                 for (j = 0; j < array_length; j++)
                                 {
@@ -217,7 +201,23 @@ namespace ZookieWizard
                                 break;
                             }
 
-                            case 2: // VERTEX UV MAPPING
+                            case 1: // VERTEX COLORS
+                            {
+                                for (j = 0; j < array_length; j++)
+                                {
+                                    sprintf_s
+                                    (
+                                        bufor, 64, "%f %f %f %f",
+                                        array_data4[j].x, array_data4[j].y, array_data4[j].z, array_data4[j].w
+                                    );
+
+                                    exporter.writeInsideTag(bufor);
+                                }
+
+                                break;
+                            }
+
+                            case 3: // VERTEX UV MAPPING
                             {
                                 for (j = 0; j < array_length; j++)
                                 {
@@ -249,12 +249,39 @@ namespace ZookieWizard
                         sprintf_s(bufor, 64, "%d", k);
                         exporter.insertTagAttrib("stride", bufor);
 
-                        for (j = 0; j < k; j++)
+                        switch (i)
+                        {
+                            case 0: // VERTEX POSITIONS
+                            case 2: // VERTEX NORMALS
+                            {
+                                j = 0;
+                                k = 0 + 3;
+                                break;
+                            }
+
+                            case 1: // VERTEX COLORS
+                            {
+                                j = 5;
+                                k = 5 + 4;
+                                break;
+                            }
+
+                            case 3: // VERTEX UV MAPPING
+                            {
+                                j = 3;
+                                k = 3 + 2;
+                                break;
+                            }
+                        }
+
+                        while (j < k)
                         {
                             exporter.openTag("param");
-                            exporter.insertTagAttrib("name", accessor_params[(i < 2 ? 0 : 3) + j]);
+                            exporter.insertTagAttrib("name", accessor_params[j]);
                             exporter.insertTagAttrib("type", "float");
                             exporter.closeTag();
+
+                            j++;
                         }
 
                         exporter.closeTag(); // "accessor"
@@ -273,11 +300,23 @@ namespace ZookieWizard
                 sprintf_s(bufor, 64, "TriMesh%d-vertices", geo_id);
                 exporter.insertTagAttrib("id", bufor);
 
-                exporter.openTag("input");
-                exporter.insertTagAttrib("semantic", "POSITION");
-                sprintf_s(bufor, 64, "#TriMesh%d-positions", geo_id);
-                exporter.insertTagAttrib("source", bufor);
-                exporter.closeTag(); // "input"
+                if (nullptr != vertices)
+                {
+                    exporter.openTag("input");
+                    exporter.insertTagAttrib("semantic", "POSITION");
+                    sprintf_s(bufor, 64, "#TriMesh%d-positions", geo_id);
+                    exporter.insertTagAttrib("source", bufor);
+                    exporter.closeTag(); // "input"
+                }
+
+                if (nullptr != colors)
+                {
+                    exporter.openTag("input");
+                    exporter.insertTagAttrib("semantic", "COLOR");
+                    sprintf_s(bufor, 64, "#TriMesh%d-colors", geo_id);
+                    exporter.insertTagAttrib("source", bufor);
+                    exporter.closeTag(); // "input"
+                }
 
                 exporter.closeTag(); // "vertices"
 
@@ -354,15 +393,13 @@ namespace ZookieWizard
                 }
                 else if (nullptr != indices)
                 {
-                    /* (--dsp--) */
-
                     exporter.openTag("p");
 
                     for (j = 0; j < indices->getLength(); j++)
                     {
                         k = indices->getData()[j];
 
-                        sprintf_s(bufor, 64, "%d %d %d", k, k, k);
+                        sprintf_s(bufor, 64, "%d", k);
                         exporter.writeInsideTag(bufor);
                     }
 

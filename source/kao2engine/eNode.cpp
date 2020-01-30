@@ -44,6 +44,8 @@ namespace ZookieWizard
         /*[0x34]*/ unknown_34 = nullptr;
         /*[0x2C]*/ sphBound[3] = -1.0f;
 
+        visGroup = (-1);
+
         if (nullptr != x)
         {
             /* TODO: "kao2.00478B55 -- CALL 00478E00" */
@@ -285,8 +287,9 @@ namespace ZookieWizard
         (
             bufor,
             512,
-            " - flags: %08X",
-            flags
+            " - flags: %08X (visGroup: %d)",
+            flags,
+            visGroup
         );
 
         ArFunctions::writeNewLine(file, indentation);

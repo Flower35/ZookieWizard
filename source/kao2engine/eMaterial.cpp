@@ -4,6 +4,8 @@
 #include <kao2engine/eTexture.h>
 #include <kao2engine/eMaterialState.h>
 
+#include <utilities/ColladaExporter.h>
+
 namespace ZookieWizard
 {
     MaterialType materialTypes[16] =
@@ -172,11 +174,107 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eMaterial: COLLADA exporting
+    ////////////////////////////////////////////////////////////////
+    void eMaterial::writeNodeToXmlFile(ColladaExporter &exporter)
+    {
+        int32_t i;
+        char bufor[64];
+        float color[4];
+        eTexture* test_texture;
+
+        if (exporter.objectRefAlreadyExists(COLLADA_EXPORTER_OBJ_MATERIAL, this))
+        {
+            /* Material was already exported */
+            return;
+        }
+
+        exporter.openTag("material");
+
+        i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_MATERIAL, this, true);
+        sprintf_s(bufor, 64, "Material%d", i);
+        exporter.insertTagAttrib("id", bufor);
+        exporter.insertTagAttrib("name", name);
+
+        test_texture = getIthTexture(0);
+
+        if (nullptr != test_texture)
+        {
+            exporter.openTag("instance_effect");
+
+            i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_EFFECT, test_texture, false);
+            sprintf_s(bufor, 64, "#Texture%d", i);
+            exporter.insertTagAttrib("url", bufor);
+
+            if (nullptr != state)
+            {
+                exporter.openTag("setparam");
+                exporter.insertTagAttrib("ref", "AMBIENT");
+
+                state->getAmbientColor(color);
+                sprintf_s(bufor, 64, "%f %f %f", color[0], color[1], color[2]);
+
+                exporter.openTag("float3");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag(); // "float3"
+                exporter.closeTag(); // "setparam"
+
+                exporter.openTag("setparam");
+                exporter.insertTagAttrib("ref", "DIFFUSE");
+
+                state->getDiffuseColor(color);
+                sprintf_s(bufor, 64, "%f %f %f", color[0], color[1], color[2]);
+
+                exporter.openTag("float3");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag(); // "float3"
+                exporter.closeTag(); // "setparam"
+
+                exporter.openTag("setparam");
+                exporter.insertTagAttrib("ref", "SPECULAR");
+
+                state->getSpecularColor(color);
+                sprintf_s(bufor, 64, "%f %f %f", color[0], color[1], color[2]);
+
+                exporter.openTag("float3");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag(); // "float3"
+                exporter.closeTag(); // "setparam"
+
+                exporter.openTag("setparam");
+                exporter.insertTagAttrib("ref", "SHININESS");
+
+                color[0] = state->getShininess();
+                sprintf_s(bufor, 64, "%f", color[0]);
+
+                exporter.openTag("float");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag(); // "float"
+                exporter.closeTag(); // "setparam"
+            }
+
+            exporter.closeTag(); // "instance_effect"
+        }
+
+        exporter.closeTag(); // "material"
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eMaterial: get i-th texture (used with eTriMesh)
     ////////////////////////////////////////////////////////////////
     eTexture* eMaterial::getIthTexture(int32_t i)
     {
         return (eTexture*)textures.getIthChild(i);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterial: append texture
+    ////////////////////////////////////////////////////////////////
+    void eMaterial::appendTexture(eTexture* new_texture)
+    {
+        textures.appendChild(new_texture);
     }
 
 
@@ -219,6 +317,36 @@ namespace ZookieWizard
     void eMaterial::unsetMaterialFlags(uint8_t bits_to_erase)
     {
         materialFlags &= (~bits_to_erase);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterial: get or set material state
+    ////////////////////////////////////////////////////////////////
+
+    void eMaterial::setMaterialState(eMaterialState* new_mtl_state)
+    {
+        if (state == new_mtl_state)
+        {
+            return;
+        }
+
+        if (nullptr != state)
+        {
+            state->decRef();
+        }
+
+        state = new_mtl_state;
+
+        if (nullptr != state)
+        {
+            state->incRef();
+        }
+    }
+
+    eMaterialState* eMaterial::getMaterialState()
+    {
+        return state;
     }
 
 }

@@ -6,6 +6,8 @@
 #include <kao2engine/eScene.h>
 
 #include <utilities/ColladaExporter.h>
+#include <utilities/WavefrontObjExporter.h>
+#include <utilities/WavefrontObjImporter.h>
 
 namespace ZookieWizard
 {
@@ -233,8 +235,11 @@ namespace ZookieWizard
             a = (-1);
         }
 
-        myFile.setDir(path.getText());
-        myFile.createDir();
+        if (false == isInReadMode())
+        {
+            myFile.setDir(path.getText());
+            myFile.createDir();
+        }
 
         if ((-1) != a)
         {
@@ -498,8 +503,9 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Ar: change selected object
-    // (-4) resets selection to root node
-    // (-3) updates list for parrent node
+    // (-5) resets selection to root node
+    // (-4) updates list for parrent node
+    // (-3) deletes current node and updates list for parrent node
     // (-2) toggles node visibility
     // (-1) updates list for current selection
     ////////////////////////////////////////////////////////////////
@@ -515,13 +521,14 @@ namespace ZookieWizard
 
         switch (child_id)
         {
-            case (-4):
+            case (-5):
             {
                 selectedObject = parentObject;
                 update_list = true;
                 break;
             }
 
+            case (-4):
             case (-3):
             {
                 if (nullptr == selectedObject)
@@ -534,6 +541,16 @@ namespace ZookieWizard
                     test_node = ((eNode*)selectedObject)->getParentNode();
                     if (nullptr != test_node)
                     {
+                        if ((-3) == child_id)
+                        {
+                            if (test_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                            {
+                                test_group = (eGroup*)test_node;
+
+                                test_group->findAndDeleteChild((eNode*)selectedObject);
+                            }
+                        }
+
                         selectedObject = test_node;
                         update_list = true;
                     }
@@ -627,7 +644,6 @@ namespace ZookieWizard
             }
 
             GUI::updateNodesList((-1), &test_str);
-
 
             if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
             {
@@ -1354,6 +1370,42 @@ namespace ZookieWizard
                 {
                     test_node->writeNodeToXmlFile(exporter);
                 }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Ar: export selected TriMesh to OBJ file
+    ////////////////////////////////////////////////////////////////
+    void Archive::writeSelectedObjectToObjFile(eString filename)
+    {
+        WavefrontObjExporter exporter;
+
+        if (nullptr != selectedObject)
+        {
+            if (exporter.openObj(filename, (eTriMesh*)selectedObject))
+            {
+                exporter.begin();
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Ar: import TriMesh to selected Group from OBJ file
+    ////////////////////////////////////////////////////////////////
+    void Archive::appendToSelectedObjectFromObjFile(eString filename)
+    {
+        WavefrontObjImporter importer;
+
+        if (nullptr != selectedObject)
+        {
+            if (importer.openObj(filename, (eGroup*)selectedObject))
+            {
+                importer.begin();
+
+                changeSelectedObject(-1);
             }
         }
     }

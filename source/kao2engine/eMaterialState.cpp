@@ -30,30 +30,30 @@ namespace ZookieWizard
     : eRefCounter()
     {
         /*[0x28-0x34]*/
-        unknown_28[0] = 0;
-        unknown_28[1] = 0;
-        unknown_28[2] = 0;
-        unknown_28[3] = 1.0f;
+        emissive[0] = 0;
+        emissive[1] = 0;
+        emissive[2] = 0;
+        emissive[3] = 1.0f;
 
         /*[0x08-0x14]*/
-        unknown_08[0] = 0.5f;
-        unknown_08[1] = 0.5f;
-        unknown_08[2] = 0.5f;
-        unknown_08[3] = 1.0f;
+        ambient[0] = 0.5f;
+        ambient[1] = 0.5f;
+        ambient[2] = 0.5f;
+        ambient[3] = 1.0f;
 
         /*[0x18-0x24]*/
-        unknown_18[0] = 0.5f;
-        unknown_18[1] = 0.5f;
-        unknown_18[2] = 0.5f;
-        unknown_18[3] = 1.0f;
+        diffuse[0] = 0.5f;
+        diffuse[1] = 0.5f;
+        diffuse[2] = 0.5f;
+        diffuse[3] = 1.0f;
 
         /*[0x38-0x44]*/
-        unknown_38[0] = 0.5f;
-        unknown_38[1] = 0.5f;
-        unknown_38[2] = 0.5f;
-        unknown_38[3] = 1.0f;
+        specular[0] = 0.5f;
+        specular[1] = 0.5f;
+        specular[2] = 0.5f;
+        specular[3] = 1.0f;
 
-        /*[0x48]*/ unknown_48 = 0;
+        /*[0x48]*/ shininess = 0;
         /*[0x4C]*/ unknown_4C = true;
 
     }
@@ -67,69 +67,69 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eMaterialState::serialize(Archive &ar)
     {
-        /* [0x18] unknown */
-        ar.readOrWrite(&(unknown_18[0]), 0x04);
-        ar.readOrWrite(&(unknown_18[1]), 0x04);
-        ar.readOrWrite(&(unknown_18[2]), 0x04);
-        ar.readOrWrite(&(unknown_18[3]), 0x04);
+        /* [0x18] material diffuse */
+        ar.readOrWrite(&(diffuse[0]), 0x04);
+        ar.readOrWrite(&(diffuse[1]), 0x04);
+        ar.readOrWrite(&(diffuse[2]), 0x04);
+        ar.readOrWrite(&(diffuse[3]), 0x04);
 
-        /* [0x08] unknown */
-        ar.readOrWrite(&(unknown_08[0]), 0x04);
-        ar.readOrWrite(&(unknown_08[1]), 0x04);
-        ar.readOrWrite(&(unknown_08[2]), 0x04);
-        ar.readOrWrite(&(unknown_08[3]), 0x04);
+        /* [0x08] material ambient */
+        ar.readOrWrite(&(ambient[0]), 0x04);
+        ar.readOrWrite(&(ambient[1]), 0x04);
+        ar.readOrWrite(&(ambient[2]), 0x04);
+        ar.readOrWrite(&(ambient[3]), 0x04);
 
         if (ar.isInReadMode())
         {
             if (ar.getVersion() < 0x74)
             {
-                unknown_08[0] = 0.5f;
-                unknown_08[1] = 0.5f;
-                unknown_08[2] = 0.5f;
-                unknown_08[3] = 1.0f;
+                ambient[0] = 0.5f;
+                ambient[1] = 0.5f;
+                ambient[2] = 0.5f;
+                ambient[3] = 1.0f;
 
-                unknown_18[0] = 0.5f;
-                unknown_18[1] = 0.5f;
-                unknown_18[2] = 0.5f;
-                unknown_18[3] = 1.0f;
+                diffuse[0] = 0.5f;
+                diffuse[1] = 0.5f;
+                diffuse[2] = 0.5f;
+                diffuse[3] = 1.0f;
             }
         }
 
         if (ar.getVersion() >= 0x71)
         {
-            /* [0x28] unknown */
-            ar.readOrWrite(&(unknown_28[0]), 0x04);
-            ar.readOrWrite(&(unknown_28[1]), 0x04);
-            ar.readOrWrite(&(unknown_28[2]), 0x04);
-            ar.readOrWrite(&(unknown_28[3]), 0x04);
+            /* [0x28] material emissive */
+            ar.readOrWrite(&(emissive[0]), 0x04);
+            ar.readOrWrite(&(emissive[1]), 0x04);
+            ar.readOrWrite(&(emissive[2]), 0x04);
+            ar.readOrWrite(&(emissive[3]), 0x04);
 
-            /* [0x38] unknown */
-            ar.readOrWrite(&(unknown_38[0]), 0x04);
-            ar.readOrWrite(&(unknown_38[1]), 0x04);
-            ar.readOrWrite(&(unknown_38[2]), 0x04);
-            ar.readOrWrite(&(unknown_38[3]), 0x04);
+            /* [0x38] material specular */
+            ar.readOrWrite(&(specular[0]), 0x04);
+            ar.readOrWrite(&(specular[1]), 0x04);
+            ar.readOrWrite(&(specular[2]), 0x04);
+            ar.readOrWrite(&(specular[3]), 0x04);
         }
         else
         {
-            unknown_28[0] = 0;
-            unknown_28[1] = 0;
-            unknown_28[2] = 0;
-            unknown_28[3] = 0;
+            emissive[0] = 0;
+            emissive[1] = 0;
+            emissive[2] = 0;
+            emissive[3] = 0;
 
-            unknown_38[0] = 0;
-            unknown_38[1] = 0;
-            unknown_38[2] = 0;
-            unknown_38[3] = 0;
+            specular[0] = 0;
+            specular[1] = 0;
+            specular[2] = 0;
+            specular[3] = 0;
         }
 
-        /* [0x48] unknown */
+        /* [0x48] material shininess */
         if (ar.getVersion() >= 0x72)
         {
-            ar.readOrWrite(&unknown_48, 0x04);
+            ar.readOrWrite(&shininess, 0x04);
         }
         else
         {
-            unknown_48 = 0;
+            shininess = 0;
         }
 
         /* [0x4C] unknown */
@@ -141,6 +141,66 @@ namespace ZookieWizard
         {
             unknown_4C = true;
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterialState: color getters and setters
+    ////////////////////////////////////////////////////////////////
+
+    void eMaterialState::getAmbientColor(float* values)
+    {
+        values[0] = ambient[0];
+        values[1] = ambient[1];
+        values[2] = ambient[2];
+    }
+
+    void eMaterialState::getDiffuseColor(float* values)
+    {
+        values[0] = diffuse[0];
+        values[1] = diffuse[1];
+        values[2] = diffuse[2];
+    }
+
+    void eMaterialState::getSpecularColor(float* values)
+    {
+        values[0] = specular[0];
+        values[1] = specular[1];
+        values[2] = specular[2];
+    }
+
+    float eMaterialState::getShininess()
+    {
+        return shininess;
+    }
+
+    void eMaterialState::setAmbientColor(float* values)
+    {
+        ambient[0] = values[0];
+        ambient[1] = values[1];
+        ambient[2] = values[2];
+        ambient[3] = 1.0f;
+    }
+
+    void eMaterialState::setDiffuseColor(float* values)
+    {
+        diffuse[0] = values[0];
+        diffuse[1] = values[1];
+        diffuse[2] = values[2];
+        diffuse[3] = 1.0f;
+    }
+
+    void eMaterialState::setSpecularColor(float* values)
+    {
+        specular[0] = values[0];
+        specular[1] = values[1];
+        specular[2] = values[2];
+        specular[3] = 1.0f;
+    }
+
+    void eMaterialState::setShininess(float value)
+    {
+        shininess = value;
     }
 
 }

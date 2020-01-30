@@ -87,7 +87,7 @@ namespace ZookieWizard
             int32_t getObjectRefId(int32_t type, void* pointer, bool can_be_created);
             bool objectRefAlreadyExists(int32_t type, void* pointer);
 
-            eString getWorkngDirectory();
+            eString getWorkingDirectory();
 
         protected:
 

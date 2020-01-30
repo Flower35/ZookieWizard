@@ -47,6 +47,8 @@ namespace ZookieWizard
 
             bool isUsingPalette();
             int getBytesPerPixel();
+            int getBytesPerPixelOutput(bool bmp_ext);
+            const char* getTypeName();
 
             void deleteTexture();
 

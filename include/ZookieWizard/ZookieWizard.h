@@ -62,6 +62,8 @@ namespace ZookieWizard
         bool createDir();
 
         void setPointer(int offset);
+
+        bool endOfFileReached();
     };
 
 

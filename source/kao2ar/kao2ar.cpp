@@ -577,6 +577,38 @@ namespace ZookieWizard
         return fo;
     }
 
+    void operator << (eString &str, FileOperator &fo)
+    {
+        int32_t i;
+        char test[2] = {0x00, 0x00};
+        eString result;
+
+        do
+        {
+            fo.read(&(test[0]), 0x01);
+            result += test;
+        }
+        while (('\n' != test[0]) && (!fo.endOfFileReached()));
+
+        i = result.getLength() - 1;
+
+        while (i >= 0)
+        {
+            if (result.getText()[i] < 0x20)
+            {
+                result = result.getSubstring(0, i);
+
+                i--;
+            }
+            else
+            {
+                i = (-1);
+            }
+        }
+
+        str = result;
+    }
+
     void ArFunctions::writeIndentation(FileOperator &fo, int32_t indentation)
     {
         int32_t i;
@@ -597,6 +629,80 @@ namespace ZookieWizard
         fo << "\n";
         
         writeIndentation(fo, indentation);
+    }
+
+    int32_t ArFunctions::splitString(eString &source, eString* destination, int32_t max_entries)
+    {
+        int32_t counter = 0;
+        int32_t parts = 0;
+        int32_t start = 0;
+        int32_t middle = 0;
+        int32_t end = source.getLength() - 1;
+        char* text = source.getText();
+
+        while ((counter < 2) && (start < end))
+        {
+            counter = 0;
+
+            if (text[start] <= 0x20)
+            {
+                start++;
+            }
+            else
+            {
+                counter++;
+            }
+
+            if (text[end] <= 0x20)
+            {
+                end--;
+            }
+            else
+            {
+                counter++;
+            }
+        }
+
+        while ((parts + 1) < max_entries)
+        {
+            middle = start + 1;
+
+            while ((middle <= end) && (text[middle] > 0x20))
+            {
+                middle++;
+            }
+
+            destination[parts] = source.getSubstring(start, middle - start);
+            parts++;
+
+            if (middle > end)
+            {
+                return parts;
+            }
+
+            start = middle;
+            counter = 0;
+
+            while ((counter < 1) && (start < end))
+            {
+                if (text[start] <= 0x20)
+                {
+                    start++;
+                }
+                else
+                {
+                    counter = 1;
+                }
+            }
+        }
+
+        if (start <= end)
+        {
+            destination[parts] = source.getSubstring(start, end - start + 1);
+            parts++;
+        }
+
+        return parts;
     }
 
 }

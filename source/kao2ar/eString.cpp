@@ -469,7 +469,7 @@ namespace ZookieWizard
             count = myCount - pos;
         }
         
-        if ((count <= 0) || (count > otherCount))
+        if ((count <= 0) || (count < otherCount))
         {
             return false;
         }
@@ -519,7 +519,7 @@ namespace ZookieWizard
             count = myCount - pos;
         }
         
-        if ((count <= 0) || (count > otherCount))
+        if ((count <= 0) || (count < otherCount))
         {
             return false;
         }
