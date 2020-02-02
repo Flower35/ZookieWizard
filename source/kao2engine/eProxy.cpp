@@ -48,7 +48,7 @@ namespace ZookieWizard
         eXRefTarget* test_xref_taget;
         eXRefProxy* test_xref_proxy;
 
-        if ((0 == (0x00010000 & flags)) && ar.isInWriteMode())
+        if ((0 == (0x00010000 & flags)) && (false == ar.isInReadMode()))
         {
             /* Serialize "eNode" and "eTransform" (zero elements in "eGroup!") */
 
@@ -56,7 +56,7 @@ namespace ZookieWizard
 
             ar_flags = 0;
             ar.readOrWrite(&ar_flags, 0x04);
-            
+
             defaultTransform[0].serialize(ar);
             defaultTransform[1].serialize(ar);
 
@@ -81,12 +81,19 @@ namespace ZookieWizard
                 if (canBeLoadedOrExported(ar_flags))
                 {
                     test_xref_taget = new eXRefTarget;
+                    test_xref_taget->incRef();
 
-                    test_xref_taget->loadTarget(ar, ar_flags, targetFile);
+                    if (test_xref_taget->loadTarget(ar, ar_flags, targetFile))
+                    {
+                        test_xref_proxy = new eXRefProxy(test_xref_taget);
+                        test_xref_proxy->incRef();
 
-                    test_xref_proxy = new eXRefProxy(test_xref_taget);
+                        nodes.appendChild(test_xref_proxy);
 
-                    nodes.appendChild(test_xref_proxy);
+                        test_xref_proxy->decRef();
+                    }
+
+                    test_xref_taget->decRef();
                 }
             }
         }
@@ -118,7 +125,7 @@ namespace ZookieWizard
         }
     }
 
-    
+
     ////////////////////////////////////////////////////////////////
     // eProxy: set archive flags and file extension
     ////////////////////////////////////////////////////////////////
@@ -240,7 +247,7 @@ namespace ZookieWizard
 
             glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
             glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
-            
+
             glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
             glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z + CUBE_WIDTH);
 

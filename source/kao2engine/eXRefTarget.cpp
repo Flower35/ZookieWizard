@@ -82,7 +82,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefTarget: set name and load target (used with eProxy)
     ////////////////////////////////////////////////////////////////
-    void eXRefTarget::loadTarget(Archive &ar, int32_t ar_flags, eString model_name)
+    bool eXRefTarget::loadTarget(Archive &ar, int32_t ar_flags, eString model_name)
     {
         Archive parallel_ar(ar.getMediaDir());
 
@@ -103,11 +103,15 @@ namespace ZookieWizard
             );
 
             parallel_ar.copySceneFromMe(&scene);
+
+            return true;
         }
         catch (ErrorMessage &e)
         {
             e.display();
         }
+
+        return false;
     }
 
 
@@ -121,7 +125,7 @@ namespace ZookieWizard
         if (nullptr != scene)
         {
             parallel_ar.setMyParentScene(scene);
-        
+
             try
             {
                 parallel_ar.open

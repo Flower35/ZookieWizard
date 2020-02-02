@@ -368,7 +368,7 @@ namespace ZookieWizard
         theLog.print(eString(" @ EXPORTING BITMAP: \"") + result + "\"\n");
 
         full_path = result.getText();
-        
+
         file.setDir(full_path);
         file.createDir();
 
@@ -427,7 +427,7 @@ namespace ZookieWizard
         /* Prepare output block */
         output_size = width * height * getBytesPerPixelOutput(bmp_ext);
         output_pixels = new uint8_t [output_size];
-        
+
         /********************************/
         /* Check "eBitmap" configurations */
         /* (vertical flip) */
@@ -520,6 +520,12 @@ namespace ZookieWizard
         }
         else
         {
+            if (nullptr != output_pixels)
+            {
+                delete[](output_pixels);
+                output_pixels = nullptr;
+            }
+
             throw ErrorMessage
             (
                 "eBitmap::exportImageFile():\n"
@@ -719,7 +725,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eBitmap: cakculate bytes per pixel when exporting 
+    // eBitmap: cakculate bytes per pixel when exporting
     ////////////////////////////////////////////////////////////////
     int eBitmap::getBytesPerPixelOutput(bool bmp_ext)
     {
@@ -883,7 +889,7 @@ namespace ZookieWizard
             {
                 pixels = new uint8_t [total_length];
             }
-            
+
             if (using_pal)
             {
                 if (nullptr == palette)

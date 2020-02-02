@@ -61,7 +61,7 @@ namespace ZookieWizard
 
         /*[0x14]*/ materialFlags = 0x00;
         /*[0x28]*/ transpLayer = 0;
-        /*[0x2C]*/ unknown_2C = 0;
+        /*[0x2C]*/ unknown_2C = 0.5f;
 
         if (nullptr != x)
         {

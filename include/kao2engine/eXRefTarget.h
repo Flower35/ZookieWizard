@@ -37,7 +37,7 @@ namespace ZookieWizard
 
             void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
 
-            void loadTarget(Archive &ar, int32_t ar_flags, eString model_name);
+            bool loadTarget(Archive &ar, int32_t ar_flags, eString model_name);
             void exportTarget(Archive &ar, int32_t ar_flags);
     };
 

@@ -615,7 +615,9 @@ namespace ZookieWizard
                         dummy_obj_mtl.material->incRef();
 
                         dummy_obj_mtl.material->setName(dummy_obj_mtl.name);
-                        dummy_obj_mtl.material->setMaterialFlags(0x01); // "2-sided"
+
+                        /* "eMaterial" flags: 0x01 = "2-sided", 0x08 = "alphaTest" */
+                        dummy_obj_mtl.material->setMaterialFlags(0x09);
                     }
                 }
                 else if (keywords[0].compare("Ka"))
@@ -731,24 +733,27 @@ namespace ZookieWizard
     void WavefrontObjImporter::constructTriMeshes()
     {
         int32_t i, j, k, l, m, total_indices, total_vertices, total_normals, total_mappings;
-        float dummy_y, dummy_z;
+        float dummy_floats[3];
         eString trimesh_name;
         ePoint3 boundaries[2];
 
         eTriMesh* test_trimesh = nullptr;
         eGeoSet* test_geoset = nullptr;
+        eMaterialState* dummy_mtl_state = nullptr;
 
         eGeoArray<ePoint4>* test_vertices_array = nullptr;
         eGeoArray<ushort>* test_indices_offsets = nullptr;
         eGeoArray<ushort>* test_indices_array = nullptr;
         eGeoArray<ePoint2>* test_uv_array = nullptr;
         eGeoArray<ePoint4>* test_normals_array = nullptr;
+        eGeoArray<ePoint4>* test_colors_array = nullptr;
 
         ePoint4* test_vertices_data = nullptr;
         ushort* test_indices_offsets_data = nullptr;
         ushort* test_indices_array_data = nullptr;
         ePoint2* test_uv_data = nullptr;
         ePoint4* test_normals_data = nullptr;
+        ePoint4* test_colors_data = nullptr;
 
         /********************************/
         /* Temporary list of vertices referenced by faces */
@@ -760,10 +765,10 @@ namespace ZookieWizard
 
         for (i = 0; i < objVerticesCount; i++)
         {
-            dummy_y = objVertices[i].y;
-            dummy_z = objVertices[i].z;
-            objVertices[i].y = (-dummy_z);
-            objVertices[i].z = dummy_y;
+            dummy_floats[0] = objVertices[i].y;
+            dummy_floats[1] = objVertices[i].z;
+            objVertices[i].y = (-dummy_floats[1]);
+            objVertices[i].z = dummy_floats[0];
         }
 
         for (i = 0; i < objMappingCount; i++)
@@ -773,10 +778,10 @@ namespace ZookieWizard
 
         for (i = 0; i < objNormalsCount; i++)
         {
-            dummy_y = objNormals[i].y;
-            dummy_z = objNormals[i].z;
-            objNormals[i].y = (-dummy_z);
-            objNormals[i].z = dummy_y;
+            dummy_floats[0] = objNormals[i].y;
+            dummy_floats[1] = objNormals[i].z;
+            objNormals[i].y = (-dummy_floats[1]);
+            objNormals[i].z = dummy_floats[0];
         }
 
         for (i = 0; i < objFacesCount; i++)
@@ -897,6 +902,11 @@ namespace ZookieWizard
                 test_indices_array->setup(total_indices, test_indices_array_data);
                 test_geoset->setIndicesArray(test_indices_array);
 
+                test_colors_data = new ePoint4 [total_vertices];
+                test_colors_array = new eGeoArray<ePoint4>();
+                test_colors_array->setup(total_vertices, test_colors_data);
+                test_geoset->setColorsArray(test_colors_array);
+
                 if (total_mappings > 0)
                 {
                     test_uv_data = new ePoint2 [total_vertices];
@@ -935,7 +945,7 @@ namespace ZookieWizard
 
                                 /* Copy "v", "vt", and "vn" data */
                                 test_vertices_data[m] = {objVertices[l].x, objVertices[l].y, objVertices[l].z, 1.0f};
-                                
+
                                 l = objFaces[j].vt_id[k];
                                 if ((l >= 0) && (l < objMappingCount))
                                 {
@@ -957,6 +967,28 @@ namespace ZookieWizard
                         }
 
                         //// test_indices_offsets_data[total_indices / 3] = 3;
+                    }
+                }
+
+                for (j = 0; j < total_vertices; j++)
+                {
+                    test_colors_data[j] = {1.0f, 1.0f, 1.0f, 1.0f};
+
+                    if (i > 0)
+                    {
+                        if (nullptr != objMaterials[i - 1].material)
+                        {
+                            dummy_mtl_state = objMaterials[i - 1].material->getMaterialState();
+
+                            if (nullptr != dummy_mtl_state)
+                            {
+                                dummy_mtl_state->getDiffuseColor(dummy_floats);
+
+                                test_colors_data[j].x = dummy_floats[0];
+                                test_colors_data[j].y = dummy_floats[1];
+                                test_colors_data[j].z = dummy_floats[2];
+                            }
+                        }
                     }
                 }
 

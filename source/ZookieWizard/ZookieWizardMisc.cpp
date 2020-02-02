@@ -8,7 +8,7 @@
 
 namespace ZookieWizard
 {
-    
+
     ////////////////////////////////////////////////////////////////
     // miscellaneous: variables
     ////////////////////////////////////////////////////////////////
@@ -35,7 +35,6 @@ namespace ZookieWizard
     {
         int32_t result;
         eString ar_name;
-        eScene* test_scene = nullptr;
         char bufor[256];
 
         bool skip_creating_new_ar = true;
@@ -72,7 +71,7 @@ namespace ZookieWizard
                 ofn_title = "Saving KAO2 Archive...";
                 final_msg = "<\"%s\">\n\nArchive saving completed successfully! :)";
 
-                skip_creating_new_ar = false;
+                skip_creating_new_ar = true;
                 skip_dialog = false;
                 open_or_save_dialog = 0x02;
 
@@ -142,8 +141,6 @@ namespace ZookieWizard
                 }
             }
 
-            /* Set filename and open archive */
-
             theLog.print
             (
                 "================================\n" \
@@ -152,23 +149,34 @@ namespace ZookieWizard
                 "================================\n"
             );
 
+            /* Clear archive when loading new file */
+
             if (skip_creating_new_ar)
             {
                 myARs[0].setMediaDir(currentWorkingDirectory);
+            }
+            else
+            {
+                myARs[0] = Archive(currentWorkingDirectory);
+            }
 
+            /* Set target filename or leave directory path */
+
+            if (skip_dialog)
+            {
                 ar_name = myARs[0].getMediaDir();
             }
             else
             {
                 ar_name = bufor;
 
-                myARs[0].copySceneFromMe(&test_scene);
-                myARs[0] = Archive(currentWorkingDirectory);
-                myARs[0].setMyParentScene(test_scene);
-
-                test_scene->decRef();
-                test_scene = nullptr;
+                if ((2 == open_or_save_dialog) && (false == ar_name.hasExtension("ar")))
+                {
+                    ar_name += ".ar";
+                }
             }
+
+            /* Load or save contents */
 
             myARs[0].open
             (
@@ -192,7 +200,9 @@ namespace ZookieWizard
                 myARs[0].changeSelectedObject(-5);
             }
 
-            if (false == skip_creating_new_ar)
+            /* Display message */
+
+            if (false == skip_dialog)
             {
                 ar_name = ar_name.getFilename();
             }
@@ -209,7 +219,7 @@ namespace ZookieWizard
         }
         catch (ErrorMessage &e)
         {
-            myARs[0].close(true);
+            myARs[0].close(false);
 
             theLog.print
             (
@@ -314,7 +324,7 @@ namespace ZookieWizard
         char bufor[256];
 
         DenisFileOperator file(denisDirectory);
-        
+
         try
         {
             theLog.print
@@ -390,7 +400,7 @@ namespace ZookieWizard
             test_scene = myDenisLevels[0].convertToKao2(file);
 
             myARs[0].setMyParentScene(test_scene);
-            
+
             myARs[0].changeSelectedObject(-5);
 
             theLog.print
@@ -410,7 +420,7 @@ namespace ZookieWizard
                 currentWorkingDirectory,
                 myDenisLevels[0].getName().getText()
             );
-        
+
             MessageBox(GUI::myWindowsGroupMain[0], bufor, MESSAGE_TITLE_INFO, MB_ICONINFORMATION);
         }
         catch (ErrorMessage &e)
@@ -458,6 +468,11 @@ namespace ZookieWizard
             /* Set filename and save XML document */
 
             filename = bufor;
+
+            if (false == filename.hasExtension("dae"))
+            {
+                filename += ".dae";
+            }
 
             theLog.print
             (
@@ -532,6 +547,11 @@ namespace ZookieWizard
             /* Set filename and save OBJ document */
 
             filename = bufor;
+
+            if (false == filename.hasExtension("obj"))
+            {
+                filename += ".obj";
+            }
 
             theLog.print
             (
