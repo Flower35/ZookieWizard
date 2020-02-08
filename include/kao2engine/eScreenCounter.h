@@ -29,7 +29,7 @@ namespace ZookieWizard
             eScreenCounter();
             ~eScreenCounter();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

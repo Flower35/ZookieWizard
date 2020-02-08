@@ -28,7 +28,7 @@ namespace ZookieWizard
             eCylinderIsectGadget();
             ~eCylinderIsectGadget();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

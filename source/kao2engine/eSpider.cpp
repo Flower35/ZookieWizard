@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSpider::getType()
+    TypeInfo* eSpider::getType() const
     {
         return &E_SPIDER_TYPEINFO;
     }

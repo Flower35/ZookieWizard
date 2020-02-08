@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eProxy::getType()
+    TypeInfo* eProxy::getType() const
     {
         return &E_PROXY_TYPEINFO;
     }
@@ -181,7 +181,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eProxy: export readable structure
     ////////////////////////////////////////////////////////////////
-    void eProxy::writeStructureToTextFile(FileOperator &file, int32_t indentation)
+    void eProxy::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
     {
         int32_t i;
         eNode* test_node;
@@ -238,9 +238,7 @@ namespace ZookieWizard
             glBindTexture(GL_TEXTURE_2D, 0);
 
             glColor3f(0, 0, 1.0f);
-
             glLineWidth(2.0f);
-
             glBegin(GL_LINES);
 
             /* Cube Front */
@@ -290,9 +288,7 @@ namespace ZookieWizard
             /* Stop drawing lines */
 
             glEnd();
-
             glColor3f(1.0f, 1.0f, 1.0f);
-
             glLineWidth(1.0f);
         }
     }

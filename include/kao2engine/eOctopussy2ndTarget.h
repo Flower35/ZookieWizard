@@ -28,7 +28,7 @@ namespace ZookieWizard
             eOctopussy2ndTarget();
             ~eOctopussy2ndTarget();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

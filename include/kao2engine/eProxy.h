@@ -39,9 +39,9 @@ namespace ZookieWizard
             ~eProxy();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
 
             void renderObject(eAnimate* anim, int32_t draw_flag, eSRP &parent_srp) override;
 

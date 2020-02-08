@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eString2::getType()
+    TypeInfo* eString2::getType() const
     {
         return &E_STRING2_TYPEINFO;
     }
@@ -46,7 +46,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eString2: get textual representation
     ////////////////////////////////////////////////////////////////
-    eString eString2::getStringRepresentation()
+    eString eString2::getStringRepresentation() const
     {
         eString result;
 

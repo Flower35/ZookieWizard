@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eEmptyCtrl::getType()
+    TypeInfo* eEmptyCtrl::getType() const
     {
         return &E_EMPTYCTRL_TYPEINFO;
     }

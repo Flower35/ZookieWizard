@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFloatPair::getType()
+    TypeInfo* eFloatPair::getType() const
     {
         return &E_FLOATPAIR_TYPEINFO;
     }
@@ -50,7 +50,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eFloatPair: get textual representation
     ////////////////////////////////////////////////////////////////
-    eString eFloatPair::getStringRepresentation()
+    eString eFloatPair::getStringRepresentation() const
     {
         char bufor[64];
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePhysics::getType()
+    TypeInfo* ePhysics::getType() const
     {
         return &E_PHYSICS_TYPEINFO;
     }

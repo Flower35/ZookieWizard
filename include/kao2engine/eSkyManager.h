@@ -29,7 +29,7 @@ namespace ZookieWizard
             eSkyManager();
             ~eSkyManager();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

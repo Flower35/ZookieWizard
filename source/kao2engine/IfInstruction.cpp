@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* IfInstruction::getType()
+    TypeInfo* IfInstruction::getType() const
     {
         return &E_IFINSTRUCTION_TYPEINFO;
     }
@@ -71,7 +71,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // IfInstruction: save to text file
     ////////////////////////////////////////////////////////////////
-    void IfInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation)
+    void IfInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation) const
     {
         /* Empty line (beginning) for better readability */
 

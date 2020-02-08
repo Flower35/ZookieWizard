@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSplineBase::getType()
+    TypeInfo* eSplineBase::getType() const
     {
         return &E_SPLINEBASE_TYPEINFO;
     }

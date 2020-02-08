@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Key::getType()
+    TypeInfo* Key::getType() const
     {
         return &E_KEY_TYPEINFO;
     }
@@ -45,7 +45,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Key: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString Key::getDefaultGadgetName()
+    eString Key::getDefaultGadgetName() const
     {
         return "key";
     }

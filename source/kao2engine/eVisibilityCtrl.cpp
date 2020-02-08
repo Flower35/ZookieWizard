@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eVisibilityCtrl::getType()
+    TypeInfo* eVisibilityCtrl::getType() const
     {
         return &E_VISIBILITYCTRL_TYPEINFO;
     }

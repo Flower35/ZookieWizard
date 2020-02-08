@@ -31,7 +31,7 @@ namespace ZookieWizard
             eSpeaking();
             ~eSpeaking();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLinkToObject::getType()
+    TypeInfo* eLinkToObject::getType() const
     {
         return &E_LINKTOOBJECT_TYPEINFO;
     }

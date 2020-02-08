@@ -28,7 +28,7 @@ namespace ZookieWizard
             eMusicManager();
             ~eMusicManager();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
             eBubbleFlakes();
             ~eBubbleFlakes();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

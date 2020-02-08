@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eScene::getType()
+    TypeInfo* eScene::getType() const
     {
         return &E_SCENE_TYPEINFO;
     }
@@ -204,7 +204,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // 
+    //
     // <kao2.00498B20>
     ////////////////////////////////////////////////////////////////
     void eScene::function_00498B20()
@@ -377,7 +377,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eScene: COLLADA exporting
     ////////////////////////////////////////////////////////////////
-    void eScene::writeNodeToXmlFile(ColladaExporter &exporter)
+    void eScene::writeNodeToXmlFile(ColladaExporter &exporter) const
     {
         int32_t i;
         char bufor[16];
@@ -465,9 +465,9 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eScene: get collision manager
     ////////////////////////////////////////////////////////////////
-    eCollisionMgr* eScene::getCollisionManager()
+    eCollisionMgr* eScene::getCollisionManager() const
     {
-        return &collision;
+        return (eCollisionMgr*)&collision;
     }
 
 

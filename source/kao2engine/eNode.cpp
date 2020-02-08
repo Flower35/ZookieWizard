@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eNode::getType()
+    TypeInfo* eNode::getType() const
     {
         return &E_NODE_TYPEINFO;
     }
@@ -38,7 +38,7 @@ namespace ZookieWizard
         /*[0x0C]*/ unknown_0C = 0x00FFFFFF;
         /*[0x10]*/ parent = nullptr;
         /*[0x14]*/ name = s;
-        /*[0x18]*/ unknown_18 = nullptr;
+        /*[0x18]*/ axisListBox = nullptr;
         /*[0x1C]*/ flags = 0x249D;
         /*[0x30]*/ flags02 = 0x00FF;
         /*[0x34]*/ unknown_34 = nullptr;
@@ -58,7 +58,7 @@ namespace ZookieWizard
         /*[0x08]*/ previousTransform = nullptr;
         /*[0x0C]*/ unknown_0C = 0x00FFFFFF;
         /*[0x10]*/ parent = nullptr;
-        /*[0x18]*/ unknown_18 = nullptr;
+        /*[0x18]*/ axisListBox = nullptr;
         /*[0x1C]*/ flags = 0x249D;
         /*[0x30]*/ flags02 = 0x00FF;
         /*[0x34]*/ unknown_34 = nullptr;
@@ -71,7 +71,7 @@ namespace ZookieWizard
     {
         unknown_34->decRef();
 
-        unknown_18->decRef();
+        axisListBox->decRef();
     }
 
 
@@ -100,7 +100,7 @@ namespace ZookieWizard
                 "ar.version() 86 required!"
             );
         }
-        
+
         if (ar.getVersion() < 0x82)
         {
             test_boundary[0].serialize(ar);
@@ -114,7 +114,7 @@ namespace ZookieWizard
             }
         }
 
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_18, &E_ALBOX_TYPEINFO);
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&axisListBox, &E_ALBOX_TYPEINFO);
 
         ar.readOrWrite(&flags, 0x04);
 
@@ -167,7 +167,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eNode: get name
     ////////////////////////////////////////////////////////////////
-    eString eNode::getStringRepresentation()
+    eString eNode::getStringRepresentation() const
     {
         return name;
     }
@@ -186,7 +186,7 @@ namespace ZookieWizard
     // eNode: get or set parent node
     ////////////////////////////////////////////////////////////////
 
-    eNode* eNode::getParentNode()
+    eNode* eNode::getParentNode() const
     {
         return parent;
     }
@@ -198,11 +198,40 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eNode: get or set axis list box
+    // <kao2.00479270> (set)
+    ////////////////////////////////////////////////////////////////
+
+    eALBox* eNode::getAxisListBox() const
+    {
+        return axisListBox;
+    }
+
+    void eNode::setAxisListBox(eALBox* box)
+    {
+        if (axisListBox != box)
+        {
+            if (nullptr != axisListBox)
+            {
+                axisListBox->decRef();
+            }
+
+            axisListBox = box;
+
+            if (nullptr != axisListBox)
+            {
+                axisListBox->incRef();
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eNode: get or set previous transform
     // <kao2.00477A20> (setup)
     ////////////////////////////////////////////////////////////////
 
-    eTransform* eNode::getPreviousTransform()
+    eTransform* eNode::getPreviousTransform() const
     {
         return previousTransform;
     }
@@ -241,7 +270,7 @@ namespace ZookieWizard
         flags &= (~bits_to_erase);
     }
 
-    int32_t eNode::getFlags()
+    int32_t eNode::getFlags() const
     {
         return flags;
     }
@@ -250,7 +279,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eNode: print
     ////////////////////////////////////////////////////////////////
-    eString eNode::getLogPrintMessage()
+    eString eNode::getLogPrintMessage() const
     {
         eString result = eObject::getLogPrintMessage();
 
@@ -265,7 +294,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eNode: export readable structure
     ////////////////////////////////////////////////////////////////
-    void eNode::writeStructureToTextFile(FileOperator &file, int32_t indentation)
+    void eNode::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
     {
         char bufor[512];
         TypeInfo* info = getType();
@@ -313,18 +342,18 @@ namespace ZookieWizard
             file << bufor;
         }
 
-        if (nullptr != unknown_18)
+        if (nullptr != axisListBox)
         {
-            info = unknown_18->getType();
+            info = axisListBox->getType();
 
             sprintf_s
             (
                 bufor,
                 512,
-                " - albox: [%08X] %s (ptr=%08X)",
+                " - albox: [%08X] %s (id=%08X)",
                 info->id,
                 info->name,
-                (int32_t)unknown_18
+                axisListBox->getCollisionId()
             );
 
             ArFunctions::writeNewLine(file, indentation);

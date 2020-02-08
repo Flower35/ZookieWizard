@@ -21,7 +21,7 @@ namespace ZookieWizard
         protected:
 
             /*[0x08]*/ int32_t unknown_08;
-            /*[0x0C]*/ int32_t indicesCount;
+            /*[0x0C]*/ int32_t defaultVertexCount;
             /*[0x10]*/ int32_t texCoordsCount;
             /*[0x14]*/ eGeoArray<ushort>* indicesOffsets;
             /*[0x18]*/ eGeoArray<ushort>* indicesArray;
@@ -33,7 +33,7 @@ namespace ZookieWizard
             /*[0x50]*/ GLuint displayList;
             /*[0x54]*/ int32_t currentSet;
             /*[0x58]*/ ePhyTriMesh* phy;
-            /*[0x5C]*/ eGeoArray<eABB>* unknown_5C;
+            /*[0x5C]*/ eGeoArray<eABB>* aabbTree;
 
 
         /*** Methods ***/
@@ -44,13 +44,13 @@ namespace ZookieWizard
             ~eGeoSet();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            int32_t getTextureCoordsCount();
-            int32_t getTextureId(int32_t i);
+            int32_t getTextureCoordsCount() const;
+            int32_t getTextureId(int32_t i) const;
 
-            void draw(eAnimate* anim, int32_t draw_flags, GLuint tex_name, int32_t texID);
-            void displayVertexBufferObject(int32_t texID, bool c);
+            void draw(eAnimate* anim, int32_t draw_flags, GLuint tex_name, int32_t texID) const;
+            void displayVertexBufferObject(int32_t texID, bool c) const;
             void prepareForDrawing();
 
             void setVerticesArray(eGeoArray<ePoint4>* new_vertices_array);
@@ -61,13 +61,15 @@ namespace ZookieWizard
             void setColorsArray(eGeoArray<ePoint4>* new_colors_array);
             void setTwoIntegers(int32_t a, int32_t b);
 
-            eGeoArray<ePoint4>* getVerticesArray();
-            eGeoArray<ePoint4>* getNormalsArray();
-            eGeoArray<ePoint2>* getTextureCoordsArray();
-            eGeoArray<ePoint4>* getColorsArray();
-            eGeoArray<ushort>* getIndicesOffsets();
-            eGeoArray<ushort>* getIndicesArray();
-            ePhyTriMesh* getPhyTriMesh();
+            eGeoArray<ePoint4>* getVerticesArray() const;
+            eGeoArray<ePoint4>* getNormalsArray() const;
+            eGeoArray<ePoint2>* getTextureCoordsArray() const;
+            eGeoArray<ePoint4>* getColorsArray() const;
+            eGeoArray<ushort>* getIndicesOffsets() const;
+            eGeoArray<ushort>* getIndicesArray() const;
+            ePhyTriMesh* getPhyTriMesh() const;
+
+            void buildAabbTree();
     };
 
 

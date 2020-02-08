@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePowerUp::getType()
+    TypeInfo* ePowerUp::getType() const
     {
         return &E_POWERUP_TYPEINFO;
     }
@@ -36,7 +36,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ePowerUp: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString ePowerUp::getDefaultGadgetName()
+    eString ePowerUp::getDefaultGadgetName() const
     {
         return "powerUp";
     }

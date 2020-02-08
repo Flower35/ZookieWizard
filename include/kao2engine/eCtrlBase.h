@@ -20,7 +20,7 @@ namespace ZookieWizard
             eCtrlBase();
             ~eCtrlBase();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

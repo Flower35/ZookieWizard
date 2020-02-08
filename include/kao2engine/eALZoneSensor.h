@@ -29,9 +29,7 @@ namespace ZookieWizard
             ~eALZoneSensor();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
-
-            void prepareZone(eZone* zone, float* boxBound);
+            TypeInfo* getType() const override;
     };
 
 

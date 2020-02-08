@@ -30,9 +30,9 @@ namespace ZookieWizard
             ~StringProperty();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            eString getStringRepresentation() override;
+            eString getStringRepresentation() const override;
     };
 
 

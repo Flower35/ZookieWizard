@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Timer::getType()
+    TypeInfo* Timer::getType() const
     {
         return &E_TIMER_TYPEINFO;
     }
@@ -54,7 +54,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Timer: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString Timer::getDefaultGadgetName()
+    eString Timer::getDefaultGadgetName() const
     {
         return "timer";
     }

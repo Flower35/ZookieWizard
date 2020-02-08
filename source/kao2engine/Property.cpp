@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Property::getType()
+    TypeInfo* Property::getType() const
     {
         return &E_PROPERTY_TYPEINFO;
     }
@@ -89,7 +89,7 @@ namespace ZookieWizard
                 case 0x03: // integer
                 {
                     ar.readOrWrite(&numValue, 0x04);
-            
+
                     break;
                 }
 
@@ -104,7 +104,7 @@ namespace ZookieWizard
                 case 0x06:
                 {
                     ar.serialize((eObject**)&numValue, &E_GADGET_TYPEINFO);
-            
+
                     break;
                 }
             }
@@ -179,7 +179,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Property: get script representation
     ////////////////////////////////////////////////////////////////
-    eString Property::generateScriptText()
+    eString Property::generateScriptText() const
     {
         eString result;
         char bufor[32];
@@ -255,7 +255,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Property: is it connected with some gadget
     ////////////////////////////////////////////////////////////////
-    bool Property::compareGadgets(Gadget* source)
+    bool Property::compareGadgets(Gadget* source) const
     {
         return (source == gadget);
     }

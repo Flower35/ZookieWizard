@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLevelChanger::getType()
+    TypeInfo* eLevelChanger::getType() const
     {
         return &E_LEVELCHANGER_TYPEINFO;
     }

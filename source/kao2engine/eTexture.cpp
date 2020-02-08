@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTexture::getType()
+    TypeInfo* eTexture::getType() const
     {
         return &E_TEXTURE_TYPEINFO;
     }
@@ -36,7 +36,7 @@ namespace ZookieWizard
     {
         /*[0x08]*/ params = 0x00000004;
         /*[0x0C]*/ form = nullptr;
-        
+
         /*[0x10]*/ bmp = x;
         if (nullptr != bmp)
         {
@@ -83,7 +83,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTexture: COLLADA exporting
     ////////////////////////////////////////////////////////////////
-    void eTexture::writeNodeToXmlFile(ColladaExporter &exporter)
+    void eTexture::writeNodeToXmlFile(ColladaExporter &exporter) const
     {
         int32_t i;
         char bufor[64];
@@ -144,7 +144,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTexture: get texture name (used with eTriMesh)
     ////////////////////////////////////////////////////////////////
-    GLuint eTexture::getTextureName()
+    GLuint eTexture::getTextureName() const
     {
         if (nullptr != bmp)
         {
@@ -158,7 +158,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTexture: get bitmap pointer
     ////////////////////////////////////////////////////////////////
-    eBitmap* eTexture::getBitmap()
+    eBitmap* eTexture::getBitmap() const
     {
         return bmp;
     }

@@ -32,11 +32,11 @@ namespace ZookieWizard
             ~Actor();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
 
-            void saveMyScript(Archive &ar);
+            void saveMyScript(Archive &ar) const;
     };
 
 

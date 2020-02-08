@@ -29,7 +29,7 @@ namespace ZookieWizard
             eSnowCameraCtrl();
             ~eSnowCameraCtrl();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

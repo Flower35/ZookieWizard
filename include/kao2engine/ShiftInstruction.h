@@ -23,7 +23,7 @@ namespace ZookieWizard
             int32_t anim_id;
 
         /*** Methods ***/
-            
+
             ShiftInstructionBase();
 
             void serialize(Archive &ar);
@@ -54,9 +54,9 @@ namespace ZookieWizard
             ~ShiftInstruction();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            void saveInstructionToTextFile(FileOperator &file, int32_t indentation) override;
+            void saveInstructionToTextFile(FileOperator &file, int32_t indentation) const override;
     };
 
 

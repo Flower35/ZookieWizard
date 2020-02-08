@@ -29,7 +29,7 @@ namespace ZookieWizard
             eSpider();
             ~eSpider();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

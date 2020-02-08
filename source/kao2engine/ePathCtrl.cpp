@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePathCtrl::getType()
+    TypeInfo* ePathCtrl::getType() const
     {
         return &E_PATHCTRL_TYPEINFO;
     }
@@ -108,7 +108,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ePathCtrl: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString ePathCtrl::getDefaultGadgetName()
+    eString ePathCtrl::getDefaultGadgetName() const
     {
         return "ctrl";
     }

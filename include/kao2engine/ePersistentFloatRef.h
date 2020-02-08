@@ -26,7 +26,7 @@ namespace ZookieWizard
             ePersistentFloatRef();
             ~ePersistentFloatRef();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

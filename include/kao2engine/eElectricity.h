@@ -29,7 +29,7 @@ namespace ZookieWizard
             eElectricity();
             ~eElectricity();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

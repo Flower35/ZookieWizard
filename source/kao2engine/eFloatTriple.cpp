@@ -20,7 +20,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFloatTriple::getType()
+    TypeInfo* eFloatTriple::getType() const
     {
         return &E_FLOATTRIPLE_TYPEINFO;
     }
@@ -49,7 +49,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eFloatTriple: get textual representation
     ////////////////////////////////////////////////////////////////
-    eString eFloatTriple::getStringRepresentation()
+    eString eFloatTriple::getStringRepresentation() const
     {
         char bufor[96];
 

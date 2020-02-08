@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCylinderIsectGadget::getType()
+    TypeInfo* eCylinderIsectGadget::getType() const
     {
         return &E_CYLINDERISECTGADGET_TYPEINFO;
     }

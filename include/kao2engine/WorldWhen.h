@@ -19,9 +19,9 @@ namespace ZookieWizard
             WorldWhen();
             ~WorldWhen();
 
-            TypeInfo* getType() override;
-            
-            void saveWhenToTextFile(FileOperator &file, int32_t indentation) override;
+            TypeInfo* getType() const override;
+
+            void saveWhenToTextFile(FileOperator &file, int32_t indentation) const override;
     };
 
 

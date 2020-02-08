@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* AfterInstruction::getType()
+    TypeInfo* AfterInstruction::getType() const
     {
         return &E_AFTERINSTRUCTION_TYPEINFO;
     }
@@ -30,9 +30,9 @@ namespace ZookieWizard
     : VoidInstruction()
     {
         /* unknown_08 = OFFSET 005D8014 */
-        
+
         /*[0x0C]*/ time = 1.0f;
-        
+
         /*[0x10]*/ instruction = nullptr;
     }
 
@@ -59,7 +59,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // AfterInstruction: save to text file
     ////////////////////////////////////////////////////////////////
-    void AfterInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation)
+    void AfterInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation) const
     {
         char bufor[32];
 

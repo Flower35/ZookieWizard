@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* GadgetRef::getType()
+    TypeInfo* GadgetRef::getType() const
     {
         return &E_GADGETREF_TYPEINFO;
     }
@@ -58,7 +58,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // GadgetRef: get textual representation
     ////////////////////////////////////////////////////////////////
-    eString GadgetRef::getStringRepresentation()
+    eString GadgetRef::getStringRepresentation() const
     {
         /* (--dsp--) Find current Actor and his Gadgets Table */
 

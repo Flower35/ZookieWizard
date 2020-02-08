@@ -20,7 +20,7 @@ namespace ZookieWizard
             eDemoPlayer();
             ~eDemoPlayer();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

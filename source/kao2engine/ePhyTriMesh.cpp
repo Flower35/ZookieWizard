@@ -31,7 +31,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePhyTriMesh::getType()
+    TypeInfo* ePhyTriMesh::getType() const
     {
         return &E_PHYTRIMESH_TYPEINFO;
     }
@@ -152,7 +152,7 @@ namespace ZookieWizard
             }
             else
             {
-                geo = tri->getGeoSetLink();
+                geo = tri->getGeoset();
             }
         }
 
@@ -199,7 +199,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ePhyTriMesh: COLLADA exporting
     ////////////////////////////////////////////////////////////////
-    void ePhyTriMesh::writeNodeToXmlFile(ColladaExporter &exporter)
+    void ePhyTriMesh::writeNodeToXmlFile(ColladaExporter &exporter) const
     {
         int32_t i, j, k;
         int32_t armature_id;
@@ -301,7 +301,7 @@ namespace ZookieWizard
         exporter.closeTag(); // "accessor"
         exporter.closeTag(); // "technique_common"
         exporter.closeTag(); // "source"
-        
+
         /********************************/
         /* List of inverse bind matrices */
 
@@ -537,7 +537,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ePhyTriMesh: print
     ////////////////////////////////////////////////////////////////
-    eString ePhyTriMesh::getLogPrintMessage()
+    eString ePhyTriMesh::getLogPrintMessage() const
     {
         int32_t i;
 
@@ -560,10 +560,10 @@ namespace ZookieWizard
     // ePhyTriMesh: prepare matrices
     // <kao2.004B1F70>
     ////////////////////////////////////////////////////////////////
-    void ePhyTriMesh::prepareMatrices(bool update)
+    void ePhyTriMesh::prepareMatrices(bool update) const
     {
         int32_t i;
-        
+
         eMatrix4x4 xform_matrix;
         eMatrix4x4 parent_matrix;
 
@@ -629,40 +629,32 @@ namespace ZookieWizard
         test = false;
         length = vertices->getLength();
 
-        i = defaultVertices->getLength();
-        if ((!test) && (0 != i))
+        if (!test)
         {
-            if (length != i)
-            {
-                test = true;
-            }
+            i = defaultVertices->getLength();
+
+            test = ((0 != i) && (length != i));
         }
 
-        i = defaultNormals->getLength();
-        if ((!test) && (0 != i))
+        if (!test)
         {
-            if (length != i)
-            {
-                test = true;
-            }
+            i = defaultNormals->getLength();
+
+            test = ((0 != i) && (length != i));
         }
 
-        i = geo->getVerticesArray()->getLength();
-        if ((!test) && (0 != i))
+        if (!test)
         {
-            if (length != i)
-            {
-                test = true;
-            }
+            i = geo->getVerticesArray()->getLength();
+
+            test = ((0 != i) && (length != i));
         }
 
-        i = geo->getNormalsArray()->getLength();
-        if ((!test) && (0 != i))
+        if (!test)
         {
-            if (length != i)
-            {
-                test = true;
-            }
+            i = geo->getNormalsArray()->getLength();
+
+            test = ((0 != i) && (length != i));
         }
 
         if (test)
@@ -672,7 +664,7 @@ namespace ZookieWizard
                 "ePhyTriMesh::animateVertices():\n" \
                 "invalid vertices count!"
             );
-            
+
             return;
         }
 
@@ -701,6 +693,11 @@ namespace ZookieWizard
         {
             sourceVertices = destinationVertices;
             sourceNormals = destinationNormals;
+        }
+
+        if ((nullptr == destinationVertices) || (nullptr == destinationNormals))
+        {
+            return;
         }
 
         /* Begin the loop */
@@ -755,7 +752,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ePhyTriMesh: get first bone reference
     ////////////////////////////////////////////////////////////////
-    eTransform* ePhyTriMesh::getArmatureParent()
+    eTransform* ePhyTriMesh::getArmatureParent() const
     {
         eTransform* last_bone = nullptr;
         eTransform* test_xform = nullptr;
@@ -890,7 +887,7 @@ namespace ZookieWizard
                     xforms_queue[j - 1] = xforms_queue[j];
                 }
 
-                k--;   
+                k--;
             }
             else
             {

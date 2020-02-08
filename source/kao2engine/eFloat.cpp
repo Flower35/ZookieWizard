@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFloat::getType()
+    TypeInfo* eFloat::getType() const
     {
         return &E_FLOAT_TYPEINFO;
     }
@@ -48,7 +48,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eFloat: get textual representation
     ////////////////////////////////////////////////////////////////
-    eString eFloat::getStringRepresentation()
+    eString eFloat::getStringRepresentation() const
     {
         char bufor[32];
 

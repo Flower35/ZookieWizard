@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Rnd::getType()
+    TypeInfo* Rnd::getType() const
     {
         return &E_RND_TYPEINFO;
     }
@@ -45,7 +45,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Rnd: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString Rnd::getDefaultGadgetName()
+    eString Rnd::getDefaultGadgetName() const
     {
         return "rnd";
     }

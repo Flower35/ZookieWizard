@@ -19,9 +19,9 @@ namespace ZookieWizard
             MeWhen();
             ~MeWhen();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            void saveWhenToTextFile(FileOperator &file, int32_t indentation) override;
+            void saveWhenToTextFile(FileOperator &file, int32_t indentation) const override;
     };
 
 

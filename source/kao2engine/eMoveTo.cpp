@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMoveTo::getType()
+    TypeInfo* eMoveTo::getType() const
     {
         return &E_MOVETO_TYPEINFO;
     }

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* AndInstruction::getType()
+    TypeInfo* AndInstruction::getType() const
     {
         return &E_ANDINSTRUCTION_TYPEINFO;
     }
@@ -57,7 +57,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // AndInstruction: get script representation
     ////////////////////////////////////////////////////////////////
-    eString AndInstruction::generateScriptText()
+    eString AndInstruction::generateScriptText() const
     {
         eString result;
 

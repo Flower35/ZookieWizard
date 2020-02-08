@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGlobalLightCtrl::getType()
+    TypeInfo* eGlobalLightCtrl::getType() const
     {
         /* (--dsp--) Simple hack for versions older than "kao_tw" */
         /* But this replaces object ID even when saving "kao_tw" archives... */

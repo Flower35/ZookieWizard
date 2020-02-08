@@ -45,10 +45,10 @@ namespace ZookieWizard
 
         private:
 
-            bool isUsingPalette();
-            int getBytesPerPixel();
-            int getBytesPerPixelOutput(bool bmp_ext);
-            const char* getTypeName();
+            bool isUsingPalette() const;
+            int getBytesPerPixel() const;
+            int getBytesPerPixelOutput(bool bmp_ext) const;
+            const char* getTypeName() const;
 
             void deleteTexture();
 
@@ -58,19 +58,19 @@ namespace ZookieWizard
             ~eBitmap();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+            void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             void generateTexture();
 
             void setPath(eString new_path);
-            eString getPath();
+            eString getPath() const;
 
             void loadFromFile(eString directory);
-            void exportImageFile(eString directory);
+            void exportImageFile(eString directory) const;
 
-            GLuint getTextureName();
+            GLuint getTextureName() const;
 
             void setTransparencyColor(uint32_t color);
     };

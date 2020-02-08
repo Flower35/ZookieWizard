@@ -29,7 +29,7 @@ namespace ZookieWizard
             eEggTarget();
             ~eEggTarget();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

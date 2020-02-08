@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eDoubleCameraTarget::getType()
+    TypeInfo* eDoubleCameraTarget::getType() const
     {
         return &E_DOUBLECAMERATARGET_TYPEINFO;
     }

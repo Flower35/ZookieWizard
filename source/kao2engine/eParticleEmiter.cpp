@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eParticleEmiter::getType()
+    TypeInfo* eParticleEmiter::getType() const
     {
         return &E_PARTICLEEMITER_TYPEINFO;
     }

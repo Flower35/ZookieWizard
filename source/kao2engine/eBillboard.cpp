@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBillboard::getType()
+    TypeInfo* eBillboard::getType() const
     {
         return &E_BILLBOARD_TYPEINFO;
     }

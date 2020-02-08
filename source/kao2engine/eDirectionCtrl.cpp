@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eDirectionCtrl::getType()
+    TypeInfo* eDirectionCtrl::getType() const
     {
         return &E_DIRECTIONCTRL_TYPEINFO;
     }
@@ -36,7 +36,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eDirectionCtrl: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString eDirectionCtrl::getDefaultGadgetName()
+    eString eDirectionCtrl::getDefaultGadgetName() const
     {
         return "dirCtrl";
     }

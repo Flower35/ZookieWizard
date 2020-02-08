@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePlaszczka::getType()
+    TypeInfo* ePlaszczka::getType() const
     {
         return &E_PLASZCZKA_TYPEINFO;
     }

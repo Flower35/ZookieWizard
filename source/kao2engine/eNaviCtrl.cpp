@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eNaviCtrl::getType()
+    TypeInfo* eNaviCtrl::getType() const
     {
         return &E_NAVICTRL_TYPEINFO;
     }
@@ -36,7 +36,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eNaviCtrl: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString eNaviCtrl::getDefaultGadgetName()
+    eString eNaviCtrl::getDefaultGadgetName() const
     {
         return "navi";
     }

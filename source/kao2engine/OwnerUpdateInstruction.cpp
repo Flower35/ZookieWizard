@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* OwnerUpdateInstruction::getType()
+    TypeInfo* OwnerUpdateInstruction::getType() const
     {
         return &E_OWNERUPDATEINSTRUCTION_TYPEINFO;
     }
@@ -51,7 +51,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // OwnerUpdateInstruction: save to text file
     ////////////////////////////////////////////////////////////////
-    void OwnerUpdateInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation)
+    void OwnerUpdateInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation) const
     {
         ArFunctions::writeNewLine(file, indentation);
 

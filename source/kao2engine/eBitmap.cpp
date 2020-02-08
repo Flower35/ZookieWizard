@@ -25,7 +25,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBitmap::getType()
+    TypeInfo* eBitmap::getType() const
     {
         return &E_BITMAP_TYPEINFO;
     }
@@ -348,7 +348,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eBitmap: export image to file
     ////////////////////////////////////////////////////////////////
-    void eBitmap::exportImageFile(eString directory)
+    void eBitmap::exportImageFile(eString directory) const
     {
         FileOperator file;
         eString result;
@@ -691,7 +691,7 @@ namespace ZookieWizard
     // eBitmap: get bytes per pixel
     // <kao2.00470AA0>
     ////////////////////////////////////////////////////////////////
-    int eBitmap::getBytesPerPixel()
+    int eBitmap::getBytesPerPixel() const
     {
         switch (type)
         {
@@ -727,7 +727,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eBitmap: cakculate bytes per pixel when exporting
     ////////////////////////////////////////////////////////////////
-    int eBitmap::getBytesPerPixelOutput(bool bmp_ext)
+    int eBitmap::getBytesPerPixelOutput(bool bmp_ext) const
     {
         switch (type)
         {
@@ -758,7 +758,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eBitmap: show object type
     ////////////////////////////////////////////////////////////////
-    const char* eBitmap::getTypeName()
+    const char* eBitmap::getTypeName() const
     {
         switch (type)
         {
@@ -799,7 +799,7 @@ namespace ZookieWizard
     // eBitmap: check if color palette needs to be allocated
     // <kao2.00470F40>
     ////////////////////////////////////////////////////////////////
-    bool eBitmap::isUsingPalette()
+    bool eBitmap::isUsingPalette() const
     {
         switch (type)
         {
@@ -963,7 +963,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eBitmap: COLLADA exporting
     ////////////////////////////////////////////////////////////////
-    void eBitmap::writeNodeToXmlFile(ColladaExporter &exporter)
+    void eBitmap::writeNodeToXmlFile(ColladaExporter &exporter) const
     {
         int32_t i;
         char bufor[64];
@@ -1002,7 +1002,7 @@ namespace ZookieWizard
         path = new_path;
     }
 
-    eString eBitmap::getPath()
+    eString eBitmap::getPath() const
     {
         return path;
     }
@@ -1011,7 +1011,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eBitmap: get texture name (used with eTexture)
     ////////////////////////////////////////////////////////////////
-    GLuint eBitmap::getTextureName()
+    GLuint eBitmap::getTextureName() const
     {
         return texture_name_id;
     }

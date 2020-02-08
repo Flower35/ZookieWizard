@@ -29,7 +29,7 @@ namespace ZookieWizard
             eHitForceCtrl();
             ~eHitForceCtrl();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

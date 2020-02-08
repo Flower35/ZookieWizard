@@ -29,7 +29,7 @@ namespace ZookieWizard
             eEggsFactory();
             ~eEggsFactory();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

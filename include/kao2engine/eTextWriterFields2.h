@@ -29,7 +29,7 @@ namespace ZookieWizard
             eTextWriterFields2();
             ~eTextWriterFields2();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

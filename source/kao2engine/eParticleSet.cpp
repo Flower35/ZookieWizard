@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eParticleSet::getType()
+    TypeInfo* eParticleSet::getType() const
     {
         return &E_PARTICLESET_TYPEINFO;
     }

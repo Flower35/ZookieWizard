@@ -27,7 +27,7 @@ namespace ZookieWizard
             eSetCollisionFlags();
             ~eSetCollisionFlags();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

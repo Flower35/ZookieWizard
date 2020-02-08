@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eRain::getType()
+    TypeInfo* eRain::getType() const
     {
         return &E_RAIN_TYPEINFO;
     }

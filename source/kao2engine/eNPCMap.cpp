@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eNPCMap::getType()
+    TypeInfo* eNPCMap::getType() const
     {
         return &E_NPCMAP_TYPEINFO;
     }

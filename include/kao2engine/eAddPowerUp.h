@@ -29,7 +29,7 @@ namespace ZookieWizard
             eAddPowerUp();
             ~eAddPowerUp();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

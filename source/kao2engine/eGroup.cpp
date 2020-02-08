@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGroup::getType()
+    TypeInfo* eGroup::getType() const
     {
         return &E_GROUP_TYPEINFO;
     }
@@ -55,7 +55,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGroup: get nodes count
     ////////////////////////////////////////////////////////////////
-    int32_t eGroup::getNodesCount()
+    int32_t eGroup::getNodesCount() const
     {
         return nodes.getSize();
     }
@@ -64,7 +64,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGroup: get i-th node
     ////////////////////////////////////////////////////////////////
-    eNode* eGroup::getIthChild(int32_t i)
+    eNode* eGroup::getIthChild(int32_t i) const
     {
         return (eNode*)nodes.getIthChild(i);
     }
@@ -147,7 +147,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGroup: export readable structure
     ////////////////////////////////////////////////////////////////
-    void eGroup::writeStructureToTextFile(FileOperator &file, int32_t indentation)
+    void eGroup::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
     {
         int32_t i;
         eNode* test_node;
@@ -169,7 +169,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGroup: COLLADA exporting
     ////////////////////////////////////////////////////////////////
-    void eGroup::writeNodeToXmlFile(ColladaExporter &exporter)
+    void eGroup::writeNodeToXmlFile(ColladaExporter &exporter) const
     {
         int32_t i;
         char bufor[64];
@@ -230,7 +230,7 @@ namespace ZookieWizard
             }
         }
 
-        
+
     }
 
 }

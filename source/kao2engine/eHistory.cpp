@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eHistory::getType()
+    TypeInfo* eHistory::getType() const
     {
         return &E_HISTORY_TYPEINFO;
     }
@@ -36,7 +36,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eHistory: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString eHistory::getDefaultGadgetName()
+    eString eHistory::getDefaultGadgetName() const
     {
         return "history";
     }

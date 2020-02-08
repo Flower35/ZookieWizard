@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eAddPowerUp::getType()
+    TypeInfo* eAddPowerUp::getType() const
     {
         return &E_ADDPOWERUP_TYPEINFO;
     }

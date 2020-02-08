@@ -11,7 +11,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ENGINE VERSIONS
     ////////////////////////////////////////////////////////////////
-    
+
     #define GAME_VERSION_KAO2_PL_PC 1
     #define GAME_VERSION_KAO2_EUR_PC 2
     #define GAME_VERSION_KAO_TW_PC 3
@@ -72,9 +72,9 @@ namespace ZookieWizard
         ePoint3(float initializer);
         ePoint3(float, float, float);
 
-        ePoint3 operator + (const ePoint3&);
-        ePoint3 operator - (const ePoint3&);
-        ePoint3 operator * (float);
+        ePoint3 operator + (const ePoint3&) const;
+        ePoint3 operator - (const ePoint3&) const;
+        ePoint3 operator * (float) const;
 
         void serialize(Archive &ar);
     };
@@ -91,13 +91,19 @@ namespace ZookieWizard
         ePoint4(float initializer);
         ePoint4(float, float, float, float);
 
-        ePoint4 operator + (const ePoint4&);
-        ePoint4 operator * (float);
+        ePoint4 operator + (const ePoint4&) const;
+        ePoint4& operator += (const ePoint4&);
+        ePoint4 operator - (const ePoint4&) const;
+        ePoint4 operator * (float) const;
 
         void normalize();
 
         void serialize(Archive &ar);
     };
+
+    ePoint4 crossProduct(const ePoint4&, const ePoint4&);
+    float dotProduct(const ePoint4&, const ePoint4&);
+    void calculateBoundaryBox(ePoint3&, ePoint3&, int32_t, const ePoint4*, int32_t, const ushort*);
 
     /* `sizeof(ePhyVertex) == 0x10` (16 bytes) */
     struct ePhyVertex
@@ -109,10 +115,20 @@ namespace ZookieWizard
     /* `sizeof(eABB) == 0x20` (32 bytes) */
     struct eABB
     {
-        float min[3];
-        int32_t unknown_0C;
-        float max[3];
-        int32_t unknown_1C;
+        ePoint3 min;
+        int32_t leftNode;
+        ePoint3 max;
+        int32_t rightNode;
+
+        eABB();
+
+        bool operator == (const eABB&) const;
+
+        bool fitsMeFromLeft(const eABB&) const;
+        bool fitsMeFromRight(const eABB&) const;
+        bool isIntersecting(const eABB&) const;
+        void expandBoundaries(const eABB&, bool, bool);
+        bool insertLeaf(int32_t, int32_t&, eABB*, const eABB&);
     };
 
     /* `sizeof(eQuat) == 0x10` (16 bytes) */
@@ -127,18 +143,18 @@ namespace ZookieWizard
         eQuat(float initializer);
         eQuat(float, float, float, float);
 
-        eQuat operator + (const eQuat&);
-        eQuat operator - (const eQuat&);
-        eQuat operator * (const eQuat&);
-        eQuat operator * (float);
+        eQuat operator + (const eQuat&) const;
+        eQuat operator - (const eQuat&) const;
+        eQuat operator * (const eQuat&) const;
+        eQuat operator * (float) const;
 
         void normalize();
 
         void fromEulerAngles(bool, float, float, float);
-        void toEulerAngles(bool, float&, float&, float&);
+        void toEulerAngles(bool, float&, float&, float&) const;
     };
 
-    ePoint3 operator * (ePoint3 pos, eQuat rot);
+    ePoint3 operator * (const ePoint3 &pos, const eQuat &rot);
 
     struct eMatrix4x4
     {
@@ -147,7 +163,7 @@ namespace ZookieWizard
         eMatrix4x4();
 
         void identity();
-        void transpose(float result[16]);
+        void transpose(float result[16]) const;
 
         void serialize(Archive &ar);
 
@@ -156,8 +172,8 @@ namespace ZookieWizard
         void setRotationX(float angle);
     };
 
-    eMatrix4x4 operator * (eMatrix4x4 a, eMatrix4x4 b);
-    ePoint4 operator * (eMatrix4x4 a, ePoint4 p);
+    eMatrix4x4 operator * (const eMatrix4x4 &a, const eMatrix4x4 &b);
+    ePoint4 operator * (const eMatrix4x4 &a, const ePoint4 &p);
 
     /* Global Bones Matrices */
     extern eMatrix4x4 theBonesMatrices[40];
@@ -171,13 +187,13 @@ namespace ZookieWizard
 
         eSRP();
         eSRP(float initializer);
-        
-        eMatrix4x4 getMatrix();
-        eMatrix4x4 getInverseMatrix();
+
+        eMatrix4x4 getMatrix() const;
+        eMatrix4x4 getInverseMatrix() const;
 
         void serialize(Archive &ar);
 
-        eSRP applyAnotherSRP(const eSRP &parent);
+        eSRP applyAnotherSRP(const eSRP &parent) const;
     };
 
     /* "eAnimState", "eTrack": */

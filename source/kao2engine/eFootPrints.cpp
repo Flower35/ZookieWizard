@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFootPrints::getType()
+    TypeInfo* eFootPrints::getType() const
     {
         return &E_FOOTPRINTS_TYPEINFO;
     }

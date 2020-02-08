@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePosCtrl::getType()
+    TypeInfo* ePosCtrl::getType() const
     {
         return &E_POSCTRL_TYPEINFO;
     }

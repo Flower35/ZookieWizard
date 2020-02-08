@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* NodeRefSendInstruction::getType()
+    TypeInfo* NodeRefSendInstruction::getType() const
     {
         return &E_NODEREFSENDINSTRUCTION_TYPEINFO;
     }
@@ -59,7 +59,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // NodeRefSendInstruction: save to text file
     ////////////////////////////////////////////////////////////////
-    void NodeRefSendInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation)
+    void NodeRefSendInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation) const
     {
         ArFunctions::writeNewLine(file, indentation);
 

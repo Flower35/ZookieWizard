@@ -28,7 +28,7 @@ namespace ZookieWizard
             eJumpPhysics();
             ~eJumpPhysics();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

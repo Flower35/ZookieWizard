@@ -14,7 +14,7 @@ namespace ZookieWizard
 
     class ePathFinder : public Gadget
     {
-        
+
         /*** Properties ***/
 
         protected:
@@ -44,9 +44,9 @@ namespace ZookieWizard
             ~ePathFinder();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            eString getDefaultGadgetName() override;
+            eString getDefaultGadgetName() const override;
     };
 
 

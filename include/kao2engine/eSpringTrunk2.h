@@ -29,7 +29,7 @@ namespace ZookieWizard
             eSpringTrunk2();
             ~eSpringTrunk2();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

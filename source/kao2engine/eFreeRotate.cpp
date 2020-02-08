@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFreeRotate::getType()
+    TypeInfo* eFreeRotate::getType() const
     {
         return &E_FREEROTATE_TYPEINFO;
     }

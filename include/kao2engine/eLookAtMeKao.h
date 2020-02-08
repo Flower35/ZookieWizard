@@ -28,7 +28,7 @@ namespace ZookieWizard
             eLookAtMeKao();
             ~eLookAtMeKao();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

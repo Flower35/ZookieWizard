@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSnowCameraCtrl::getType()
+    TypeInfo* eSnowCameraCtrl::getType() const
     {
         return &E_SNOWCAMERACTRL_TYPEINFO;
     }

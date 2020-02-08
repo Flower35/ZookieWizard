@@ -21,7 +21,7 @@ namespace ZookieWizard
             eLavaFlakes();
             ~eLavaFlakes();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

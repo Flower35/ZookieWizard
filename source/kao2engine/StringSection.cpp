@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* StringSection::getType()
+    TypeInfo* StringSection::getType() const
     {
         return &E_STRINGSECTION_TYPEINFO;
     }
@@ -64,7 +64,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // StringSection: get textual representation
     ////////////////////////////////////////////////////////////////
-    eString StringSection::getStringRepresentation()
+    eString StringSection::getStringRepresentation() const
     {
         return name;
     }
@@ -73,7 +73,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // StringSection: save section to a text file ;)
     ////////////////////////////////////////////////////////////////
-    void StringSection::saveSectionToTextFile(FileOperator &file, int32_t indentation)
+    void StringSection::saveSectionToTextFile(FileOperator &file, int32_t indentation) const
     {
         int32_t i;
 

@@ -29,9 +29,9 @@ namespace ZookieWizard
             eHistory();
             ~eHistory();
 
-            TypeInfo* getType() override;
-            
-            eString getDefaultGadgetName() override;
+            TypeInfo* getType() const override;
+
+            eString getDefaultGadgetName() const override;
     };
 
 

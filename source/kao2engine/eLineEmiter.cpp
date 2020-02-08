@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLineEmiter::getType()
+    TypeInfo* eLineEmiter::getType() const
     {
         return &E_LINEEMITER_TYPEINFO;
     }

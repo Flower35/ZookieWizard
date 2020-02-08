@@ -25,7 +25,7 @@ namespace ZookieWizard
     : x(_x), y(_y), z(_z)
     {}
 
-    ePoint3 ePoint3::operator + (const ePoint3 &point)
+    ePoint3 ePoint3::operator + (const ePoint3 &point) const
     {
         return ePoint3
         (
@@ -35,7 +35,7 @@ namespace ZookieWizard
         );
     }
 
-    ePoint3 ePoint3::operator - (const ePoint3 &point)
+    ePoint3 ePoint3::operator - (const ePoint3 &point) const
     {
         return ePoint3
         (
@@ -45,7 +45,7 @@ namespace ZookieWizard
         );
     }
 
-    ePoint3 ePoint3::operator * (float scalar)
+    ePoint3 ePoint3::operator * (float scalar) const
     {
         return ePoint3
         (
@@ -83,7 +83,7 @@ namespace ZookieWizard
     : x(_x), y(_y), z(_z), w(_w)
     {}
 
-    ePoint4 ePoint4::operator + (const ePoint4 &point)
+    ePoint4 ePoint4::operator + (const ePoint4 &point) const
     {
         return ePoint4
         (
@@ -94,7 +94,28 @@ namespace ZookieWizard
         );
     }
 
-    ePoint4 ePoint4::operator * (float scalar)
+    ePoint4& ePoint4::operator += (const ePoint4 &point)
+    {
+        x += point.x;
+        y += point.y;
+        z += point.z;
+        w += point.w;
+
+        return *this;
+    }
+
+    ePoint4 ePoint4::operator - (const ePoint4 &point) const
+    {
+        return ePoint4
+        (
+            x - point.x,
+            y - point.y,
+            z - point.z,
+            w - point.w
+        );
+    }
+
+    ePoint4 ePoint4::operator * (float scalar) const
     {
         return ePoint4
         (
@@ -126,6 +147,191 @@ namespace ZookieWizard
         ar.readOrWrite(&w, 0x04);
     }
 
+    ePoint4 crossProduct(const ePoint4 &a, const ePoint4 &b)
+    {
+        ePoint4 result;
+
+        result.x = (a.y * b.z) - (a.z * b.y);
+        result.y = (a.z * b.x) - (a.x * b.z);
+        result.z = (a.x * b.y) - (a.y * b.x);
+        result.z = 0;
+
+        return result;
+    }
+
+    float dotProduct(const ePoint4 &a, const ePoint4 &b)
+    {
+        return ((a.x * b.x) + (a.y * b.y) + (a.z * b.z));
+    }
+
+    void calculateBoundaryBox
+    (
+        ePoint3 &min,
+        ePoint3 &max,
+        int32_t v_count,
+        const ePoint4* vertices,
+        int32_t i_count,
+        const ushort* indices
+    )
+    {
+        int32_t a, b;
+
+        if (nullptr != vertices)
+        {
+            if (nullptr != indices)
+            {
+                b = indices[0];
+
+                min = {vertices[b].x, vertices[b].y, vertices[b].z};
+                max = min;
+
+                for (a = 1; a < i_count; a++)
+                {
+                    b = indices[a];
+
+                    if (vertices[b].x < min.x) min.x = vertices[b].x;
+                    if (vertices[b].y < min.y) min.y = vertices[b].y;
+                    if (vertices[b].z < min.z) min.z = vertices[b].z;
+                    if (vertices[b].x > max.x) max.x = vertices[b].x;
+                    if (vertices[b].y > max.y) max.y = vertices[b].y;
+                    if (vertices[b].z > max.z) max.z = vertices[b].z;
+                }
+            }
+            else
+            {
+                min = {vertices[0].x, vertices[0].y, vertices[0].z};
+                max = min;
+
+                for (a = 1; a < v_count; a++)
+                {
+                    if (vertices[a].x < min.x) min.x = vertices[a].x;
+                    if (vertices[a].y < min.y) min.y = vertices[a].y;
+                    if (vertices[a].z < min.z) min.z = vertices[a].z;
+                    if (vertices[a].x > max.x) max.x = vertices[a].x;
+                    if (vertices[a].y > max.y) max.y = vertices[a].y;
+                    if (vertices[a].z > max.z) max.z = vertices[a].z;
+                }
+            }
+        }
+        else
+        {
+            min = {0, 0, 0};
+            max = {1.0f, 1.0f, 1.0f};
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Kao2 data structure: Axis Aligned Boundary Box
+    ////////////////////////////////////////////////////////////////
+
+    eABB::eABB()
+    {
+        leftNode = 0x80000000;
+        rightNode = 0xC0000001;
+    }
+
+    bool eABB::operator == (const eABB &box) const
+    {
+        return ((box.min.x == min.x) && (box.min.y == min.y) && (box.min.z == min.z)
+          && (box.max.x == max.x) && (box.max.y == max.y) && (box.max.z == max.z));
+    }
+
+    bool eABB::fitsMeFromLeft(const eABB &box) const
+    {
+        return ((box.min.x <= min.x) || (box.min.y <= min.y) || (box.min.z <= min.z));
+    }
+
+    bool eABB::fitsMeFromRight(const eABB &box) const
+    {
+        return ((box.max.x >= max.x) || (box.max.y >= max.y) || (box.max.z >= max.z));
+    }
+
+    bool eABB::isIntersecting(const eABB &box) const
+    {
+        return ((min.x <= box.max.x) && (min.y <= box.max.y) && (min.z <= box.max.z)
+          && (max.x >= box.min.x) && (max.y >= box.min.y) && (max.z >= box.min.z));
+    }
+
+    void eABB::expandBoundaries(const eABB &box, bool change_min, bool change_max)
+    {
+        if (change_min)
+        {
+            if (box.min.x < min.x) min.x = box.min.x;
+            if (box.min.y < min.y) min.y = box.min.y;
+            if (box.min.z < min.z) min.z = box.min.z;
+        }
+
+        if (change_max)
+        {
+            if (box.max.x > max.x) max.x = box.max.x;
+            if (box.max.y > max.y) max.y = box.max.y;
+            if (box.max.z > max.z) max.z = box.max.z;
+        }
+    }
+
+    bool eABB::insertLeaf(int32_t current_id, int32_t &empty_id, eABB* nodes, const eABB &box)
+    {
+        if ((0x80000000 & leftNode) && (0x80000000 & rightNode))
+        {
+            /* Changing leaf to a branch */
+
+            if (fitsMeFromLeft(box) || (box == (*this)))
+            {
+                nodes[empty_id + 0] = box;
+                nodes[empty_id + 1] = (*this);
+
+                leftNode = (empty_id + 0);
+                rightNode = (empty_id + 1);
+                expandBoundaries(box, true, true);
+                nodes[current_id] = (*this);
+
+                empty_id += 2;
+                return true;
+            }
+            else if (fitsMeFromRight(box))
+            {
+                nodes[empty_id + 0] = (*this);
+                nodes[empty_id + 1] = box;
+
+                leftNode = (empty_id + 0);
+                rightNode = (empty_id + 1);
+                expandBoundaries(box, true, true);
+                nodes[current_id] = (*this);
+
+                empty_id += 2;
+                return true;
+            }
+        }
+        else
+        {
+            if (false == (0x80000000 & leftNode))
+            {
+                if (nodes[leftNode].isIntersecting(box) || nodes[leftNode].fitsMeFromLeft(box))
+                {
+                    if (nodes[leftNode].insertLeaf(leftNode, empty_id, nodes, box))
+                    {
+                        expandBoundaries(nodes[leftNode], true, true);
+
+                        return true;
+                    }
+                }
+            }
+
+            if (false == (0x80000000 & rightNode))
+            {
+                if (nodes[rightNode].insertLeaf(rightNode, empty_id, nodes, box))
+                {
+                    expandBoundaries(nodes[rightNode], true, true);
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 
     ////////////////////////////////////////////////////////////////
     // Kao2 data structure: eQuat
@@ -147,7 +353,7 @@ namespace ZookieWizard
     : x(_x), y(_y), z(_z), w(_w)
     {}
 
-    eQuat eQuat::operator + (const eQuat &quaternion)
+    eQuat eQuat::operator + (const eQuat &quaternion) const
     {
         eQuat result
         (
@@ -162,7 +368,7 @@ namespace ZookieWizard
         return result;
     }
 
-    eQuat eQuat::operator - (const eQuat &quaternion)
+    eQuat eQuat::operator - (const eQuat &quaternion) const
     {
         eQuat result
         (
@@ -177,7 +383,7 @@ namespace ZookieWizard
         return result;
     }
 
-    eQuat eQuat::operator * (const eQuat &quat)
+    eQuat eQuat::operator * (const eQuat &quat) const
     {
         return eQuat
         (
@@ -188,7 +394,7 @@ namespace ZookieWizard
         );
     }
 
-    eQuat eQuat::operator * (float scalar)
+    eQuat eQuat::operator * (float scalar) const
     {
         return eQuat
         (
@@ -235,7 +441,7 @@ namespace ZookieWizard
         w = c1 * c2 * c3 + s1 * s2 * s3;
     }
 
-    void eQuat::toEulerAngles(bool inverse, float &alpha, float &beta, float &gamma)
+    void eQuat::toEulerAngles(bool inverse, float &alpha, float &beta, float &gamma) const
     {
         double a, b;
         float x = inverse ? (- (this->x)) : (this->x);
@@ -265,7 +471,7 @@ namespace ZookieWizard
     }
 
     /* <kao2.004AB070> */
-    ePoint3 operator * (ePoint3 pos, eQuat rot)
+    ePoint3 operator * (const ePoint3 &pos, const eQuat &rot)
     {
         ePoint3 result;
 
@@ -303,7 +509,7 @@ namespace ZookieWizard
         m[3][0] = 0; m[3][1] = 0; m[3][2] = 0; m[3][3] = 1.0f;
     }
 
-    eMatrix4x4 operator * (eMatrix4x4 a, eMatrix4x4 b)
+    eMatrix4x4 operator * (const eMatrix4x4 &a, const eMatrix4x4 &b)
     {
         eMatrix4x4 c;
         int32_t i, j, k;
@@ -323,8 +529,8 @@ namespace ZookieWizard
 
         return c;
     }
-    
-    ePoint4 operator * (eMatrix4x4 a, ePoint4 p)
+
+    ePoint4 operator * (const eMatrix4x4 &a, const ePoint4 &p)
     {
         float b[4] = {p.x, p.y, p.z, p.w};
         float c[4];
@@ -343,7 +549,7 @@ namespace ZookieWizard
         return ePoint4(c[0], c[1], c[2], c[3]);
     }
 
-    void eMatrix4x4::transpose(float result[16])
+    void eMatrix4x4::transpose(float result[16]) const
     {
         int32_t columns;
         int32_t rows;
@@ -481,10 +687,10 @@ namespace ZookieWizard
         ar.readOrWrite(&(pos.z), 0x04);
     }
 
-    eMatrix4x4 eSRP::getMatrix()
+    eMatrix4x4 eSRP::getMatrix() const
     {
         eMatrix4x4 transformMatrix;
-        
+
         /* Inverse quaternion */
 
         float invquat_x = - rot.x;
@@ -513,7 +719,7 @@ namespace ZookieWizard
     }
 
     /* <kao2.004AB580> */
-    eMatrix4x4 eSRP::getInverseMatrix()
+    eMatrix4x4 eSRP::getInverseMatrix() const
     {
         eMatrix4x4 result;
 
@@ -539,7 +745,7 @@ namespace ZookieWizard
     }
 
     /* <kao2.004AB070> */
-    eSRP eSRP::applyAnotherSRP(const eSRP &parent)
+    eSRP eSRP::applyAnotherSRP(const eSRP &parent) const
     {
         eSRP result;
 
@@ -621,13 +827,13 @@ namespace ZookieWizard
 
         fo << result;
     }
-    
+
     void ArFunctions::writeNewLine(FileOperator &fo, int32_t indentation)
     {
         /* "\n" is automatically changed to "\r\n" by `std::fstream` */
 
         fo << "\n";
-        
+
         writeIndentation(fo, indentation);
     }
 

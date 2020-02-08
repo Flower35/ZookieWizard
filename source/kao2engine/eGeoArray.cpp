@@ -7,7 +7,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGeoArray interfaces
     ////////////////////////////////////////////////////////////////
-    
+
     TypeInfo E_GEOARRAY_USHORT_TYPEINFO
     (
         E_GEOARRAY_USHORT_ID,
@@ -19,7 +19,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoArray<ushort>::getType()
+    TypeInfo* eGeoArray<ushort>::getType() const
     {
         return &E_GEOARRAY_USHORT_TYPEINFO;
     }
@@ -35,7 +35,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoArray<ePoint2>::getType()
+    TypeInfo* eGeoArray<ePoint2>::getType() const
     {
         return &E_GEOARRAY_EPOINT2_TYPEINFO;
     }
@@ -51,7 +51,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoArray<ePoint3>::getType()
+    TypeInfo* eGeoArray<ePoint3>::getType() const
     {
         return &E_GEOARRAY_EPOINT3_TYPEINFO;
     }
@@ -67,7 +67,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoArray<ePoint4>::getType()
+    TypeInfo* eGeoArray<ePoint4>::getType() const
     {
         return &E_GEOARRAY_EPOINT4_TYPEINFO;
     }
@@ -83,7 +83,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoArray<eABB>::getType()
+    TypeInfo* eGeoArray<eABB>::getType() const
     {
         return &E_GEOARRAY_EABB_TYPEINFO;
     }
@@ -99,7 +99,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoArray<ePhyVertex>::getType()
+    TypeInfo* eGeoArray<ePhyVertex>::getType() const
     {
         return &E_GEOARRAY_EPHYVERTEX_TYPEINFO;
     }
@@ -148,9 +148,14 @@ namespace ZookieWizard
     // eGeoArray: return data pointer
     ////////////////////////////////////////////////////////////////
     template <typename T>
-    T* eGeoArray<T>::getData()
+    T* eGeoArray<T>::getData() const
     {
-        return data;
+        if (nullptr != this)
+        {
+            return data;
+        }
+
+        return nullptr;
     }
 
 
@@ -158,9 +163,14 @@ namespace ZookieWizard
     // eGeoArray: return number of elements
     ////////////////////////////////////////////////////////////////
     template <typename T>
-    int32_t eGeoArray<T>::getLength()
+    int32_t eGeoArray<T>::getLength() const
     {
-        return length;
+        if (nullptr != this)
+        {
+            return length;
+        }
+
+        return 0;
     }
 
 
@@ -191,5 +201,7 @@ namespace ZookieWizard
     template class eGeoArray<ePoint4>;
 
     template class eGeoArray<ePhyVertex>;
+
+    template class eGeoArray<eABB>;
 
 }

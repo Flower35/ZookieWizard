@@ -29,7 +29,7 @@ namespace ZookieWizard
             eFlyingObjectCtrl();
             ~eFlyingObjectCtrl();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

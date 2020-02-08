@@ -29,7 +29,7 @@ namespace ZookieWizard
             eSecondCameraTarget();
             ~eSecondCameraTarget();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

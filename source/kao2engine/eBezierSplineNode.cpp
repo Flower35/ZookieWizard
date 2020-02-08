@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBezierSplineNode::getType()
+    TypeInfo* eBezierSplineNode::getType() const
     {
         return &E_BEZIERSPLINENODE_TYPEINFO;
     }

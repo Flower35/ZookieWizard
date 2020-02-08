@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTeleportCtrl::getType()
+    TypeInfo* eTeleportCtrl::getType() const
     {
         return &E_TELEPORTCTRL_TYPEINFO;
     }
@@ -65,7 +65,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTeleportCtrl: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString eTeleportCtrl::getDefaultGadgetName()
+    eString eTeleportCtrl::getDefaultGadgetName() const
     {
         return "teleport";
     }

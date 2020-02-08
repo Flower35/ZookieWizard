@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eHeroParent::getType()
+    TypeInfo* eHeroParent::getType() const
     {
         return &E_HEROPARENT_TYPEINFO;
     }

@@ -29,7 +29,7 @@ namespace ZookieWizard
             eAskYesNo();
             ~eAskYesNo();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

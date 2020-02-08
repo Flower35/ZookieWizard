@@ -21,7 +21,7 @@ namespace ZookieWizard
             eVisibilityCtrl();
             ~eVisibilityCtrl();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

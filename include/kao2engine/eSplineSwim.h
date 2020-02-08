@@ -29,7 +29,7 @@ namespace ZookieWizard
             eSplineSwim();
             ~eSplineSwim();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

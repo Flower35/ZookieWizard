@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eOctopussy2ndTarget::getType()
+    TypeInfo* eOctopussy2ndTarget::getType() const
     {
         return &E_OCTOPUSSY2NDTARGET_TYPEINFO;
     }

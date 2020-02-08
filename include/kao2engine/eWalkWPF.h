@@ -29,7 +29,7 @@ namespace ZookieWizard
             eWalkWPF();
             ~eWalkWPF();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

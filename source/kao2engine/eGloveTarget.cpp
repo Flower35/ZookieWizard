@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGloveTarget::getType()
+    TypeInfo* eGloveTarget::getType() const
     {
         return &E_GLOVETARGET_TYPEINFO;
     }

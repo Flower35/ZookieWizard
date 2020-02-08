@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eKasztanCtrl::getType()
+    TypeInfo* eKasztanCtrl::getType() const
     {
         return &E_KASZTANCTRL_TYPEINFO;
     }

@@ -29,7 +29,7 @@ namespace ZookieWizard
             eObjectChain();
             ~eObjectChain();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

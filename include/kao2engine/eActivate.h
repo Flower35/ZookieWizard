@@ -27,7 +27,7 @@ namespace ZookieWizard
             eActivate();
             ~eActivate();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

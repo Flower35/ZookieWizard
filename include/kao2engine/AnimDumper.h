@@ -29,7 +29,7 @@ namespace ZookieWizard
             AnimDumper();
             ~AnimDumper();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

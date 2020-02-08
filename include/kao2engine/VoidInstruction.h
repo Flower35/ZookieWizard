@@ -19,9 +19,9 @@ namespace ZookieWizard
             VoidInstruction();
             ~VoidInstruction();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            virtual void saveInstructionToTextFile(FileOperator &file, int32_t indentation) = 0;
+            virtual void saveInstructionToTextFile(FileOperator &file, int32_t indentation) const = 0;
     };
 
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSpringTrunk2::getType()
+    TypeInfo* eSpringTrunk2::getType() const
     {
         return &E_SPRINGTRUNK2_TYPEINFO;
     }

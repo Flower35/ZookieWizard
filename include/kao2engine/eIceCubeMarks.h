@@ -29,7 +29,7 @@ namespace ZookieWizard
             eIceCubeMarks();
             ~eIceCubeMarks();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

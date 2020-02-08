@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* VoidInstruction::getType()
+    TypeInfo* VoidInstruction::getType() const
     {
         return &E_VOIDINSTRUCTION_TYPEINFO;
     }

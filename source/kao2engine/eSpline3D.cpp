@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSpline3D::getType()
+    TypeInfo* eSpline3D::getType() const
     {
         return &E_SPLINE3D_TYPEINFO;
     }

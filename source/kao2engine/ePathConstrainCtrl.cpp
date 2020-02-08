@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePathConstrainCtrl::getType()
+    TypeInfo* ePathConstrainCtrl::getType() const
     {
         return &E_PATHCONSTRAINCTRL_TYPEINFO;
     }
@@ -47,7 +47,7 @@ namespace ZookieWizard
     // [[vptr]+0x28] Modify "ePoint3" based on current time
     // <kao2.004A7B00>
     ////////////////////////////////////////////////////////////////
-    void ePathConstrainCtrl::ctrlApplyTransform(ePoint3* e, float time)
+    void ePathConstrainCtrl::ctrlApplyTransform(ePoint3* e, float time) const
     {
         float test;
 

@@ -29,7 +29,7 @@ namespace ZookieWizard
             ePadRot();
             ~ePadRot();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

@@ -26,9 +26,9 @@ namespace ZookieWizard
             Rnd();
             ~Rnd();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            eString getDefaultGadgetName() override;
+            eString getDefaultGadgetName() const override;
     };
 
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSnowboardOrientation::getType()
+    TypeInfo* eSnowboardOrientation::getType() const
     {
         return &E_SNOWBOARDORIENTATION_TYPEINFO;
     }

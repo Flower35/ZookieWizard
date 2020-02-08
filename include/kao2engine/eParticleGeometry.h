@@ -39,7 +39,7 @@ namespace ZookieWizard
             eParticleGeometry();
             ~eParticleGeometry();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

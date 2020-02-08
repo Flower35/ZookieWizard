@@ -21,7 +21,7 @@ namespace ZookieWizard
             eTurnCollisionOff();
             ~eTurnCollisionOff();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

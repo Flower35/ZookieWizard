@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eEnemyMapUpgrader::getType()
+    TypeInfo* eEnemyMapUpgrader::getType() const
     {
         return &E_ENEMYMAPUPGRADER_TYPEINFO;
     }

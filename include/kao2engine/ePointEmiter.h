@@ -19,7 +19,7 @@ namespace ZookieWizard
             ePointEmiter();
             ~ePointEmiter();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

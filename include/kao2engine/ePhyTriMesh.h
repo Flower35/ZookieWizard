@@ -44,7 +44,7 @@ namespace ZookieWizard
             /*[0x08]*/ eTriMesh* tri;
             /*[0x0C]*/ eGeoSet* geo;
             /*[0x10]*/ eGeoArray<ePhyVertex>* vertices;
-            
+
             /*[0x14]*/ int32_t bonesCount;
             /*[0x18]*/ int32_t bonesMaxLength;
             /*[0x1C]*/ eBoneBase* bones;
@@ -61,16 +61,16 @@ namespace ZookieWizard
             ~ePhyTriMesh();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+            void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
-            eString getLogPrintMessage() override;
+            eString getLogPrintMessage() const override;
 
-            void prepareMatrices(bool update);
+            void prepareMatrices(bool update) const;
             void animateVertices();
 
-            eTransform* getArmatureParent();
+            eTransform* getArmatureParent() const;
 
         private:
 

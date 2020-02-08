@@ -26,7 +26,7 @@ namespace ZookieWizard
             eCollisionSphere();
             ~eCollisionSphere();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

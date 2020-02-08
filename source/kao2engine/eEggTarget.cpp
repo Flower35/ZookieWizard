@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eEggTarget::getType()
+    TypeInfo* eEggTarget::getType() const
     {
         return &E_EGGTARGET_TYPEINFO;
     }

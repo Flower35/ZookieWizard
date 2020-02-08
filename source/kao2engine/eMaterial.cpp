@@ -45,7 +45,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMaterial::getType()
+    TypeInfo* eMaterial::getType() const
     {
         return &E_MATERIAL_TYPEINFO;
     }
@@ -55,7 +55,7 @@ namespace ZookieWizard
     {
         /*[0x18]*/ state = nullptr;
 
-        /*[0x1C]*/ unknown_1C = 0;
+        /*[0x1C]*/ collisionType = 0;
         /*[0x20]*/ unknown_20 = 0;
         /*[0x22]*/ unknown_22 = 0;
 
@@ -113,7 +113,7 @@ namespace ZookieWizard
         /* Sounds and collision structures */
         if (ar.getVersion() >= 0x6C)
         {
-            ar.readOrWrite(&unknown_1C, 0x04);
+            ar.readOrWrite(&collisionType, 0x04);
             ar.readOrWrite(&unknown_20, 0x02);
             ar.readOrWrite(&unknown_22, 0x02);
         }
@@ -134,7 +134,7 @@ namespace ZookieWizard
                         unknown_22 = 0x40;
 
                         test &= 0x00FFFFFF;
-                        unknown_1C = materialTypes[test].id;
+                        collisionType = materialTypes[test].id;
 
                         break;
                     }
@@ -147,7 +147,7 @@ namespace ZookieWizard
                     default:
                     {
                         test &= 0x00FFFFFF;
-                        unknown_1C = materialTypes[test].id;
+                        collisionType = materialTypes[test].id;
 
                     }
                 }
@@ -176,7 +176,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eMaterial: COLLADA exporting
     ////////////////////////////////////////////////////////////////
-    void eMaterial::writeNodeToXmlFile(ColladaExporter &exporter)
+    void eMaterial::writeNodeToXmlFile(ColladaExporter &exporter) const
     {
         int32_t i;
         char bufor[64];
@@ -263,7 +263,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eMaterial: get i-th texture (used with eTriMesh)
     ////////////////////////////////////////////////////////////////
-    eTexture* eMaterial::getIthTexture(int32_t i)
+    eTexture* eMaterial::getIthTexture(int32_t i) const
     {
         return (eTexture*)textures.getIthChild(i);
     }
@@ -281,7 +281,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eMaterial: get name
     ////////////////////////////////////////////////////////////////
-    eString eMaterial::getStringRepresentation()
+    eString eMaterial::getStringRepresentation() const
     {
         return name;
     }
@@ -299,7 +299,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eMaterial: find if name contains "invisible" (used with eTriMesh)
     ////////////////////////////////////////////////////////////////
-    bool eMaterial::hasInvisibleInName()
+    bool eMaterial::hasInvisibleInName() const
     {
         return std::strstr(name.getText(), "invisible");
     }
@@ -344,9 +344,24 @@ namespace ZookieWizard
         }
     }
 
-    eMaterialState* eMaterial::getMaterialState()
+    eMaterialState* eMaterial::getMaterialState() const
     {
         return state;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterial: get or set collision type
+    ////////////////////////////////////////////////////////////////
+
+    void eMaterial::setCollisionType(int32_t new_type)
+    {
+        collisionType = new_type;
+    }
+
+    int32_t eMaterial::getCollisionType() const
+    {
+        return collisionType;
     }
 
 }

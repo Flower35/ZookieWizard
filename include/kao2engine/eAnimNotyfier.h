@@ -29,7 +29,7 @@ namespace ZookieWizard
             eAnimNotyfier();
             ~eAnimNotyfier();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

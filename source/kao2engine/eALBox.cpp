@@ -29,7 +29,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eALBox::getType()
+    TypeInfo* eALBox::getType() const
     {
         return &E_ALBOX_TYPEINFO;
     }
@@ -37,8 +37,8 @@ namespace ZookieWizard
     eALBox::eALBox()
     : eRefCounter()
     {
-        /*[0x08]*/ unknown_08 = nullptr;
-        /*[0x0C]*/ unknown_0C = nullptr;
+        /*[0x08]*/ myScene = nullptr;
+        /*[0x0C]*/ parentNode = nullptr;
 
         /* [0x10] Automatic constructors */
 
@@ -48,7 +48,7 @@ namespace ZookieWizard
 
         /*[0x8C]*/ unknown_8C = 0;
 
-        /*[0x7C]*/ unknown_7C = (-1);
+        /*[0x7C]*/ collisionEntryId = (-1);
     }
 
     eALBox::~eALBox()
@@ -56,7 +56,7 @@ namespace ZookieWizard
         eScene* test_scene;
         eCollisionMgr* test_manager;
 
-        if (nullptr != unknown_08)
+        if (nullptr != myScene)
         {
             function_004A9870();
         }
@@ -66,7 +66,7 @@ namespace ZookieWizard
             test_scene = ArFunctions::getCurrentScene();
             test_manager = test_scene->getCollisionManager();
 
-            test_manager->save_ALBox(unknown_7C, nullptr);
+            test_manager->save_ALBox(collisionEntryId, nullptr);
         }
 
         if (nullptr != series)
@@ -82,13 +82,13 @@ namespace ZookieWizard
     // eALBox: check link type
     // <kao2.004AAB60>
     ////////////////////////////////////////////////////////////////
-    bool eALBox::function_004AAB60()
+    bool eALBox::function_004AAB60() const
     {
         TypeInfo* info;
 
-        if (nullptr != unknown_0C)
+        if (nullptr != parentNode)
         {
-            info = unknown_0C->getType();
+            info = parentNode->getType();
 
             if (info->checkHierarchy(&E_OBSERVER_TYPEINFO))
             {
@@ -121,14 +121,68 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eALBox: create axis list entry
+    // <kao2.004AABC0>
+    ////////////////////////////////////////////////////////////////
+    void eALBox::createAxisListEntry(eNode* parent, float* boxBound)
+    {
+        int32_t i;
+
+        if (nullptr != parent)
+        {
+            parent->setAxisListBox(this);
+        }
+
+        parentNode = parent;
+        myScene = nullptr;
+
+        if (unknown_8C < 2)
+        {
+            /* set [0x8C] (unknown) */
+
+            if (function_004AAB60())
+            {
+                unknown_8C = 0x01;
+            }
+            else
+            {
+                unknown_8C = 0x00;
+            }
+        }
+
+        /* Update coords sub-structures */
+
+        for (i = 0; i < 3; i++)
+        {
+            test[i][0].coordLimit = boxBound[0 + i];
+            test[i][0].rowId = i;
+            test[i][0].columnId = 0x00;
+
+            test[i][1].coordLimit = boxBound[3 + i];
+            test[i][1].rowId = i;
+            test[i][1].columnId = 0x01;
+        }
+
+        if (0x02 != unknown_8C)
+        {
+            function_004A9CC0();
+        }
+        else
+        {
+            function_004A99C0();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eALBox: update global scene's collision manager
     // <kao2.004A9CC0>
     ////////////////////////////////////////////////////////////////
     void eALBox::function_004A9CC0()
     {
-        if (nullptr == unknown_08)
+        if (nullptr == myScene)
         {
-            unknown_08 = ArFunctions::getCurrentScene();
+            myScene = ArFunctions::getCurrentScene();
 
             if (0x02 == unknown_8C)
             {
@@ -160,13 +214,13 @@ namespace ZookieWizard
 
         for (i = 0; i < 3; i++)
         {
-            test[i][1].unknown_0C = unknown_7C;
-            test[i][0].unknown_0C = unknown_7C;
+            test[i][1].alboxEntryId = collisionEntryId;
+            test[i][0].alboxEntryId = collisionEntryId;
         }
 
         /* */
 
-        test_manager = unknown_08->getCollisionManager();
+        test_manager = myScene->getCollisionManager();
 
         test_manager->function_00499390(test);
     }
@@ -203,7 +257,7 @@ namespace ZookieWizard
         test_scene = ArFunctions::getCurrentScene();
         test_manager = test_scene->getCollisionManager();
 
-        unknown_7C = test_manager->function_004993D0(test);
+        collisionEntryId = test_manager->function_004993D0(test);
 
         /* [0x70] Generate series */
 
@@ -215,8 +269,8 @@ namespace ZookieWizard
             seriesCount = 0;
             seriesMaxLength = 0;
         }
-        
-        seriesMaxLength = (unknown_7C + 1) / 2;
+
+        seriesMaxLength = (collisionEntryId + 1) / 2;
 
         series = new uint8_t [seriesMaxLength];
 
@@ -232,12 +286,12 @@ namespace ZookieWizard
         test_scene = ArFunctions::getCurrentScene();
         test_manager = test_scene->getCollisionManager();
 
-        test_manager->save_ALBox(unknown_7C, this);
+        test_manager->save_ALBox(collisionEntryId, this);
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // 
+    //
     // <kao2.004A9870>
     ////////////////////////////////////////////////////////////////
     void eALBox::function_004A9870()
@@ -248,9 +302,9 @@ namespace ZookieWizard
         eCollisionMgr* test_manager;
 
         /* [0x08] scene link */
-        if (nullptr != unknown_08)
+        if (nullptr != myScene)
         {
-            test_manager = unknown_08->getCollisionManager();
+            test_manager = myScene->getCollisionManager();
 
             num_boxes = test_manager->get_ALBoxes_array_size();
             boxes = test_manager->get_ALBoxes_array();
@@ -259,12 +313,218 @@ namespace ZookieWizard
             {
                 if ((this != boxes[i]) && (nullptr != boxes[i]))
                 {
-                    //// (--dsp--) to nie jest a¿ tak wa¿ne, jak funkcja poni¿ej...
+                    if (0x54 == (0x54 & function_004A9830(boxes[i])))
+                    {
+                        function_004AA750(boxes[i]);
+                        boxes[i]->function_004AA750(this);
+                    }
                 }
             }
 
-            test_manager = unknown_08->getCollisionManager();
-            test_manager->function_004994E0(unknown_7C);
+            test_manager = myScene->getCollisionManager();
+            test_manager->function_004994E0(collisionEntryId);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eALBox: ???
+    // <kao2.004A9F40>
+    ////////////////////////////////////////////////////////////////
+    void eALBox::function_004A9F40(eALBox* other, uint8_t row_id)
+    {
+        int32_t otherCollisionId, id;
+        uint8_t a, b, c;
+
+        otherCollisionId = other->getCollisionId();
+        c = otherCollisionId & 0x01;
+        id = otherCollisionId / 2;
+
+        a = (series[id] >> c) & 0x55;
+        b = (0x01 << (2 * row_id + 0x02)) ^ a;
+
+        series[id] &= (0xAA << c);
+        series[id] |= (b << c);
+
+        b &= 0x54;
+        if (0x54 == b)
+        {
+            function_004AA560(other);
+            other->function_004AA560(this);
+        }
+
+        a &= 0x54;
+        if ((0x54 == a) && (b != a))
+        {
+            function_004AA750(other);
+            other->function_004AA750(this);
+
+            function_004A9FF0(other->parentNode, 0x00);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eALBox: ???
+    // <kao2.004A9830>
+    ////////////////////////////////////////////////////////////////
+    uint8_t eALBox::function_004A9830(eALBox* other) const
+    {
+        uint8_t result = 0x00;
+        uint8_t* test_series;
+        int32_t otherCollisionId = other->getCollisionId();
+
+        if (otherCollisionId > collisionEntryId)
+        {
+            test_series = other->getSeriesPointer();
+
+            result = test_series[collisionEntryId / 2];
+
+            result = (result >> (collisionEntryId & 0x01)) & 0x55;
+        }
+        else
+        {
+            result = series[otherCollisionId / 2];
+
+            result = (result >> (otherCollisionId & 0x01)) & 0x55;
+        }
+
+        return result;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eALBox: ???
+    // <kao2.004AA4F0>
+    ////////////////////////////////////////////////////////////////
+    uint8_t eALBox::function_004AA4F0(eALBox* other) const
+    {
+        uint8_t a = 0x00;
+        uint8_t* test_series;
+        int32_t otherCollisionId = other->getCollisionId();
+
+        if (collisionEntryId > otherCollisionId)
+        {
+            a = series[otherCollisionId / 2];
+
+            a = (a >> (otherCollisionId & 0x01)) & 0x01;
+        }
+        else
+        {
+            test_series = other->getSeriesPointer();
+
+            a = test_series[collisionEntryId / 2];
+
+            a = (a >> (collisionEntryId & 0x01)) & 0x01;
+        }
+
+        return a;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eALBox: ???
+    // <kao2.004AA540>
+    ////////////////////////////////////////////////////////////////
+    bool eALBox::function_004AA540(eALBox* other) const
+    {
+        if (0 == unknown_8C)
+        {
+            return false;
+        }
+
+        return (unknown_8C != (other->unknown_8C));
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // [[vptr]+0x24] eALBox: ???
+    // <kao2.004AA560>
+    ////////////////////////////////////////////////////////////////
+    void eALBox::function_004AA560(eALBox* other)
+    {
+        int32_t i;
+
+        if (function_004AA540(other))
+        {
+            for (i = 1; i < unknown_80.getSize(); i++)
+            {
+                if ((other->parentNode) == unknown_80.getIthChild(i))
+                {
+                    /* (--dsp--) "begin overlap" */
+
+                    return;
+                }
+            }
+
+            unknown_80.appendChild(other->parentNode);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // [[vptr]+0x28] eALBox: ???
+    // <kao2.004AA750>
+    ////////////////////////////////////////////////////////////////
+    void eALBox::function_004AA750(eALBox* other)
+    {
+        int32_t i;
+
+        if (function_004AA540(other))
+        {
+            for (i = 0; i < unknown_80.getSize(); i++)
+            {
+                if ((other->parentNode) == unknown_80.getIthChild(i))
+                {
+                    unknown_80.deleteIthChild(i);
+
+                    return;
+                }
+            }
+
+            /* (--dsp--) "collider not found" */
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eALBox: ???
+    // <kao2.004A9FF0>
+    ////////////////////////////////////////////////////////////////
+    void eALBox::function_004A9FF0(eNode* arg1, int8_t arg2) const
+    {
+        eALBox* other = arg1->getAxisListBox();
+        int32_t otherCollisionId = other->getCollisionId();
+
+        if (nullptr == other)
+        {
+            /* (--dsp--) <kao2.004AA020> */
+        }
+
+        if (0x00 != (arg2 ^ function_004AA4F0(other)))
+        {
+            if ((-1) != arg2)
+            {
+                if (collisionEntryId > otherCollisionId)
+                {
+                    if (0x00 != arg2)
+                    {
+                        series[arg2 / 2] |= (0x01 << (otherCollisionId & 0x01));
+
+                        /* eRefMsg("touch") */
+                    }
+                    else
+                    {
+                        series[arg2 / 2] &= (0xFE << (otherCollisionId & 0x01));
+
+                        /* eRefMsg("untouch") */
+                    }
+                }
+                else
+                {
+                    /* (--dsp--) <kao2.004AA4A8> */
+                }
+            }
         }
     }
 
@@ -288,11 +548,11 @@ namespace ZookieWizard
             );
         }
 
-        /* [0x08] parent scene link? */
-        ar.serialize((eObject**)&unknown_08, &E_SCENE_TYPEINFO);
+        /* [0x08] Link to a local "eScene" (that contains "eCollisionMgr") */
+        ar.serialize((eObject**)&myScene, &E_SCENE_TYPEINFO);
 
         /* [0x0C] "eBoxZone" or "eTriMesh" link */
-        ar.serialize((eObject**)&unknown_0C, &E_NODE_TYPEINFO);
+        ar.serialize((eObject**)&parentNode, &E_NODE_TYPEINFO);
 
         /* set [0x8C] (unknown) */
 
@@ -309,8 +569,8 @@ namespace ZookieWizard
         i = 0;
         ar.readOrWrite(&i, 0x04);
 
-        /* [0x7C] unknown */
-        ar.readOrWrite(&unknown_7C, 0x04);
+        /* [0x7C] entry ID from "eCollisionMgr" boxes collection */
+        ar.readOrWrite(&collisionEntryId, 0x04);
 
         /* [0x10] [0x30] [0x50] :: <kao2.004BDE00> :: (2x) <kao2.004BAEF0> */
         for (i = 0; i < 3; i++)
@@ -320,9 +580,9 @@ namespace ZookieWizard
         }
 
         /* [0x70] unknown bytes group */
-        
+
         ar.readOrWrite(&seriesCount, 0x04);
-        
+
         if (ar.isInReadMode())
         {
             seriesMaxLength = seriesCount;
@@ -341,33 +601,42 @@ namespace ZookieWizard
         }
 
         /* [0x80] unknown group ("eTriMesh" or "eBoxZone") */
-        
+
         unknown_80.serialize(ar, &E_NODE_TYPEINFO);
 
         /* Store copy in Scene's Collision Manager! */
 
         if (ar.isInReadMode())
         {
-            if (nullptr != unknown_08)
+            if (nullptr != myScene)
             {
-                test_manager = unknown_08->getCollisionManager();
+                test_manager = myScene->getCollisionManager();
 
-                test_manager->save_ALBox(unknown_7C, this);
+                test_manager->save_ALBox(collisionEntryId, this);
             }
         }
     }
 
 
     ////////////////////////////////////////////////////////////////
+    // eALBox: get ID used with "eCollisionMgr"
+    ////////////////////////////////////////////////////////////////
+    int32_t eALBox::getCollisionId() const
+    {
+        return collisionEntryId;
+    }
+
+
+    //////////////////////////////////////////////////////
     // eALBox: return a pointer to one of the AxisLists
     ////////////////////////////////////////////////////////////////
-    AxisList* eALBox::getAxisList(int32_t row, int32_t column)
+    AxisList* eALBox::getAxisList(int32_t row, int32_t column) const
     {
         if ((row >= 0) && (row < 3) && (column >= 0) && (column < 2))
         {
-            return &(test[row][column]);
+            return (AxisList*)&(test[row][column]);
         }
-        
+
         return nullptr;
     }
 
@@ -375,7 +644,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eALBox: get Series pointer (required for Collision Manager)
     ////////////////////////////////////////////////////////////////
-    uint8_t* eALBox::getSeriesPointer()
+    uint8_t* eALBox::getSeriesPointer() const
     {
         return series;
     }

@@ -71,14 +71,14 @@ namespace ZookieWizard
             ~State();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            eString getStringRepresentation() override;
-            eString getLogPrintMessage() override;
+            eString getStringRepresentation() const override;
+            eString getLogPrintMessage() const override;
 
-            void saveStateToTextFile(FileOperator &file, int32_t indentation);
+            void saveStateToTextFile(FileOperator &file, int32_t indentation) const;
 
-            State* getOwner();
+            State* getOwner() const;
     };
 
 

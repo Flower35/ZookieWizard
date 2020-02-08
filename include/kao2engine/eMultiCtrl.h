@@ -26,10 +26,10 @@ namespace ZookieWizard
         public:
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            /*[[vptr]+0x24]*/ T ctrlGetTransform(T, eAnimate*) override;
-            /*[[vptr]+0x28]*/ void ctrlApplyTransform(T*, float) override;
+            /*[[vptr]+0x24]*/ T ctrlGetTransform(T, eAnimate*) const override;
+            /*[[vptr]+0x28]*/ void ctrlApplyTransform(T*, float) const override;
 
         private:
 

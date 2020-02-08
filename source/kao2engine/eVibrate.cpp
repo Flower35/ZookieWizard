@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eVibrate::getType()
+    TypeInfo* eVibrate::getType() const
     {
         return &E_VIBRATE_TYPEINFO;
     }

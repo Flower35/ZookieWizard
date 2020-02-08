@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eZone::getType()
+    TypeInfo* eZone::getType() const
     {
         return &E_ZONE_TYPEINFO;
     }
@@ -36,11 +36,11 @@ namespace ZookieWizard
         /*[0x64] empty group */
         /*[0x68] empty group */
         /*[0x6C] empty group */
-        
+
         /*[0x1C]*/ flags |= 0x40000000;
 
         /*[0x14]*/ name = "Zone";
-        
+
         float boxBound[6] =
         {
             0, 0, 0,
@@ -49,36 +49,13 @@ namespace ZookieWizard
 
         test_sensor = new eALZoneSensor(this, boxBound);
 
-        /* [0x18] replace "eALZoneSensor" */ 
-        
-        setSensor(test_sensor);
+        /* [0x18] replace "eALZoneSensor" */
+
+        setAxisListBox(test_sensor);
     }
 
     eZone::~eZone()
     {}
-
-
-    ////////////////////////////////////////////////////////////////
-    // eZone: set new sensor
-    // <kao2.00479270>
-    ////////////////////////////////////////////////////////////////
-    void eZone::setSensor(eALZoneSensor* sensor)
-    {
-        if (unknown_18 != sensor)
-        {
-            if (nullptr != unknown_18)
-            {
-                unknown_18->decRef();
-            }
-
-            unknown_18 = sensor;
-
-            if (nullptr != sensor)
-            {
-                sensor->incRef();
-            }
-        }
-    }
 
 
     ////////////////////////////////////////////////////////////////

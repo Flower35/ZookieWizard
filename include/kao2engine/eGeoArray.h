@@ -27,10 +27,10 @@ namespace ZookieWizard
             ~eGeoArray();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            T* getData();
-            int32_t getLength();
+            T* getData() const;
+            int32_t getLength() const;
 
             void setup(int32_t new_length, T* new_data);
     };

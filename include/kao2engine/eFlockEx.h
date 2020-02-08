@@ -29,7 +29,7 @@ namespace ZookieWizard
             eFlockEx();
             ~eFlockEx();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

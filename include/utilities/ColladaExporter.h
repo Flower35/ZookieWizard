@@ -83,11 +83,11 @@ namespace ZookieWizard
             void writeInsideTag(eString text);
             void closeTag();
 
-            int32_t getState();
-            int32_t getObjectRefId(int32_t type, void* pointer, bool can_be_created);
-            bool objectRefAlreadyExists(int32_t type, void* pointer);
+            int32_t getState() const;
+            int32_t getObjectRefId(int32_t type, const void* pointer, bool can_be_created);
+            bool objectRefAlreadyExists(int32_t type, const void* pointer) const;
 
-            eString getWorkingDirectory();
+            eString getWorkingDirectory() const;
 
         protected:
 

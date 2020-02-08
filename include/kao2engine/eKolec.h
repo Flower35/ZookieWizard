@@ -29,7 +29,7 @@ namespace ZookieWizard
             eKolec();
             ~eKolec();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

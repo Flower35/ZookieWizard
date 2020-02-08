@@ -28,7 +28,7 @@ namespace ZookieWizard
             eSnowboardOrientation();
             ~eSnowboardOrientation();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

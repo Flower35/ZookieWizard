@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePushableObject::getType()
+    TypeInfo* ePushableObject::getType() const
     {
         return &E_PUSHABLEOBJECT_TYPEINFO;
     }
@@ -36,7 +36,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ePushableObject: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString ePushableObject::getDefaultGadgetName()
+    eString ePushableObject::getDefaultGadgetName() const
     {
         return "pushObj";
     }

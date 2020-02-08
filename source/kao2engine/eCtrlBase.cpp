@@ -20,7 +20,7 @@ namespace ZookieWizard
             return new eCtrlBase;
         }
     );
-    TypeInfo* eCtrlBase::getType()
+    TypeInfo* eCtrlBase::getType() const
     {
         return &E_CTRLBASE_TYPEINFO;
     }

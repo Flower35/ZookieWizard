@@ -14,7 +14,7 @@ namespace ZookieWizard
     class eStringBase
     {
         /*** Properties ***/
-        
+
         private:
 
             int refCount;
@@ -22,9 +22,9 @@ namespace ZookieWizard
             charT* text;
 
         /*** Methods ***/
-        
+
         public:
-            
+
             /* Konstrukcja klasy */
             eStringBase<charT>(int count);
 
@@ -43,15 +43,15 @@ namespace ZookieWizard
     class eStringPtrBase
     {
         /*** eString pointer wrapper ***/
-        
+
         private:
 
             eStringBase<charT>* pString;
-            
+
         /*** Methods ***/
-        
+
         public:
-        
+
             /* Retrieve or set pointer - used with Archives */
             eStringBase<charT>* getPointer() const;
             void setPointer(eStringBase<charT>*  newPtr);
@@ -86,8 +86,8 @@ namespace ZookieWizard
             /* Operatory przypisywania i kopiowania */
             eStringPtrBase<charT>& operator = (const charT* str);
             eStringPtrBase<charT>& operator = (const eStringPtrBase<charT>& str);
-            eStringPtrBase<charT> operator + (const charT* str);
-            eStringPtrBase<charT> operator + (const eStringPtrBase<charT>& str);
+            eStringPtrBase<charT> operator + (const charT* str) const;
+            eStringPtrBase<charT> operator + (const eStringPtrBase<charT>& str) const;
             eStringPtrBase<charT>& operator += (const charT* str);
             eStringPtrBase<charT>& operator += (const eStringPtrBase<charT>& str);
     };
@@ -118,5 +118,5 @@ namespace ZookieWizard
     }
 
 }
-    
+
 #endif

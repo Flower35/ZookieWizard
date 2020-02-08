@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eStrafeTarget::getType()
+    TypeInfo* eStrafeTarget::getType() const
     {
         return &E_STRAFETARGET_TYPEINFO;
     }

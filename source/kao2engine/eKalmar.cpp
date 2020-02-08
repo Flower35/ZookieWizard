@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eKalmar::getType()
+    TypeInfo* eKalmar::getType() const
     {
         return &E_KALMAR_TYPEINFO;
     }

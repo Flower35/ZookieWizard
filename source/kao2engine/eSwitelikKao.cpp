@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSwitelikKao::getType()
+    TypeInfo* eSwitelikKao::getType() const
     {
         return &E_SWITELIKKAO_TYPEINFO;
     }

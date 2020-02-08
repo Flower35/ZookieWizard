@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eScreenCounter::getType()
+    TypeInfo* eScreenCounter::getType() const
     {
         return &E_SCREENCOUNTER_TYPEINFO;
     }

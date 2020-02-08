@@ -33,18 +33,18 @@ namespace ZookieWizard
             ~eTransform();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+            void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
             void updateSRP(eAnimate* anim, eSRP &parent_srp) override;
 
+            eSRP getXForm() const;
             void setXForm(eSRP new_xform);
-            eSRP getXForm();
 
             void setTypeToJoint(bool is_joint);
-            bool isJointNode();
+            bool isJointNode() const;
     };
 
 

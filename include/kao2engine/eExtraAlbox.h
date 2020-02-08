@@ -28,7 +28,7 @@ namespace ZookieWizard
             eExtraAlbox();
             ~eExtraAlbox();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

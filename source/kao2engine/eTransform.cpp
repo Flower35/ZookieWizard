@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTransform::getType()
+    TypeInfo* eTransform::getType() const
     {
         return &E_TRANSFORM_TYPEINFO;
     }
@@ -86,7 +86,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTransform: get current xform
     ////////////////////////////////////////////////////////////////
-    eSRP eTransform::getXForm()
+    eSRP eTransform::getXForm() const
     {
         return modifiedTransform[1];
     }
@@ -161,7 +161,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTransform: COLLADA exporting
     ////////////////////////////////////////////////////////////////
-    void eTransform::writeNodeToXmlFile(ColladaExporter &exporter)
+    void eTransform::writeNodeToXmlFile(ColladaExporter &exporter) const
     {
         int32_t i;
         float alpha, beta, gamma;
@@ -204,7 +204,7 @@ namespace ZookieWizard
                 {
                     exporter.insertTagAttrib("type", "NODE");
                 }
-                
+
                 alpha = modifiedTransform[0].scale;
                 sprintf_s(bufor, 64, "%f %f %f", alpha, alpha, alpha);
                 exporter.openTag("scale");
@@ -266,7 +266,7 @@ namespace ZookieWizard
         jointType = is_joint;
     }
 
-    bool eTransform::isJointNode()
+    bool eTransform::isJointNode() const
     {
         return jointType;
     }

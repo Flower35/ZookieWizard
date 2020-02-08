@@ -26,7 +26,7 @@ namespace ZookieWizard
             DenisBoundBox2();
             void serialize(DenisFileOperator &file);
     };
-    
+
     struct DenisAnimmeshFace
     {
         /*** Properties ***/
@@ -92,13 +92,13 @@ namespace ZookieWizard
 
             void serialize(DenisFileOperator &file);
     };
-    
+
     struct DenisAnimmeshDisplayVertex
     {
         /*** Properties ***/
 
             uint16_t index;
-            
+
             uint8_t u;
             uint8_t v;
 
@@ -108,7 +108,7 @@ namespace ZookieWizard
 
             void serialize(DenisFileOperator &file);
     };
-    
+
     struct DenisAnimmeshDisplayCommand
     {
         /*** Properties ***/
@@ -176,7 +176,7 @@ namespace ZookieWizard
             void loadTexture(DenisFileOperator &file, int32_t filetype);
             void unloadTexture();
 
-            void convertToKao2(eGroup* parent_group, DenisColor* maxobj_colors);
+            void convertToKao2(eGroup* parent_group, const DenisColor* maxobj_colors);
     };
 
 }

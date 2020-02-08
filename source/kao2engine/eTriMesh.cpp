@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTriMesh::getType()
+    TypeInfo* eTriMesh::getType() const
     {
         return &E_TRIMESH_TYPEINFO;
     }
@@ -145,7 +145,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTriMesh: get GeoSet pointer (used with ePhyTriMesh)
     ////////////////////////////////////////////////////////////////
-    eGeoSet* eTriMesh::getGeoSetLink()
+    eGeoSet* eTriMesh::getGeoset() const
     {
         return geo;
     }
@@ -154,7 +154,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTriMesh: set GeoSet pointer
     ////////////////////////////////////////////////////////////////
-    void eTriMesh::setGeoSet(eGeoSet* new_geo)
+    void eTriMesh::setGeoset(eGeoSet* new_geo)
     {
         if (nullptr != geo)
         {
@@ -167,44 +167,6 @@ namespace ZookieWizard
         {
             geo->incRef();
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTriMesh: set Material pointer
-    ////////////////////////////////////////////////////////////////
-    void eTriMesh::setMaterial(eMaterial* new_material)
-    {
-        if (nullptr != material)
-        {
-            material->decRef();
-        }
-
-        material = new_material;
-
-        if (nullptr != material)
-        {
-            material->incRef();
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTriMesh: get Material pointer
-    ////////////////////////////////////////////////////////////////
-    eMaterial* eTriMesh::getMaterial()
-    {
-        return material;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTriMesh: set boundary box
-    ////////////////////////////////////////////////////////////////
-    void eTriMesh::setBoundaryBox(ePoint3 new_min, ePoint3 new_max)
-    {
-        boxBoundMin = new_min;
-        boxBoundMax = new_max;
     }
 
 }

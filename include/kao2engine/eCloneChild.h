@@ -27,7 +27,7 @@ namespace ZookieWizard
             eCloneChild();
             ~eCloneChild();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

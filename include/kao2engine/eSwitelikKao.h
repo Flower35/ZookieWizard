@@ -29,7 +29,7 @@ namespace ZookieWizard
             eSwitelikKao();
             ~eSwitelikKao();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

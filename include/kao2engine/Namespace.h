@@ -36,7 +36,7 @@ namespace ZookieWizard
             ~Namespace();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

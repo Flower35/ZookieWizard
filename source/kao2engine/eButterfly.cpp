@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eButterfly::getType()
+    TypeInfo* eButterfly::getType() const
     {
         return &E_BUTTERFLY_TYPEINFO;
     }

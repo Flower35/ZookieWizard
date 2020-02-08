@@ -19,7 +19,7 @@ namespace ZookieWizard
             eLevelChanger();
             ~eLevelChanger();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

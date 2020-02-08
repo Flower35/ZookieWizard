@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMultiTargetThrower::getType()
+    TypeInfo* eMultiTargetThrower::getType() const
     {
         return &E_MULTITARGETTHROWER_TYPEINFO;
     }

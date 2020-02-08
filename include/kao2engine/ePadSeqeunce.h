@@ -28,7 +28,7 @@ namespace ZookieWizard
             ePadSeqeunce();
             ~ePadSeqeunce();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

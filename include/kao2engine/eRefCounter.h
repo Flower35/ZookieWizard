@@ -26,8 +26,8 @@ namespace ZookieWizard
             eRefCounter();
             ~eRefCounter();
 
-            TypeInfo* getType() override;
-            
+            TypeInfo* getType() const override;
+
             void incRef();
             void decRef();
     };

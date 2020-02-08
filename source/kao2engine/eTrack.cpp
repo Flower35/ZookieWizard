@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTrack::getType()
+    TypeInfo* eTrack::getType() const
     {
         return &E_TRACK_TYPEINFO;
     }
@@ -68,7 +68,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTrack: get `Log.print()` message
     ////////////////////////////////////////////////////////////////
-    eString eTrack::getLogPrintMessage()
+    eString eTrack::getLogPrintMessage() const
     {
         eString result = eObject::getLogPrintMessage();
 
@@ -81,26 +81,26 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eTrack: get animation name
+    ////////////////////////////////////////////////////////////////
+    eString eTrack::getStringRepresentation() const
+    {
+        return name;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eTrack: get times
     ////////////////////////////////////////////////////////////////
 
-    float eTrack::getStartFrame()
+    float eTrack::getStartFrame() const
     {
         return startFrame;
     }
 
-    float eTrack::getEndFrame()
+    float eTrack::getEndFrame() const
     {
         return endFrame;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTrack: get animation name
-    ////////////////////////////////////////////////////////////////
-    eString eTrack::getName()
-    {
-        return name;
     }
 
 }

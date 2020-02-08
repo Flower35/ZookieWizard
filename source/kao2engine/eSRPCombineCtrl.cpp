@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSRPCombineCtrl::getType()
+    TypeInfo* eSRPCombineCtrl::getType() const
     {
         return &E_SRPCOMBINECTRL_TYPEINFO;
     }
@@ -47,7 +47,7 @@ namespace ZookieWizard
     // [[vptr]+0x28] Modify "eSRP" based on current time
     // <kao2.0044B480>
     ////////////////////////////////////////////////////////////////
-    void eSRPCombineCtrl::ctrlApplyTransform(eSRP* e, float time)
+    void eSRPCombineCtrl::ctrlApplyTransform(eSRP* e, float time) const
     {
         if (nullptr != e)
         {

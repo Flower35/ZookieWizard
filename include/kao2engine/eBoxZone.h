@@ -20,7 +20,7 @@ namespace ZookieWizard
             ~eBoxZone();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
             void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
     };

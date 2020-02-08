@@ -48,7 +48,7 @@ namespace ZookieWizard
             ~eCollisionMgr();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
             void prepare_ALBox_links();
             int32_t function_004993D0(int8_t arg1);
@@ -59,8 +59,8 @@ namespace ZookieWizard
             void insertNewItem_seriesA(int32_t item);
             void insertNewItem_seriesB(eALBox* item);
 
-            int32_t get_ALBoxes_array_size();
-            eALBox** get_ALBoxes_array();
+            int32_t get_ALBoxes_array_size() const;
+            eALBox** get_ALBoxes_array() const;
 
             void reset();
     };

@@ -30,15 +30,15 @@ namespace ZookieWizard
             ~eGroup();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
-            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
+            void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
 
-            int32_t getNodesCount();
-            eNode* getIthChild(int32_t i);
+            int32_t getNodesCount() const;
+            eNode* getIthChild(int32_t i) const;
             void appendChild(eNode* o);
             void deleteIthChild(int32_t i);
             void findAndDeleteChild(eNode* o);

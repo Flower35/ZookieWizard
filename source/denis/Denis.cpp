@@ -53,7 +53,7 @@ namespace ZookieWizard
         close();
     }
 
-    bool DenisFileOperator::isInReadMode()
+    bool DenisFileOperator::isInReadMode() const
     {
         return (0 == mode);
     }
@@ -98,7 +98,7 @@ namespace ZookieWizard
         DENIS_LEVEL_OBJECT_TYPE_MOVING
     };
 
-    
+
     ////////////////////////////////////////////////////////////////
     // Kao the Kangaroo: vertex structure
     ////////////////////////////////////////////////////////////////
@@ -210,8 +210,8 @@ namespace ZookieWizard
         file.readOrWrite(&beta, 0x02);
         file.readOrWrite(&gamma, 0x02);
     }
-    
-    void DenisEulerRotation::toEulerAngles(bool isAnimmesh, float &x, float &y, float &z)
+
+    void DenisEulerRotation::toEulerAngles(bool isAnimmesh, float &x, float &y, float &z) const
     {
         if (isAnimmesh)
         {
@@ -234,7 +234,7 @@ namespace ZookieWizard
         }
     }
 
-    void DenisEulerRotation::toQuaternion(float result[4])
+    void DenisEulerRotation::toQuaternion(float result[4]) const
     {
         /* <kao.00410590> */
 

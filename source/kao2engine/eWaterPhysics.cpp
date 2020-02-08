@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eWaterPhysics::getType()
+    TypeInfo* eWaterPhysics::getType() const
     {
         return &E_WATERPHYSICS_TYPEINFO;
     }

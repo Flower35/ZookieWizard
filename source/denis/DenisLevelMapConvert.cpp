@@ -30,7 +30,7 @@ namespace ZookieWizard
         std::time_t current_time;
         std::tm time_info;
         char time_bufor[32];
-        
+
         eScene* result_scene = nullptr;
         eEnvironment* global_env = nullptr;
         eCollisionMgr* test_collision = nullptr;
@@ -114,7 +114,8 @@ namespace ZookieWizard
                 i,
                 global_env,
                 texturesCount,
-                materialsList
+                materialsList,
+                collisionMaterials
             );
         }
 

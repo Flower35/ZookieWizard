@@ -20,7 +20,7 @@ namespace ZookieWizard
             eAmbientLight();
             ~eAmbientLight();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

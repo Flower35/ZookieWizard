@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSplineWalk::getType()
+    TypeInfo* eSplineWalk::getType() const
     {
         return &E_SPLINEWALK_TYPEINFO;
     }

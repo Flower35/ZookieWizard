@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eParticleGeometry::getType()
+    TypeInfo* eParticleGeometry::getType() const
     {
         return &E_PARTICLEGEOMETRY_TYPEINFO;
     }

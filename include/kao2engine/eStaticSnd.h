@@ -21,7 +21,7 @@ namespace ZookieWizard
             eStaticSnd();
             ~eStaticSnd();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

@@ -8,7 +8,7 @@ namespace ZookieWizard
     class eALBox;
 
     ////////////////////////////////////////////////////////////////
-    // 
+    //
     ////////////////////////////////////////////////////////////////
 
     struct AxisList
@@ -17,13 +17,13 @@ namespace ZookieWizard
 
             /*[0x00]*/ AxisList* previous;
             /*[0x04]*/ AxisList* next;
-            /*[0x08]*/ void* unknown_08;
-            /*[0x0C]*/ int16_t unknown_0C;
-            /*[0x0E]*/ bool unknown_0E;
-            /*[0x0F]*/ int8_t unknown_0F;
+            /*[0x08]*/ float coordLimit;
+            /*[0x0C]*/ int16_t alboxEntryId;
+            /*[0x0E]*/ int8_t columnId;
+            /*[0x0F]*/ int8_t rowId;
 
-            int32_t unknown_00_id;
-            int32_t unknown_04_id;
+            int32_t tempPreviousId;
+            int32_t tempNextId;
 
         /*** Methods ***/
 
@@ -31,12 +31,12 @@ namespace ZookieWizard
             ~AxisList();
 
             void serialize(Archive &ar);
-            void serializePointer(Archive &ar);
+            void serializePointer(Archive &ar) const;
 
             void setPointersFromCollisionManager_A(eALBox** group, AxisList* arg2, AxisList* arg3);
-            AxisList* getPointerFromCollisionManager_B(eALBox** group, AxisList* arg2, AxisList* arg3, int32_t arg4);
-            void function_004BCF30(AxisList arg1[2]);
-            void function_004BADA0(AxisList* arg1);
+            AxisList* getPointerFromCollisionManager_B(eALBox** group, AxisList* arg2, AxisList* arg3, int32_t arg4) const;
+            void function_004BCF30(AxisList arg1[2]) const;
+            void function_004BADA0(AxisList* arg1) const;
     };
 
     namespace ArFunctions

@@ -9,7 +9,7 @@ namespace ZookieWizard
     // <kao2.004B6150> (constructor)
     // <kao2.004B6210> (destructor)
     ////////////////////////////////////////////////////////////////
-    
+
     TypeInfo E_ANIMSTATE_TYPEINFO
     (
         E_ANIMSTATE_ID,
@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eAnimState::getType()
+    TypeInfo* eAnimState::getType() const
     {
         return &E_ANIMSTATE_TYPEINFO;
     }
@@ -78,12 +78,12 @@ namespace ZookieWizard
         ar.readOrWrite(&bef, 0x04);
         ar.readOrWrite(&bet, 0x04);
     }
-    
+
 
     ////////////////////////////////////////////////////////////////
     // eAnimState: get time for animations
     ////////////////////////////////////////////////////////////////
-    float eAnimState::getTime()
+    float eAnimState::getTime() const
     {
         return citt;
     }
@@ -92,7 +92,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eAnimState: get animation ID
     ////////////////////////////////////////////////////////////////
-    int eAnimState::getAnimId()
+    int eAnimState::getAnimId() const
     {
         return aID;
     }
@@ -105,7 +105,7 @@ namespace ZookieWizard
     {
         citt = current_time;
     }
-    
+
 
     ////////////////////////////////////////////////////////////////
     // eAnimState: set animation ID

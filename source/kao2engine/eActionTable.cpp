@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eActionTable::getType()
+    TypeInfo* eActionTable::getType() const
     {
         return &E_ACTIONTABLE_TYPEINFO;
     }

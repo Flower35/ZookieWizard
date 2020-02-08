@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePlanktonFlakes::getType()
+    TypeInfo* ePlanktonFlakes::getType() const
     {
         return &E_PLANKTONFLAKES_TYPEINFO;
     }

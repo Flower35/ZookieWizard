@@ -26,7 +26,7 @@ namespace ZookieWizard
 
             void serialize(DenisFileOperator &file);
 
-            void convertToKao2(int32_t bonus_id, eGroup* parent_group);
+            void convertToKao2(int32_t bonus_id, eGroup* parent_group) const;
     };
 
 }

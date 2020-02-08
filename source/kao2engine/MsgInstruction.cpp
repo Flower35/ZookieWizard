@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* MsgInstruction::getType()
+    TypeInfo* MsgInstruction::getType() const
     {
         return &E_MSGINSTRUCTION_TYPEINFO;
     }
@@ -65,7 +65,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // MsgInstruction: save to text file
     ////////////////////////////////////////////////////////////////
-    void MsgInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation)
+    void MsgInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation) const
     {
         ArFunctions::writeNewLine(file, indentation);
 

@@ -29,7 +29,7 @@ namespace ZookieWizard
             eSnowboardJumpPhysics();
             ~eSnowboardJumpPhysics();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

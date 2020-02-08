@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eXYZEulerRotation::getType()
+    TypeInfo* eXYZEulerRotation::getType() const
     {
         return &E_XYZEULERROTATION_TYPEINFO;
     }
@@ -48,7 +48,7 @@ namespace ZookieWizard
     // [[vptr]+0x28] Modify "eQuat" based on current time
     // <kao2.0049FE70>
     ////////////////////////////////////////////////////////////////
-    void eXYZEulerRotation::ctrlApplyTransform(eQuat* e, float time)
+    void eXYZEulerRotation::ctrlApplyTransform(eQuat* e, float time) const
     {
         float x, y, z;
 

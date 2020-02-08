@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMultiTransform::getType()
+    TypeInfo* eMultiTransform::getType() const
     {
         return &E_MULTITRANSFORM_TYPEINFO;
     }

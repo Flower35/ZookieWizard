@@ -105,7 +105,7 @@ namespace ZookieWizard
         }
 
         template <typename charT>
-        eStringPtrBase<charT> addStrings(eStringPtrBase<charT>& str1, const charT* str2)
+        eStringPtrBase<charT> addStrings(const eStringPtrBase<charT>& str1, const charT* str2)
         {
             /* Przygotuj nowy ci¹g znaków */
             int count1 = str1.getLength();
@@ -123,7 +123,7 @@ namespace ZookieWizard
         }
 
         template <typename charT>
-        eStringPtrBase<charT> addStrings(eStringPtrBase<charT>& str1, const eStringPtrBase<charT>& str2)
+        eStringPtrBase<charT> addStrings(const eStringPtrBase<charT>& str1, const eStringPtrBase<charT>& str2)
         {
             /* Przygotuj nowy ci¹g znaków */
             int count1 = str1.getLength();
@@ -164,11 +164,11 @@ namespace ZookieWizard
 
     }
 
-    
+
     ////////////////////////////////////////////////////////////////
     // Retrieve or set pointer
     ////////////////////////////////////////////////////////////////
-    
+
     template <typename charT>
     eStringBase<charT>* eStringPtrBase<charT>::getPointer() const
     {
@@ -181,7 +181,7 @@ namespace ZookieWizard
         pString = newPtr;
     }
 
-    
+
     ////////////////////////////////////////////////////////////////
     // Funkcje zwi¹zane z konstrukcj¹
     ////////////////////////////////////////////////////////////////
@@ -327,7 +327,7 @@ namespace ZookieWizard
         {
             return text;
         }
-        
+
         return nullptr;
     }
 
@@ -338,7 +338,7 @@ namespace ZookieWizard
         {
             return length;
         }
-        
+
         return 0;
     }
 
@@ -409,13 +409,13 @@ namespace ZookieWizard
     }
 
     template <typename charT>
-    eStringPtrBase<charT> eStringPtrBase<charT>::operator + (const charT* str)
+    eStringPtrBase<charT> eStringPtrBase<charT>::operator + (const charT* str) const
     {
         return StringFunctions::addStrings(*this, str);
     }
 
     template <typename charT>
-    eStringPtrBase<charT> eStringPtrBase<charT>::operator + (const eStringPtrBase<charT>& str)
+    eStringPtrBase<charT> eStringPtrBase<charT>::operator + (const eStringPtrBase<charT>& str) const
     {
         return StringFunctions::addStrings(*this, str);
     }
@@ -444,7 +444,7 @@ namespace ZookieWizard
     {
         int otherCount = str.getLength();
         int myCount = pString->getLength();
-        
+
         if (pString == str.pString)
         {
             return true;
@@ -463,12 +463,12 @@ namespace ZookieWizard
         {
             pos = 0;
         }
-        
+
         if ((count <= 0) || ((pos + count) > myCount))
         {
             count = myCount - pos;
         }
-        
+
         if ((count <= 0) || (count < otherCount))
         {
             return false;
@@ -488,7 +488,7 @@ namespace ZookieWizard
             else if (StringFunctions::toLowerCase(myText[pos + i]) != StringFunctions::toLowerCase(otherText[i]))
             {
                 return false;
-            } 
+            }
         }
 
         return true;
@@ -513,12 +513,12 @@ namespace ZookieWizard
         {
             pos = 0;
         }
-        
+
         if ((count <= 0) || ((pos + count) > myCount))
         {
             count = myCount - pos;
         }
-        
+
         if ((count <= 0) || (count < otherCount))
         {
             return false;
@@ -578,12 +578,12 @@ namespace ZookieWizard
         {
             pos = 0;
         }
-        
+
         if ((count <= 0) || ((pos + count) > myCount))
         {
             count = myCount - pos;
         }
-        
+
         /* Niezmienone dane zapewni¹ kopiê referencji */
         if ((0 == pos) && (myCount == count))
         {

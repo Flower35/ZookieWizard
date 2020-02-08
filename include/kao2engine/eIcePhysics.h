@@ -28,7 +28,7 @@ namespace ZookieWizard
             eIcePhysics();
             ~eIcePhysics();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eEnumNavi::getType()
+    TypeInfo* eEnumNavi::getType() const
     {
         return &E_ENUMNAVI_TYPEINFO;
     }

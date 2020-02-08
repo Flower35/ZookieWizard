@@ -19,9 +19,15 @@ namespace ZookieWizard
     WavefrontObjImporterFace::WavefrontObjImporterFace()
     {
         material_id = (-1);
+        group_id = (-1);
         v_id[0] = 0;
         vt_id[0] = 0;
         vn_id[0] = 0;
+    }
+
+    bool WavefrontObjImporterFace::matchesSetting(const int32_t g_id, const int32_t m_id) const
+    {
+        return ((g_id == group_id) && (m_id == material_id));
     }
 
     WavefrontObjImporterMaterial::WavefrontObjImporterMaterial()
@@ -65,6 +71,10 @@ namespace ZookieWizard
         objMaterialsCount = 0;
         objMaterialsMaxLength = 0;
 
+        objGroups = nullptr;
+        objGroupsCount = 0;
+        objGroupsMaxLength = 0;
+
         referencedVertices = nullptr;
     }
 
@@ -105,6 +115,12 @@ namespace ZookieWizard
         {
             delete[](objMaterials);
             objMaterials = nullptr;
+        }
+
+        if (nullptr != objGroups)
+        {
+            delete[](objGroups);
+            objGroups = nullptr;
         }
 
         if (nullptr != referencedVertices)
@@ -366,6 +382,36 @@ namespace ZookieWizard
         }
     }
 
+    void WavefrontObjImporter::appendGroups(eString* element, int32_t slots)
+    {
+        int32_t i;
+        eString* temp;
+
+        if ((objGroupsCount + slots) > objGroupsMaxLength)
+        {
+            temp = new eString [objGroupsCount + slots];
+
+            if (nullptr != objGroups)
+            {
+                for (i = 0; i < objGroupsCount; i++)
+                {
+                    temp[i] = objGroups[i];
+                }
+
+                delete[](objGroups);
+            }
+
+            objGroups = temp;
+            objGroupsMaxLength = (objGroupsCount + slots);
+        }
+
+        if (1 == slots)
+        {
+            objGroups[objGroupsCount] = *element;
+            objGroupsCount++;
+        }
+    }
+
 
     ////////////////////////////////////////////////////////////////
     // WavefrontObjImporter: start importing mesh
@@ -385,6 +431,7 @@ namespace ZookieWizard
     {
         int32_t a, b, c, d, valid_keywords;
         int32_t current_mtl = (-1);
+        int32_t current_group = (-1);
 
         eString line;
         eString keywords[5];
@@ -476,12 +523,42 @@ namespace ZookieWizard
                 {
                     current_mtl = (-1);
 
+                    for (a = 2; a < valid_keywords; a++)
+                    {
+                        keywords[1] += " ";
+                        keywords[1] += keywords[a];
+                    }
+
                     for (a = 0; (current_mtl < 0) && (a < objMaterialsCount); a++)
                     {
                         if (objMaterials[a].name.compare(keywords[1]))
                         {
                             current_mtl = a;
                         }
+                    }
+                }
+                else if (keywords[0].compare("o"))
+                {
+                    current_group = (-1);
+
+                    for (a = 2; a < valid_keywords; a++)
+                    {
+                        keywords[1] += " ";
+                        keywords[1] += keywords[a];
+                    }
+
+                    for (a = 0; (current_group < 0) && (a < objGroupsCount); a++)
+                    {
+                        if (objGroups[a].compare(keywords[1]))
+                        {
+                            current_group = a;
+                        }
+                    }
+
+                    if (current_group < 0)
+                    {
+                        appendGroups(&(keywords[1]), 1);
+                        current_group = (objGroupsCount - 1);
                     }
                 }
                 else if (keywords[0].compare("f"))
@@ -531,6 +608,7 @@ namespace ZookieWizard
                     }
 
                     dummy_face.material_id = current_mtl;
+                    dummy_face.group_id = current_group;
 
                     appendFaces(&dummy_face, 1);
                 }
@@ -732,7 +810,8 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void WavefrontObjImporter::constructTriMeshes()
     {
-        int32_t i, j, k, l, m, total_indices, total_vertices, total_normals, total_mappings;
+        int32_t group_id, mat_id, j, k, l, m;
+        int32_t total_indices, total_vertices, total_normals, total_mappings;
         float dummy_floats[3];
         eString trimesh_name;
         ePoint3 boundaries[2];
@@ -763,295 +842,270 @@ namespace ZookieWizard
         /********************************/
         /* Reposition "v", "vt", "vn" and "f" */
 
-        for (i = 0; i < objVerticesCount; i++)
+        for (j = 0; j < objVerticesCount; j++)
         {
-            dummy_floats[0] = objVertices[i].y;
-            dummy_floats[1] = objVertices[i].z;
-            objVertices[i].y = (-dummy_floats[1]);
-            objVertices[i].z = dummy_floats[0];
+            dummy_floats[0] = objVertices[j].y;
+            dummy_floats[1] = objVertices[j].z;
+            objVertices[j].y = (-dummy_floats[1]);
+            objVertices[j].z = dummy_floats[0];
         }
 
-        for (i = 0; i < objMappingCount; i++)
+        for (j = 0; j < objMappingCount; j++)
         {
-            objMapping[i].v = (1.0f - objMapping[i].v);
+            objMapping[j].v = (1.0f - objMapping[j].v);
         }
 
-        for (i = 0; i < objNormalsCount; i++)
+        for (j = 0; j < objNormalsCount; j++)
         {
-            dummy_floats[0] = objNormals[i].y;
-            dummy_floats[1] = objNormals[i].z;
-            objNormals[i].y = (-dummy_floats[1]);
-            objNormals[i].z = dummy_floats[0];
+            dummy_floats[0] = objNormals[j].y;
+            dummy_floats[1] = objNormals[j].z;
+            objNormals[j].y = (-dummy_floats[1]);
+            objNormals[j].z = dummy_floats[0];
         }
 
-        for (i = 0; i < objFacesCount; i++)
+        for (j = 0; j < objFacesCount; j++)
         {
-            for (j = 0; j < 3; j++)
+            for (k = 0; k < 3; k++)
             {
-                objFaces[i].v_id[j]--;
-                objFaces[i].vt_id[j]--;
-                objFaces[i].vn_id[j]--;
+                objFaces[j].v_id[k]--;
+                objFaces[j].vt_id[k]--;
+                objFaces[j].vn_id[k]--;
             }
         }
 
         /********************************/
-        /* Create new "eTriMesh" for every material (starting from NONE) */
+        /* Sort by object groups (starting from NONE) */
 
-        for (i = 0; i < objMaterialsCount + 1; i++)
+        for (group_id = (-1); group_id < objGroupsCount; group_id++)
         {
-            total_vertices = 0;
-            total_indices = 0;
-            total_normals = 0;
-            total_mappings = 0;
-
             /********************************/
-            /* Checking which vertices will be used */
+            /* Create new "eTriMesh" for every material (starting from NONE) */
 
-            std::memset(referencedVertices, 0, sizeof(int16_t) * (2 * objVerticesCount));
-
-            for (j = 0; j < objFacesCount; j++)
+            for (mat_id = (-1); mat_id < objMaterialsCount; mat_id++)
             {
-                if ((i - 1) == objFaces[j].material_id)
-                {
-                    for (k = 0; k < 3; k++)
-                    {
-                        l = objFaces[j].v_id[k];
-                        if ((l >= 0) && (l < objVerticesCount))
-                        {
-                            /* Number of repetitions */
-                            referencedVertices[2 * l + 1]++;
-
-                            total_vertices++;
-                            total_indices++;
-                        }
-
-                        l = objFaces[j].vt_id[k];
-                        if ((l >= 0) && (l < objMappingCount))
-                        {
-                            total_mappings++;
-                        }
-
-                        l = objFaces[j].vn_id[k];
-                        if ((l >= 0) && (l < objNormalsCount))
-                        {
-                            total_normals++;
-                        }
-                    }
-                }
-            }
-
-            k = 0;
-
-            for (j = 0; j < objVerticesCount; j++)
-            {
-                if (referencedVertices[2 * j + 1] > 0)
-                {
-                    /* Resulting ID in vertices array */
-                    referencedVertices[2 * j] = k;
-                    k += referencedVertices[2 * j + 1];
-                }
-            }
-
-            /********************************/
-            /* Continue if model is not empty */
-
-            if (total_vertices > 0)
-            {
-                test_trimesh = new eTriMesh();
-                test_trimesh->incRef();
-
-                trimesh_name = fileName;
-                trimesh_name += " / ";
-
-                if (0 == i)
-                {
-                    trimesh_name += "???";
-                }
-                else
-                {
-                    trimesh_name += objMaterials[i - 1].name;
-
-                    test_trimesh->setMaterial(objMaterials[i - 1].material);
-                }
-
-                test_trimesh->setName(trimesh_name);
-
-                test_trimesh->setFlags(0x70000009);
-
-                test_geoset = new eGeoSet();
-                test_geoset->incRef();
-                test_trimesh->setGeoSet(test_geoset);
-
-                /********************************/
-                /* Set-up arrays */
-
-                test_geoset->setTwoIntegers(0x0F, total_vertices);
-
-                test_vertices_data = new ePoint4 [total_vertices];
-                test_vertices_array = new eGeoArray<ePoint4>();
-                test_vertices_array->setup(total_vertices, test_vertices_data);
-                test_geoset->setVerticesArray(test_vertices_array);
-
-                //// test_indices_offsets_data = new ushort [total_indices / 3];
-                //// test_indices_offsets = new eGeoArray<ushort>();
-                //// test_indices_offsets->setup((total_indices / 3), test_indices_offsets_data);
-                //// test_geoset->setIndicesOffsets(test_indices_offsets);
-
-                test_indices_array_data = new ushort [total_indices];
-                test_indices_array = new eGeoArray<ushort>();
-                test_indices_array->setup(total_indices, test_indices_array_data);
-                test_geoset->setIndicesArray(test_indices_array);
-
-                test_colors_data = new ePoint4 [total_vertices];
-                test_colors_array = new eGeoArray<ePoint4>();
-                test_colors_array->setup(total_vertices, test_colors_data);
-                test_geoset->setColorsArray(test_colors_array);
-
-                if (total_mappings > 0)
-                {
-                    test_uv_data = new ePoint2 [total_vertices];
-                    test_uv_array = new eGeoArray<ePoint2>;
-                    test_uv_array->setup(total_vertices, test_uv_data);
-                    test_geoset->setTextureCoordsArray(test_uv_array);
-                }
-
-                if (total_normals > 0)
-                {
-                    test_normals_data = new ePoint4 [total_vertices];
-                    test_normals_array = new eGeoArray<ePoint4>();
-                    test_normals_array->setup(total_vertices, test_normals_data);
-                    test_geoset->setNormalsArray(test_normals_array);
-                }
-
-                /********************************/
-                /* Fill arrays: indices, vertices, UV mapping, normals */
-
+                total_vertices = 0;
                 total_indices = 0;
+                total_normals = 0;
+                total_mappings = 0;
+
+                /********************************/
+                /* Checking which vertices will be used */
+
+                std::memset(referencedVertices, 0, sizeof(int16_t) * (2 * objVerticesCount));
 
                 for (j = 0; j < objFacesCount; j++)
                 {
-                    if ((i - 1) == objFaces[j].material_id)
+                    if (objFaces[j].matchesSetting(group_id, mat_id))
                     {
                         for (k = 0; k < 3; k++)
                         {
                             l = objFaces[j].v_id[k];
                             if ((l >= 0) && (l < objVerticesCount))
                             {
-                                /* Calculate resulting vertex ID */
-                                m = referencedVertices[2 * l] + referencedVertices[2 * l + 1] - 1;
-                                referencedVertices[2 * l + 1]--;
+                                /* Number of repetitions */
+                                referencedVertices[2 * l + 1]++;
 
-                                test_indices_array_data[total_indices] = m;
-
-                                /* Copy "v", "vt", and "vn" data */
-                                test_vertices_data[m] = {objVertices[l].x, objVertices[l].y, objVertices[l].z, 1.0f};
-
-                                l = objFaces[j].vt_id[k];
-                                if ((l >= 0) && (l < objMappingCount))
-                                {
-                                    test_uv_data[m] = objMapping[l];
-                                }
-
-                                l = objFaces[j].vn_id[k];
-                                if ((l >= 0) && (l < objNormalsCount))
-                                {
-                                    test_normals_data[m] = {objNormals[l].x, objNormals[l].y, objNormals[l].z, 0};
-                                }
+                                total_vertices++;
+                                total_indices++;
                             }
-                            else
+
+                            l = objFaces[j].vt_id[k];
+                            if ((l >= 0) && (l < objMappingCount))
                             {
-                                test_indices_array_data[total_indices] = 0;
+                                total_mappings++;
                             }
 
-                            total_indices++;
+                            l = objFaces[j].vn_id[k];
+                            if ((l >= 0) && (l < objNormalsCount))
+                            {
+                                total_normals++;
+                            }
                         }
-
-                        //// test_indices_offsets_data[total_indices / 3] = 3;
                     }
                 }
 
-                for (j = 0; j < total_vertices; j++)
-                {
-                    test_colors_data[j] = {1.0f, 1.0f, 1.0f, 1.0f};
+                k = 0;
 
-                    if (i > 0)
+                for (j = 0; j < objVerticesCount; j++)
+                {
+                    if (referencedVertices[2 * j + 1] > 0)
                     {
-                        if (nullptr != objMaterials[i - 1].material)
+                        /* Resulting ID in vertices array */
+                        referencedVertices[2 * j] = k;
+                        k += referencedVertices[2 * j + 1];
+                    }
+                }
+
+                /********************************/
+                /* Continue if model is not empty */
+
+                if (total_vertices > 0)
+                {
+                    test_trimesh = new eTriMesh();
+                    test_trimesh->incRef();
+
+                    trimesh_name = fileName;
+
+                    if (group_id >= 0)
+                    {
+                        trimesh_name += " - ";
+                        trimesh_name += objGroups[group_id];
+                    }
+
+                    trimesh_name += " / ";
+
+                    if (mat_id < 0)
+                    {
+                        trimesh_name += "???";
+                    }
+                    else
+                    {
+                        trimesh_name += objMaterials[mat_id].name;
+
+                        test_trimesh->setMaterial(objMaterials[mat_id].material);
+                    }
+
+                    test_trimesh->setName(trimesh_name);
+
+                    test_trimesh->setFlags(0x70000009);
+
+                    test_geoset = new eGeoSet();
+                    test_geoset->incRef();
+                    test_trimesh->setGeoset(test_geoset);
+
+                    /********************************/
+                    /* Set-up arrays */
+
+                    test_geoset->setTwoIntegers(0x0F, total_vertices);
+
+                    test_vertices_data = new ePoint4 [total_vertices];
+                    test_vertices_array = new eGeoArray<ePoint4>();
+                    test_vertices_array->setup(total_vertices, test_vertices_data);
+                    test_geoset->setVerticesArray(test_vertices_array);
+
+                    //// test_indices_offsets_data = new ushort [total_indices / 3];
+                    //// test_indices_offsets = new eGeoArray<ushort>();
+                    //// test_indices_offsets->setup((total_indices / 3), test_indices_offsets_data);
+                    //// test_geoset->setIndicesOffsets(test_indices_offsets);
+
+                    test_indices_array_data = new ushort [total_indices];
+                    test_indices_array = new eGeoArray<ushort>();
+                    test_indices_array->setup(total_indices, test_indices_array_data);
+                    test_geoset->setIndicesArray(test_indices_array);
+
+                    test_colors_data = new ePoint4 [total_vertices];
+                    test_colors_array = new eGeoArray<ePoint4>();
+                    test_colors_array->setup(total_vertices, test_colors_data);
+                    test_geoset->setColorsArray(test_colors_array);
+
+                    if (total_mappings > 0)
+                    {
+                        test_uv_data = new ePoint2 [total_vertices];
+                        test_uv_array = new eGeoArray<ePoint2>;
+                        test_uv_array->setup(total_vertices, test_uv_data);
+                        test_geoset->setTextureCoordsArray(test_uv_array);
+                    }
+
+                    if (total_normals > 0)
+                    {
+                        test_normals_data = new ePoint4 [total_vertices];
+                        test_normals_array = new eGeoArray<ePoint4>();
+                        test_normals_array->setup(total_vertices, test_normals_data);
+                        test_geoset->setNormalsArray(test_normals_array);
+                    }
+
+                    /********************************/
+                    /* Fill arrays: indices, vertices, UV mapping, normals */
+
+                    total_indices = 0;
+
+                    for (j = 0; j < objFacesCount; j++)
+                    {
+                        if (objFaces[j].matchesSetting(group_id, mat_id))
                         {
-                            dummy_mtl_state = objMaterials[i - 1].material->getMaterialState();
-
-                            if (nullptr != dummy_mtl_state)
+                            for (k = 0; k < 3; k++)
                             {
-                                dummy_mtl_state->getDiffuseColor(dummy_floats);
+                                l = objFaces[j].v_id[k];
+                                if ((l >= 0) && (l < objVerticesCount))
+                                {
+                                    /* Calculate resulting vertex ID */
+                                    m = referencedVertices[2 * l] + referencedVertices[2 * l + 1] - 1;
+                                    referencedVertices[2 * l + 1]--;
 
-                                test_colors_data[j].x = dummy_floats[0];
-                                test_colors_data[j].y = dummy_floats[1];
-                                test_colors_data[j].z = dummy_floats[2];
+                                    test_indices_array_data[total_indices] = m;
+
+                                    /* Copy "v", "vt", and "vn" data */
+                                    test_vertices_data[m] = {objVertices[l].x, objVertices[l].y, objVertices[l].z, 1.0f};
+
+                                    l = objFaces[j].vt_id[k];
+                                    if ((l >= 0) && (l < objMappingCount))
+                                    {
+                                        test_uv_data[m] = objMapping[l];
+                                    }
+
+                                    l = objFaces[j].vn_id[k];
+                                    if ((l >= 0) && (l < objNormalsCount))
+                                    {
+                                        test_normals_data[m] = {objNormals[l].x, objNormals[l].y, objNormals[l].z, 0};
+                                    }
+                                }
+                                else
+                                {
+                                    test_indices_array_data[total_indices] = 0;
+                                }
+
+                                total_indices++;
+                            }
+
+                            //// test_indices_offsets_data[total_indices / 3] = 3;
+                        }
+                    }
+
+                    for (j = 0; j < total_vertices; j++)
+                    {
+                        test_colors_data[j] = {1.0f, 1.0f, 1.0f, 1.0f};
+
+                        if (mat_id >= 0)
+                        {
+                            if (nullptr != objMaterials[mat_id].material)
+                            {
+                                dummy_mtl_state = objMaterials[mat_id].material->getMaterialState();
+
+                                if (nullptr != dummy_mtl_state)
+                                {
+                                    dummy_mtl_state->getDiffuseColor(dummy_floats);
+
+                                    test_colors_data[j].x = dummy_floats[0];
+                                    test_colors_data[j].y = dummy_floats[1];
+                                    test_colors_data[j].z = dummy_floats[2];
+                                }
                             }
                         }
                     }
+
+                    /********************************/
+                    /* Calculate boundary box */
+
+                    calculateBoundaryBox(boundaries[0], boundaries[1], total_vertices, test_vertices_data, 0, nullptr);
+
+                    test_trimesh->setBoundaryBox(boundaries[0], boundaries[1]);
+
+                    /********************************/
+                    /* Update "eGroup" */
+
+                    if (nullptr != parentGroup)
+                    {
+                        parentGroup->appendChild(test_trimesh);
+                    }
+
+                    /********************************/
+                    /* View result in editor's window :) */
+
+                    test_geoset->prepareForDrawing();
+
+                    test_geoset->decRef();
+                    test_trimesh->decRef();
                 }
-
-                /********************************/
-                /* Calculate boundary box */
-
-                for (k = 0; k < 2; k++)
-                {
-                    boundaries[k].x = test_vertices_data[0].x;
-                    boundaries[k].y = test_vertices_data[0].y;
-                    boundaries[k].z = test_vertices_data[0].z;
-                }
-
-                for (k = 1; k < total_vertices; k++)
-                {
-                    if (test_vertices_data[k].x < boundaries[0].x)
-                    {
-                        boundaries[0].x = test_vertices_data[k].x;
-                    }
-
-                    if (test_vertices_data[k].y < boundaries[0].y)
-                    {
-                        boundaries[0].y = test_vertices_data[k].y;
-                    }
-
-                    if (test_vertices_data[k].z < boundaries[0].z)
-                    {
-                        boundaries[0].z = test_vertices_data[k].z;
-                    }
-
-                    if (test_vertices_data[k].x > boundaries[1].x)
-                    {
-                        boundaries[1].x = test_vertices_data[k].x;
-                    }
-
-                    if (test_vertices_data[k].y > boundaries[1].y)
-                    {
-                        boundaries[1].y = test_vertices_data[k].y;
-                    }
-
-                    if (test_vertices_data[k].z > boundaries[1].z)
-                    {
-                        boundaries[1].z = test_vertices_data[k].z;
-                    }
-                }
-
-                test_trimesh->setBoundaryBox(boundaries[0], boundaries[1]);
-
-                /********************************/
-                /* Update "eGroup" */
-
-                if (nullptr != parentGroup)
-                {
-                    parentGroup->appendChild(test_trimesh);
-                }
-
-                /********************************/
-                /* View result in editor's window :) */
-
-                test_geoset->prepareForDrawing();
-
-                test_geoset->decRef();
-                test_trimesh->decRef();
             }
         }
     }

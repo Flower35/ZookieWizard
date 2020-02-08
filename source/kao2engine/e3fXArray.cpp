@@ -9,7 +9,7 @@ namespace ZookieWizard
     // <kao_tw.00434902> (constructor)
     // <kao_tw.00429F90> (destructor)
     ////////////////////////////////////////////////////////////////
-    
+
     TypeInfo E_3FXARRAY_TYPEINFO
     (
         E_3FXARRAY_ID,
@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* e3fXArray::getType()
+    TypeInfo* e3fXArray::getType() const
     {
         return &E_3FXARRAY_TYPEINFO;
     }
@@ -115,7 +115,7 @@ namespace ZookieWizard
                     test_object = (eGeoArray<ePoint4>*)ar.getItem((a - 2), AR_ITEM_TYPE_OBJECT);
 
                     /* Safety check (NOT PRESENT IN GAME): is the new object a subclass of certain type? */
-                    
+
                     current_type = test_object->getType();
 
                     if (!current_type->checkHierarchy(&E_GEOARRAY_EPOINT4_TYPEINFO))

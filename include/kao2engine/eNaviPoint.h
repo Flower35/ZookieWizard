@@ -21,7 +21,7 @@ namespace ZookieWizard
             eNaviPoint();
             ~eNaviPoint();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

@@ -12,7 +12,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eMultiCtrl interfaces
     ////////////////////////////////////////////////////////////////
-    
+
     TypeInfo E_MULTICTRL_ESRP_TYPEINFO
     (
         E_MULTICTRL_ESRP_ID,
@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMultiCtrl<eSRP>::getType()
+    TypeInfo* eMultiCtrl<eSRP>::getType() const
     {
         return &E_MULTICTRL_ESRP_TYPEINFO;
     }
@@ -40,7 +40,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMultiCtrl<float>::getType()
+    TypeInfo* eMultiCtrl<float>::getType() const
     {
         return &E_MULTICTRL_FLOAT_TYPEINFO;
     }
@@ -53,7 +53,7 @@ namespace ZookieWizard
     // <kao2.004A1FC0>: "eMultiCtrl<eFloatCtrl>"
     ////////////////////////////////////////////////////////////////
     template <typename T>
-    T eMultiCtrl<T>::ctrlGetTransform(T e, eAnimate* anim)
+    T eMultiCtrl<T>::ctrlGetTransform(T e, eAnimate* anim) const
     {
         int32_t id;
         eCtrl<T>* controller;
@@ -80,7 +80,7 @@ namespace ZookieWizard
     // <kao2.004A1D20>: "eMultiCtrl<eSRPCtrl>"
     ////////////////////////////////////////////////////////////////
     template <typename T>
-    void eMultiCtrl<T>::ctrlApplyTransform(T* e, float time)
+    void eMultiCtrl<T>::ctrlApplyTransform(T* e, float time) const
     {
         eCtrl<T>* controller;
 
@@ -107,7 +107,7 @@ namespace ZookieWizard
     // eMultiCtrl serialization (and explicit templates)
     // <kao2.????????>
     ////////////////////////////////////////////////////////////////
-    
+
     void eMultiCtrl<eSRP>::serialize(Archive &ar)
     {
         controllers.serialize(ar, &E_SRPCOMBINECTRL_TYPEINFO);

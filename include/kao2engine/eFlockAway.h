@@ -21,7 +21,7 @@ namespace ZookieWizard
             eFlockAway();
             ~eFlockAway();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

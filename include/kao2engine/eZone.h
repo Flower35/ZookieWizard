@@ -22,7 +22,7 @@ namespace ZookieWizard
 
             /*[0x3C-0x4C]*/ eActionTable enterActions;
             /*[0x50-0x60]*/ eActionTable leaveActions;
-            
+
             /*[0x64]*/
             /*[0x68]*/
             /*[0x6C]*/
@@ -38,9 +38,7 @@ namespace ZookieWizard
             ~eZone();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
-
-            void setSensor(eALZoneSensor* sensor);
+            TypeInfo* getType() const override;
     };
 
 

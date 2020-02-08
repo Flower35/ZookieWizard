@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMotorowki::getType()
+    TypeInfo* eMotorowki::getType() const
     {
         return &E_MOTOROWKI_TYPEINFO;
     }

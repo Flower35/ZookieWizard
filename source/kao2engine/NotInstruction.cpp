@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* NotInstruction::getType()
+    TypeInfo* NotInstruction::getType() const
     {
         return &E_NOTINSTRUCTION_TYPEINFO;
     }
@@ -49,7 +49,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // NotInstruction: get script representation
     ////////////////////////////////////////////////////////////////
-    eString NotInstruction::generateScriptText()
+    eString NotInstruction::generateScriptText() const
     {
         eString result;
 

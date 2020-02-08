@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eHitForceCtrl::getType()
+    TypeInfo* eHitForceCtrl::getType() const
     {
         return &E_HITFORCECTRL_TYPEINFO;
     }

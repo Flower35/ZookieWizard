@@ -41,7 +41,7 @@ namespace ZookieWizard
         /*** Properties ***/
 
         private:
-        
+
             /*[0x00]*/ int32_t modeFlags;
             /*[0x04]*/ FileOperator myFile;
 
@@ -50,7 +50,7 @@ namespace ZookieWizard
             /*[0x1C]*/ int32_t tempItemsCount;
             /*[0x20]*/ int32_t tempItemsMaxLength;
             /*[0x24]*/ void** tempItemsList;
-            
+
             /* Custom features */
 
             uint8_t* tempItemsTypes;
@@ -67,12 +67,14 @@ namespace ZookieWizard
             int32_t engineSavedWith;
 
         /*** Methods ***/
-        
+
         private:
 
-            eString getFullArchivePath(eString filename, int32_t current_engine);
+            eString getFullArchivePath(eString filename, int32_t current_engine) const;
 
             void deleteTempStrPtrs();
+
+            void changeGlobalScene() const;
 
         public:
 
@@ -86,22 +88,22 @@ namespace ZookieWizard
 
             /* State determining */
 
-            bool isInReadMode();
-            bool isInWriteMode();
-            bool isInExportScriptsMode();
-            bool isInExportProxiesMode();
-            bool isInDebugMode();
+            bool isInReadMode() const;
+            bool isInWriteMode() const;
+            bool isInExportScriptsMode() const;
+            bool isInExportProxiesMode() const;
+            bool isInDebugMode() const;
 
             /* Serialization (reading/writing archives) */
 
-            int32_t getVersion();
-            bool checkGameEngine(int32_t opened, int32_t saved);
-            int32_t getCurrentEngineVersion();
+            int32_t getVersion() const;
+            bool checkGameEngine(int32_t opened, int32_t saved) const;
+            int32_t getCurrentEngineVersion() const;
             void readOrWrite(void* pointer, int size);
 
             bool addItem(void* item, int type);
-            void* getItem(int id, int type);
-            int findItem(void* item);
+            void* getItem(int id, int type) const;
+            int findItem(void* item) const;
             bool addTempStr(eStringBase<char>* str);
 
             void serialize(eObject** o, TypeInfo* t);
@@ -112,18 +114,18 @@ namespace ZookieWizard
 
             /* Other */
 
-            eString getMediaDir();
+            eString getMediaDir() const;
             void setMediaDir(eString new_media_dir);
 
-            void renderScene(int32_t draw_flags);
+            void renderScene(int32_t draw_flags) const;
             void changeSelectedObject(int32_t child_id);
 
-            void copySceneFromMe(eScene** target);
+            void copySceneFromMe(eScene** target) const;
             void setMyParentScene(eScene* pointer);
 
-            void writeStructureToTextFile();
-            void writeStructureToXmlFile(eString filename);
-            void writeSelectedObjectToObjFile(eString filename);
+            void writeStructureToTextFile() const;
+            void writeStructureToXmlFile(eString filename) const;
+            void writeSelectedObjectToObjFile(eString filename) const;
             void appendToSelectedObjectFromObjFile(eString filename);
     };
 

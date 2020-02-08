@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eRefCounter::getType()
+    TypeInfo* eRefCounter::getType() const
     {
         return &E_REFCOUNTER_TYPEINFO;
     }
@@ -44,7 +44,7 @@ namespace ZookieWizard
         if (nullptr != this)
         {
             referenceCount--;
-            
+
             if (0 == referenceCount)
             {
                 delete this;
@@ -61,6 +61,14 @@ namespace ZookieWizard
         if (nullptr != this)
         {
             referenceCount++;
+        }
+        else
+        {
+            throw ErrorMessage
+            (
+                "eRefCounter::incRef():\n" \
+                "object does not exist! (pointer not initialized or memory allocation error)"
+            );
         }
     }
 

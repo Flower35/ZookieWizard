@@ -29,7 +29,7 @@ namespace ZookieWizard
             eParentListener();
             ~eParentListener();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

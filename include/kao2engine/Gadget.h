@@ -29,12 +29,12 @@ namespace ZookieWizard
             ~Gadget();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            eString getStringRepresentation() override;
-            eString generateScriptText() override;
+            eString getStringRepresentation() const override;
+            eString generateScriptText() const override;
 
-            virtual eString getDefaultGadgetName();
+            virtual eString getDefaultGadgetName() const;
     };
 
 

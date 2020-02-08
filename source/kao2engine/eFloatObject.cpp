@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFloatObject::getType()
+    TypeInfo* eFloatObject::getType() const
     {
         return &E_FLOATOBJECT_TYPEINFO;
     }

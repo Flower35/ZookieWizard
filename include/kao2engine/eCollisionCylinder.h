@@ -28,7 +28,7 @@ namespace ZookieWizard
             eCollisionCylinder();
             ~eCollisionCylinder();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTargetGenerator::getType()
+    TypeInfo* eTargetGenerator::getType() const
     {
         return &E_TARGETGENERATOR_TYPEINFO;
     }

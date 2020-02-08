@@ -29,7 +29,7 @@ namespace ZookieWizard
             eMultiTargetThrower();
             ~eMultiTargetThrower();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

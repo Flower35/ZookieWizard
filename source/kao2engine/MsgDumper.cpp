@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* MsgDumper::getType()
+    TypeInfo* MsgDumper::getType() const
     {
         return &E_MSGDUMPER_TYPEINFO;
     }

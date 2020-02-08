@@ -66,13 +66,18 @@ namespace ZookieWizard
 
         materialsList = nullptr;
 
+        for (i = 0; i < 4; i++)
+        {
+            collisionMaterials[i] = nullptr;
+        }
+
         for (i = 0; i < 3; i++)
         {
             kaoPos[i] = 0;
             kaoRot[i] = 0;
         }
     }
-    
+
 
     ////////////////////////////////////////////////////////////////
     // Level Map: destructor
@@ -166,6 +171,15 @@ namespace ZookieWizard
     void DenisLevelMap::createMaterialsList(DenisFileOperator &file)
     {
         int32_t i, j;
+        int32_t dummy_collision_types[4] =
+        {
+            0x00, // "NORMAL"
+            0x01, // "ICE"
+            0x1000000A, // "GIRAFFE_WATER"
+            0x2000000D // "HURT_LAVA"
+        };
+
+        /* Clear materials */
 
         deleteMaterialsList();
 
@@ -180,6 +194,16 @@ namespace ZookieWizard
 
             textures[i].convertToKao2(file, &(materialsList[4 * i]));
         }
+
+        for (i = 0; i < 4; i++)
+        {
+            collisionMaterials[i] = new eMaterial(nullptr);
+            collisionMaterials[i]->incRef();
+
+            collisionMaterials[i]->setName("collision");
+            collisionMaterials[i]->setCollisionType(dummy_collision_types[i]);
+        }
+
     }
 
 
@@ -203,6 +227,15 @@ namespace ZookieWizard
 
             delete[](materialsList);
             materialsList = nullptr;
+        }
+
+        for (i = 0; i < 4; i++)
+        {
+            if (nullptr != collisionMaterials[i])
+            {
+                collisionMaterials[i]->decRef();
+                collisionMaterials[i] = nullptr;
+            }
         }
     }
 
@@ -252,7 +285,7 @@ namespace ZookieWizard
         /* File version */
 
         i = 70;
-        
+
         file.readOrWrite(&i, 0x04);
 
         if (file.isInReadMode())
@@ -271,7 +304,7 @@ namespace ZookieWizard
 
         /********************************/
         /* Texture names */
-        
+
         i = *(int32_t*)"TEXN";
 
         file.readOrWrite(&i, 0x04);
@@ -320,7 +353,7 @@ namespace ZookieWizard
 
         /********************************/
         /* Ambient samples */
-        
+
         i = *(int32_t*)"smpl";
 
         file.readOrWrite(&i, 0x04);
@@ -369,7 +402,7 @@ namespace ZookieWizard
 
         /********************************/
         /* World Objects magic */
-        
+
         i = *(int32_t*)"WOBJ";
 
         file.readOrWrite(&i, 0x04);
@@ -423,7 +456,7 @@ namespace ZookieWizard
             {
                 file.readOrWrite(&(objectsMaxLength[DENIS_LEVEL_OBJECT_ID[i]]), 0x04);
             }
-            
+
             file.readOrWrite(&proxiesMaxLength, 0x04);
 
             /* Allocate size and load objects */
@@ -448,7 +481,7 @@ namespace ZookieWizard
                     objectsCount[DENIS_LEVEL_OBJECT_ID[i]] = (j + 1);
                 }
             }
-            
+
             proxies = new DenisLevelMaxObj [proxiesMaxLength];
 
             for (i = 0; i < proxiesMaxLength; i++)
@@ -468,7 +501,7 @@ namespace ZookieWizard
             {
                 file.readOrWrite(&(objectsCount[DENIS_LEVEL_OBJECT_ID[i]]), 0x04);
             }
-            
+
             file.readOrWrite(&proxiesCount, 0x04);
 
             /* Save objects */
@@ -494,7 +527,7 @@ namespace ZookieWizard
 
         /********************************/
         /* Moving lights */
-        
+
         i = *(int32_t*)"LGHT";
 
         file.readOrWrite(&i, 0x04);
@@ -532,7 +565,7 @@ namespace ZookieWizard
 
         /********************************/
         /* Event zones */
-        
+
         i = *(int32_t*)"EVNZ";
 
         file.readOrWrite(&i, 0x04);
@@ -581,7 +614,7 @@ namespace ZookieWizard
 
         /********************************/
         /* Billboards */
-        
+
         i = *(int32_t*)"bb2d";
 
         file.readOrWrite(&i, 0x04);
@@ -627,10 +660,10 @@ namespace ZookieWizard
                 billboards[i].serialize(file);
             }
         }
-        
+
         /********************************/
         /* Bonuses */
-        
+
         i = *(int32_t*)"bns!";
 
         file.readOrWrite(&i, 0x04);
@@ -733,7 +766,7 @@ namespace ZookieWizard
     // Level Map: get level name
     ////////////////////////////////////////////////////////////////
 
-    eString DenisLevelMap::getName()
+    eString DenisLevelMap::getName() const
     {
         int32_t i;
         char* test_text;

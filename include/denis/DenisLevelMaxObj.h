@@ -40,7 +40,7 @@ namespace ZookieWizard
 
             void serialize(DenisFileOperator &file, DenisLevelWObj* wobj, int32_t wobj_count);
 
-            void convertToKao2(int32_t maxobj_id, eGroup* parent_group, DenisLevelWObj &wobj);
+            void convertToKao2(int32_t maxobj_id, eGroup* parent_group, DenisLevelWObj &wobj) const;
     };
 
 }

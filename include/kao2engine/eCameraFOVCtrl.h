@@ -29,7 +29,7 @@ namespace ZookieWizard
             eCameraFOVCtrl();
             ~eCameraFOVCtrl();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

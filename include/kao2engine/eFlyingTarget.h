@@ -30,7 +30,7 @@ namespace ZookieWizard
             eFlyingTarget();
             ~eFlyingTarget();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

@@ -28,7 +28,7 @@ namespace ZookieWizard
             eFollowCameraCtrl();
             ~eFollowCameraCtrl();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

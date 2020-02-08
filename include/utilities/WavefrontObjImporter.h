@@ -16,11 +16,14 @@ namespace ZookieWizard
     struct WavefrontObjImporterFace
     {
         int32_t material_id;
+        int32_t group_id;
         int32_t v_id[3];
         int32_t vt_id[3];
         int32_t vn_id[3];
 
         WavefrontObjImporterFace();
+
+        bool matchesSetting(const int32_t g_id, const int32_t m_id) const;
     };
 
     struct WavefrontObjImporterMaterial
@@ -46,7 +49,7 @@ namespace ZookieWizard
             FileOperator myFiles[2];
             eString fileName;
             eString workingDirectory;
-        
+
             eGroup* parentGroup;
 
             ePoint3* objVertices;
@@ -69,6 +72,10 @@ namespace ZookieWizard
             int32_t objMaterialsCount;
             int32_t objMaterialsMaxLength;
 
+            eString* objGroups;
+            int32_t objGroupsCount;
+            int32_t objGroupsMaxLength;
+
             int16_t* referencedVertices;
 
         /*** Methods ***/
@@ -90,6 +97,7 @@ namespace ZookieWizard
             void appendNormals(ePoint3* element, int32_t slots);
             void appendFaces(WavefrontObjImporterFace* element, int32_t slots);
             void appendMaterials(WavefrontObjImporterMaterial* element, int32_t slots);
+            void appendGroups(eString* element, int32_t slots);
 
             void readModelData();
             void readMaterialInfo(eString filename);

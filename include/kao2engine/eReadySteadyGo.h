@@ -29,7 +29,7 @@ namespace ZookieWizard
             eReadySteadyGo();
             ~eReadySteadyGo();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

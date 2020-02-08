@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eColorCtrl::getType()
+    TypeInfo* eColorCtrl::getType() const
     {
         return &E_COLORCTRL_TYPEINFO;
     }

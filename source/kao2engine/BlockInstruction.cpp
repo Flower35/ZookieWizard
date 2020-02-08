@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* BlockInstruction::getType()
+    TypeInfo* BlockInstruction::getType() const
     {
         return &E_BLOCKINSTRUCTION_TYPEINFO;
     }
@@ -46,7 +46,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // BlockInstruction: save to text file
     ////////////////////////////////////////////////////////////////
-    void BlockInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation)
+    void BlockInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation) const
     {
         int32_t i;
         bool has_empty_body = true;

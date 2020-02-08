@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTexTransform::getType()
+    TypeInfo* eTexTransform::getType() const
     {
         return &E_TEXTRANSFORM_TYPEINFO;
     }

@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMultiBlockIndexCtrl::getType()
+    TypeInfo* eMultiBlockIndexCtrl::getType() const
     {
         return &E_MULTIBLOCKINDEXCTRL_TYPEINFO;
     }

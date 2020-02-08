@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* McastClassInstruction::getType()
+    TypeInfo* McastClassInstruction::getType() const
     {
         return &E_MCASTCLASSINSTRUCTION_TYPEINFO;
     }
@@ -50,7 +50,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // McastClassInstruction: save to text file
     ////////////////////////////////////////////////////////////////
-    void McastClassInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation)
+    void McastClassInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation) const
     {
         ArFunctions::writeNewLine(file, indentation);
 

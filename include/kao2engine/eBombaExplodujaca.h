@@ -29,7 +29,7 @@ namespace ZookieWizard
             eBombaExplodujaca();
             ~eBombaExplodujaca();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

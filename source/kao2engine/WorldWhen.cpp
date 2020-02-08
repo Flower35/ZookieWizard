@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* WorldWhen::getType()
+    TypeInfo* WorldWhen::getType() const
     {
         return &E_WORLDWHEN_TYPEINFO;
     }
@@ -38,7 +38,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WorldWhen: save to text file
     ////////////////////////////////////////////////////////////////
-    void WorldWhen::saveWhenToTextFile(FileOperator &file, int32_t indentation)
+    void WorldWhen::saveWhenToTextFile(FileOperator &file, int32_t indentation) const
     {
         ArFunctions::writeNewLine(file, indentation);
 

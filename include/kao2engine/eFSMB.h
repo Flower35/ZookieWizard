@@ -27,7 +27,7 @@ namespace ZookieWizard
             eFSMB();
             ~eFSMB();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGroupCtrl::getType()
+    TypeInfo* eGroupCtrl::getType() const
     {
         return &E_GROUPCTRL_TYPEINFO;
     }
@@ -63,7 +63,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGroupCtrl: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString eGroupCtrl::getDefaultGadgetName()
+    eString eGroupCtrl::getDefaultGadgetName() const
     {
         return "group";
     }

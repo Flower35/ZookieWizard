@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePathFinder::getType()
+    TypeInfo* ePathFinder::getType() const
     {
         return &E_PATHFINDER_TYPEINFO;
     }
@@ -131,7 +131,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ePathFinder: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString ePathFinder::getDefaultGadgetName()
+    eString ePathFinder::getDefaultGadgetName() const
     {
         return "pf";
     }

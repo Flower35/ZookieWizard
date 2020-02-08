@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePivot::getType()
+    TypeInfo* ePivot::getType() const
     {
         return &E_PIVOT_TYPEINFO;
     }
@@ -76,7 +76,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ePivot: export readable structure
     ////////////////////////////////////////////////////////////////
-    void ePivot::writeStructureToTextFile(FileOperator &file, int32_t indentation)
+    void ePivot::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
     {
         int32_t i;
         eNode* test_node;
@@ -100,7 +100,7 @@ namespace ZookieWizard
                 128,
                 " - track [%d]: \"%s\"",
                 i,
-                test_track->getName().getText()
+                test_track->getStringRepresentation().getText()
             );
 
             ArFunctions::writeIndentation(file, indentation);

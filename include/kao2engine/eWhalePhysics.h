@@ -28,7 +28,7 @@ namespace ZookieWizard
             eWhalePhysics();
             ~eWhalePhysics();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

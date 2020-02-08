@@ -19,7 +19,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eModifier::getType()
+    TypeInfo* eModifier::getType() const
     {
         return &E_MODIFIER_TYPEINFO;
     }

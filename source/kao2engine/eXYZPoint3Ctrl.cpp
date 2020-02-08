@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eXYZPoint3Ctrl::getType()
+    TypeInfo* eXYZPoint3Ctrl::getType() const
     {
         return &E_XYZPOINT3CTRL_TYPEINFO;
     }
@@ -47,7 +47,7 @@ namespace ZookieWizard
     // [[vptr]+0x28] Modify "ePoint3" based on current time
     // <kao2.004A0D20>
     ////////////////////////////////////////////////////////////////
-    void eXYZPoint3Ctrl::ctrlApplyTransform(ePoint3* e, float time)
+    void eXYZPoint3Ctrl::ctrlApplyTransform(ePoint3* e, float time) const
     {
         if (nullptr != e)
         {
@@ -85,7 +85,7 @@ namespace ZookieWizard
             }
         }
     }
-    
+
 
     ////////////////////////////////////////////////////////////////
     // eXYZPoint3Ctrl serialization

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCollisionMgr::getType()
+    TypeInfo* eCollisionMgr::getType() const
     {
         return &E_COLLISIONMGR_TYPEINFO;
     }
@@ -38,7 +38,7 @@ namespace ZookieWizard
         /*[0x0C]*/ seriesA = nullptr;
 
         /*[0x10]*/ unknown_10 = 0;
-        
+
         ArFunctions::generate_AxisList_pointers(&(unknown_14), 8, 3);
 
         /*[0x2C]*/ seriesB_Count = 0;
@@ -107,7 +107,7 @@ namespace ZookieWizard
         }
     }
 
-    
+
     ////////////////////////////////////////////////////////////////
     // eCollisionMgr: ???
     // <kao2.004993D0>
@@ -154,9 +154,7 @@ namespace ZookieWizard
             {
                 test_series = test_box->getSeriesPointer();
 
-                /* (--dsp--) don't change because we don't know what these do */
-
-                //// test_series[some_id / 2] &= (0xAA << (some_id & 0x01));
+                test_series[some_id / 2] &= (0xAA << (some_id & 0x01));
             }
         }
 
@@ -274,7 +272,7 @@ namespace ZookieWizard
             }
 
             seriesB_MaxLength = unknown_10;
-            
+
             seriesB = new eALBox* [seriesB_MaxLength];
 
             for (i = 0; i < seriesB_MaxLength; i++)
@@ -319,7 +317,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eCollisionMgr: get eALBox array size
     ////////////////////////////////////////////////////////////////
-    int32_t eCollisionMgr::get_ALBoxes_array_size()
+    int32_t eCollisionMgr::get_ALBoxes_array_size() const
     {
         return seriesB_Count;
     }
@@ -328,7 +326,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eCollisionMgr: get array of eALBox pointers
     ////////////////////////////////////////////////////////////////
-    eALBox** eCollisionMgr::get_ALBoxes_array()
+    eALBox** eCollisionMgr::get_ALBoxes_array() const
     {
         return seriesB;
     }
@@ -365,7 +363,7 @@ namespace ZookieWizard
 
         seriesA_Count++;
     }
-    
+
 
     ////////////////////////////////////////////////////////////////
     // eCollisionMgr: make space in "seriesB" array
@@ -398,6 +396,7 @@ namespace ZookieWizard
 
         seriesB_Count++;
     }
+
 
     ////////////////////////////////////////////////////////////////
     // eCollisionMgr: reset first array (used in eScene)

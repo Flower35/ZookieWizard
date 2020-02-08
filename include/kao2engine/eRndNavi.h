@@ -29,7 +29,7 @@ namespace ZookieWizard
             eRndNavi();
             ~eRndNavi();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

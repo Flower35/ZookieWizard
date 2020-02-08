@@ -296,9 +296,9 @@ namespace ZookieWizard
     // <kao2.00462CB0>
     ////////////////////////////////////////////////////////////////
 
-    bool TypeInfo::checkHierarchy(TypeInfo* assumed_type)
+    bool TypeInfo::checkHierarchy(TypeInfo* assumed_type) const
     {
-        TypeInfo* test = this;
+        const TypeInfo* test = this;
 
         if (nullptr != assumed_type)
         {
@@ -657,7 +657,7 @@ namespace ZookieWizard
     // KAO2 INTERFACES: find type
     ////////////////////////////////////////////////////////////////
 
-    TypeInfo* Kao2Interfaces::getTypeInfo(int id)
+    TypeInfo* Kao2Interfaces::getTypeInfo(int id) const
     {
         for (int i=0; i < interfacesCount; i++)
         {

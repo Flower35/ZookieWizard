@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* IfElseInstruction::getType()
+    TypeInfo* IfElseInstruction::getType() const
     {
         return &E_IFELSEINSTRUCTION_TYPEINFO;
     }
@@ -44,7 +44,7 @@ namespace ZookieWizard
         {
             otherInstruction->decRef();
         }
-    }   
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // IfElseInstruction: save to text file
     ////////////////////////////////////////////////////////////////
-    void IfElseInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation)
+    void IfElseInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation) const
     {
         IfInstruction::saveInstructionToTextFile(file, indentation);
 

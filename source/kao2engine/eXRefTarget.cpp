@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eXRefTarget::getType()
+    TypeInfo* eXRefTarget::getType() const
     {
         return &E_XREFTARGET_TYPEINFO;
     }
@@ -118,7 +118,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefTarget: save external model to a separate AR file
     ////////////////////////////////////////////////////////////////
-    void eXRefTarget::exportTarget(Archive &ar, int32_t ar_flags)
+    void eXRefTarget::exportTarget(Archive &ar, int32_t ar_flags) const
     {
         Archive parallel_ar(ar.getMediaDir());
 
@@ -140,6 +140,15 @@ namespace ZookieWizard
                 e.display();
             }
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eXRefTarget: get local scene
+    ////////////////////////////////////////////////////////////////
+    eScene* eXRefTarget::getLocalScene() const
+    {
+        return scene;
     }
 
 }

@@ -28,7 +28,7 @@ namespace ZookieWizard
             eTextWriterEx();
             ~eTextWriterEx();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

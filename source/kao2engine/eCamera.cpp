@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCamera::getType()
+    TypeInfo* eCamera::getType() const
     {
         return &E_CAMERA_TYPEINFO;
     }

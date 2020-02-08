@@ -29,7 +29,7 @@ namespace ZookieWizard
             eTraceGadget();
             ~eTraceGadget();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

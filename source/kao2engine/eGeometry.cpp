@@ -3,6 +3,8 @@
 
 #include <kao2engine/eMaterial.h>
 
+#include <kao2engine/eALBox.h>
+
 namespace ZookieWizard
 {
 
@@ -24,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeometry::getType()
+    TypeInfo* eGeometry::getType() const
     {
         return &E_GEOMETRY_TYPEINFO;
     }
@@ -87,4 +89,65 @@ namespace ZookieWizard
 
         /*[0x1C]*/ flags &= 0xFFFFFFEF;
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeometry: get Material pointer
+    ////////////////////////////////////////////////////////////////
+    eMaterial* eGeometry::getMaterial()
+    {
+        return material;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeometry: set Material pointer
+    ////////////////////////////////////////////////////////////////
+    void eGeometry::setMaterial(eMaterial* new_material)
+    {
+        if (nullptr != material)
+        {
+            material->decRef();
+        }
+
+        material = new_material;
+
+        if (nullptr != material)
+        {
+            material->incRef();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeometry: set boundary box
+    ////////////////////////////////////////////////////////////////
+    void eGeometry::setBoundaryBox(ePoint3 &new_min, ePoint3 &new_max)
+    {
+        boxBoundMin = new_min;
+        boxBoundMax = new_max;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeometry: create collision entry
+    ////////////////////////////////////////////////////////////////
+    void eGeometry::createCollisionEntry()
+    {
+        eALBox* new_albox = nullptr;
+
+        float boundaries[6] =
+        {
+            boxBoundMin.x, boxBoundMin.y, boxBoundMin.z,
+            boxBoundMax.x, boxBoundMax.y, boxBoundMax.z
+        };
+
+        new_albox = new eALBox();
+        new_albox->incRef();
+
+        new_albox->createAxisListEntry(this, boundaries);
+
+        new_albox->decRef();
+    }
+
 }

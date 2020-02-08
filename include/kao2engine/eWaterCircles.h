@@ -29,7 +29,7 @@ namespace ZookieWizard
             eWaterCircles();
             ~eWaterCircles();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

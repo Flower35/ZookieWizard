@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Anim::getType()
+    TypeInfo* Anim::getType() const
     {
         return &E_ANIM_TYPEINFO;
     }
@@ -30,7 +30,7 @@ namespace ZookieWizard
     : Gadget()
     {
         /*[0x0C]*/ name = "anim";
-        
+
         /*[0x10]*/ unknown_10 = 0;
         /*[0x14]*/ unknown_14 = 0;
         /*[0x18]*/ unknown_18 = 1.0f;
@@ -61,7 +61,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Anim: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString Anim::getDefaultGadgetName()
+    eString Anim::getDefaultGadgetName() const
     {
         return "anim";
     }

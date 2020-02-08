@@ -29,7 +29,7 @@ namespace ZookieWizard
             eNeckCtrl();
             ~eNeckCtrl();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

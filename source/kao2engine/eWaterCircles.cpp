@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eWaterCircles::getType()
+    TypeInfo* eWaterCircles::getType() const
     {
         return &E_WATERCIRCLES_TYPEINFO;
     }

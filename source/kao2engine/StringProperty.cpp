@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* StringProperty::getType()
+    TypeInfo* StringProperty::getType() const
     {
         return &E_STRINGPROPERTY_TYPEINFO;
     }
@@ -68,7 +68,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // StringProperty: get textual representation
     ////////////////////////////////////////////////////////////////
-    eString StringProperty::getStringRepresentation()
+    eString StringProperty::getStringRepresentation() const
     {
         eString result;
 

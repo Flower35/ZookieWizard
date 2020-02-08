@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eObject::getType()
+    TypeInfo* eObject::getType() const
     {
         return &E_OBJECT_TYPEINFO;
     }
@@ -42,7 +42,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eObject: get simple name (for instructions)
     ////////////////////////////////////////////////////////////////
-    eString eObject::getStringRepresentation()
+    eString eObject::getStringRepresentation() const
     {
         return eString();
     }
@@ -51,7 +51,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eObject: get full name (for gadgets and scripts)
     ////////////////////////////////////////////////////////////////
-    eString eObject::generateScriptText()
+    eString eObject::generateScriptText() const
     {
         return eString();
     }
@@ -60,7 +60,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eObject: get `Log.print()` message
     ////////////////////////////////////////////////////////////////
-    eString eObject::getLogPrintMessage()
+    eString eObject::getLogPrintMessage() const
     {
         char bufor[64];
         TypeInfo* info = getType();
@@ -74,7 +74,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eObject: export readable structure
     ////////////////////////////////////////////////////////////////
-    void eObject::writeStructureToTextFile(FileOperator &file, int32_t indentation)
+    void eObject::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
     {
         char bufor[64];
         TypeInfo* info = getType();
@@ -90,12 +90,13 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eObject: COLLADA exporting
     ////////////////////////////////////////////////////////////////
-    void eObject::writeNodeToXmlFile(ColladaExporter &exporter)
+    void eObject::writeNodeToXmlFile(ColladaExporter &exporter) const
     {}
 
 
     ////////////////////////////////////////////////////////////////
     // eObject: 3D rendering
+    // (cannot be "const" because "ePivot" changes animation)
     ////////////////////////////////////////////////////////////////
     void eObject::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
     {}

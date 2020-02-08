@@ -28,7 +28,7 @@ namespace ZookieWizard
             eObjectLinker();
             ~eObjectLinker();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

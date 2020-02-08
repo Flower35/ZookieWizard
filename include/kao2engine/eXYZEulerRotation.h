@@ -31,9 +31,9 @@ namespace ZookieWizard
             ~eXYZEulerRotation();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            /*[[vptr]+0x28]*/ void ctrlApplyTransform(eQuat*, float) override;
+            /*[[vptr]+0x28]*/ void ctrlApplyTransform(eQuat*, float) const override;
     };
 
 

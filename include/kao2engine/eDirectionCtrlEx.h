@@ -27,7 +27,7 @@ namespace ZookieWizard
             eDirectionCtrlEx();
             ~eDirectionCtrlEx();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

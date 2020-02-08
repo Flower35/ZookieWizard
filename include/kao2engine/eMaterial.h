@@ -32,7 +32,7 @@ namespace ZookieWizard
             /*[0x08-0x10]*/ Collection<ArFunctions::serialize_eRefCounter> textures;
             /*[0x14]*/ uint8_t materialFlags;
             /*[0x18]*/ eMaterialState* state;
-            /*[0x1C]*/ int32_t unknown_1C;
+            /*[0x1C]*/ int32_t collisionType;
             /*[0x20]*/ int16_t unknown_20;
             /*[0x22]*/ int16_t unknown_22;
             /*[0x24]*/ eString name;
@@ -48,23 +48,26 @@ namespace ZookieWizard
             ~eMaterial();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            eString getStringRepresentation() override;
+            eString getStringRepresentation() const override;
             void setName(eString new_name);
 
-            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+            void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
-            eTexture* getIthTexture(int32_t i);
+            eTexture* getIthTexture(int32_t i) const;
             void appendTexture(eTexture* new_texture);
 
-            bool hasInvisibleInName();
+            bool hasInvisibleInName() const;
 
             void setMaterialFlags(uint8_t bits_to_apply);
             void unsetMaterialFlags(uint8_t bits_to_erase);
 
+            eMaterialState* getMaterialState() const;
             void setMaterialState(eMaterialState* new_mtl_state);
-            eMaterialState* getMaterialState();
+
+            int32_t getCollisionType() const;
+            void setCollisionType(int32_t new_type);
 
     };
 

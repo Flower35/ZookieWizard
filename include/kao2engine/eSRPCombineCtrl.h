@@ -30,9 +30,9 @@ namespace ZookieWizard
             ~eSRPCombineCtrl();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            /*[[vptr]+0x28]*/ void ctrlApplyTransform(eSRP*, float) override;
+            /*[[vptr]+0x28]*/ void ctrlApplyTransform(eSRP*, float) const override;
     };
 
 

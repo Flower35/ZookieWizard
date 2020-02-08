@@ -29,7 +29,7 @@ namespace ZookieWizard
             eLookAtCtrl();
             ~eLookAtCtrl();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

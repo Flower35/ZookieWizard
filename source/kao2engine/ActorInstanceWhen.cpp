@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ActorInstanceWhen::getType()
+    TypeInfo* ActorInstanceWhen::getType() const
     {
         return &E_ACTORINSTANCEWHEN_TYPEINFO;
     }
@@ -51,7 +51,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ActorInstanceWhen: save to text file
     ////////////////////////////////////////////////////////////////
-    void ActorInstanceWhen::saveWhenToTextFile(FileOperator &file, int32_t indentation)
+    void ActorInstanceWhen::saveWhenToTextFile(FileOperator &file, int32_t indentation) const
     {
         ArFunctions::writeNewLine(file, indentation);
 

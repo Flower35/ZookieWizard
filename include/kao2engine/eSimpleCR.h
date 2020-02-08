@@ -29,7 +29,7 @@ namespace ZookieWizard
             eSimpleCR();
             ~eSimpleCR();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

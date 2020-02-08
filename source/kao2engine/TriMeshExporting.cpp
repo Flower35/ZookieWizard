@@ -16,12 +16,12 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTriMesh: COLLADA exporting
     ////////////////////////////////////////////////////////////////
-    void eTriMesh::writeNodeToXmlFile(ColladaExporter &exporter)
+    void eTriMesh::writeNodeToXmlFile(ColladaExporter &exporter) const
     {
         int32_t i, j, k;
         int32_t geo_id, mat_id;
         char bufor[64];
-        
+
         eTransform* test_xform;
         eBitmap* test_bitmap;
         eTexture* test_texture;

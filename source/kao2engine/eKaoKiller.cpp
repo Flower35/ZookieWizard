@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eKaoKiller::getType()
+    TypeInfo* eKaoKiller::getType() const
     {
         return &E_KAOKILLER_TYPEINFO;
     }
@@ -36,7 +36,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eKaoKiller: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString eKaoKiller::getDefaultGadgetName()
+    eString eKaoKiller::getDefaultGadgetName() const
     {
         return "hero";
     }

@@ -21,7 +21,7 @@ namespace ZookieWizard
             SessionFloat();
             ~SessionFloat();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

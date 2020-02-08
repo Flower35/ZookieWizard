@@ -30,7 +30,7 @@ namespace ZookieWizard
             eTargetGenerator();
             ~eTargetGenerator();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

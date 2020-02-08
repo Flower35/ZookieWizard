@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eRollCtrl::getType()
+    TypeInfo* eRollCtrl::getType() const
     {
         return &E_ROLLCTRL_TYPEINFO;
     }

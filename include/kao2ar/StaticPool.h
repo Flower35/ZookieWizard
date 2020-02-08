@@ -30,13 +30,13 @@ namespace ZookieWizard
 
         bool registerGadget(Gadget* gadget);
 
-        int findGadget(TypeInfo* info);
+        int findGadget(TypeInfo* info) const;
 
     public:
 
         bool registerStaticGadgets();
 
-        void serializeGadget(Archive &ar, Gadget** gadget);
+        void serializeGadget(Archive &ar, Gadget** gadget) const;
     };
 
     extern Kao2StaticPool StaticPool;

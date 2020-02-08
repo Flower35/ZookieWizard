@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eXRefProxy::getType()
+    TypeInfo* eXRefProxy::getType() const
     {
         return &E_XREFPROXY_TYPEINFO;
     }
@@ -75,7 +75,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefProxy: return target (used with eProxy)
     ////////////////////////////////////////////////////////////////
-    eXRefTarget* eXRefProxy::getXRefTarget()
+    eXRefTarget* eXRefProxy::getXRefTarget() const
     {
         return target;
     }

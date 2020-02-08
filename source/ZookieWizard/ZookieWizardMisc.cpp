@@ -197,7 +197,7 @@ namespace ZookieWizard
 
             if (AR_MODE_READ == mode)
             {
-                myARs[0].changeSelectedObject(-5);
+                myARs[0].changeSelectedObject(-3);
             }
 
             /* Display message */
@@ -401,7 +401,7 @@ namespace ZookieWizard
 
             myARs[0].setMyParentScene(test_scene);
 
-            myARs[0].changeSelectedObject(-5);
+            myARs[0].changeSelectedObject(-3);
 
             theLog.print
             (

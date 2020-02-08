@@ -97,7 +97,7 @@ namespace ZookieWizard
                 insertTagAttrib("version", "1.5.0");
 
                 openTag("asset");
-                
+
                 openTag("created");
                 closeTag();
 
@@ -486,7 +486,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ColladaExporter: get current state
     ////////////////////////////////////////////////////////////////
-    int32_t ColladaExporter::getState()
+    int32_t ColladaExporter::getState() const
     {
         return state;
     }
@@ -495,7 +495,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ColladaExporter: get and update Object Reference IDs
     ////////////////////////////////////////////////////////////////
-    int32_t ColladaExporter::getObjectRefId(int32_t type, void* pointer, bool can_be_created)
+    int32_t ColladaExporter::getObjectRefId(int32_t type, const void* pointer, bool can_be_created)
     {
         int32_t i;
         int32_t current_id;
@@ -561,7 +561,7 @@ namespace ZookieWizard
 
         objRefs[objRefsCount].id = current_id;
         objRefs[objRefsCount].type = type;
-        objRefs[objRefsCount].pointer = pointer;
+        objRefs[objRefsCount].pointer = (void*)pointer;
         objRefsCount++;
 
         return current_id;
@@ -571,7 +571,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ColladaExporter: check if object was alerady exported
     ////////////////////////////////////////////////////////////////
-    bool ColladaExporter::objectRefAlreadyExists(int32_t type, void* pointer)
+    bool ColladaExporter::objectRefAlreadyExists(int32_t type, const void* pointer) const
     {
         int32_t i;
 
@@ -599,7 +599,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ColladaExporter: get working directory
     ////////////////////////////////////////////////////////////////
-    eString ColladaExporter::getWorkingDirectory()
+    eString ColladaExporter::getWorkingDirectory() const
     {
         return workingDirectory;
     }

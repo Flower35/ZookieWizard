@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* SuperInstruction::getType()
+    TypeInfo* SuperInstruction::getType() const
     {
         return &E_SUPERINSTRUCTION_TYPEINFO;
     }
@@ -61,7 +61,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // SuperInstruction: save to text file
     ////////////////////////////////////////////////////////////////
-    void SuperInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation)
+    void SuperInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation) const
     {
         ArFunctions::writeNewLine(file, 0);
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePlaneEmiter::getType()
+    TypeInfo* ePlaneEmiter::getType() const
     {
         return &E_PLANEEMITER_TYPEINFO;
     }

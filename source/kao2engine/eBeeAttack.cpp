@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBeeAttack::getType()
+    TypeInfo* eBeeAttack::getType() const
     {
         return &E_BEEATTACK_TYPEINFO;
     }

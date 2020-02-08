@@ -48,7 +48,7 @@ namespace ZookieWizard
     // Level Bonus: convert from Kao1 to Kao2
     ////////////////////////////////////////////////////////////////
 
-    void DenisLevelBonus::convertToKao2(int32_t bonus_id, eGroup* parent_group)
+    void DenisLevelBonus::convertToKao2(int32_t bonus_id, eGroup* parent_group) const
     {
         char bufor[16];
         eString test_str;

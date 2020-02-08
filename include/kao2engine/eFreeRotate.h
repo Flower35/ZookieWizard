@@ -29,7 +29,7 @@ namespace ZookieWizard
             eFreeRotate();
             ~eFreeRotate();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

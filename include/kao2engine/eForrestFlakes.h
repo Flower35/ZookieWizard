@@ -21,7 +21,7 @@ namespace ZookieWizard
             eForrestFlakes();
             ~eForrestFlakes();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

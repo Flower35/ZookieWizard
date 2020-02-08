@@ -91,6 +91,7 @@
     <ClCompile Include="..\source\denis\DenisLevelWObj.cpp" />
     <ClCompile Include="..\source\denis\DenisLevelZone.cpp" />
     <ClCompile Include="..\source\kao2ar\Archive.cpp" />
+    <ClCompile Include="..\source\kao2ar\ArchiveMisc.cpp" />
     <ClCompile Include="..\source\kao2ar\AxisList.cpp" />
     <ClCompile Include="..\source\kao2ar\Collection.cpp" />
     <ClCompile Include="..\source\kao2ar\eAnimate.cpp" />
@@ -409,6 +410,7 @@
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardGUI.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardMisc.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardRender.cpp" />
+    <ClCompile Include="..\source\ZookieWizard\ZookieWizardWindows.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resource\ZookieWizard\WinRC.rc" />

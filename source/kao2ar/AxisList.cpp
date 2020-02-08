@@ -17,13 +17,13 @@ namespace ZookieWizard
     {
         /*[0x00]*/ previous = nullptr;
         /*[0x04]*/ next = nullptr;
-        /*[0x08]*/ unknown_08 = 0;
-        /*[0x0C]*/ unknown_0C = (-1);
-        /*[0x0E]*/ unknown_0E = 0;
-        /*[0x0F]*/ unknown_0F = 0;
+        /*[0x08]*/ coordLimit = 0;
+        /*[0x0C]*/ alboxEntryId = (-1);
+        /*[0x0E]*/ columnId = 0;
+        /*[0x0F]*/ rowId = 0;
 
-        unknown_00_id = 0;
-        unknown_04_id = 0;
+        tempPreviousId = 0;
+        tempNextId = 0;
     }
 
 
@@ -51,25 +51,25 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void AxisList::serialize(Archive &ar)
     {
-        /* [0x08] unknown */
-        ar.readOrWrite(&unknown_08, 0x04);
+        /* [0x08] Point in space on Axis */
+        ar.readOrWrite(&coordLimit, 0x04);
 
         /* (ar.version() >= 0x81) */
 
-        /* [0x0C] unknown */
-        ar.readOrWrite(&unknown_0C, 0x02);
+        /* [0x0C] "eALBox" ID in "eCollisionMgr" collection of boxes */
+        ar.readOrWrite(&alboxEntryId, 0x02);
 
-        /* [0x0E] unknown */
-        ar.readOrWrite(&unknown_0E, 0x01);
+        /* [0x0E] Column ID (0 for MIN boundary, 1 for MAX boundary) */
+        ar.readOrWrite(&columnId, 0x01);
 
-        /* [0x0F] unknown */
-        ar.readOrWrite(&unknown_0F, 0x01);
+        /* [0x0F] Row ID (0 for X, 1 for Y, 2 for Z) */
+        ar.readOrWrite(&rowId, 0x01);
 
-        /* [0x04] [0x00] unknown pointers */
+        /* [0x04] [0x00] next list and previous list pointers */
         if (ar.isInReadMode())
         {
-            ar.readOrWrite(&unknown_04_id, 0x04);
-            ar.readOrWrite(&unknown_00_id, 0x04);
+            ar.readOrWrite(&tempNextId, 0x04);
+            ar.readOrWrite(&tempPreviousId, 0x04);
         }
         else
         {
@@ -79,7 +79,7 @@ namespace ZookieWizard
             }
             else
             {
-                ar.readOrWrite(&unknown_04_id, 0x04);
+                ar.readOrWrite(&tempNextId, 0x04);
             }
 
             if (nullptr != previous)
@@ -88,7 +88,7 @@ namespace ZookieWizard
             }
             else
             {
-                ar.readOrWrite(&unknown_00_id, 0x04);
+                ar.readOrWrite(&tempPreviousId, 0x04);
             }
         }
     }
@@ -98,22 +98,22 @@ namespace ZookieWizard
     // AxisList
     // <kao2.004BAE40> (pointer serialization)
     ////////////////////////////////////////////////////////////////
-    void AxisList::serializePointer(Archive &ar)
+    void AxisList::serializePointer(Archive &ar) const
     {
         int32_t a;
 
-        if ((-1) != unknown_0C)
+        if ((-1) != alboxEntryId)
         {
-            a = unknown_0C + 0x02;
+            a = alboxEntryId + 0x02;
 
-            if (false == unknown_0E)
+            if (0x00 == columnId)
             {
                 a = (-a);
             }
         }
         else
         {
-            a = unknown_0E ? (-1) : 1;
+            a = columnId ? (-1) : 1;
         }
 
         ar.readOrWrite(&a, 0x04);
@@ -121,14 +121,14 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // 
+    //
     // <kao2.004BAFD0>
     ////////////////////////////////////////////////////////////////
     void AxisList::setPointersFromCollisionManager_A(eALBox** group, AxisList* arg2, AxisList* arg3)
     {
         AxisList* a;
 
-        a = getPointerFromCollisionManager_B(group, arg2, arg3, unknown_04_id);
+        a = getPointerFromCollisionManager_B(group, arg2, arg3, tempNextId);
 
         next = a;
 
@@ -137,7 +137,7 @@ namespace ZookieWizard
             arg2->previous = this;
         }
 
-        a = getPointerFromCollisionManager_B(group, arg2, arg3, unknown_00_id);
+        a = getPointerFromCollisionManager_B(group, arg2, arg3, tempPreviousId);
 
         previous = a;
 
@@ -149,10 +149,10 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // 
+    //
     // <kao2.004BAE90> ("getPointers")
     ////////////////////////////////////////////////////////////////
-    AxisList* AxisList::getPointerFromCollisionManager_B(eALBox** group, AxisList* arg2, AxisList* arg3, int32_t arg4)
+    AxisList* AxisList::getPointerFromCollisionManager_B(eALBox** group, AxisList* arg2, AxisList* arg3, int32_t arg4) const
     {
         int32_t a;
         eALBox* box;
@@ -168,9 +168,9 @@ namespace ZookieWizard
 
             box = group[(-a)];
 
-            return box->getAxisList(unknown_0F, 0);
+            return box->getAxisList(rowId, 0);
         }
-        else
+        else if (arg4 > 0)
         {
             if (1 == arg4)
             {
@@ -181,135 +181,112 @@ namespace ZookieWizard
 
             box = group[a];
 
-            return box->getAxisList(unknown_0F, 1);
+            return box->getAxisList(rowId, 1);
+        }
+        else
+        {
+            throw ErrorMessage
+            (
+                "AxisList::function_004BAE90():\n" \
+                "other list ID initialized incorrectly! (cannot be zero)"
+            );
         }
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // 
+    //
     // <kao2.004BCF30>
     ////////////////////////////////////////////////////////////////
-    void AxisList::function_004BCF30(AxisList arg1[2])
+    void AxisList::function_004BCF30(AxisList arg1[2]) const
     {
-        float a;
-        float b;
+        AxisList* test_list = this->previous;
 
-        AxisList* test = this->previous;
-
-        do
+        while ((arg1[0].coordLimit) >= (test_list->coordLimit))
         {
-            a = *(float*)&(test->unknown_08);
-            b = *(float*)&(arg1[0].unknown_08);
+            test_list->function_004BADA0(&(arg1[0]));
 
-            if (a < b)
-            {
-                function_004BADA0(&(arg1[0]));
-
-                //// (--dsp--) test = test->previous;
-            }
+            test_list = test_list->previous;
         }
-        while (0);
-        //// (--dsp--) `while (a < b);`
 
-        this->previous = &(arg1[0]);
-        arg1[0].next = this;
+        test_list->next->previous = &(arg1[0]);
+        arg1[0].next = test_list->next;
 
-        arg1[0].previous = test;
-        test->next = &(arg1[0]);
+        arg1[0].previous = test_list;
+        test_list->next = &(arg1[0]);
 
-        do
+        while ((arg1[1].coordLimit) >= (test_list->coordLimit))
         {
-            a = *(float*)&(test->unknown_08);
-            b = *(float*)&(arg1[1].unknown_08);
+            test_list->function_004BADA0(&(arg1[1]));
 
-            if (a < b)
-            {
-                function_004BADA0(&(arg1[1]));
-
-                //// (--dsp--) test = test->previous;
-            }
+            test_list = test_list->previous;
         }
-        while (0);
-        //// (--dsp--) `while (a < b);`
 
-        this->previous = &(arg1[0]);
-        arg1[1].next = this;
+        test_list->next->previous = &(arg1[1]);
+        arg1[1].next = test_list->next;
 
-        arg1[1].previous = test;
-        test->next = &(arg1[1]);
-
+        arg1[1].previous = test_list;
+        test_list->next = &(arg1[1]);
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // 
+    //
     // <kao2.004BADA0>
     ////////////////////////////////////////////////////////////////
-    void AxisList::function_004BADA0(AxisList* arg1)
+    void AxisList::function_004BADA0(AxisList* arg1) const
     {
         int32_t a;
-        int32_t array_size;
+        int32_t array_size = 0;
 
         eScene* test_scene = ArFunctions::getCurrentScene();
         eCollisionMgr* test_manager = test_scene->getCollisionManager();
-        eALBox** test_boxes;
-        eALBox* test_box_A;
-        eALBox* test_box_B;
+        eALBox** test_boxes = nullptr;
+        eALBox* test_box_A = nullptr;
+        eALBox* test_box_B = nullptr;
+
+        array_size = test_manager->get_ALBoxes_array_size();
+        test_boxes = test_manager->get_ALBoxes_array();
 
         /* First block */
 
-        a = unknown_0C;
+        a = alboxEntryId;
 
         if (a < 0)
         {
-            array_size = test_manager->get_ALBoxes_array_size();
-
-            a = array_size - unknown_0C;
+            a = array_size - alboxEntryId;
         }
 
         a = a % array_size;
-
-        test_boxes = test_manager->get_ALBoxes_array();
 
         test_box_A = test_boxes[a];
 
         /* Second block */
 
-        a = arg1->unknown_0C;
+        a = arg1->alboxEntryId;
 
         if (a < 0)
         {
-            array_size = test_manager->get_ALBoxes_array_size();
-
-            a = array_size - unknown_0C;
+            a = array_size - alboxEntryId;
         }
 
         a = a % array_size;
-
-        test_boxes = test_manager->get_ALBoxes_array();
 
         test_box_B = test_boxes[a];
 
         /* Checking */
 
-        if (arg1->unknown_0C < unknown_0C)
+        if ((arg1->alboxEntryId) < alboxEntryId)
         {
-            //// (--dsp--) <kao2.004A9F40>
-            // unknown_0F jako arg2
-            // test_box_B jako arg1
-            // ecx = test_box_A
+            test_box_A->function_004A9F40(test_box_B, rowId);
         }
-        else if (arg1->unknown_0C > unknown_0C)
+        else if ((arg1->alboxEntryId) > alboxEntryId)
         {
-            //// (--dsp--) <kao2.004A9F40>
-            // unknown_0F jako arg2
-            // test_box_A jako arg1
-            // ecx = test_box_B
+            test_box_B->function_004A9F40(test_box_A, rowId);
         }
     }
 
-    
+
     ////////////////////////////////////////////////////////////////
     // Generate AxisList pointers
     // <kao2.005A589E>
@@ -331,13 +308,13 @@ namespace ZookieWizard
             testB = new AxisList;
             pointer[j + 1] = testB;
 
-            testA->unknown_0C = (-1);
-            *(uint32_t*)&(testA->unknown_08) = 0xD8635FA9;
-            testA->unknown_0E = true;
+            testA->alboxEntryId = (-1);
+            *(uint32_t*)&(testA->coordLimit) = 0xD8635FA9;
+            testA->columnId = 0x01;
 
-            testB->unknown_0C = (-1);
-            *(uint32_t*)&(testB->unknown_08) = 0x58635FA9;
-            testB->unknown_0E = false;
+            testB->alboxEntryId = (-1);
+            *(uint32_t*)&(testB->coordLimit) = 0x58635FA9;
+            testB->columnId = 0x00;
 
             testA->previous = testB;
             testA->next = nullptr;

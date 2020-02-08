@@ -27,7 +27,7 @@ namespace ZookieWizard
             eSplineHintFollowCameraCtrl();
             ~eSplineHintFollowCameraCtrl();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

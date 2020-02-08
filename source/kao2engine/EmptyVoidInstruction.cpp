@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* EmptyVoidInstruction::getType()
+    TypeInfo* EmptyVoidInstruction::getType() const
     {
         return &E_EMPTYVOIDINSTRUCTION_TYPEINFO;
     }
@@ -31,12 +31,12 @@ namespace ZookieWizard
     {}
 
     EmptyVoidInstruction::~EmptyVoidInstruction() {}
-    
+
 
     ////////////////////////////////////////////////////////////////
     // EmptyVoidInstruction: save to text file
     ////////////////////////////////////////////////////////////////
-    void EmptyVoidInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation)
+    void EmptyVoidInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation) const
     {
         ArFunctions::writeNewLine(file, indentation);
 

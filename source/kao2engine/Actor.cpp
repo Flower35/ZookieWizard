@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Actor::getType()
+    TypeInfo* Actor::getType() const
     {
         return &E_ACTOR_TYPEINFO;
     }
@@ -77,7 +77,7 @@ namespace ZookieWizard
         }
 
         /* Script path ("*.def") */
-        
+
         ar.serializeString(scriptPath);
 
         if (ar.isInExportScriptsMode())
@@ -102,7 +102,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Actor: export readable structure
     ////////////////////////////////////////////////////////////////
-    void Actor::writeStructureToTextFile(FileOperator &file, int32_t indentation)
+    void Actor::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
     {
         int32_t i;
         eNode* test_node;
@@ -152,7 +152,7 @@ namespace ZookieWizard
                 128,
                 " - track [%d]: \"%s\"",
                 i,
-                test_track->getName().getText()
+                test_track->getStringRepresentation().getText()
             );
 
             ArFunctions::writeIndentation(file, indentation);
@@ -177,7 +177,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Actor: save script file
     ////////////////////////////////////////////////////////////////
-    void Actor::saveMyScript(Archive &ar)
+    void Actor::saveMyScript(Archive &ar) const
     {
         FileOperator file;
         eString result;
@@ -237,7 +237,7 @@ namespace ZookieWizard
                         );
                     }
                 }
-            
+
                 if (has_question_mark)
                 {
                     file << scriptPath.getSubstring(1);

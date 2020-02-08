@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSetCollisionFlags::getType()
+    TypeInfo* eSetCollisionFlags::getType() const
     {
         return &E_SETCOLLISIONFLAGS_TYPEINFO;
     }

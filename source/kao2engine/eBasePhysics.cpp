@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBasePhysics::getType()
+    TypeInfo* eBasePhysics::getType() const
     {
         return &E_BASEPHYSICS_TYPEINFO;
     }
@@ -36,7 +36,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eBasePhysics: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString eBasePhysics::getDefaultGadgetName()
+    eString eBasePhysics::getDefaultGadgetName() const
     {
         return "ctrl";
     }

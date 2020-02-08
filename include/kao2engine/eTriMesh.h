@@ -28,18 +28,14 @@ namespace ZookieWizard
             ~eTriMesh();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+            void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
 
-            void setGeoSet(eGeoSet* new_geo);
-            void setMaterial(eMaterial* new_material);
-            void setBoundaryBox(ePoint3 new_min, ePoint3 new_max);
-
-            eGeoSet* getGeoSetLink();
-            eMaterial* getMaterial();
+            eGeoSet* getGeoset() const;
+            void setGeoset(eGeoSet* new_geo);
     };
 
 

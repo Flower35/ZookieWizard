@@ -19,12 +19,12 @@ namespace ZookieWizard
             Log();
             ~Log();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            eString getDefaultGadgetName() override;
+            eString getDefaultGadgetName() const override;
 
-            void print(eString what);
-            void print(eObject* what);
+            void print(eString what) const;
+            void print(eObject* what) const;
     };
 
 

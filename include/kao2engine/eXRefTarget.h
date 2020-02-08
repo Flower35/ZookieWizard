@@ -33,12 +33,14 @@ namespace ZookieWizard
             ~eXRefTarget();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
             void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
 
             bool loadTarget(Archive &ar, int32_t ar_flags, eString model_name);
-            void exportTarget(Archive &ar, int32_t ar_flags);
+            void exportTarget(Archive &ar, int32_t ar_flags) const;
+
+            eScene* getLocalScene() const;
     };
 
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCloneChild::getType()
+    TypeInfo* eCloneChild::getType() const
     {
         return &E_CLONECHILD_TYPEINFO;
     }

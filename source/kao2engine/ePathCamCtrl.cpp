@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePathCamCtrl::getType()
+    TypeInfo* ePathCamCtrl::getType() const
     {
         return &E_PATHCAMCTRL_TYPEINFO;
     }

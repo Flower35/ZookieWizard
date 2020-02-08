@@ -32,12 +32,12 @@ namespace ZookieWizard
             ~eMaterialState();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            void getAmbientColor(float* values);
-            void getDiffuseColor(float* values);
-            void getSpecularColor(float* values);
-            float getShininess();
+            void getAmbientColor(float* values) const;
+            void getDiffuseColor(float* values) const;
+            void getSpecularColor(float* values) const;
+            float getShininess() const;
 
             void setAmbientColor(float* values);
             void setDiffuseColor(float* values);

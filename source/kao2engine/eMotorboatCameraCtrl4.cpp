@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMotorboatCameraCtrl4::getType()
+    TypeInfo* eMotorboatCameraCtrl4::getType() const
     {
         return &E_MOTORBOATCAMERACTRL4_TYPEINFO;
     }

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eNaviPoint::getType()
+    TypeInfo* eNaviPoint::getType() const
     {
         return &E_NAVIPOINT_TYPEINFO;
     }

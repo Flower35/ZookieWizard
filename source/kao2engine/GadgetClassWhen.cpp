@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* GadgetClassWhen::getType()
+    TypeInfo* GadgetClassWhen::getType() const
     {
         return &E_GADGETCLASSWHEN_TYPEINFO;
     }
@@ -53,7 +53,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // GadgetClassWhen: save to text file
     ////////////////////////////////////////////////////////////////
-    void GadgetClassWhen::saveWhenToTextFile(FileOperator &file, int32_t indentation)
+    void GadgetClassWhen::saveWhenToTextFile(FileOperator &file, int32_t indentation) const
     {
         ArFunctions::writeNewLine(file, indentation);
 

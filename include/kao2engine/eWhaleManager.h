@@ -29,7 +29,7 @@ namespace ZookieWizard
             eWhaleManager();
             ~eWhaleManager();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

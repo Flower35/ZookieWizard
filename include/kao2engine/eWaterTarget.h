@@ -21,7 +21,7 @@ namespace ZookieWizard
             eWaterTarget();
             ~eWaterTarget();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

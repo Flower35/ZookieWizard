@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePadGadget::getType()
+    TypeInfo* ePadGadget::getType() const
     {
         return &E_PADGADGET_TYPEINFO;
     }
@@ -36,7 +36,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ePadGadget: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString ePadGadget::getDefaultGadgetName()
+    eString ePadGadget::getDefaultGadgetName() const
     {
         return "pad";
     }

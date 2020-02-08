@@ -6,7 +6,7 @@
 
 namespace ZookieWizard
 {
-    
+
     ////////////////////////////////////////////////////////////////
     // World Object Proxy: constructor
     ////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ namespace ZookieWizard
     // World Object Proxy: convert from Kao1 to Kao2
     ////////////////////////////////////////////////////////////////
 
-    void DenisLevelMaxObj::convertToKao2(int32_t maxobj_id, eGroup* parent_group, DenisLevelWObj &wobj)
+    void DenisLevelMaxObj::convertToKao2(int32_t maxobj_id, eGroup* parent_group, DenisLevelWObj &wobj) const
     {
         char bufor[16];
         eString test_str;

@@ -64,6 +64,7 @@ namespace ZookieWizard
             /* External things */
 
             eMaterial** materialsList;
+            eMaterial* collisionMaterials[4];
 
             float kaoPos[3];
             uint16_t kaoRot[3];
@@ -79,7 +80,7 @@ namespace ZookieWizard
             void openAndSerialize(DenisFileOperator &file);
             void destroy();
 
-            eString getName();
+            eString getName() const;
 
             void createMaterialsList(DenisFileOperator &file);
             void deleteMaterialsList();

@@ -29,7 +29,7 @@ namespace ZookieWizard
             ePowerBar();
             ~ePowerBar();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

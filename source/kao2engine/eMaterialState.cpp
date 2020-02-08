@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMaterialState::getType()
+    TypeInfo* eMaterialState::getType() const
     {
         return &E_MATERIALSTATE_TYPEINFO;
     }
@@ -148,28 +148,28 @@ namespace ZookieWizard
     // eMaterialState: color getters and setters
     ////////////////////////////////////////////////////////////////
 
-    void eMaterialState::getAmbientColor(float* values)
+    void eMaterialState::getAmbientColor(float* values) const
     {
         values[0] = ambient[0];
         values[1] = ambient[1];
         values[2] = ambient[2];
     }
 
-    void eMaterialState::getDiffuseColor(float* values)
+    void eMaterialState::getDiffuseColor(float* values) const
     {
         values[0] = diffuse[0];
         values[1] = diffuse[1];
         values[2] = diffuse[2];
     }
 
-    void eMaterialState::getSpecularColor(float* values)
+    void eMaterialState::getSpecularColor(float* values) const
     {
         values[0] = specular[0];
         values[1] = specular[1];
         values[2] = specular[2];
     }
 
-    float eMaterialState::getShininess()
+    float eMaterialState::getShininess() const
     {
         return shininess;
     }

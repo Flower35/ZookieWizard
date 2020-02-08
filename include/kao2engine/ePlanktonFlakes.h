@@ -21,7 +21,7 @@ namespace ZookieWizard
             ePlanktonFlakes();
             ~ePlanktonFlakes();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

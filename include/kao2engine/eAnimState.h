@@ -42,12 +42,12 @@ namespace ZookieWizard
             ~eAnimState();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            float getTime();
-            int getAnimId();
-
+            float getTime() const;
             void setTime(float current_time);
+
+            int getAnimId() const;
             void setAnimId(int32_t current_anim_id);
     };
 

@@ -20,7 +20,7 @@ namespace ZookieWizard
             ePrimitive();
             ~ePrimitive();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

@@ -23,12 +23,12 @@ namespace ZookieWizard
             /*[0x0C]*/ int32_t unknown_0C;
             /*[0x10]*/ eNode* parent;
             /*[0x14]*/ eString name;
-            /*[0x18]*/ eALBox* unknown_18;
+            /*[0x18]*/ eALBox* axisListBox;
             /*[0x1C]*/ uint32_t flags;
-            /*[0x20-0x2C]*/ float sphBound[4]; 
-            /*[0x30]*/ uint16_t flags02; 
+            /*[0x20-0x2C]*/ float sphBound[4];
+            /*[0x30]*/ uint16_t flags02;
             /*[0x34]*/ eRefCounter* unknown_34; // "animated vis ctrl", "static vis ctrl".
-            /*[(kao3)0x34]*/ int32_t visGroup; 
+            /*[(kao3)0x34]*/ int32_t visGroup;
 
         /*** Methods ***/
 
@@ -39,25 +39,29 @@ namespace ZookieWizard
             ~eNode();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            eString getStringRepresentation() override;
-            eString getLogPrintMessage() override;
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
+            eString getStringRepresentation() const override;
+            eString getLogPrintMessage() const override;
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
 
             virtual void updateSRP(eAnimate* anim, eSRP &parent_srp);
 
             void setName(eString new_name);
 
-            eNode* getParentNode();
+            eNode* getParentNode() const;
             void setParentNode(eNode* new_parent);
 
-            eTransform* getPreviousTransform();
+            eTransform* getPreviousTransform() const;
             void setPreviousTransform();
 
+            int32_t getFlags() const;
             void setFlags(int32_t bits_to_apply);
             void unsetFlags(int32_t bits_to_erase);
-            int32_t getFlags();
+
+            eALBox* getAxisListBox() const;
+            void setAxisListBox(eALBox* box);
+
     };
 
 

@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eXRefManager::getType()
+    TypeInfo* eXRefManager::getType() const
     {
         return &E_XREFMANAGER_TYPEINFO;
     }

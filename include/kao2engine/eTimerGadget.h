@@ -29,7 +29,7 @@ namespace ZookieWizard
             eTimerGadget();
             ~eTimerGadget();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

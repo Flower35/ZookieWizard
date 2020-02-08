@@ -31,11 +31,11 @@ namespace ZookieWizard
             ~StringSection();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            eString getStringRepresentation() override;
+            eString getStringRepresentation() const override;
 
-            void saveSectionToTextFile(FileOperator &file, int32_t indentation);
+            void saveSectionToTextFile(FileOperator &file, int32_t indentation) const;
     };
 
 

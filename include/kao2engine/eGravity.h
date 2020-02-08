@@ -29,7 +29,7 @@ namespace ZookieWizard
             eGravity();
             ~eGravity();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

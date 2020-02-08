@@ -26,7 +26,7 @@ namespace ZookieWizard
             eSndEmiterAmb();
             ~eSndEmiterAmb();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

@@ -29,7 +29,7 @@ namespace ZookieWizard
             eFloatObject();
             ~eFloatObject();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

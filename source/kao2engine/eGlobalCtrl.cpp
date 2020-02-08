@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGlobalCtrl::getType()
+    TypeInfo* eGlobalCtrl::getType() const
     {
         return &E_GLOBALCTRL_TYPEINFO;
     }

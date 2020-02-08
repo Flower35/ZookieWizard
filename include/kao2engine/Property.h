@@ -35,11 +35,11 @@ namespace ZookieWizard
             ~Property();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            eString generateScriptText() override;
+            eString generateScriptText() const override;
 
-            bool compareGadgets(Gadget* source);
+            bool compareGadgets(Gadget* source) const;
     };
 
 

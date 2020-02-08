@@ -35,8 +35,8 @@ namespace ZookieWizard
 
             void serialize(Archive &ar, TypeInfo* t);
 
-            int32_t getSize();
-            eRefCounter* getIthChild(int32_t i);
+            int32_t getSize() const;
+            eRefCounter* getIthChild(int32_t i) const;
             void appendChild(eRefCounter* o);
             void deleteIthChild(int32_t i);
             void findAndDeleteChild(eRefCounter* o);

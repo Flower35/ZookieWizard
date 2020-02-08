@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eParentListener::getType()
+    TypeInfo* eParentListener::getType() const
     {
         return &E_PARENTLISTENER_TYPEINFO;
     }

@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* MeWhen::getType()
+    TypeInfo* MeWhen::getType() const
     {
         return &E_MEWHEN_TYPEINFO;
     }
@@ -38,7 +38,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // MeWhen: save to text file
     ////////////////////////////////////////////////////////////////
-    void MeWhen::saveWhenToTextFile(FileOperator &file, int32_t indentation)
+    void MeWhen::saveWhenToTextFile(FileOperator &file, int32_t indentation) const
     {
         ArFunctions::writeNewLine(file, indentation);
 

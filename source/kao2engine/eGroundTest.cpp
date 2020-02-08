@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGroundTest::getType()
+    TypeInfo* eGroundTest::getType() const
     {
         return &E_GROUNDTEST_TYPEINFO;
     }

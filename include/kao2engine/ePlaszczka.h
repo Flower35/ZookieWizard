@@ -29,7 +29,7 @@ namespace ZookieWizard
             ePlaszczka();
             ~ePlaszczka();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

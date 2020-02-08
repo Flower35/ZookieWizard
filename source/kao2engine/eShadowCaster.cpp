@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eShadowCaster::getType()
+    TypeInfo* eShadowCaster::getType() const
     {
         return &E_SHADOWCASTER_TYPEINFO;
     }

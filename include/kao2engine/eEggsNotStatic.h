@@ -21,7 +21,7 @@ namespace ZookieWizard
             eEggsNotStatic();
             ~eEggsNotStatic();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

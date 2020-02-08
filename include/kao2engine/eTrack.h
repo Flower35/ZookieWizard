@@ -18,7 +18,7 @@ namespace ZookieWizard
         protected:
 
             /*[0x08]*/ eString name;
-            /*[0x0C]*/ float startFrame; 
+            /*[0x0C]*/ float startFrame;
             /*[0x10]*/ float endFrame;
             /*[0x14]*/ int loopType;
 
@@ -30,13 +30,14 @@ namespace ZookieWizard
             ~eTrack();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            eString getLogPrintMessage() override;
+            eString getStringRepresentation() const override;
+            eString getLogPrintMessage() const override;
 
-            float getStartFrame();
-            float getEndFrame();
-            eString getName();
+            float getStartFrame() const;
+            float getEndFrame() const;
+
     };
 
 

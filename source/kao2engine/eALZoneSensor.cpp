@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eALZoneSensor::getType()
+    TypeInfo* eALZoneSensor::getType() const
     {
         return &E_ALZONESENSOR_TYPEINFO;
     }
@@ -42,71 +42,10 @@ namespace ZookieWizard
     {
         sensorName = "Hero";
 
-        prepareZone(zone, boxBound);
+        createAxisListEntry(zone, boxBound);
     }
 
     eALZoneSensor::~eALZoneSensor() {}
-
-
-    ////////////////////////////////////////////////////////////////
-    // eALZoneSensor: prepare zone
-    // <kao2.004AABC0>
-    ////////////////////////////////////////////////////////////////
-    void eALZoneSensor::prepareZone(eZone* zone, float* boxBound)
-    {
-        int32_t i;
-        int32_t j;
-
-        if (nullptr != zone)
-        {
-            zone->setSensor(this);
-        }
-
-        unknown_0C = zone;
-        unknown_08 = nullptr;
-
-        if (unknown_8C < 2)
-        {
-            /* set [0x8C] (unknown) */
-
-            if (function_004AAB60())
-            {
-                unknown_8C = 0x01;
-            }
-            else
-            {
-                unknown_8C = 0x00;
-            }
-        }
-
-        /* Update sub-structures */
-
-        j = 0;
-
-        for (i = 0; i < 3; i++)
-        {
-            *(float*)&(test[i][0].unknown_08) = boxBound[j];
-            test[i][0].unknown_0F = j;
-            test[i][0].unknown_0E = false;
-
-            j++;
-
-            *(float*)&(test[i][1].unknown_08) = boxBound[j];
-            test[i][1].unknown_0F = j;
-            test[i][1].unknown_0E = true;
-
-            j++;
-        }
-
-        if (0x02 != unknown_8C)
-        {
-            function_004A9CC0();
-        }
-        else
-        {
-            function_004A99C0();
-        }
-    }
 
 
     ////////////////////////////////////////////////////////////////

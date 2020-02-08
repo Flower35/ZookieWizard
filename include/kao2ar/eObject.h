@@ -16,20 +16,20 @@ namespace ZookieWizard
     class eObject
     {
         /*** Methods ***/
-    
+
         public:
 
             eObject();
             /*[[vptr]+0x0C]*/ virtual ~eObject();
-        
-            /*[[vptr]+0x08]*/ virtual void serialize(Archive &ar);
-            /*[[vptr]+0x00]*/ virtual TypeInfo* getType();
 
-            virtual eString getStringRepresentation();
-            virtual eString generateScriptText();
-            virtual eString getLogPrintMessage();
-            virtual void writeStructureToTextFile(FileOperator &file, int32_t indentation);
-            virtual void writeNodeToXmlFile(ColladaExporter &exporter);
+            /*[[vptr]+0x08]*/ virtual void serialize(Archive &ar);
+            /*[[vptr]+0x00]*/ virtual TypeInfo* getType() const;
+
+            virtual eString getStringRepresentation() const;
+            virtual eString generateScriptText() const;
+            virtual eString getLogPrintMessage() const;
+            virtual void writeStructureToTextFile(FileOperator &file, int32_t indentation) const;
+            virtual void writeNodeToXmlFile(ColladaExporter &exporter) const;
 
             virtual void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp);
     };

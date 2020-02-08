@@ -30,9 +30,9 @@ namespace ZookieWizard
             ~ePivot();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation) override;
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
 
             void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
             void updateSRP(eAnimate* anim, eSRP &parent_srp) override;

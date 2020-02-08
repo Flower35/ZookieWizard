@@ -27,7 +27,7 @@ namespace ZookieWizard
             eGloveTarget();
             ~eGloveTarget();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

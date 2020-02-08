@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBonusShooting::getType()
+    TypeInfo* eBonusShooting::getType() const
     {
         return &E_BONUSSHOOTING_TYPEINFO;
     }

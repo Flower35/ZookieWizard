@@ -8,7 +8,7 @@
 namespace ZookieWizard
 {
     struct DenisLevelTrack;
-    
+
     class eGroup;
     class eMaterial;
 
@@ -56,8 +56,11 @@ namespace ZookieWizard
                 int32_t object_id,
                 eGroup* parent_group,
                 int32_t materials_count,
-                eMaterial** materials_list
+                eMaterial** materials_list,
+                eMaterial** collision_materials
             );
+
+            void convertCollisionToKao2(eGroup* object_group, eMaterial** collision_materials) const;
     };
 
 }

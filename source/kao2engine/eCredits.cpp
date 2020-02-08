@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCredits::getType()
+    TypeInfo* eCredits::getType() const
     {
         return &E_CREDITS_TYPEINFO;
     }

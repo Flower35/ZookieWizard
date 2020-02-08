@@ -19,7 +19,7 @@ namespace ZookieWizard
             BoolInstruction();
             ~BoolInstruction();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

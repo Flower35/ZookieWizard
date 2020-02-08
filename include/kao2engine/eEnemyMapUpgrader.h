@@ -28,7 +28,7 @@ namespace ZookieWizard
             eEnemyMapUpgrader();
             ~eEnemyMapUpgrader();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

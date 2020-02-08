@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTextWriterFields2::getType()
+    TypeInfo* eTextWriterFields2::getType() const
     {
         return &E_TEXTWRITERFIELDS2_TYPEINFO;
     }

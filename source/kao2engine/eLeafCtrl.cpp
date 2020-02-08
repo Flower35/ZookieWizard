@@ -10,7 +10,7 @@ namespace ZookieWizard
     // eLeafCtrl interfaces
     // <kao2.004A2D50> (constructor)
     ////////////////////////////////////////////////////////////////
-    
+
     TypeInfo E_LEAFCTRL_FLOAT_TYPEINFO
     (
         E_LEAFCTRL_FLOAT_ID,
@@ -22,7 +22,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLeafCtrl<float>::getType()
+    TypeInfo* eLeafCtrl<float>::getType() const
     {
         return &E_LEAFCTRL_FLOAT_TYPEINFO;
     }
@@ -38,11 +38,11 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLeafCtrl<ePoint3>::getType()
+    TypeInfo* eLeafCtrl<ePoint3>::getType() const
     {
         return &E_LEAFCTRL_EPOINT3_TYPEINFO;
     }
-    
+
     TypeInfo E_LEAFCTRL_EQUAT_TYPEINFO
     (
         E_LEAFCTRL_EQUAT_ID,
@@ -54,11 +54,11 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLeafCtrl<eQuat>::getType()
+    TypeInfo* eLeafCtrl<eQuat>::getType() const
     {
         return &E_LEAFCTRL_EQUAT_TYPEINFO;
     }
-    
+
     template <typename T>
     eLeafCtrl<T>::eLeafCtrl()
     : eCtrl<T>()
@@ -106,7 +106,7 @@ namespace ZookieWizard
     // <kao2.004A0680>: "eRotationKey"
     ////////////////////////////////////////////////////////////////
     template <typename T>
-    int eLeafCtrl<T>::getKeyframeId(float time)
+    int eLeafCtrl<T>::getKeyframeId(float time) const
     {
         int i = 0;
         int j = keysCount - 1;
@@ -144,15 +144,15 @@ namespace ZookieWizard
     // "LERP" for "float" and "ePoint3"
     // "SLERP" for "eQuat"
     ////////////////////////////////////////////////////////////////
-    
-    float eLeafCtrl<float>::interpolate(float ratio, float &first, float &second, float &other)
+
+    float eLeafCtrl<float>::interpolate(float ratio, float &first, float &second, float &other) const
     {
         float result = (first * (1.0f - ratio)) + (second * ratio);
 
         return (result + other);
     }
 
-    ePoint3 eLeafCtrl<ePoint3>::interpolate(float ratio, ePoint3 &first, ePoint3 &second, ePoint3 &other)
+    ePoint3 eLeafCtrl<ePoint3>::interpolate(float ratio, ePoint3 &first, ePoint3 &second, ePoint3 &other) const
     {
         /* <kao2.004A0500> */
 
@@ -161,7 +161,7 @@ namespace ZookieWizard
         return (result + other);
     }
 
-    eQuat eLeafCtrl<eQuat>::interpolate(float ratio, eQuat &first, eQuat &second, eQuat &other)
+    eQuat eLeafCtrl<eQuat>::interpolate(float ratio, eQuat &first, eQuat &second, eQuat &other) const
     {
         /* <kao2.004A4741> */
 
@@ -183,7 +183,7 @@ namespace ZookieWizard
     // <kao2.004A4280>: "eRotationKey"
     ////////////////////////////////////////////////////////////////
     template <typename T>
-    void eLeafCtrl<T>::ctrlApplyTransform(T* e, float time)
+    void eLeafCtrl<T>::ctrlApplyTransform(T* e, float time) const
     {
         T test = {0};
 
@@ -192,7 +192,7 @@ namespace ZookieWizard
             if (0 == keysCount)
             {
                 (*e) = unknown_1C;
-                
+
                 return;
             }
             else if (1 == keysCount)
@@ -210,7 +210,7 @@ namespace ZookieWizard
                         if (time <= keys[0].time)
                         {
                             (*e) = keys[0].data[0];
-                            
+
                             return;
                         }
                         else if (time >= keys[keysCount - 1].time)
@@ -292,7 +292,7 @@ namespace ZookieWizard
                         }
 
                         time = w + keys[0].time;
-                        
+
                         test = (keys[keysCount - 1].data[0] - keys[0].data[0]) * z;
 
                         break;

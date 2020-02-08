@@ -27,7 +27,7 @@ namespace ZookieWizard
             ~DenisFileOperator();
             DenisFileOperator& operator = (const DenisFileOperator &new_file);
 
-            bool isInReadMode();
+            bool isInReadMode() const;
             void readOrWrite(void* ptr, int32_t size);
 
             bool open(eString path);
@@ -143,7 +143,7 @@ namespace ZookieWizard
 
             void serialize(DenisFileOperator &file);
     };
-    
+
 
     ////////////////////////////////////////////////////////////////
     // Kao the Kangaroo: euler rotation
@@ -163,8 +163,8 @@ namespace ZookieWizard
 
             void serialize(DenisFileOperator &file);
 
-            void toEulerAngles(bool isAnimmesh, float &x, float &y, float &z);
-            void toQuaternion(float result[4]);
+            void toEulerAngles(bool isAnimmesh, float &x, float &y, float &z) const;
+            void toQuaternion(float result[4]) const;
     };
 
 }

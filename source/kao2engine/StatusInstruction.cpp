@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* StatusInstruction::getType()
+    TypeInfo* StatusInstruction::getType() const
     {
         return &E_STATUSINSTRUCTION_TYPEINFO;
     }
@@ -65,7 +65,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // StatusInstruction: get script representation
     ////////////////////////////////////////////////////////////////
-    eString StatusInstruction::generateScriptText()
+    eString StatusInstruction::generateScriptText() const
     {
         eString result;
 

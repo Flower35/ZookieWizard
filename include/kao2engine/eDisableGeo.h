@@ -21,7 +21,7 @@ namespace ZookieWizard
             eDisableGeo();
             ~eDisableGeo();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

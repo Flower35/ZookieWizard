@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eEnvironment::getType()
+    TypeInfo* eEnvironment::getType() const
     {
         return &E_ENVIRONMENT_TYPEINFO;
     }

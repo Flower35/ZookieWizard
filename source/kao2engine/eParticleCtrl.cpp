@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eParticleCtrl::getType()
+    TypeInfo* eParticleCtrl::getType() const
     {
         return &E_PARTICLECTRL_TYPEINFO;
     }
@@ -51,7 +51,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eParticleCtrl: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString eParticleCtrl::getDefaultGadgetName()
+    eString eParticleCtrl::getDefaultGadgetName() const
     {
         return "prt";
     }

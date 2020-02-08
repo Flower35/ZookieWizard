@@ -18,7 +18,7 @@ namespace ZookieWizard
     struct DenisDisplayCommands
     {
         /*** Properties ***/
-        
+
             int32_t bytesCount[2];
             int32_t texturesCount[2];
             int32_t unknownCount[2];
@@ -44,9 +44,9 @@ namespace ZookieWizard
                 int32_t materials_count,
                 eMaterial** materials_list,
                 int32_t vertices_count,
-                DenisGeoVertex* vertices,
-                char* name
-            );
+                const DenisGeoVertex* vertices,
+                const char* name
+            ) const;
     };
 
 

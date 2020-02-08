@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ShiftInstruction::getType()
+    TypeInfo* ShiftInstruction::getType() const
     {
         return &E_SHIFTINSTRUCTION_TYPEINFO;
     }
@@ -130,7 +130,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ShiftInstruction: save to text file
     ////////////////////////////////////////////////////////////////
-    void ShiftInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation)
+    void ShiftInstruction::saveInstructionToTextFile(FileOperator &file, int32_t indentation) const
     {
         eString result;
 

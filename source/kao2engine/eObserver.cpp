@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eObserver::getType()
+    TypeInfo* eObserver::getType() const
     {
         return &E_OBSERVER_TYPEINFO;
     }

@@ -28,7 +28,7 @@ namespace ZookieWizard
             eLisajoux();
             ~eLisajoux();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

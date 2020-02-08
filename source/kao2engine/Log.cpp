@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Log::getType()
+    TypeInfo* Log::getType() const
     {
         return &E_LOG_TYPEINFO;
     }
@@ -45,7 +45,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Log: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString Log::getDefaultGadgetName()
+    eString Log::getDefaultGadgetName() const
     {
         return "log";
     }
@@ -54,7 +54,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Log: print text
     ////////////////////////////////////////////////////////////////
-    void Log::print(eString what)
+    void Log::print(eString what) const
     {
         std::printf("\n");
 
@@ -65,7 +65,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Log: print object
     ////////////////////////////////////////////////////////////////
-    void Log::print(eObject* what)
+    void Log::print(eObject* what) const
     {
         std::printf
         (

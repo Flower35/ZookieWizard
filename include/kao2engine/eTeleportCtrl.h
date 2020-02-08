@@ -31,9 +31,9 @@ namespace ZookieWizard
             ~eTeleportCtrl();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
-            
-            eString getDefaultGadgetName() override;
+            TypeInfo* getType() const override;
+
+            eString getDefaultGadgetName() const override;
     };
 
 

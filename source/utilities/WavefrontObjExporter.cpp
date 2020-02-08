@@ -10,7 +10,7 @@
 
 namespace ZookieWizard
 {
-    
+
     ////////////////////////////////////////////////////////////////
     // WavefrontObjExporter: constructor
     ////////////////////////////////////////////////////////////////
@@ -191,7 +191,7 @@ namespace ZookieWizard
         eTexture* test_texture;
         eBitmap* test_bitmap;
 
-        char bufor[64];
+        char bufor[128];
         float color[3];
 
         /* Check if model uses any material */
@@ -211,19 +211,19 @@ namespace ZookieWizard
             if (nullptr != test_mtl_state)
             {
                 test_mtl_state->getAmbientColor(color);
-                sprintf_s(bufor, 64, "Ka %f %f %f", color[0], color[1], color[2]);
+                sprintf_s(bufor, 128, "Ka %f %f %f", color[0], color[1], color[2]);
 
                 myFiles[1] << bufor;
                 writeNewLine(1);
 
                 test_mtl_state->getDiffuseColor(color);
-                sprintf_s(bufor, 64, "Kd %f %f %f", color[0], color[1], color[2]);
+                sprintf_s(bufor, 128, "Kd %f %f %f", color[0], color[1], color[2]);
 
                 myFiles[1] << bufor;
                 writeNewLine(1);
 
                 test_mtl_state->getSpecularColor(color);
-                sprintf_s(bufor, 64, "Ks %f %f %f", color[0], color[1], color[2]);
+                sprintf_s(bufor, 128, "Ks %f %f %f", color[0], color[1], color[2]);
 
                 myFiles[1] << bufor;
                 writeNewLine(1);
@@ -237,7 +237,7 @@ namespace ZookieWizard
 
                 if (nullptr != test_bitmap)
                 {
-                    sprintf_s(bufor, 64, "map_Kd %s", test_bitmap->getPath().getText());
+                    sprintf_s(bufor, 128, "map_Kd %s", test_bitmap->getPath().getText());
 
                     myFiles[1] << bufor;
                     writeNewLine(1);
@@ -261,7 +261,7 @@ namespace ZookieWizard
     {
         int32_t a, b, c;
         int32_t f[3];
-        char bufor[64];
+        char bufor[128];
 
         int32_t total_indices = 0;
         int32_t array_length = 0;
@@ -278,9 +278,9 @@ namespace ZookieWizard
 
         /********************************/
         /* Get GeoSet */
-        
-        geo = trimesh->getGeoSetLink();
-        
+
+        geo = trimesh->getGeoset();
+
         if (nullptr != geo)
         {
             /********************************/
@@ -305,8 +305,7 @@ namespace ZookieWizard
                 {
                     sprintf_s
                     (
-                        bufor,
-                        "v %f %f %f",
+                        bufor, 128, "v %f %f %f",
                         array_data4[a].x,
                         array_data4[a].z,
                         (- array_data4[a].y)
@@ -331,8 +330,7 @@ namespace ZookieWizard
                 {
                     sprintf_s
                     (
-                        bufor,
-                        "vn %f %f %f",
+                        bufor, 128, "vn %f %f %f",
                         array_data4[a].x,
                         array_data4[a].z,
                         (- array_data4[a].y)
@@ -357,8 +355,7 @@ namespace ZookieWizard
                 {
                     sprintf_s
                     (
-                        bufor,
-                        "vt %f %f",
+                        bufor, 128, "vt %f %f",
                         array_data2[a].u,
                         (1.0f - array_data2[a].v)
                     );
@@ -436,7 +433,7 @@ namespace ZookieWizard
 
                 writeNewLine(0);
             }
-            
+
         }
 
         myFiles[0].close();
@@ -448,7 +445,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void WavefrontObjExporter::writeFace(int32_t params, int32_t index[3])
     {
-        char bufor[64];
+        char bufor[128];
 
         index[0]++;
         index[1]++;
@@ -460,7 +457,7 @@ namespace ZookieWizard
             {
                 sprintf_s
                 (
-                    bufor, 64, "f %d %d %d",
+                    bufor, 128, "f %d %d %d",
                     index[0], index[1], index[2]
                 );
 
@@ -471,7 +468,7 @@ namespace ZookieWizard
             {
                 sprintf_s
                 (
-                    bufor, 64, "f %d/%d %d/%d %d/%d",
+                    bufor, 128, "f %d/%d %d/%d %d/%d",
                     index[0], index[0],
                     index[1], index[1],
                     index[2], index[2]
@@ -484,7 +481,7 @@ namespace ZookieWizard
             {
                 sprintf_s
                 (
-                    bufor, 64, "f %d//%d %d//%d %d//%d",
+                    bufor, 128, "f %d//%d %d//%d %d//%d",
                     index[0], index[0],
                     index[1], index[1],
                     index[2], index[2]
@@ -497,7 +494,7 @@ namespace ZookieWizard
             {
                 sprintf_s
                 (
-                    bufor, 64, "f %d/%d/%d %d/%d/%d %d/%d/%d",
+                    bufor, 128, "f %d/%d/%d %d/%d/%d %d/%d/%d",
                     index[0], index[0], index[0],
                     index[1], index[1], index[1],
                     index[2], index[2], index[2]
@@ -508,7 +505,7 @@ namespace ZookieWizard
 
             default:
             {
-                sprintf_s(bufor, 64, "f");
+                sprintf_s(bufor, 128, "f");
             }
         }
 

@@ -24,7 +24,7 @@ namespace ZookieWizard
 namespace ZookieWizard
 {
     ////////////////////////////////////////////////////////////////
-    // 
+    //
     ////////////////////////////////////////////////////////////////
 
     bool Kao2StaticPool::registerStaticGadgets()
@@ -42,7 +42,7 @@ namespace ZookieWizard
     }
 
     ////////////////////////////////////////////////////////////////
-    // 
+    //
     // <kao2.0058A800>
     ////////////////////////////////////////////////////////////////
 
@@ -59,7 +59,7 @@ namespace ZookieWizard
                "StaticPool: too many gadgets in pool [increase MAX_INSTANCES(%i)]; ",
                MAX_INSTANCES
            );
-           
+
            return false;
         }
 
@@ -115,11 +115,11 @@ namespace ZookieWizard
     }
 
     ////////////////////////////////////////////////////////////////
-    // 
+    //
     // <kao2.0058A9B0>
     ////////////////////////////////////////////////////////////////
 
-    int Kao2StaticPool::findGadget(TypeInfo* info)
+    int Kao2StaticPool::findGadget(TypeInfo* info) const
     {
         for (int i = 0; i < gadgetsCount; i++)
         {
@@ -133,11 +133,11 @@ namespace ZookieWizard
     }
 
     ////////////////////////////////////////////////////////////////
-    // 
+    //
     // <kao2.0058A760>
     ////////////////////////////////////////////////////////////////
 
-    void Kao2StaticPool::serializeGadget(Archive &ar, Gadget** gadget)
+    void Kao2StaticPool::serializeGadget(Archive &ar, Gadget** gadget) const
     {
         int i;
         TypeInfo* info = nullptr;

@@ -25,7 +25,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoSet::getType()
+    TypeInfo* eGeoSet::getType() const
     {
         return &E_GEOSET_TYPEINFO;
     }
@@ -58,7 +58,7 @@ namespace ZookieWizard
 
         /*[0x3C]*/ colorsArray = nullptr;
         /*[0x58]*/ phy = nullptr;
-        /*[0x5C]*/ unknown_5C = nullptr;
+        /*[0x5C]*/ aabbTree = nullptr;
 
         /*[0x08]*/ unknown_08 = 0;
         /*[0x50]*/ displayList = 0;
@@ -81,7 +81,7 @@ namespace ZookieWizard
             glDeleteLists(displayList, getTextureCoordsCount());
         }
 
-        unknown_5C->decRef();
+        aabbTree->decRef();
 
         phy->decRef();
 
@@ -119,8 +119,8 @@ namespace ZookieWizard
         /* [0x08] unknown */
         ar.readOrWrite(&unknown_08, 0x04);
 
-        /* Indicies number */
-        ar.readOrWrite(&indicesCount, 0x04);
+        /* Default number of vertices */
+        ar.readOrWrite(&defaultVertexCount, 0x04);
 
         /* Array: Indices */
 
@@ -152,7 +152,7 @@ namespace ZookieWizard
         for (i = 0; i < texCoordsCount; i++)
         {
             ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&(texCoordsArray[i]), &E_GEOARRAY_EPOINT2_TYPEINFO);
-        
+
             ar.readOrWrite(&(texCoordsId[i]), 0x04);
         }
 
@@ -173,9 +173,9 @@ namespace ZookieWizard
 
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&indicesOffsets, &E_GEOARRAY_USHORT_TYPEINFO);
 
-        /* Array: "ABB" */
+        /* Array: "AABB" tree */
 
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_5C, &E_GEOARRAY_EABB_TYPEINFO);
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&aabbTree, &E_GEOARRAY_EABB_TYPEINFO);
 
         /* PhyTriMesh */
 
@@ -186,8 +186,11 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGeoSet: draw
     ////////////////////////////////////////////////////////////////
-    void eGeoSet::draw(eAnimate* anim, int32_t draw_flags, GLuint tex_name, int32_t texID)
+    void eGeoSet::draw(eAnimate* anim, int32_t draw_flags, GLuint tex_name, int32_t texID) const
     {
+        int32_t i;
+        eABB* boxes = nullptr;
+
         if ((texID >= 0) && (texID < 4))
         {
             if (0 != tex_name)
@@ -222,6 +225,74 @@ namespace ZookieWizard
                 glDisable(GL_TEXTURE_2D);
             }
         }
+
+        if (GUI::drawFlags::DRAW_FLAG_BOXZONES & draw_flags)
+        {
+            if (nullptr != aabbTree)
+            {
+                boxes = aabbTree->getData();
+
+                for (i = 0; i < aabbTree->getLength(); i++)
+                {
+                    if ((0x80000000 & boxes[i].leftNode) || (0x80000000 & boxes[i].rightNode))
+                    {
+                        glColor3f(0, 1.0f, 0);
+                        glLineWidth(2.0f);
+                        glBegin(GL_LINES);
+
+                        /* Cube Front */
+
+                        glVertex3f(boxes[i].min.x, boxes[i].min.y, boxes[i].min.z);
+                        glVertex3f(boxes[i].max.x, boxes[i].min.y, boxes[i].min.z);
+
+                        glVertex3f(boxes[i].max.x, boxes[i].min.y, boxes[i].min.z);
+                        glVertex3f(boxes[i].max.x, boxes[i].min.y, boxes[i].max.z);
+
+                        glVertex3f(boxes[i].max.x, boxes[i].min.y, boxes[i].max.z);
+                        glVertex3f(boxes[i].min.x, boxes[i].min.y, boxes[i].max.z);
+
+                        glVertex3f(boxes[i].min.x, boxes[i].min.y, boxes[i].max.z);
+                        glVertex3f(boxes[i].min.x, boxes[i].min.y, boxes[i].min.z);
+
+                        /* Cube Back */
+
+                        glVertex3f(boxes[i].min.x, boxes[i].max.y, boxes[i].min.z);
+                        glVertex3f(boxes[i].max.x, boxes[i].max.y, boxes[i].min.z);
+
+                        glVertex3f(boxes[i].max.x, boxes[i].max.y, boxes[i].min.z);
+                        glVertex3f(boxes[i].max.x, boxes[i].max.y, boxes[i].max.z);
+
+                        glVertex3f(boxes[i].max.x, boxes[i].max.y, boxes[i].max.z);
+                        glVertex3f(boxes[i].min.x, boxes[i].max.y, boxes[i].max.z);
+
+                        glVertex3f(boxes[i].min.x, boxes[i].max.y, boxes[i].max.z);
+                        glVertex3f(boxes[i].min.x, boxes[i].max.y, boxes[i].min.z);
+
+                        /* Cube Left */
+
+                        glVertex3f(boxes[i].min.x, boxes[i].max.y, boxes[i].max.z);
+                        glVertex3f(boxes[i].min.x, boxes[i].min.y, boxes[i].max.z);
+
+                        glVertex3f(boxes[i].min.x, boxes[i].max.y, boxes[i].min.z);
+                        glVertex3f(boxes[i].min.x, boxes[i].min.y, boxes[i].min.z);
+
+                        /* Cube Right */
+
+                        glVertex3f(boxes[i].max.x, boxes[i].max.y, boxes[i].max.z);
+                        glVertex3f(boxes[i].max.x, boxes[i].min.y, boxes[i].max.z);
+
+                        glVertex3f(boxes[i].max.x, boxes[i].max.y, boxes[i].min.z);
+                        glVertex3f(boxes[i].max.x, boxes[i].min.y, boxes[i].min.z);
+
+                        /* Stop drawing lines */
+
+                        glEnd();
+                        glColor3f(1.0f, 1.0f, 1.0f);
+                        glLineWidth(1.0f);
+                    }
+                }
+            }
+        }
     }
 
 
@@ -229,7 +300,7 @@ namespace ZookieWizard
     // eGeoSet: generate OpenGL Display List
     // <kao2.0046A190>
     ////////////////////////////////////////////////////////////////
-    void eGeoSet::displayVertexBufferObject(int32_t texID, bool c)
+    void eGeoSet::displayVertexBufferObject(int32_t texID, bool c) const
     {
         int32_t i;
         int32_t j;
@@ -347,7 +418,7 @@ namespace ZookieWizard
                 (
                     GL_TRIANGLES,
                     0x00,
-                    indicesCount
+                    defaultVertexCount
                 );
             }
         }
@@ -406,7 +477,7 @@ namespace ZookieWizard
     // eGeoSet: texture coordinates functions (used with eTriMesh)
     ////////////////////////////////////////////////////////////////
 
-    int32_t eGeoSet::getTextureCoordsCount()
+    int32_t eGeoSet::getTextureCoordsCount() const
     {
         if (0 == texCoordsCount)
         {
@@ -416,7 +487,7 @@ namespace ZookieWizard
         return texCoordsCount;
     }
 
-    int32_t eGeoSet::getTextureId(int32_t i)
+    int32_t eGeoSet::getTextureId(int32_t i) const
     {
         if ((i >= 0) && (i < 4))
         {
@@ -543,47 +614,305 @@ namespace ZookieWizard
         /* [0x08] is usually 0x0F, [0x0C] is usualy vertices/colors/normals length */
 
         unknown_08 = a;
-        indicesCount = b;
+        defaultVertexCount = b;
     }
 
 
     ////////////////////////////////////////////////////////////////
     // eGeoSet: get arrays
     ////////////////////////////////////////////////////////////////
-    
-    eGeoArray<ePoint4>* eGeoSet::getVerticesArray()
+
+    eGeoArray<ePoint4>* eGeoSet::getVerticesArray() const
     {
         return verticesArray[currentSet];
     }
 
-    eGeoArray<ePoint4>* eGeoSet::getNormalsArray()
+    eGeoArray<ePoint4>* eGeoSet::getNormalsArray() const
     {
         return normalsArray[currentSet];
     }
 
-    eGeoArray<ePoint2>* eGeoSet::getTextureCoordsArray()
+    eGeoArray<ePoint2>* eGeoSet::getTextureCoordsArray() const
     {
         return texCoordsArray[0];
     }
 
-    eGeoArray<ePoint4>* eGeoSet::getColorsArray()
+    eGeoArray<ePoint4>* eGeoSet::getColorsArray() const
     {
         return colorsArray;
     }
 
-    eGeoArray<ushort>* eGeoSet::getIndicesOffsets()
+    eGeoArray<ushort>* eGeoSet::getIndicesOffsets()const
     {
         return indicesOffsets;
     }
 
-    eGeoArray<ushort>* eGeoSet::getIndicesArray()
+    eGeoArray<ushort>* eGeoSet::getIndicesArray() const
     {
         return indicesArray;
     }
 
-    ePhyTriMesh* eGeoSet::getPhyTriMesh()
+    ePhyTriMesh* eGeoSet::getPhyTriMesh() const
     {
         return phy;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoSet: build "axis-aligned bounding boxes" tree
+    ////////////////////////////////////////////////////////////////
+    void eGeoSet::buildAabbTree()
+    {
+        int32_t i, j, k, l, m, total_entries, total_leaves;
+
+        int32_t test_vertices_length = verticesArray[0]->getLength();
+        ePoint4* test_vertices_data = verticesArray[0]->getData();
+        int32_t test_indices_length = indicesArray->getLength();
+        ushort* test_indices_data = indicesArray->getData();
+        int32_t test_indices_offsets_length = indicesOffsets->getLength();
+        ushort* test_indices_offsets = indicesOffsets->getData();
+
+        ushort temp_vertex_id[3];
+        eABB temp_aabb_entry;
+        eABB* temp_aabb_data = nullptr;
+
+        eABB* aabb_data = nullptr;
+
+        if (nullptr != aabbTree)
+        {
+            aabbTree->decRef();
+            aabbTree = nullptr;
+        }
+
+        if (nullptr == test_vertices_data)
+        {
+            return;
+        }
+
+        /********************************/
+        /* Look for all the triangles in the mesh */
+        /* (--dsp--) optimize for quads */
+
+        for (i = 0; i < 2; i++)
+        {
+            total_leaves = 0;
+
+            if (nullptr != test_indices_offsets)
+            {
+                /* TRIANGLE_STRIP list (with spacing offsets) */
+
+                k = 0;
+
+                for (j = 0; j < test_indices_offsets_length; j++)
+                {
+                    l = (test_indices_offsets[j] - 2);
+
+                    if (nullptr != test_indices_data)
+                    {
+                        if (1 == i)
+                        {
+                            for (m = 0; m < l; m++)
+                            {
+                                temp_vertex_id[0] = test_indices_data[k + m];
+                                temp_vertex_id[1] = test_indices_data[k + m + 1];
+                                temp_vertex_id[2] = test_indices_data[k + m + 2];
+
+                                calculateBoundaryBox
+                                (
+                                    temp_aabb_data[total_leaves + m].min,
+                                    temp_aabb_data[total_leaves + m].max,
+                                    test_vertices_length,
+                                    test_vertices_data,
+                                    3,
+                                    temp_vertex_id
+                                );
+
+                                /* Set indices IDs */
+                                temp_aabb_data[total_leaves + m].leftNode = (0 == (m % 2)) ? 0x80000000 : 0xC0000000;
+                                temp_aabb_data[total_leaves + m].leftNode |= (k + m);
+                                temp_aabb_data[total_leaves + m].rightNode = (0 == (m % 2)) ? 0xC0000000 : 0x80000000;
+                                temp_aabb_data[total_leaves + m].rightNode |= 0x01;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (1 == i)
+                        {
+                            for (m = 0; m < l; m++)
+                            {
+                                temp_vertex_id[0] = k + m;
+                                temp_vertex_id[1] = k + m + 1;
+                                temp_vertex_id[2] = k + m + 2;
+
+                                calculateBoundaryBox
+                                (
+                                    temp_aabb_data[total_leaves + m].min,
+                                    temp_aabb_data[total_leaves + m].max,
+                                    test_vertices_length,
+                                    test_vertices_data,
+                                    3,
+                                    temp_vertex_id
+                                );
+
+                                /* Set vertices IDs */
+                                temp_aabb_data[total_leaves + m].leftNode = (0 == (m % 2)) ? 0x80000000 : 0xC0000000;
+                                temp_aabb_data[total_leaves + m].leftNode |= temp_vertex_id[0];
+                                temp_aabb_data[total_leaves + m].rightNode = (0 == (m % 2)) ? 0xC0000000 : 0x80000000;
+                                temp_aabb_data[total_leaves + m].rightNode |= 0x01;
+                            }
+                        }
+                    }
+
+                    k += test_indices_offsets[j];
+
+                    if (l > 0) total_leaves += l;
+                }
+
+            }
+            else if (nullptr != test_indices_data)
+            {
+                /* TRIANGLES list (with specified indices) */
+
+                l = (test_indices_length / 3);
+
+                if (1 == i)
+                {
+                    for (m = 0; m < l; m++)
+                    {
+                        temp_vertex_id[0] = test_indices_data[3 * m];
+                        temp_vertex_id[1] = test_indices_data[3 * m + 1];
+                        temp_vertex_id[2] = test_indices_data[3 * m + 2];
+
+                        calculateBoundaryBox
+                        (
+                            temp_aabb_data[total_leaves + m].min,
+                            temp_aabb_data[total_leaves + m].max,
+                            test_vertices_length,
+                            test_vertices_data,
+                            3,
+                            temp_vertex_id
+                        );
+
+                        /* Set indices IDs */
+                        temp_aabb_data[total_leaves + m].leftNode = (0x80000000 | (3 * m));
+                        temp_aabb_data[total_leaves + m].rightNode = (0x80000000 | (3 * m));
+                    }
+                }
+
+                if (l > 0) total_leaves += l;
+            }
+            else
+            {
+                /* TRIANGLES list (without indices) */
+
+                l = (defaultVertexCount / 3);
+
+                if (1 == i)
+                {
+                    for (m = 0; m < l; m++)
+                    {
+                        calculateBoundaryBox
+                        (
+                            temp_aabb_data[total_leaves + m].min,
+                            temp_aabb_data[total_leaves + m].max,
+                            3,
+                            (test_vertices_data + (3 * m)),
+                            0,
+                            nullptr
+                        );
+
+                        /* Set vertices IDs */
+                        temp_aabb_data[total_leaves + m].leftNode = (0x80000000 | (3 * m));
+                        temp_aabb_data[total_leaves + m].rightNode = (0x80000000 | (3 * m));
+                    }
+                }
+
+                if (l > 0) total_leaves += l;
+            }
+
+            if ((0 == i) && (total_leaves > 0))
+            {
+                temp_aabb_data = new eABB [total_leaves];
+            }
+        }
+
+        if (total_leaves <= 0)
+        {
+            return;
+        }
+
+        /********************************/
+        /* Sort boundary boxes */
+
+        for (i = 0; i < (total_leaves - 1); i++)
+        {
+            for (j = (i + 1); j < total_leaves; j++)
+            {
+                if ( (temp_aabb_data[j].min.x < temp_aabb_data[i].min.x)
+                  || (temp_aabb_data[j].min.y < temp_aabb_data[i].min.y)
+                  || (temp_aabb_data[j].min.z < temp_aabb_data[i].min.z)
+                  || (temp_aabb_data[j].max.x < temp_aabb_data[i].max.x)
+                  || (temp_aabb_data[j].max.y < temp_aabb_data[i].max.y)
+                  || (temp_aabb_data[j].max.z < temp_aabb_data[i].max.z) )
+                {
+                    temp_aabb_entry = temp_aabb_data[i];
+                    temp_aabb_data[i] = temp_aabb_data[j];
+                    temp_aabb_data[j] = temp_aabb_entry;
+                }
+            }
+        }
+
+        /********************************/
+        /* Setup tree, copy first entry */
+        /* (branches = leaves - 1) */
+
+        total_entries = (total_leaves - 1) + total_leaves;
+
+        aabb_data = new eABB [total_entries];
+        aabb_data[0] = temp_aabb_data[0];
+
+        aabbTree = new eGeoArray<eABB>;
+        aabbTree->incRef();
+        aabbTree->setup(total_entries, aabb_data);
+
+        /********************************/
+        /* Fill the list, assign IDs */
+
+        k = 1; // next empty ID
+
+        for (i = 1; i < total_leaves; i++)
+        {
+            if (false == aabb_data[0].insertLeaf(0, k, aabb_data, temp_aabb_data[i]))
+            {
+                if (nullptr != temp_aabb_data)
+                {
+                    delete[](temp_aabb_data);
+                    temp_aabb_data = nullptr;
+                }
+
+                throw ErrorMessage
+                (
+                    "eGeoSet::buildAabbTree()\n" \
+                    "failure while adding leaf to the list!"
+                );
+            }
+        }
+
+        if (nullptr != temp_aabb_data)
+        {
+            delete[](temp_aabb_data);
+            temp_aabb_data = nullptr;
+        }
+
+        if (k != total_entries)
+        {
+            throw ErrorMessage
+            (
+                "eGeoSet::buildAabbTree()\n" \
+                "some entries went missing!"
+            );
+        }
     }
 
 }

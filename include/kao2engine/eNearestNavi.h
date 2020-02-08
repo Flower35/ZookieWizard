@@ -29,7 +29,7 @@ namespace ZookieWizard
             eNearestNavi();
             ~eNearestNavi();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

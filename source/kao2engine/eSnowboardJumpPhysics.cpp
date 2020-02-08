@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSnowboardJumpPhysics::getType()
+    TypeInfo* eSnowboardJumpPhysics::getType() const
     {
         return &E_SNOWBOARDJUMPPHYSICS_TYPEINFO;
     }

@@ -9,7 +9,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eCtrl abstract interfaces
     ////////////////////////////////////////////////////////////////
-    
+
     TypeInfo E_CTRL_ESRP_TYPEINFO
     (
         E_CTRL_ESRP_ID,
@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCtrl<eSRP>::getType()
+    TypeInfo* eCtrl<eSRP>::getType() const
     {
         return &E_CTRL_ESRP_TYPEINFO;
     }
@@ -37,11 +37,11 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCtrl<ePoint3>::getType()
+    TypeInfo* eCtrl<ePoint3>::getType() const
     {
         return &E_CTRL_EPOINT3_TYPEINFO;
     }
-    
+
     TypeInfo E_CTRL_EQUAT_TYPEINFO
     (
         E_CTRL_EQUAT_ID,
@@ -53,11 +53,11 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCtrl<eQuat>::getType()
+    TypeInfo* eCtrl<eQuat>::getType() const
     {
         return &E_CTRL_EQUAT_TYPEINFO;
     }
-    
+
     TypeInfo E_CTRL_FLOAT_TYPEINFO
     (
         E_CTRL_FLOAT_ID,
@@ -69,7 +69,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCtrl<float>::getType()
+    TypeInfo* eCtrl<float>::getType() const
     {
         return &E_CTRL_FLOAT_TYPEINFO;
     }
@@ -82,7 +82,7 @@ namespace ZookieWizard
     // <kao2.004A5FE0>: "eCtrl<ePoint3>"
     ////////////////////////////////////////////////////////////////
     template <typename T>
-    T eCtrl<T>::ctrlGetTransform(T e, eAnimate* anim)
+    T eCtrl<T>::ctrlGetTransform(T e, eAnimate* anim) const
     {
         if (nullptr != anim)
         {

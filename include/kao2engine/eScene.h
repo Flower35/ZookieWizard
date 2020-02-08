@@ -99,14 +99,14 @@ namespace ZookieWizard
             ~eScene();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            void writeNodeToXmlFile(ColladaExporter &exporter) override;
+            void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             void setBackgroundColor(GLfloat new_color[3]);
             void setCompileStrings(eString str_a, eString str_b);
 
-            eCollisionMgr* getCollisionManager();
+            eCollisionMgr* getCollisionManager() const;
     };
 
 

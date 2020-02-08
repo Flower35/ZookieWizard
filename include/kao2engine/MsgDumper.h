@@ -21,7 +21,7 @@ namespace ZookieWizard
             MsgDumper();
             ~MsgDumper();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

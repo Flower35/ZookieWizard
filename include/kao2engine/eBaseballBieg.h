@@ -29,7 +29,7 @@ namespace ZookieWizard
             eBaseballBieg();
             ~eBaseballBieg();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

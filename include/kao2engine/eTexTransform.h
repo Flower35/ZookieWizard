@@ -32,7 +32,7 @@ namespace ZookieWizard
             ~eTexTransform();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

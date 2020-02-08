@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSplineHintFollowCameraCtrl::getType()
+    TypeInfo* eSplineHintFollowCameraCtrl::getType() const
     {
         return &E_SPLINEHINTFOLLOWCAMERACTRL_TYPEINFO;
     }

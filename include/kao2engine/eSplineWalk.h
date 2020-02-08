@@ -29,7 +29,7 @@ namespace ZookieWizard
             eSplineWalk();
             ~eSplineWalk();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

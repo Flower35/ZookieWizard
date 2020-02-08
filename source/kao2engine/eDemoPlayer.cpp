@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eDemoPlayer::getType()
+    TypeInfo* eDemoPlayer::getType() const
     {
         return &E_DEMOPLAYER_TYPEINFO;
     }

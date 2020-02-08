@@ -29,9 +29,9 @@ namespace ZookieWizard
             eDirectionCtrl();
             ~eDirectionCtrl();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            eString getDefaultGadgetName() override;
+            eString getDefaultGadgetName() const override;
     };
 
 

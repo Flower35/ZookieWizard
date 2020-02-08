@@ -35,7 +35,7 @@ namespace ZookieWizard
             extern HWND myWindowsGroupAr[8];
             extern HWND myWindowsGroupDenis[4];
             extern HWND myWindowsGroupAnimation[5];
-            extern HWND myWindowsGroupNodes[8];
+            extern HWND myWindowsGroupNodes[9];
 
             extern int32_t myWindowsCurrentGroup;
 
@@ -80,7 +80,7 @@ namespace ZookieWizard
             void setPerspective(GLsizei, GLsizei);
             void changeView(bool);
             void moveCameraAndLook(int32_t, int32_t);
-            
+
             void closeWindows();
             void changeWindowGroup();
             void updateNodesList(int32_t, void*);

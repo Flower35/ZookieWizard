@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBoxZone::getType()
+    TypeInfo* eBoxZone::getType() const
     {
         return &E_BOXZONE_TYPEINFO;
     }
@@ -58,9 +58,7 @@ namespace ZookieWizard
             glBindTexture(GL_TEXTURE_2D, 0);
 
             glColor3f(1.0f, 0, 0);
-
             glLineWidth(2.0f);
-
             glBegin(GL_LINES);
 
             /* Cube Front */
@@ -110,9 +108,7 @@ namespace ZookieWizard
             /* Stop drawing lines */
 
             glEnd();
-
             glColor3f(1.0f, 1.0f, 1.0f);
-
             glLineWidth(1.0f);
         }
     }

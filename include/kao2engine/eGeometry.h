@@ -31,9 +31,16 @@ namespace ZookieWizard
             ~eGeometry();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
             void oldNodeSerialization(ePoint3* arg1);
+
+            eMaterial* getMaterial();
+            void setMaterial(eMaterial* new_material);
+
+            void setBoundaryBox(ePoint3 &new_min, ePoint3 &new_max);
+
+            void createCollisionEntry();
     };
 
 

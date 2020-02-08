@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Namespace::getType()
+    TypeInfo* Namespace::getType() const
     {
         return &E_NAMESPACE_TYPEINFO;
     }

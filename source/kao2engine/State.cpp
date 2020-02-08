@@ -28,7 +28,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* State::getType()
+    TypeInfo* State::getType() const
     {
         return &E_STATE_TYPEINFO;
     }
@@ -41,7 +41,7 @@ namespace ZookieWizard
         /*[0x0C]*/ name = s;
         /*[0x10]*/ ownerState = x;
         /*[0x20]*/ currentState = nullptr;
-        
+
         /*[0x3C-0x44]*/
         instructions[0] = nullptr;
         instructions[1] = nullptr;
@@ -259,7 +259,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // State: get name
     ////////////////////////////////////////////////////////////////
-    eString State::getStringRepresentation()
+    eString State::getStringRepresentation() const
     {
         return name;
     }
@@ -268,18 +268,18 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // State: write it down, line by line... ;)
     ////////////////////////////////////////////////////////////////
-    void State::saveStateToTextFile(FileOperator &file, int32_t indentation)
+    void State::saveStateToTextFile(FileOperator &file, int32_t indentation) const
     {
         /********************************/
         /* Preparations before text generation */
-        
+
         int32_t i = 0;
         int32_t j = 0;
         bool has_empty_body = true;
         bool found_gadget_name = false;
         bool written_any_property = false;
         bool* written_properties = nullptr;
-        
+
         const char* instruction_block_names[3] =
         {
             "enter",
@@ -295,7 +295,7 @@ namespace ZookieWizard
         When* test_when = nullptr;
 
         j = properties.getSize();
-        
+
         try
         {
             written_properties = new bool [j];
@@ -349,7 +349,7 @@ namespace ZookieWizard
         /********************************/
         /* String sections */
         /* (each `StringSection`: auto new line at the beginning) */
-        
+
         for (i = 0; i < stringSections.getSize(); i++)
         {
             test_section = (StringSection*)stringSections.getIthChild(i);
@@ -373,7 +373,7 @@ namespace ZookieWizard
                     has_empty_body = false;
 
                     test_section->saveSectionToTextFile(file, indentation);
-            
+
                     ArFunctions::writeNewLine(file, 0);
                 }
             }
@@ -518,7 +518,7 @@ namespace ZookieWizard
             ArFunctions::writeNewLine(file, indentation);
 
             test_state = (State*)subStates.getIthChild(i);
-            
+
             if (nullptr != test_state)
             {
                 has_empty_body = false;
@@ -564,7 +564,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // State: print
     ////////////////////////////////////////////////////////////////
-    eString State::getLogPrintMessage()
+    eString State::getLogPrintMessage() const
     {
         eString result = eObject::getLogPrintMessage();
 
@@ -586,7 +586,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // State: get owner (used with "ShiftInstruction")
     ////////////////////////////////////////////////////////////////
-    State* State::getOwner()
+    State* State::getOwner() const
     {
         return ownerState;
     }

@@ -28,7 +28,7 @@ namespace ZookieWizard
             eFSOp();
             ~eFSOp();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

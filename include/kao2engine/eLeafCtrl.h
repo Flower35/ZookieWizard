@@ -37,7 +37,7 @@ namespace ZookieWizard
             /*[0x10]*/ int32_t keysCount;
             /*[0x14]*/ int32_t keysMaxLength;
             /*[0x18]*/ eKeyBase<T>* keys;
-            
+
             /*[0x1C-0x28]*/ T unknown_1C;
 
         /*** Methods ***/
@@ -48,14 +48,14 @@ namespace ZookieWizard
             ~eLeafCtrl<T>();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            /*[[vptr]+0x28]*/ void ctrlApplyTransform(T*, float) override;
+            /*[[vptr]+0x28]*/ void ctrlApplyTransform(T*, float) const override;
 
         private:
 
-            int getKeyframeId(float time);
-            T interpolate(float ratio, T &first, T &second, T &other);
+            int getKeyframeId(float time) const;
+            T interpolate(float ratio, T &first, T &second, T &other) const;
     };
 
 

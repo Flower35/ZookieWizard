@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Gadget::getType()
+    TypeInfo* Gadget::getType() const
     {
         return &E_GADGET_TYPEINFO;
     }
@@ -64,7 +64,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Gadget: get textual representation
     ////////////////////////////////////////////////////////////////
-    eString Gadget::getStringRepresentation()
+    eString Gadget::getStringRepresentation() const
     {
         return name;
     }
@@ -73,7 +73,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Gadget: get script representation
     ////////////////////////////////////////////////////////////////
-    eString Gadget::generateScriptText()
+    eString Gadget::generateScriptText() const
     {
         eString result;
 
@@ -89,7 +89,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Gadget: get default name (scripting shenanigans)
     ////////////////////////////////////////////////////////////////
-    eString Gadget::getDefaultGadgetName()
+    eString Gadget::getDefaultGadgetName() const
     {
         int32_t pos;
         eString result;

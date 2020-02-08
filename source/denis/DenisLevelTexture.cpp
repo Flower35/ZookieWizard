@@ -66,7 +66,7 @@ namespace ZookieWizard
     // Level Texture: convert from Kao1 to Kao2
     ////////////////////////////////////////////////////////////////
 
-    void DenisLevelTexture::convertToKao2(DenisFileOperator &file, eMaterial** materials_list)
+    void DenisLevelTexture::convertToKao2(DenisFileOperator &file, eMaterial** materials_list) const
     {
         int32_t i;
 

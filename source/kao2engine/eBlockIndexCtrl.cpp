@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBlockIndexCtrl::getType()
+    TypeInfo* eBlockIndexCtrl::getType() const
     {
         return &E_BLOCKINDEXCTRL_TYPEINFO;
     }

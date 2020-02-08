@@ -21,7 +21,7 @@ namespace ZookieWizard
             e3fXArray();
             ~e3fXArray();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
     namespace ArFunctions

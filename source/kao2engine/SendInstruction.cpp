@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* SendInstruction::getType()
+    TypeInfo* SendInstruction::getType() const
     {
         return &E_SENDINSTRUCTION_TYPEINFO;
     }

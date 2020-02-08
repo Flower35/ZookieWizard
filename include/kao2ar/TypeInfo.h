@@ -26,7 +26,7 @@ namespace ZookieWizard
 
         TypeInfo(int _id, const char* _name, TypeInfo* _parent, eObject* (*_create)());
 
-        bool checkHierarchy(TypeInfo* assumed_type);
+        bool checkHierarchy(TypeInfo* assumed_type) const;
     };
 
 
@@ -39,7 +39,7 @@ namespace ZookieWizard
     struct Kao2Interfaces
     {
         /*** Properties ***/
-        
+
         private:
 
             int interfacesCount;
@@ -55,7 +55,7 @@ namespace ZookieWizard
 
             bool registerInterfaces();
 
-            TypeInfo* getTypeInfo(int id);
+            TypeInfo* getTypeInfo(int id) const;
     };
 
     extern Kao2Interfaces InterfaceManager;

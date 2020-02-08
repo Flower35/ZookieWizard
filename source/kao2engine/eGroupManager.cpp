@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGroupManager::getType()
+    TypeInfo* eGroupManager::getType() const
     {
         return &E_GROUPMANAGER_TYPEINFO;
     }

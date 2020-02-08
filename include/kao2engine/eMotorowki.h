@@ -29,7 +29,7 @@ namespace ZookieWizard
             eMotorowki();
             ~eMotorowki();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

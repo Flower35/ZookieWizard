@@ -18,10 +18,10 @@ namespace ZookieWizard
 
         public:
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            /*[vptr]+0x24]*/ virtual T ctrlGetTransform(T, eAnimate*);
-            /*[vptr]+0x28]*/ virtual void ctrlApplyTransform(T*, float) = 0;
+            /*[vptr]+0x24]*/ virtual T ctrlGetTransform(T, eAnimate*) const;
+            /*[vptr]+0x28]*/ virtual void ctrlApplyTransform(T*, float) const = 0;
 
     };
 

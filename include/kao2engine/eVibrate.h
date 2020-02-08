@@ -29,7 +29,7 @@ namespace ZookieWizard
             eVibrate();
             ~eVibrate();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

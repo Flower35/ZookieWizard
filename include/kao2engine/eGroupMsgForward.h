@@ -30,7 +30,7 @@ namespace ZookieWizard
             eGroupMsgForward();
             ~eGroupMsgForward();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

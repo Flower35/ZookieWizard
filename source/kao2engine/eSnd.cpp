@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSnd::getType()
+    TypeInfo* eSnd::getType() const
     {
         return &E_SND_TYPEINFO;
     }

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eReadySteadyGo::getType()
+    TypeInfo* eReadySteadyGo::getType() const
     {
         return &E_READYSTEADYGO_TYPEINFO;
     }

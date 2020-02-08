@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eEggsNotStatic::getType()
+    TypeInfo* eEggsNotStatic::getType() const
     {
         return &E_EGGSNOTSTATIC_TYPEINFO;
     }

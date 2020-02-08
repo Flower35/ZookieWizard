@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eActivate::getType()
+    TypeInfo* eActivate::getType() const
     {
         return &E_ACTIVATE_TYPEINFO;
     }

@@ -29,7 +29,7 @@ namespace ZookieWizard
             eRealTimeClock();
             ~eRealTimeClock();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

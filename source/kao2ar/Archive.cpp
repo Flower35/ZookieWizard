@@ -3,12 +3,6 @@
 
 #include <kao2engine/Log.h>
 
-#include <kao2engine/eScene.h>
-
-#include <utilities/ColladaExporter.h>
-#include <utilities/WavefrontObjExporter.h>
-#include <utilities/WavefrontObjImporter.h>
-
 namespace ZookieWizard
 {
 
@@ -97,7 +91,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Ar: get path based on game version
     ////////////////////////////////////////////////////////////////
-    eString Archive::getFullArchivePath(eString filename, int32_t current_engine)
+    eString Archive::getFullArchivePath(eString filename, int32_t current_engine) const
     {
         eString result;
 
@@ -206,7 +200,7 @@ namespace ZookieWizard
                 "cannot be both READ and WRITE modes !!!"
             );
         }
-        
+
         path = getFullArchivePath(filename, engine_version);
 
         if (isInReadMode())
@@ -390,27 +384,27 @@ namespace ZookieWizard
     // Ar: check modes
     ////////////////////////////////////////////////////////////////
 
-    bool Archive::isInReadMode()
+    bool Archive::isInReadMode() const
     {
         return (AR_MODE_READ & modeFlags);
     }
 
-    bool Archive::isInWriteMode()
+    bool Archive::isInWriteMode() const
     {
         return (AR_MODE_WRITE & modeFlags);
     }
 
-    bool Archive::isInExportScriptsMode()
+    bool Archive::isInExportScriptsMode() const
     {
         return (AR_MODE_EXPORT_SCRIPTS & modeFlags);
     }
 
-    bool Archive::isInExportProxiesMode()
+    bool Archive::isInExportProxiesMode() const
     {
         return (AR_MODE_EXPORT_PROXIES & modeFlags);
     }
 
-    bool Archive::isInDebugMode()
+    bool Archive::isInDebugMode() const
     {
         return (AR_MODE_DEBUG & modeFlags);
     }
@@ -419,13 +413,13 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Ar: check versions
     ////////////////////////////////////////////////////////////////
-    
-    int32_t Archive::getVersion()
+
+    int32_t Archive::getVersion() const
     {
         return version;
     }
 
-    bool Archive::checkGameEngine(int32_t opened, int32_t saved)
+    bool Archive::checkGameEngine(int32_t opened, int32_t saved) const
     {
         bool result = true;
 
@@ -458,7 +452,7 @@ namespace ZookieWizard
         return result;
     }
 
-    int32_t Archive::getCurrentEngineVersion()
+    int32_t Archive::getCurrentEngineVersion() const
     {
         if (isInReadMode())
         {
@@ -484,193 +478,6 @@ namespace ZookieWizard
         myFile.close();
 
         deleteTempStrPtrs();
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: render scene, starting from selected object
-    ////////////////////////////////////////////////////////////////
-    void Archive::renderScene(int32_t draw_flags)
-    {
-        eSRP default_srp;
-
-        if (nullptr != selectedObject)
-        {
-            selectedObject->renderObject(nullptr, draw_flags, default_srp);
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: change selected object
-    // (-5) resets selection to root node
-    // (-4) updates list for parrent node
-    // (-3) deletes current node and updates list for parrent node
-    // (-2) toggles node visibility
-    // (-1) updates list for current selection
-    ////////////////////////////////////////////////////////////////
-    void Archive::changeSelectedObject(int32_t child_id)
-    {
-        int32_t i;
-        bool update_list = false;
-        char bufor[32];
-
-        eGroup* test_group;
-        eNode* test_node;
-        eString test_str;
-
-        switch (child_id)
-        {
-            case (-5):
-            {
-                selectedObject = parentObject;
-                update_list = true;
-                break;
-            }
-
-            case (-4):
-            case (-3):
-            {
-                if (nullptr == selectedObject)
-                {
-                    return;
-                }
-
-                if (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
-                {
-                    test_node = ((eNode*)selectedObject)->getParentNode();
-                    if (nullptr != test_node)
-                    {
-                        if ((-3) == child_id)
-                        {
-                            if (test_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
-                            {
-                                test_group = (eGroup*)test_node;
-
-                                test_group->findAndDeleteChild((eNode*)selectedObject);
-                            }
-                        }
-
-                        selectedObject = test_node;
-                        update_list = true;
-                    }
-                }
-
-                break;
-            }
-
-            case (-2):
-            {
-                if (nullptr == selectedObject)
-                {
-                    return;
-                }
-
-                if (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
-                {
-                    test_node = (eNode*)selectedObject;
-                    
-                    if (0x01 & test_node->getFlags())
-                    {
-                        test_node->unsetFlags(0x01);
-                    }
-                    else
-                    {
-                        test_node->setFlags(0x01);
-                    }
-
-                    update_list = true;
-                }
-
-                break;
-            }
-
-            case (-1):
-            {
-                update_list = true;
-                break;
-            }
-
-            default:
-            {
-                if (nullptr == selectedObject)
-                {
-                    return;
-                }
-
-                if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
-                {
-                    test_group = (eGroup*)selectedObject;
-                    test_node = test_group->getIthChild(child_id);
-
-                    if (nullptr != test_node)
-                    {
-                        selectedObject = test_node;
-                        update_list = true;
-                    }
-                }
-            }
-        }
-
-        if (update_list)
-        {
-            GUI::updateNodesList((-1), nullptr);
-
-            if (nullptr == selectedObject)
-            {
-                return;
-            }
-
-            sprintf_s(bufor, 32, "(%s)", selectedObject->getType()->name);
-
-            test_str = "Selected node: ";
-            test_str += bufor;
-            test_str += "\n\"";
-            test_str += selectedObject->getStringRepresentation();
-            test_str += "\"";
-
-            if (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
-            {
-                test_node = (eNode*)selectedObject;
-
-                if (0x01 & (test_node->getFlags()))
-                {
-                    test_str += "\n[Enabled]";
-                }
-                else
-                {
-                    test_str += "\n[Disabled]";
-                }
-            }
-
-            GUI::updateNodesList((-1), &test_str);
-
-            if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
-            {
-                test_group = (eGroup*)selectedObject;
-
-                for (i = 0; i < test_group->getNodesCount(); i++)
-                {
-                    sprintf_s(bufor, 32, "[%d] ", i);
-                    test_str = bufor;
-
-                    test_node = test_group->getIthChild(i);
-
-                    if (nullptr != test_node)
-                    {
-                        sprintf_s(bufor, 32, "(%s) ", test_node->getType()->name);
-                        test_str += bufor;
-                        test_str += test_node->getStringRepresentation();
-                    }
-                    else
-                    {
-                        test_str += "<< NULL >>";
-                    }
-
-                    GUI::updateNodesList(0, &test_str);
-                }
-            }
-        }
     }
 
 
@@ -706,7 +513,7 @@ namespace ZookieWizard
     // Ar: get stored temporary class
     // <kao2.00465290>
     ////////////////////////////////////////////////////////////////
-    void* Archive::getItem(int id, int type)
+    void* Archive::getItem(int id, int type) const
     {
         if ((id < 0) || (id >= tempItemsCount))
         {
@@ -736,7 +543,7 @@ namespace ZookieWizard
     // Ar: find class pointer in write mode
     // <kao2.00465240>
     ////////////////////////////////////////////////////////////////
-    int Archive::findItem(void* item)
+    int Archive::findItem(void* item) const
     {
         for (int i = 0; i < tempItemsCount; i++)
         {
@@ -970,7 +777,7 @@ namespace ZookieWizard
                     /* Deserialize object */
 
                     (*o)->serialize(*this);
-                    
+
                     return;
                 }
                 else
@@ -1238,7 +1045,7 @@ namespace ZookieWizard
     // Ar: get or set Media Directory path
     ////////////////////////////////////////////////////////////////
 
-    eString Archive::getMediaDir()
+    eString Archive::getMediaDir() const
     {
         return mediaDirectory;
     }
@@ -1267,145 +1074,6 @@ namespace ZookieWizard
                 {
                     mediaDirectory += "/";
                 }
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: copy scene pointer (used by eXRefTarget)
-    ////////////////////////////////////////////////////////////////
-    void Archive::copySceneFromMe(eScene** target)
-    {
-        if (nullptr != parentObject)
-        {
-            eScene* test_scene = (eScene*)parentObject;
-
-            if (test_scene->getType()->checkHierarchy(&E_SCENE_TYPEINFO))
-            {
-                if (nullptr != (*target))
-                {
-                    (*target)->decRef();
-                }
-
-                (*target) = test_scene;
-
-                test_scene->incRef();
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: set scene pointer (used by eXRefTarget)
-    ////////////////////////////////////////////////////////////////
-    void Archive::setMyParentScene(eScene* pointer)
-    {
-        if (nullptr != parentObject)
-        {
-            parentObject->decRef();
-            parentObject = nullptr;
-        }
-
-        parentObject = pointer;
-
-        if (nullptr != parentObject)
-        {
-            parentObject->incRef();
-
-            selectedObject = parentObject;
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: show scene as a structured text file
-    ////////////////////////////////////////////////////////////////
-    void Archive::writeStructureToTextFile()
-    {
-        FileOperator text_file;
-        eString output_path_str;
-        char* output_path;
-
-        if (nullptr != parentObject)
-        {
-            output_path_str = mediaDirectory + "ar.log";
-            output_path = output_path_str.getText();
-
-            text_file.setDir(output_path);
-            text_file.createDir();
-
-            if (!text_file.open(output_path, 0))
-            {
-                throw ErrorMessage
-                (
-                    "Archive::writeStructureToTextFile():\n" \
-                    "Could not open file: \"%s\"",
-                    output_path
-                );
-            }
-
-            parentObject->writeStructureToTextFile(text_file, 0);
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: show scene as XML file
-    ////////////////////////////////////////////////////////////////
-    void Archive::writeStructureToXmlFile(eString filename)
-    {
-        eNode* test_node;
-        ColladaExporter exporter;
-
-        if (nullptr != parentObject)
-        {
-            if (parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
-            {
-                test_node = (eNode*)parentObject;
-                
-                exporter.openXml(filename);
-
-                while (exporter.continueExporting())
-                {
-                    test_node->writeNodeToXmlFile(exporter);
-                }
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: export selected TriMesh to OBJ file
-    ////////////////////////////////////////////////////////////////
-    void Archive::writeSelectedObjectToObjFile(eString filename)
-    {
-        WavefrontObjExporter exporter;
-
-        if (nullptr != selectedObject)
-        {
-            if (exporter.openObj(filename, (eTriMesh*)selectedObject))
-            {
-                exporter.begin();
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: import TriMesh to selected Group from OBJ file
-    ////////////////////////////////////////////////////////////////
-    void Archive::appendToSelectedObjectFromObjFile(eString filename)
-    {
-        WavefrontObjImporter importer;
-
-        if (nullptr != selectedObject)
-        {
-            if (importer.openObj(filename, (eGroup*)selectedObject))
-            {
-                importer.begin();
-
-                changeSelectedObject(-1);
             }
         }
     }

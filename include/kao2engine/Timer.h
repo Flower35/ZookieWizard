@@ -28,9 +28,9 @@ namespace ZookieWizard
             ~Timer();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
 
-            eString getDefaultGadgetName() override;
+            eString getDefaultGadgetName() const override;
     };
 
 

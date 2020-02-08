@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eDirectionalLight::getType()
+    TypeInfo* eDirectionalLight::getType() const
     {
         return &E_DIRECTIONALLIGHT_TYPEINFO;
     }

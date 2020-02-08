@@ -29,7 +29,7 @@ namespace ZookieWizard
             eShadowCaster();
             ~eShadowCaster();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

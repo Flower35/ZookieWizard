@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eNearestNavi::getType()
+    TypeInfo* eNearestNavi::getType() const
     {
         return &E_NEARESTNAVI_TYPEINFO;
     }

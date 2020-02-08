@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTimerGadget::getType()
+    TypeInfo* eTimerGadget::getType() const
     {
         return &E_TIMERGADGET_TYPEINFO;
     }

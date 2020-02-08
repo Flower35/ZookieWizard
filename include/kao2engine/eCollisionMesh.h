@@ -30,7 +30,7 @@ namespace ZookieWizard
             eCollisionMesh();
             ~eCollisionMesh();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

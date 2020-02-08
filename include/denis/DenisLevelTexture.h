@@ -33,7 +33,7 @@ namespace ZookieWizard
             void loadFromFile();
             void serialize(DenisFileOperator &file);
 
-            void convertToKao2(DenisFileOperator &file, eMaterial** materials_list);
+            void convertToKao2(DenisFileOperator &file, eMaterial** materials_list) const;
     };
 
 }

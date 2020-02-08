@@ -29,7 +29,7 @@ namespace ZookieWizard
             ~eFocMill471Deflector();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

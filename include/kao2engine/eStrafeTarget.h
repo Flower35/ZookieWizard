@@ -29,7 +29,7 @@ namespace ZookieWizard
             eStrafeTarget();
             ~eStrafeTarget();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

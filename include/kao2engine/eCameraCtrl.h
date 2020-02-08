@@ -19,7 +19,7 @@ namespace ZookieWizard
             eCameraCtrl();
             ~eCameraCtrl();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

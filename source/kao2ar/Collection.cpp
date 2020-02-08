@@ -84,7 +84,7 @@ namespace ZookieWizard
     // Get group size
     ////////////////////////////////////////////////////////////////
     template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
-    int32_t Collection<Func>::getSize()
+    int32_t Collection<Func>::getSize() const
     {
         return count;
     }
@@ -94,7 +94,7 @@ namespace ZookieWizard
     // Get i-th object from group
     ////////////////////////////////////////////////////////////////
     template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
-    eRefCounter* Collection<Func>::getIthChild(int32_t i)
+    eRefCounter* Collection<Func>::getIthChild(int32_t i) const
     {
         if ((i >= 0) && (i < count))
         {
@@ -144,7 +144,7 @@ namespace ZookieWizard
 
         count++;
     }
-    
+
 
     ////////////////////////////////////////////////////////////////
     // Take out i-th object from group

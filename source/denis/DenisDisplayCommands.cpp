@@ -210,11 +210,14 @@ namespace ZookieWizard
         int32_t materials_count,
         eMaterial** materials_list,
         int32_t vertices_count,
-        DenisGeoVertex* vertices,
-        char* name
-    )
+        const DenisGeoVertex* vertices,
+        const char* name
+    ) const
     {
         int32_t i, j, k, l, m, total_indices, total_vertices;
+        ushort v1, v2, v3;
+        ePoint4 e1, e2;
+
         eString trimesh_name;
         ePoint3 boundaries[2];
 
@@ -222,12 +225,14 @@ namespace ZookieWizard
         eGeoSet* test_geoset = nullptr;
 
         eGeoArray<ePoint4>* test_vertices_array = nullptr;
+        eGeoArray<ePoint4>* test_normals_array = nullptr;
         eGeoArray<ushort>* test_indices_offsets = nullptr;
         eGeoArray<ushort>* test_indices_array = nullptr;
         eGeoArray<ePoint2>* test_uv_array = nullptr;
         eGeoArray<ePoint4>* test_colors_array = nullptr;
 
         ePoint4* test_vertices_data = nullptr;
+        ePoint4* test_normals_data = nullptr;
         ushort* test_indices_offsets_data = nullptr;
         ushort* test_indices_array_data = nullptr;
         ePoint2* text_uv_data = nullptr;
@@ -239,6 +244,7 @@ namespace ZookieWizard
         for (i = 0; i < texturesCountTotal; i++)
         {
             test_trimesh = new eTriMesh();
+            test_trimesh->incRef();
 
             trimesh_name = name;
             trimesh_name += " / ";
@@ -278,7 +284,8 @@ namespace ZookieWizard
             test_trimesh->setName(trimesh_name);
 
             test_geoset = new eGeoSet();
-            test_trimesh->setGeoSet(test_geoset);
+            test_geoset->incRef();
+            test_trimesh->setGeoset(test_geoset);
 
             /********************************/
             /* Calculate total number of indices */
@@ -304,24 +311,28 @@ namespace ZookieWizard
             test_geoset->setTwoIntegers(0x0F, total_vertices);
 
             test_vertices_data = new ePoint4 [total_vertices];
+            test_normals_data = new ePoint4 [total_vertices];
             test_indices_offsets_data = new ushort [textures[i].facesCount];
             test_indices_array_data = new ushort [total_indices];
             text_uv_data = new ePoint2 [total_vertices];
             test_colors_data = new ePoint4 [total_vertices];
 
             test_vertices_array = new eGeoArray<ePoint4>();
+            test_normals_array = new eGeoArray<ePoint4>;
             test_indices_offsets = new eGeoArray<ushort>();
             test_indices_array = new eGeoArray<ushort>();
             test_uv_array = new eGeoArray<ePoint2>;
             test_colors_array = new eGeoArray<ePoint4>();
 
             test_vertices_array->setup(total_vertices, test_vertices_data);
+            test_normals_array->setup(total_vertices, test_normals_data);
             test_indices_offsets->setup(textures[i].facesCount, test_indices_offsets_data);
             test_indices_array->setup(total_indices, test_indices_array_data);
             test_uv_array->setup(total_vertices, text_uv_data);
             test_colors_array->setup(total_vertices, test_colors_data);
 
             test_geoset->setVerticesArray(test_vertices_array);
+            test_geoset->setNormalsArray(test_normals_array);
             test_geoset->setIndicesOffsets(test_indices_offsets);
             test_geoset->setIndicesArray(test_indices_array);
             test_geoset->setTextureCoordsArray(test_uv_array);
@@ -375,6 +386,8 @@ namespace ZookieWizard
                     test_vertices_data[m].z = vertices[l].v.y;
                     test_vertices_data[m].w = 1.0f;
 
+                    test_normals_data[m] = {0, 0, 0, 0};
+
                     test_colors_data[m].x = (vertices[l].c.color_red / 255.0f);
                     test_colors_data[m].y = (vertices[l].c.color_green / 255.0f);
                     test_colors_data[m].z = (vertices[l].c.color_blue / 255.0f);
@@ -395,47 +408,41 @@ namespace ZookieWizard
             }
 
             /********************************/
+            /* Update vertex normals */
+
+            for (j = 0; j < textures[i].facesCount; j++)
+            {
+                m = 0;
+
+                for (k = 0; k < (test_indices_offsets_data[j] - 2); k++)
+                {
+                    v1 = test_indices_array_data[m + k];
+                    v2 = test_indices_array_data[m + (k % 2) + 1];
+                    v3 = test_indices_array_data[m + 2 - (k % 2)];
+
+                    e1 = test_vertices_data[v3] - test_vertices_data[v1];
+                    e2 = test_vertices_data[v2] - test_vertices_data[v1];
+
+                    e1 = crossProduct(e1, e2);
+                    e1.normalize();
+
+                    test_normals_data[v1] += e1;
+                    test_normals_data[v1].normalize();
+
+                    test_normals_data[v2] += e1;
+                    test_normals_data[v2].normalize();
+
+                    test_normals_data[v3] += e1;
+                    test_normals_data[v3].normalize();
+                }
+
+                m += test_indices_offsets_data[j];
+            }
+
+            /********************************/
             /* Calculate boundary box */
 
-            for (k = 0; k < 2; k++)
-            {
-                boundaries[k].x = test_vertices_data[0].x;
-                boundaries[k].y = test_vertices_data[0].y;
-                boundaries[k].z = test_vertices_data[0].z;
-            }
-
-            for (k = 1; k < total_vertices; k++)
-            {
-                if (test_vertices_data[k].x < boundaries[0].x)
-                {
-                    boundaries[0].x = test_vertices_data[k].x;
-                }
-
-                if (test_vertices_data[k].y < boundaries[0].y)
-                {
-                    boundaries[0].y = test_vertices_data[k].y;
-                }
-
-                if (test_vertices_data[k].z < boundaries[0].z)
-                {
-                    boundaries[0].z = test_vertices_data[k].z;
-                }
-
-                if (test_vertices_data[k].x > boundaries[1].x)
-                {
-                    boundaries[1].x = test_vertices_data[k].x;
-                }
-
-                if (test_vertices_data[k].y > boundaries[1].y)
-                {
-                    boundaries[1].y = test_vertices_data[k].y;
-                }
-
-                if (test_vertices_data[k].z > boundaries[1].z)
-                {
-                    boundaries[1].z = test_vertices_data[k].z;
-                }
-            }
+            calculateBoundaryBox(boundaries[0], boundaries[1], total_vertices, test_vertices_data, 0, nullptr);
 
             test_trimesh->setBoundaryBox(boundaries[0], boundaries[1]);
 
@@ -451,6 +458,9 @@ namespace ZookieWizard
             /* View result in editor's window :) */
 
             test_geoset->prepareForDrawing();
+
+            test_geoset->decRef();
+            test_trimesh->decRef();
         }
     }
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eWhaleManager::getType()
+    TypeInfo* eWhaleManager::getType() const
     {
         return &E_WHALEMANAGER_TYPEINFO;
     }

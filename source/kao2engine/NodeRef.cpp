@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* NodeRef::getType()
+    TypeInfo* NodeRef::getType() const
     {
         return &E_NODEREF_TYPEINFO;
     }
@@ -52,7 +52,7 @@ namespace ZookieWizard
             /* [0x0C] node name in scene */
             ar.serializeString(nodeName);
         }
-        
+
         /* [0x10/0x0C] object type */
         ar.checkTypeInfo(&nodeType);
 
@@ -86,7 +86,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // NodeRef: get textual representation
     ////////////////////////////////////////////////////////////////
-    eString NodeRef::getStringRepresentation()
+    eString NodeRef::getStringRepresentation() const
     {
         return name;
     }
@@ -95,7 +95,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // NodeRef: get script representation
     ////////////////////////////////////////////////////////////////
-    eString NodeRef::generateScriptText()
+    eString NodeRef::generateScriptText() const
     {
         eString result;
 

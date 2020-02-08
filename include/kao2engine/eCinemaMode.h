@@ -28,7 +28,7 @@ namespace ZookieWizard
             eCinemaMode();
             ~eCinemaMode();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 

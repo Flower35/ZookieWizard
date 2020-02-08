@@ -29,7 +29,7 @@ namespace ZookieWizard
             eTorpedoMode();
             ~eTorpedoMode();
 
-            TypeInfo* getType() override;
+            TypeInfo* getType() const override;
     };
 
 
