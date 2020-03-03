@@ -1,4 +1,5 @@
 #include <ZookieWizard/ZookieWizard.h>
+#include <ZookieWizard/WindowsManager.h>
 
 #include <kao2ar/Archive.h>
 
@@ -9,11 +10,10 @@ namespace ZookieWizard
         ////////////////////////////////////////////////////////////////
         // Initialize variables
         ////////////////////////////////////////////////////////////////
-        
+
         HDC openGL_DeviceContext = NULL;
         HGLRC openGL_RenderingContext = NULL;
 
-        int32_t mousePosAndButton[3] = {0, 0, 0};
         float backgroundColor[3] = {0, 1.0f, 1.0f};
         bool isOrthoMode = false;
         testCameraStruct testCamera;
@@ -21,6 +21,7 @@ namespace ZookieWizard
         int32_t myDrawFlags = 0;
 
         LONGLONG timePrevious = 0;
+        float timeFrameStart = 0;
         float timeCurrent = 0;
         bool timeUpdate = false;
         int32_t animationID = 0;
@@ -28,14 +29,24 @@ namespace ZookieWizard
 
         testCameraStruct::testCameraStruct()
         {
-            reset();
+            mouse_prev_x = 0;
+            mouse_prev_y = 0;
+            mouse_mode = 0;
+
+            keyboard_x = 0;
+            keyboard_y = 0;
+            keyboard_z = 0;
+            object_mode = 0;
+
+            speed = TEST_CAMERA_DEFAULT_SPEED;
+            reset(0, 0, 0);
         }
 
-        void testCameraStruct::reset()
+        void testCameraStruct::reset(float center_x, float center_y, float center_z)
         {
-            pos_x = 0;
-            pos_y = (-1000);
-            pos_z = 0;
+            pos_x = center_x;
+            pos_y = center_y - 1000;
+            pos_z = center_z;
 
             look_x = 0;
             look_y = 1.0;
@@ -45,59 +56,130 @@ namespace ZookieWizard
             yaw = 0;
         }
 
+        static eSRP selectedObjectNewTransform;
+        static float selectedObjectTransposedMatrix[16];
+
 
         ////////////////////////////////////////////////////////////////
-        // Renderer window procedure
+        // Reposition camera
         ////////////////////////////////////////////////////////////////
-        LRESULT CALLBACK procedureOfRenderWindow(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+        void repositionCamera(bool returning, void* transform)
         {
-            switch (Msg)
+            float s;
+            eSRP* test_srp = (eSRP*)transform;
+
+            if (nullptr != test_srp)
             {
-                case WM_LBUTTONDOWN:
+                if (returning)
                 {
-                    mousePosAndButton[0] = LOWORD(lParam);
-                    mousePosAndButton[1] = HIWORD(lParam);
-                    mousePosAndButton[2] = 1;
+                    testCamera.pos_x -= test_srp->pos.x;
+                    testCamera.pos_y -= test_srp->pos.y;
+                    testCamera.pos_z -= test_srp->pos.z;
 
-                    break;
-                }
-
-                case WM_RBUTTONDOWN:
-                {
-                    mousePosAndButton[0] = LOWORD(lParam);
-                    mousePosAndButton[1] = HIWORD(lParam);
-                    mousePosAndButton[2] = 2;
-
-                    break;
-                }
-
-                case WM_LBUTTONUP:
-                case WM_RBUTTONUP:
-                {
-                    mousePosAndButton[2] = 0;
-
-                    break;
-                }
-
-                case WM_MOUSEMOVE:
-                {
-                    if (mousePosAndButton[2] > 0)
+                    s = test_srp->scale;
+                    if (s > 0)
                     {
-                        moveCameraAndLook
-                        (
-                            (LOWORD(lParam) - mousePosAndButton[0]),
-                            (HIWORD(lParam) - mousePosAndButton[1])
-                        );
-
-                        mousePosAndButton[0] = LOWORD(lParam);
-                        mousePosAndButton[1] = HIWORD(lParam);
+                        s = (1.0f / s);
+                        testCamera.pos_x *= s;
+                        testCamera.pos_y *= s;
+                        testCamera.pos_z *= s;
+                    }
+                }
+                else
+                {
+                    s = test_srp->scale;
+                    if (s > 0)
+                    {
+                        testCamera.pos_x *= s;
+                        testCamera.pos_y *= s;
+                        testCamera.pos_z *= s;
                     }
 
-                    break;
+                    testCamera.pos_x += test_srp->pos.x;
+                    testCamera.pos_y += test_srp->pos.y;
+                    testCamera.pos_z += test_srp->pos.z;
                 }
             }
+        }
 
-            return DefWindowProc(hWnd, Msg, wParam, lParam);
+
+        ////////////////////////////////////////////////////////////////
+        // Check if object is visible in camera
+        ////////////////////////////////////////////////////////////////
+        bool testWithCameraPlanes
+        (
+            float min_x, float min_y, float min_z,
+            float max_x, float max_y, float max_z
+        )
+        {
+            int32_t a, b;
+
+            ePoint4 points[8] =
+            {
+                {min_x, min_y, min_z, 0},
+                {max_x, min_y, min_z, 0},
+                {min_x, max_y, min_z, 0},
+                {max_x, max_y, min_z, 0},
+                {min_x, min_y, max_z, 0},
+                {max_x, min_y, max_z, 0},
+                {min_x, max_y, max_z, 0},
+                {max_x, max_y, max_z, 0}
+            };
+
+            ePoint4 plane_normals[2] =
+            {
+                {
+                    (float)testCamera.look_x,
+                    (float)testCamera.look_y,
+                    (float)testCamera.look_z,
+                    0
+                },
+                {
+                    (float)(-testCamera.look_x),
+                    (float)(-testCamera.look_y),
+                    (float)(-testCamera.look_z),
+                    0
+                }
+            };
+
+            ePoint4 plane_points[2] =
+            {
+                {
+                    (float)(testCamera.pos_x + (TEST_CAMERA_NEAR_PLANE * testCamera.look_x)),
+                    (float)(testCamera.pos_y + (TEST_CAMERA_NEAR_PLANE * testCamera.look_y)),
+                    (float)(testCamera.pos_z + (TEST_CAMERA_NEAR_PLANE * testCamera.look_z)),
+                    0
+                },
+                {
+                    (float)(testCamera.pos_x + (TEST_CAMERA_FAR_PLANE * testCamera.look_x)),
+                    (float)(testCamera.pos_y + (TEST_CAMERA_FAR_PLANE * testCamera.look_y)),
+                    (float)(testCamera.pos_z + (TEST_CAMERA_FAR_PLANE * testCamera.look_z)),
+                    0
+                }
+            };
+
+            ePoint4 dummy_vector;
+            float dummy_product;
+
+            for (a = 0; a < 2; a++)
+            {
+                for (b = 0; b < 8; b++)
+                {
+                    dummy_vector = points[b] - plane_points[a];
+                    dummy_product = dotProduct(plane_normals[a], dummy_vector);
+
+                    /* At least one point is further than the "Near plane" */
+                    if (dummy_product > 0)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            /* Every point of the bounding box is behind the camera */
+            return false;
         }
 
 
@@ -113,7 +195,10 @@ namespace ZookieWizard
             timerReset();
             timeUpdate = true;
 
-            openGL_DeviceContext = GetDC(myWindowsGroupMain[1]);
+            /* Reset selected object transform matrix */
+            selectedObjectNewTransform.getMatrix().transpose(selectedObjectTransposedMatrix);
+
+            openGL_DeviceContext = GetDC(theWindowsManager.getRenderWindow());
 
             pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
             pfd.nVersion = 1;
@@ -224,8 +309,8 @@ namespace ZookieWizard
                 (
                     45.0, // field of view
                     ((GLfloat)new_width / (GLfloat)new_height), // aspect ratio
-                    1.0, // zNear
-                    160000.0 // zFar
+                    TEST_CAMERA_NEAR_PLANE, // zNear
+                    TEST_CAMERA_FAR_PLANE // zFar
                 );
             }
 
@@ -257,111 +342,316 @@ namespace ZookieWizard
 
             if (to_be_changed)
             {
-                GetWindowRect(myWindowsGroupMain[1], &rc);
+                GetWindowRect(theWindowsManager.getRenderWindow(), &rc);
                 setPerspective((rc.right - rc.left), (rc.bottom - rc.top));
             }
         }
 
 
         ////////////////////////////////////////////////////////////////
-        // Try to use mouse to move camera around...
+        // Get or Set selected object's new transformation
         ////////////////////////////////////////////////////////////////
-        void moveCameraAndLook(int32_t x, int32_t y)
+
+        void getMovedSeletedTransform(void* transform)
         {
-            bool calculations = false;
+            eSRP* test_srp_ptr = (eSRP*)transform;
 
-            const double ROTATING_SPEED = 0.01;
-            const double STRAFING_SPEED = 100.0;
+            (*test_srp_ptr) = selectedObjectNewTransform;
+        }
 
-            if (!isOrthoMode)
+        void setMovedSeletedTransform(void* transform)
+        {
+            eSRP* test_srp_ptr = (eSRP*)transform;
+
+            if (nullptr != test_srp_ptr)
             {
-                /* 1 (LMB): rotate camera */
-                /* 2 (RMB): pan camera */
+                selectedObjectNewTransform = (*test_srp_ptr);
+            }
+            else
+            {
+                selectedObjectNewTransform = eSRP();
+            }
 
-                switch (mousePosAndButton[2])
+            selectedObjectNewTransform.getMatrix().transpose(selectedObjectTransposedMatrix);
+        }
+
+        void multiplyBySelectedObjectTransform()
+        {
+            glMultMatrixf(selectedObjectTransposedMatrix);
+        }
+
+
+        ////////////////////////////////////////////////////////////////
+        // Use mouse or keyboard to move camera around (or update position and rotation)
+        ////////////////////////////////////////////////////////////////
+        void moveCameraOrObject(int8_t x, int8_t y, int8_t z, uint8_t movement_mode)
+        {
+            bool angle_calculations = false;
+            float dir_x, dir_y, dir_z, dummy_angle;
+            eQuat test_quaternion;
+            ePoint3 test_direction;
+
+            const double ROTATING_SPEED = (0.05 / (TEST_CAMERA_DEFAULT_SPEED / 2.0));
+            const double STRAFING_SPEED = (100.0 / TEST_CAMERA_DEFAULT_SPEED);
+
+            if ((0 != x) || (0 != y) || (0 != z))
+            {
+                dir_x = float(x > 0) - float(x < 0);
+                dir_y = float(y > 0) - float(y < 0);
+                dir_z = float(z > 0) - float(z < 0);
+
+                if ((false == isOrthoMode) && (0 == testCamera.object_mode))
                 {
-                    case 1:
+                    /* [0] default, keyboard movement -> [2] */
+                    /* [1] (LMB) ROTATE CAMERA */
+                    /* [2] (RMB) PAN CAMERA */
+
+                    if (1 == movement_mode)
                     {
-                        /* Modify "rot_Z" */
+                        /* Modify "rot_Z" from "x" (horizontal) parameter */
+                        /* (x > 0) look to the right (ADD) */
+                        /* (x < 0) look to the left (SUBTRACT) */
 
-                        if (x > 0) // look to the right (ADD)
-                        {
-                            testCamera.yaw += ((double)x * ROTATING_SPEED);
-                        }
-                        else if (x < 0) // look to the left (SUBTRACT)
-                        {
-                            testCamera.yaw -= ((double)(-x) * ROTATING_SPEED);
-                        }
+                        testCamera.yaw += (dir_x * ROTATING_SPEED * (testCamera.speed / 2.0));
 
-                        /* Modify "rot_X" */
+                        /* Modify "rot_X" from "z" (vertical) parameter */
+                        /* (z > 0) look up (ADD) */
+                        /* (z < 0) look down (SUBTRACT) */
 
-                        if (y > 0) // look down (SUBTRACT)
-                        {
-                            testCamera.pitch -= ((double)y * ROTATING_SPEED);
-                        }
-                        else if (y < 0) // look up (ADD)
-                        {
-                            testCamera.pitch += ((double)(-y) * ROTATING_SPEED);
-                        }
+                        testCamera.pitch += (dir_z * ROTATING_SPEED * (testCamera.speed / 2.0));
 
-                        calculations = true;
-                        break;
+                        angle_calculations = true;
                     }
-
-                    case 2:
+                    else if ((0 == movement_mode) || (2 == movement_mode))
                     {
-                        if (x > 0) // move to the right
+                        /* (x > 0) move to the right */
+                        /* (x < 0) move to the left */
+
+                        if (0 != x)
                         {
-                            testCamera.pos_x += (testCamera.look_y * STRAFING_SPEED);
-                            testCamera.pos_y -= (testCamera.look_x * STRAFING_SPEED);
-                        }
-                        else if (x < 0) // move to the left
-                        {
-                            testCamera.pos_x -= (testCamera.look_y * STRAFING_SPEED);
-                            testCamera.pos_y += (testCamera.look_x * STRAFING_SPEED);
+                            testCamera.pos_x += (dir_x * testCamera.look_y * STRAFING_SPEED * testCamera.speed);
+                            testCamera.pos_y -= (dir_x * testCamera.look_x * STRAFING_SPEED * testCamera.speed);
                         }
 
-                        if (y > 0) // move backwards
-                        {
-                            testCamera.pos_x -= (testCamera.look_x * STRAFING_SPEED);
-                            testCamera.pos_y -= (testCamera.look_y * STRAFING_SPEED);
-                            testCamera.pos_z -= (testCamera.look_z * STRAFING_SPEED);
-                        }
-                        else if (y < 0) // move forwards
-                        {
-                            testCamera.pos_x += (testCamera.look_x * STRAFING_SPEED);
-                            testCamera.pos_y += (testCamera.look_y * STRAFING_SPEED);
-                            testCamera.pos_z += (testCamera.look_z * STRAFING_SPEED);
-                        }
+                        /* (y > 0) move forwards */
+                        /* (y < 0) move backwards */
 
-                        break;
+                        if (0 != y)
+                        {
+                            testCamera.pos_x += (dir_y * testCamera.look_x * STRAFING_SPEED * testCamera.speed);
+                            testCamera.pos_y += (dir_y * testCamera.look_y * STRAFING_SPEED * testCamera.speed);
+                            testCamera.pos_z += (dir_y * testCamera.look_z * STRAFING_SPEED * testCamera.speed);
+                        }
                     }
                 }
-
-                /* Get camera direction */
-
-                if (calculations)
+                else if (1 == testCamera.object_mode)
                 {
-                    if (testCamera.pitch > (M_PI / 2.0 - 0.0001))
+                    /* [X/Y/Z] MOVING */
+
+                    if (0 != x)
                     {
-                        testCamera.pitch = (M_PI / 2.0 - 0.0001);
-                    }
-                    else if (testCamera.pitch < - (M_PI / 2.0 - 0.0001))
-                    {
-                        testCamera.pitch = - (M_PI / 2.0 - 0.0001);
-                    }
-                    
-                    if ((testCamera.yaw > (2.0 * M_PI)) || (testCamera.yaw < (- 2.0 * M_PI)))
-                    {
-                        testCamera.yaw = 0;
+                        selectedObjectNewTransform.pos.x += float(dir_x * testCamera.look_y * STRAFING_SPEED * testCamera.speed);
+                        selectedObjectNewTransform.pos.y -= float(dir_x * testCamera.look_x * STRAFING_SPEED * testCamera.speed);
                     }
 
-                    testCamera.look_x = cos(testCamera.pitch) * sin(testCamera.yaw);
-                    testCamera.look_y = cos(testCamera.pitch) * cos(testCamera.yaw);
-                    testCamera.look_z = sin(testCamera.pitch);
+                    if (0 != y)
+                    {
+                        selectedObjectNewTransform.pos.x += float(dir_y * testCamera.look_x * STRAFING_SPEED * testCamera.speed);
+                        selectedObjectNewTransform.pos.y += float(dir_y * testCamera.look_y * STRAFING_SPEED * testCamera.speed);
+                    }
+
+                    if (0 != z)
+                    {
+                        selectedObjectNewTransform.pos.z += float(dir_z * STRAFING_SPEED * testCamera.speed);
+                    }
+
+                    selectedObjectNewTransform.getMatrix().transpose(selectedObjectTransposedMatrix);
+                }
+                else if (2 == testCamera.object_mode)
+                {
+                    /* ARBITRARY ROTATION */
+
+                    if (0 != x)
+                    {
+                        /* Rotate countner-clockwise around "Z-axis" (the user drags the object) */
+                        dummy_angle = (float)((-dir_x) * ROTATING_SPEED * testCamera.speed * 10.0);
+                        test_quaternion.fromEulerAngles(false, 0, 0, (float)(M_PI * dummy_angle / 180.0f));
+
+                        selectedObjectNewTransform.rot = selectedObjectNewTransform.rot * test_quaternion;
+                    }
+
+                    if (0 != y)
+                    {
+                        /* Get a vector that is perpendicular to "Look Direction" around "Z-axis" */
+                        test_direction = {(float)testCamera.look_y, (float)(- testCamera.look_x), 0};
+
+                        /* If camera is pointing "Y-forwards", the rotation will occur around "X-axis" */
+                        dummy_angle = (float)(dir_y * ROTATING_SPEED * testCamera.speed * 10.0);
+                        test_quaternion.fromAxisAngle(test_direction, (M_PI * dummy_angle / 180.0f));
+
+                        selectedObjectNewTransform.rot = selectedObjectNewTransform.rot * test_quaternion;
+                    }
+
+                    if (0 != z)
+                    {
+                        /* Get "Look Direction" vector */
+                        test_direction = {(float)testCamera.look_x, (float)testCamera.look_y, (float)testCamera.look_z};
+
+                        /* If camera is pointing "Y-forwards", the rotation will occur around "Y-axis" */
+                        dummy_angle = (float)(dir_z * ROTATING_SPEED * testCamera.speed * 10.0);
+                        test_quaternion.fromAxisAngle(test_direction, (M_PI * dummy_angle / 180.0f));
+
+                        selectedObjectNewTransform.rot = selectedObjectNewTransform.rot * test_quaternion;
+                    }
+
+                    selectedObjectNewTransform.getMatrix().transpose(selectedObjectTransposedMatrix);
+                }
+            }
+
+            /* Get camera direction */
+
+            if (angle_calculations)
+            {
+                if (testCamera.pitch > (M_PI / 2.0 - 0.0001))
+                {
+                    testCamera.pitch = (M_PI / 2.0 - 0.0001);
+                }
+                else if (testCamera.pitch < - (M_PI / 2.0 - 0.0001))
+                {
+                    testCamera.pitch = - (M_PI / 2.0 - 0.0001);
                 }
 
-                /* Load identity before making eye contact... */
+                if ((testCamera.yaw > (2.0 * M_PI)) || (testCamera.yaw < (- 2.0 * M_PI)))
+                {
+                    testCamera.yaw = 0;
+                }
+
+                testCamera.look_x = cos(testCamera.pitch) * sin(testCamera.yaw);
+                testCamera.look_y = cos(testCamera.pitch) * cos(testCamera.yaw);
+                testCamera.look_z = sin(testCamera.pitch);
+            }
+        }
+
+
+        ////////////////////////////////////////////////////////////////
+        // Render bounding box
+        ////////////////////////////////////////////////////////////////
+        void renderBoundingBox
+        (
+            float thickness,
+            float color_r, float color_g, float color_b,
+            float min_x, float min_y, float min_z,
+            float max_x, float max_y, float max_z
+        )
+        {
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+            glColor3f(color_r, color_g, color_b);
+            glLineWidth(thickness);
+            glBegin(GL_LINES);
+
+            /* Cube Front */
+
+            glVertex3f(min_x, min_y, min_z);
+            glVertex3f(max_x, min_y, min_z);
+
+            glVertex3f(max_x, min_y, min_z);
+            glVertex3f(max_x, min_y, max_z);
+
+            glVertex3f(max_x, min_y, max_z);
+            glVertex3f(min_x, min_y, max_z);
+
+            glVertex3f(min_x, min_y, max_z);
+            glVertex3f(min_x, min_y, min_z);
+
+            /* Cube Back */
+
+            glVertex3f(min_x, max_y, min_z);
+            glVertex3f(max_x, max_y, min_z);
+
+            glVertex3f(max_x, max_y, min_z);
+            glVertex3f(max_x, max_y, max_z);
+
+            glVertex3f(max_x, max_y, max_z);
+            glVertex3f(min_x, max_y, max_z);
+
+            glVertex3f(min_x, max_y, max_z);
+            glVertex3f(min_x, max_y, min_z);
+
+            /* Cube Left */
+
+            glVertex3f(min_x, max_y, max_z);
+            glVertex3f(min_x, min_y, max_z);
+
+            glVertex3f(min_x, max_y, min_z);
+            glVertex3f(min_x, min_y, min_z);
+
+            /* Cube Right */
+
+            glVertex3f(max_x, max_y, max_z);
+            glVertex3f(max_x, min_y, max_z);
+
+            glVertex3f(max_x, max_y, min_z);
+            glVertex3f(max_x, min_y, min_z);
+
+            /* Stop drawing lines */
+
+            glEnd();
+            glColor3f(1.0f, 1.0f, 1.0f);
+            glLineWidth(1.0f);
+        }
+
+
+        ////////////////////////////////////////////////////////////////
+        // Generate glowing color for selected object
+        ////////////////////////////////////////////////////////////////
+        void colorOfMarkedObject(float &color_r, float &color_g, float &color_b)
+        {
+            const float GLOW_INTERVAL = 2.0f; // seconds
+
+            const float tones[2][3] =
+            {
+                {1.0f, 1.0f, 1.0f}, // white
+                {0.5f, 0, 1.0f} // purple
+            };
+
+            float time = fmod(timerGetCurrent(), GLOW_INTERVAL);
+            float ratio = std::abs(std::sinf(M_PI * time / GLOW_INTERVAL));
+            float inv_ratio = (1.0f - ratio);
+
+            color_r = ratio * tones[0][0] + inv_ratio * tones[1][0];
+            color_g = ratio * tones[0][1] + inv_ratio * tones[1][1];
+            color_b = ratio * tones[0][2] + inv_ratio * tones[1][2];
+        }
+
+
+        ////////////////////////////////////////////////////////////////
+        // Render current scene
+        ////////////////////////////////////////////////////////////////
+        void render()
+        {
+            char bufor[64];
+            float time_start, time_elapsed;
+
+            /* Get time at the beginning, measure elapsed time */
+
+            time_start = timerGetCurrent();
+            time_elapsed = time_start - timeFrameStart;
+
+            /* Limit rendering to 60 fps */
+
+            if (time_start >= (1.0f / 60.0f))
+            {
+                /* Remeber current frame starting time */
+
+                timeFrameStart = time_start;
+
+                /* Prepare frame and camera */
+
+                glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+                moveCameraOrObject(testCamera.keyboard_x, testCamera.keyboard_y, testCamera.keyboard_z, 0);
+
                 glLoadIdentity();
 
                 gluLookAt
@@ -376,46 +666,26 @@ namespace ZookieWizard
                     0, // up Y
                     1.0 // up Z
                 );
+
+                /* Render one frame */
+
+                myARs[0].renderScene(myDrawFlags);
+
+                SwapBuffers(openGL_DeviceContext);
             }
-        }
 
+            /* Update main window title */
 
-        ////////////////////////////////////////////////////////////////
-        // Render current scene
-        ////////////////////////////////////////////////////////////////
-        void render()
-        {
-            char bufor[64];
-            float time;
-
-            /* Get time at the beginning */
-
-            time = timerGetCurrent();
-
-            /* Render one frame */
-
-            glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-            moveCameraAndLook(0, 0);
-
-            myARs[0].renderScene(myDrawFlags);
-
-            SwapBuffers(openGL_DeviceContext);
-
-            /* Get time at the end and update window title */
-
-            time = timerGetCurrent() - time;
-
-            if (time > 0)
+            if (time_elapsed > 0)
             {
-                sprintf_s(bufor, 64, "Zookie Wizard (%.2f fps)", (1.0f / time));
+                sprintf_s(bufor, 64, "Zookie Wizard (%.2f fps)", (1.0f / time_elapsed));
             }
             else
             {
                 sprintf_s(bufor, 64, "Zookie Wizard");
             }
 
-            SetWindowText(myWindowsGroupMain[0], bufor);
+            SetWindowText(theWindowsManager.getMainWindow(), bufor);
         }
 
 

@@ -49,13 +49,14 @@ namespace ZookieWizard
 
         private:
 
-            bool registerTypeInfo(TypeInfo* info);
+            bool registerTypeInfo(const TypeInfo* info);
 
         public:
 
             bool registerInterfaces();
 
             TypeInfo* getTypeInfo(int id) const;
+            TypeInfo* getTypeInfo(const char* name) const;
     };
 
     extern Kao2Interfaces InterfaceManager;

@@ -375,6 +375,17 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eScene: find reference to some node when deleting it
+    ////////////////////////////////////////////////////////////////
+    void eScene::findAndDereference(eNode* target)
+    {
+        unknown0194.findAndDeleteChild((eRefCounter*)target);
+
+        eGroup::findAndDereference(target);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eScene: COLLADA exporting
     ////////////////////////////////////////////////////////////////
     void eScene::writeNodeToXmlFile(ColladaExporter &exporter) const

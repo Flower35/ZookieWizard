@@ -604,7 +604,7 @@ namespace ZookieWizard
     // KAO2 INTERFACES: register type
     ////////////////////////////////////////////////////////////////
 
-    bool Kao2Interfaces::registerTypeInfo(TypeInfo* info)
+    bool Kao2Interfaces::registerTypeInfo(const TypeInfo* info)
     {
         if (interfacesCount >= MAX_INTERFACES)
         {
@@ -620,7 +620,7 @@ namespace ZookieWizard
 
         for (int i = 0; i < interfacesCount; i++)
         {
-            if (!std::strcmp(list[i]->name, info->name))
+            if (0 == std::strcmp(list[i]->name, info->name))
             {
                 throw ErrorMessage
                 (
@@ -632,7 +632,7 @@ namespace ZookieWizard
                 return false;
             }
 
-            if (list[i]->id == info->id)
+            if (info->id == list[i]->id)
             {
                 throw ErrorMessage
                 (
@@ -647,7 +647,7 @@ namespace ZookieWizard
             }
         }
 
-        list[interfacesCount] = info;
+        list[interfacesCount] = (TypeInfo*)info;
         interfacesCount++;
 
         return true;
@@ -672,6 +672,26 @@ namespace ZookieWizard
             "getTypeInfo():\n" \
             "TypeInfo for Index 0x%08X not found!",
             id
+        );
+
+        return nullptr;
+    }
+
+    TypeInfo* Kao2Interfaces::getTypeInfo(const char* name) const
+    {
+        for (int i=0; i < interfacesCount; i++)
+        {
+            if (0 == std::strcmp(list[i]->name, name))
+            {
+                return list[i];
+            }
+        }
+
+        throw ErrorMessage
+        (
+            "getTypeInfo():\n" \
+            "TypeInfo for name \"%s\" not found!",
+            name
         );
 
         return nullptr;

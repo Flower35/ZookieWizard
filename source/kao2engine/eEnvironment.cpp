@@ -86,4 +86,15 @@ namespace ZookieWizard
         }
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eEnvironment: find reference to some node when deleting it
+    ////////////////////////////////////////////////////////////////
+    void eEnvironment::findAndDereference(eNode* target)
+    {
+        lights.findAndDeleteChild((eRefCounter*)target);
+
+        eGroup::findAndDereference(target);
+    }
+
 }

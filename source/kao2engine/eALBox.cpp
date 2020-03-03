@@ -311,12 +311,16 @@ namespace ZookieWizard
 
             for (i = 0; i < num_boxes; i++)
             {
-                if ((this != boxes[i]) && (nullptr != boxes[i]))
+                if ((nullptr != boxes[i]) && (this != boxes[i]))
                 {
                     if (0x54 == (0x54 & function_004A9830(boxes[i])))
                     {
                         function_004AA750(boxes[i]);
-                        boxes[i]->function_004AA750(this);
+
+                        if (nullptr != boxes[i])
+                        {
+                            boxes[i]->function_004AA750(this);
+                        }
                     }
                 }
             }

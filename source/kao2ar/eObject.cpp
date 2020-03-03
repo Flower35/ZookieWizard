@@ -98,7 +98,9 @@ namespace ZookieWizard
     // eObject: 3D rendering
     // (cannot be "const" because "ePivot" changes animation)
     ////////////////////////////////////////////////////////////////
-    void eObject::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
-    {}
+    bool eObject::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
+    {
+        return true;
+    }
 
 }

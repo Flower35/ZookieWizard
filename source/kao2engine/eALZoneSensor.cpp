@@ -38,10 +38,8 @@ namespace ZookieWizard
     }
 
     eALZoneSensor::eALZoneSensor(eZone* zone, float* boxBound)
-    : eALBox()
+    : eALZoneSensor()
     {
-        sensorName = "Hero";
-
         createAxisListEntry(zone, boxBound);
     }
 

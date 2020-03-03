@@ -31,7 +31,7 @@ namespace ZookieWizard
             virtual void writeStructureToTextFile(FileOperator &file, int32_t indentation) const;
             virtual void writeNodeToXmlFile(ColladaExporter &exporter) const;
 
-            virtual void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp);
+            virtual bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id);
     };
 
 

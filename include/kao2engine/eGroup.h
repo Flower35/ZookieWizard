@@ -35,13 +35,24 @@ namespace ZookieWizard
             void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
-            void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
+            bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id) override;
+
+            void editingRebuildCollision() override;
+            void editingClearCollision() override;
+            void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id) override;
+
+            void destroyNode() override;
+            void findAndDereference(eNode* target) override;
+            bool deleteXRefTargets() override;
 
             int32_t getNodesCount() const;
             eNode* getIthChild(int32_t i) const;
             void appendChild(eNode* o);
             void deleteIthChild(int32_t i);
             void findAndDeleteChild(eNode* o);
+            void findAndDetachChild(eNode* o);
+
+            void deleteNodesWithMultiRefs(bool canBeInvalid);
     };
 
 

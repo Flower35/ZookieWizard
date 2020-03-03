@@ -47,70 +47,79 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eBoxZone: rener
+    // eBoxZone: (editor option) find object in 3D space
     ////////////////////////////////////////////////////////////////
-    void eBoxZone::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
+    ePoint3 eBoxZone::editingGetCenterPoint() const
     {
+        return (boxBoundMax - boxBoundMin) * 0.5f;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBoxZone: (editor option) apply new transformation
+    ////////////////////////////////////////////////////////////////
+    void eBoxZone::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
+    {
+        ePoint4 test_point;
+        eMatrix4x4 matrix = new_transform.getMatrix();
+
+        test_point = {boxBoundMin.x, boxBoundMin.y, boxBoundMin.z, 1.0f};
+        test_point = matrix * test_point;
+        boxBoundMin = {test_point.x, test_point.y, test_point.z};
+
+        test_point = {boxBoundMax.x, boxBoundMax.y, boxBoundMax.z, 1.0f};
+        test_point = matrix * test_point;
+        boxBoundMax = {test_point.x, test_point.y, test_point.z};
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBoxZone: render
+    ////////////////////////////////////////////////////////////////
+    bool eBoxZone::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
+    {
+        bool is_selected_or_marked;
+
+        /* Inactive color (red) */
+        float color[3] = {1.0f, 0, 0};
+
         if (GUI::drawFlags::DRAW_FLAG_BOXZONES & draw_flags)
         {
-            /* (--dsp--) use `glCallList()` here !!! */
+            if (false == eNode::renderObject(draw_flags, anim, parent_srp, marked_id))
+            {
+                return false;
+            }
 
-            glBindTexture(GL_TEXTURE_2D, 0);
+            is_selected_or_marked = (((-2) == marked_id) || ((-1) == marked_id));
 
-            glColor3f(1.0f, 0, 0);
-            glLineWidth(2.0f);
-            glBegin(GL_LINES);
+            if (is_selected_or_marked)
+            {
+                /* This object is selected (-1) or marked (-2) and can be moved around */
+                glPushMatrix();
+                GUI::multiplyBySelectedObjectTransform();
+            }
 
-            /* Cube Front */
+            if ((GUI::drawFlags::DRAW_FLAG_OUTLINE & draw_flags) && (((-2) == marked_id) || ((-3) == marked_id)))
+            {
+                /* Active color */
+                GUI::colorOfMarkedObject(color[0], color[1], color[2]);
+            }
 
-            glVertex3f(boxBoundMin.x, boxBoundMin.y, boxBoundMin.z);
-            glVertex3f(boxBoundMax.x, boxBoundMin.y, boxBoundMin.z);
+            GUI::renderBoundingBox
+            (
+                2.0f,
+                color[0], color[1], color[2],
+                boxBoundMin.x, boxBoundMin.y, boxBoundMin.z,
+                boxBoundMax.x, boxBoundMax.y, boxBoundMax.z
+            );
 
-            glVertex3f(boxBoundMax.x, boxBoundMin.y, boxBoundMin.z);
-            glVertex3f(boxBoundMax.x, boxBoundMin.y, boxBoundMax.z);
-
-            glVertex3f(boxBoundMax.x, boxBoundMin.y, boxBoundMax.z);
-            glVertex3f(boxBoundMin.x, boxBoundMin.y, boxBoundMax.z);
-
-            glVertex3f(boxBoundMin.x, boxBoundMin.y, boxBoundMax.z);
-            glVertex3f(boxBoundMin.x, boxBoundMin.y, boxBoundMin.z);
-
-            /* Cube Back */
-
-            glVertex3f(boxBoundMin.x, boxBoundMax.y, boxBoundMin.z);
-            glVertex3f(boxBoundMax.x, boxBoundMax.y, boxBoundMin.z);
-
-            glVertex3f(boxBoundMax.x, boxBoundMax.y, boxBoundMin.z);
-            glVertex3f(boxBoundMax.x, boxBoundMax.y, boxBoundMax.z);
-
-            glVertex3f(boxBoundMax.x, boxBoundMax.y, boxBoundMax.z);
-            glVertex3f(boxBoundMin.x, boxBoundMax.y, boxBoundMax.z);
-
-            glVertex3f(boxBoundMin.x, boxBoundMax.y, boxBoundMax.z);
-            glVertex3f(boxBoundMin.x, boxBoundMax.y, boxBoundMin.z);
-
-            /* Cube Left */
-
-            glVertex3f(boxBoundMin.x, boxBoundMax.y, boxBoundMax.z);
-            glVertex3f(boxBoundMin.x, boxBoundMin.y, boxBoundMax.z);
-
-            glVertex3f(boxBoundMin.x, boxBoundMax.y, boxBoundMin.z);
-            glVertex3f(boxBoundMin.x, boxBoundMin.y, boxBoundMin.z);
-
-            /* Cube Right */
-
-            glVertex3f(boxBoundMax.x, boxBoundMax.y, boxBoundMax.z);
-            glVertex3f(boxBoundMax.x, boxBoundMin.y, boxBoundMax.z);
-
-            glVertex3f(boxBoundMax.x, boxBoundMax.y, boxBoundMin.z);
-            glVertex3f(boxBoundMax.x, boxBoundMin.y, boxBoundMin.z);
-
-            /* Stop drawing lines */
-
-            glEnd();
-            glColor3f(1.0f, 1.0f, 1.0f);
-            glLineWidth(1.0f);
+            if (is_selected_or_marked)
+            {
+                glPopMatrix();
+            }
         }
+
+        return true;
     }
 
 }

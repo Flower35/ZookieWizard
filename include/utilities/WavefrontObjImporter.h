@@ -102,6 +102,8 @@ namespace ZookieWizard
             void readModelData();
             void readMaterialInfo(eString filename);
             void constructTriMeshes();
+
+            bool groupHasMultipleMaterials(const int32_t g_id) const;
     };
 
 }

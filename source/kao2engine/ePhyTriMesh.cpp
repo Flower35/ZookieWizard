@@ -53,18 +53,13 @@ namespace ZookieWizard
 
     ePhyTriMesh::~ePhyTriMesh()
     {
-        int32_t i;
-
         morph->decRef();
 
         defaultNormals->decRef();
 
         defaultVertices->decRef();
 
-        for (i = 0; i < bonesCount; i++)
-        {
-            bones[i].xform->decRef();
-        }
+        deleteBones();
 
         vertices->decRef();
     }
@@ -72,6 +67,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Bone Structure
+    // <kao2.004B1D70> (serialization)
     ////////////////////////////////////////////////////////////////
 
     eBoneBase::eBoneBase()
@@ -85,7 +81,7 @@ namespace ZookieWizard
 
         xform->setTypeToJoint(true);
 
-        /* Seiralize transposed 4x4 matrix */
+        /* Serialize transposed 4x4 matrix */
 
         matrix.serialize(ar);
     }
@@ -197,6 +193,58 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // ePhyTriMesh: destroy bones (required for correct "eTransform" dereferencing)
+    ////////////////////////////////////////////////////////////////
+    void ePhyTriMesh::deleteBones()
+    {
+        int32_t i;
+
+        for (i = 0; i < bonesCount; i++)
+        {
+            bones[i].xform->decRef();
+        }
+
+        if (nullptr != bones)
+        {
+            delete[](bones);
+            bones = nullptr;
+        }
+
+        bonesCount = 0;
+        bonesMaxLength = 0;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePhyTriMesh: transform default vertices and default normals
+    ////////////////////////////////////////////////////////////////
+    void ePhyTriMesh::transformVertices(eSRP &new_transform)
+    {
+        int32_t a, b, vertices_length;
+        ePoint4* vertices_data;
+        eMatrix4x4 matrix = new_transform.getMatrix();
+
+        const eGeoArray<ePoint4>* arrays[2] = {defaultVertices, defaultNormals};
+
+        for (a = 0; a < 2; a++)
+        {
+            vertices_length = arrays[a]->getLength();
+            vertices_data = arrays[a]->getData();
+
+            if (nullptr != vertices_data)
+            {
+                for (b = 0; b < vertices_length; b++)
+                {
+                    vertices_data[b] = matrix * vertices_data[b];
+                }
+            }
+        }
+
+        /* (--dsp--) update "eMorhperMod"! */
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // ePhyTriMesh: COLLADA exporting
     ////////////////////////////////////////////////////////////////
     void ePhyTriMesh::writeNodeToXmlFile(ColladaExporter &exporter) const
@@ -238,7 +286,7 @@ namespace ZookieWizard
 
             if (nullptr != test_transform)
             {
-                parent_matrix = test_transform->getXForm().getMatrix();
+                parent_matrix = test_transform->getXForm(true, true).getMatrix();
 
                 exporter.openTag("bind_shape_matrix");
 
@@ -579,7 +627,7 @@ namespace ZookieWizard
 
             if (nullptr != test_transform)
             {
-                parent_matrix = test_transform->getXForm().getInverseMatrix();
+                parent_matrix = test_transform->getXForm(true, true).getInverseMatrix();
             }
         }
 
@@ -589,7 +637,7 @@ namespace ZookieWizard
         {
             if (update)
             {
-                xform_matrix = bones[i].xform->getXForm().getMatrix();
+                xform_matrix = bones[i].xform->getXForm(true, true).getMatrix();
 
                 theBonesMatrices[i] = parent_matrix * (xform_matrix * bones[i].matrix);
             }

@@ -37,11 +37,15 @@ namespace ZookieWizard
 
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
-            void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
-            void updateSRP(eAnimate* anim, eSRP &parent_srp) override;
+            bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id) override;
+            void updateSRP(bool update, eAnimate* anim, eSRP &parent_srp) override;
 
-            eSRP getXForm() const;
-            void setXForm(eSRP new_xform);
+            ePoint3 editingGetCenterPoint() const override;
+            void editingRebuildCollision() override;
+            void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id) override;
+
+            eSRP getXForm(bool modified, bool animated) const;
+            void setXForm(eSRP &new_xform);
 
             void setTypeToJoint(bool is_joint);
             bool isJointNode() const;

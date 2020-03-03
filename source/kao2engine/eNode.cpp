@@ -1,12 +1,50 @@
 #include <kao2engine/eNode.h>
 #include <kao2ar/Archive.h>
 
+#include <ZookieWizard/WindowsManager.h>
+#include <kao2engine/Log.h>
+
 #include <kao2engine/eALBox.h>
 #include <kao2engine/eScene.h>
 #include <kao2engine/eGeometry.h>
 
 namespace ZookieWizard
 {
+    const char* theNodeFlagNames[32] =
+    {
+        "Enabled", // 0x00000001
+        "???", // 0x00000002
+        "???", // 0x00000004
+        "???", // 0x00000008
+        "???", // 0x00000010
+        "???", // 0x00000020
+        "???", // 0x00000040
+        "???", // 0x00000080
+        "???", // 0x00000100
+        "???", // 0x00000200
+        "Checked when rendering groups", // 0x00000400
+        "???", // 0x00000800
+        "???", // 0x00001000
+        "???", // 0x00002000
+        "???", // 0x00004000
+        "???", // 0x00008000
+        "Proxy already loaded", // 0x00010000
+        "???", // 0x00020000
+        "???", // 0x00040000
+        "???", // 0x00080000
+        "???", // 0x00100000
+        "???", // 0x00200000
+        "???", // 0x00400000
+        "???", // 0x00800000
+        "???", // 0x01000000
+        "???", // 0x02000000
+        "???", // 0x04000000
+        "???", // 0x08000000
+        "???", // 0x10000000
+        "???", // 0x20000000
+        "???", // 0x40000000
+        "???", // 0x80000000
+    };
 
     ////////////////////////////////////////////////////////////////
     // eNode interface
@@ -32,19 +70,9 @@ namespace ZookieWizard
     }
 
     eNode::eNode(eString s, eNode* x)
-    : ePrimitive()
+    : eNode()
     {
-        /*[0x08]*/ previousTransform = nullptr;
-        /*[0x0C]*/ unknown_0C = 0x00FFFFFF;
-        /*[0x10]*/ parent = nullptr;
         /*[0x14]*/ name = s;
-        /*[0x18]*/ axisListBox = nullptr;
-        /*[0x1C]*/ flags = 0x249D;
-        /*[0x30]*/ flags02 = 0x00FF;
-        /*[0x34]*/ unknown_34 = nullptr;
-        /*[0x2C]*/ sphBound[3] = -1.0f;
-
-        visGroup = (-1);
 
         if (nullptr != x)
         {
@@ -55,6 +83,8 @@ namespace ZookieWizard
     eNode::eNode()
     : ePrimitive()
     {
+        theNodesCounter++;
+
         /*[0x08]*/ previousTransform = nullptr;
         /*[0x0C]*/ unknown_0C = 0x00FFFFFF;
         /*[0x10]*/ parent = nullptr;
@@ -69,9 +99,25 @@ namespace ZookieWizard
 
     eNode::~eNode()
     {
-        unknown_34->decRef();
+        eString result;
+        char bufor[16];
 
+        unknown_34->decRef();
         axisListBox->decRef();
+
+        theNodesCounter--;
+
+        /* Leave a message! */
+
+        sprintf_s(bufor, 16, "%d", theNodesCounter);
+
+        result += " - node \"";
+        result += name;
+        result += "\" destroyed! [";
+        result += bufor;
+        result += " still exist]\n";
+
+        theLog.print(result);
     }
 
 
@@ -81,6 +127,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eNode::serialize(Archive &ar)
     {
+        char bufor[256];
         eGeometry* test_object;
         ePoint3 test_boundary[2];
 
@@ -88,7 +135,25 @@ namespace ZookieWizard
 
         ar.serializeString(name);
 
-        ar.serialize((eObject**)&parent, &E_NODE_TYPEINFO);
+        ar.serialize((eObject**)&parent, &E_GROUP_TYPEINFO);
+
+        if (nullptr == parent)
+        {
+            if ((false == getType()->checkHierarchy(&E_SCENE_TYPEINFO))
+              && (false == ar.compareWithMyRoot(this)))
+            {
+                sprintf_s
+                (
+                    bufor, 256,
+                    "eNode::serialize():\n" \
+                    "there is no parent attached to this node!\n" \
+                    "\"%s\"",
+                    name.getText()
+                );
+
+                GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_WARNING, bufor);
+            }
+        }
 
         ar.readOrWrite(&unknown_0C, 0x04);
 
@@ -158,10 +223,83 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eNode: destroy before dereferencing
+    ////////////////////////////////////////////////////////////////
+    void eNode::destroyNode()
+    {
+        eString result;
+
+        editingClearCollision();
+
+        /* Leave a message! */
+
+        result += " - node (";
+        result += getType()->name;
+        result += ") \"";
+        result += name;
+        result += "\" was marked for deletion.\n";
+
+        theLog.print(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eTransform" / "eTriMesh")
+    ////////////////////////////////////////////////////////////////
+    ePoint3 eNode::editingGetCenterPoint() const
+    {
+        return {0, 0, 0};
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eGroup" / "eTriMesh")
+    ////////////////////////////////////////////////////////////////
+    void eNode::editingRebuildCollision()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: (editor function) clear collision
+    ////////////////////////////////////////////////////////////////
+    void eNode::editingClearCollision()
+    {
+        if (nullptr != axisListBox)
+        {
+            axisListBox->decRef();
+            axisListBox = nullptr;
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eBoxZone" / "eTransform" / "eTriMesh")
+    ////////////////////////////////////////////////////////////////
+    void eNode::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
     // eNode: empty function (for "eGroup" / "eTransform")
     ////////////////////////////////////////////////////////////////
-    void eNode::updateSRP(eAnimate* anim, eSRP &parent_srp)
+    void eNode::updateSRP(bool update, eAnimate* anim, eSRP &parent_srp)
     {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eGroup" / "eZone")
+    ////////////////////////////////////////////////////////////////
+    void eNode::findAndDereference(eNode* target)
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eGroup" / "eXRefProxy")
+    ////////////////////////////////////////////////////////////////
+    bool eNode::deleteXRefTargets()
+    {
+        return false;
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -170,6 +308,23 @@ namespace ZookieWizard
     eString eNode::getStringRepresentation() const
     {
         return name;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: internal rendering check
+    ////////////////////////////////////////////////////////////////
+    bool eNode::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
+    {
+        if (0 == (GUI::drawFlags::DRAW_FLAG_INVISIBLE & draw_flags))
+        {
+            if (0 == (0x01 & flags))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
@@ -185,6 +340,26 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eNode: get or set parent node
     ////////////////////////////////////////////////////////////////
+
+    eNode* eNode::getRootNode() const
+    {
+        const eNode *root, *test_root;
+
+        root = nullptr;
+        test_root = this;
+
+        while (nullptr != test_root)
+        {
+            test_root = test_root->getParentNode();
+
+            if (nullptr != test_root)
+            {
+                root = test_root;
+            }
+        }
+
+        return (eNode*)root;
+    }
 
     eNode* eNode::getParentNode() const
     {
@@ -362,5 +537,12 @@ namespace ZookieWizard
 
         ArFunctions::writeNewLine(file, 0);
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Global Nodes counter
+    ////////////////////////////////////////////////////////////////
+
+    int32_t theNodesCounter = 0;
 
 }

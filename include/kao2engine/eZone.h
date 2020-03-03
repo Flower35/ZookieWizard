@@ -39,6 +39,8 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            void findAndDereference(eNode* target) override;
     };
 
 

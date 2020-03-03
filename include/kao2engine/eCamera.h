@@ -18,7 +18,7 @@ namespace ZookieWizard
         protected:
 
             /*[0x01CC]*/ uint8_t unknown_01CC;
-            /*[0x01D0]*/ eTransform* target;
+            /*[0x01D0]*/ eTransform* camTarget;
             /*[0x01D8-0x01E4]*/ float unknown_01D8[4];
 
         /*** Methods ***/
@@ -30,6 +30,8 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            void findAndDereference(eNode* target) override;
     };
 
 

@@ -35,7 +35,7 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
 
-            void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
+            bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id) override;
 
             bool loadTarget(Archive &ar, int32_t ar_flags, eString model_name);
             void exportTarget(Archive &ar, int32_t ar_flags) const;

@@ -2,6 +2,7 @@
 #include <kao2ar/Archive.h>
 
 #include <kao2engine/eXRefTarget.h>
+#include <kao2engine/eScene.h>
 
 namespace ZookieWizard
 {
@@ -35,7 +36,19 @@ namespace ZookieWizard
         /*[0x14]*/ name = "$XRefManager";
     }
 
-    eXRefManager::~eXRefManager() {}
+    eXRefManager::~eXRefManager()
+    {
+        eNode* root = getRootNode();
+
+        if (nullptr != root)
+        {
+            root->deleteXRefTargets();
+        }
+        else
+        {
+            ArFunctions::getCurrentScene()->deleteXRefTargets();
+        }
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -78,23 +91,30 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefManager: render each child eXRefTarget
     ////////////////////////////////////////////////////////////////
-    void eXRefManager::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
+    bool eXRefManager::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
     {
         int32_t i;
         eXRefTarget* test_xref_taget;
 
         if (GUI::drawFlags::DRAW_FLAG_PROXIES & draw_flags)
         {
+            if (false == eNode::renderObject(draw_flags, anim, parent_srp, marked_id))
+            {
+                return false;
+            }
+
             for (i = 0; i < xrefs.getSize(); i++)
             {
                 test_xref_taget = (eXRefTarget*)xrefs.getIthChild(i);
 
                 if (nullptr != test_xref_taget)
                 {
-                    test_xref_taget->renderObject(anim, draw_flags, parent_srp);
+                    test_xref_taget->renderObject(draw_flags, anim, parent_srp, marked_id);
                 }
             }
         }
+
+        return true;
     }
 
 }

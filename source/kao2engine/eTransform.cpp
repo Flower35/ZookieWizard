@@ -70,7 +70,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTransform: set xform
     ////////////////////////////////////////////////////////////////
-    void eTransform::setXForm(eSRP new_xform)
+    void eTransform::setXForm(eSRP &new_xform)
     {
         defaultTransform[0] = new_xform;
         defaultTransform[1] = defaultTransform[0];
@@ -86,45 +86,66 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTransform: get current xform
     ////////////////////////////////////////////////////////////////
-    eSRP eTransform::getXForm() const
+    eSRP eTransform::getXForm(bool modified, bool animated) const
     {
-        return modifiedTransform[1];
+        /* animated: [0] = current transformation,
+            [1] = all transformations applied (world transform). */
+
+        if (modified)
+        {
+            if (animated)
+            {
+                return modifiedTransform[1];
+            }
+
+            return modifiedTransform[0];
+        }
+        else if (animated)
+        {
+            return defaultTransform[1];
+        }
+
+        return defaultTransform[0];
     }
 
 
     ////////////////////////////////////////////////////////////////
     // eTransform: reposition the model in 3D space
     ////////////////////////////////////////////////////////////////
-    void eTransform::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
+    bool eTransform::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
     {
-        if (0 == (GUI::drawFlags::DRAW_FLAG_INVISIBLE & draw_flags))
+        if (false == eNode::renderObject(draw_flags, anim, parent_srp, marked_id))
         {
-            if (0 == (0x01 & flags))
-            {
-                return;
-            }
+            return false;
         }
 
-        /* Calculate transformation (for animations) */
+        /* Calculate transformation (for animations and for culling) */
 
-        if (GUI::drawFlags::DRAW_FLAG_ANIMS & draw_flags)
-        {
-            updateSRP(anim, parent_srp);
-        }
+        updateSRP((GUI::drawFlags::DRAW_FLAG_ANIMS & draw_flags), anim, parent_srp);
 
         /* Apply Transformation (on top of previous ones) */
 
         glPushMatrix();
 
-        glMultMatrixf(transposedMatrix);
+        if (((-2) == marked_id) || ((-1) == marked_id))
+        {
+            /* This object is selected (-1) or marked (-2) and can be moved around */
+            GUI::multiplyBySelectedObjectTransform();
+        }
+        else
+        {
+            glMultMatrixf(transposedMatrix);
+        }
 
         /* Draw children nodes */
 
-        eGroup::renderObject(anim, draw_flags, modifiedTransform[1]);
+        eGroup::renderObject(draw_flags, anim, modifiedTransform[1], marked_id);
 
         /* Restore parent matrix */
 
         glPopMatrix();
+
+        return true;
     }
 
 
@@ -132,12 +153,12 @@ namespace ZookieWizard
     // eTransform: update SRP structure
     // <kao2.0047BCF0>
     ////////////////////////////////////////////////////////////////
-    void eTransform::updateSRP(eAnimate* anim, eSRP &parent_srp)
+    void eTransform::updateSRP(bool update, eAnimate* anim, eSRP &parent_srp)
     {
         eSRP test_srp;
         eSRP previous_srp;
 
-        if (nullptr != ctrl)
+        if (update && (nullptr != ctrl))
         {
             previous_srp = modifiedTransform[0];
 
@@ -155,6 +176,47 @@ namespace ZookieWizard
         modifiedTransform[1] = modifiedTransform[0].applyAnotherSRP(parent_srp);
 
         /* (--dsp--) <kao2.0047BD9A> (update "eALBox" if exists) */
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: (editor option) rebuild collision
+    ////////////////////////////////////////////////////////////////
+    void eTransform::editingRebuildCollision()
+    {
+        if ((nullptr != ctrl) || jointType)
+        {
+            /* Don't update animated objects */
+
+            return;
+        }
+
+        eGroup::editingRebuildCollision();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: (editor option) find object in 3D space
+    ////////////////////////////////////////////////////////////////
+    ePoint3 eTransform::editingGetCenterPoint() const
+    {
+        return modifiedTransform[1].pos;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: (editor option) apply new transformation
+    ////////////////////////////////////////////////////////////////
+    void eTransform::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
+    {
+        if (marked_id >= 0)
+        {
+            eGroup::editingApplyNewTransform(new_transform, marked_id);
+        }
+        else
+        {
+            setXForm(new_transform);
+        }
     }
 
 

@@ -1,5 +1,8 @@
 #include <kao2ar/Archive.h>
 
+#include <ZookieWizard/WindowsManager.h>
+#include <kao2engine/Log.h>
+
 #include <kao2engine/eScene.h>
 #include <kao2engine/eXRefTarget.h>
 #include <kao2engine/eXRefProxy.h>
@@ -12,6 +15,27 @@
 
 namespace ZookieWizard
 {
+
+    ////////////////////////////////////////////////////////////////
+    // Ar: destroy parent (if it is "eNode")
+    ////////////////////////////////////////////////////////////////
+    void Archive::destroyParent()
+    {
+        eNode* test_node;
+
+        if (nullptr != parentObject)
+        {
+            if (parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
+            {
+                test_node = (eNode*)parentObject;
+                test_node->destroyNode();
+            }
+
+            parentObject->decRef();
+            parentObject = nullptr;
+        }
+    }
+
 
     ////////////////////////////////////////////////////////////////
     // Ar: change global scene
@@ -64,107 +88,279 @@ namespace ZookieWizard
 
         if (nullptr != selectedObject)
         {
-            selectedObject->renderObject(nullptr, draw_flags, default_srp);
+            selectedObject->renderObject(draw_flags, nullptr, default_srp, markedChildId);
         }
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: change selected object
-    // (-6) rebuilds collision
-    // (-5) deletes current node and updates list for parrent node
-    // (-4) toggles node visibility
-    // (-3) resets selection to root node
-    // (-2) updates list for parrent node
-    // (-1) updates list for current selection
+    // Ar: change selected object (applies mostly to "eNode")
     ////////////////////////////////////////////////////////////////
-    void Archive::changeSelectedObject(int32_t child_id)
+    void Archive::changeSelectedObject(int32_t child_id, void* param)
     {
         int32_t i;
+        bool update_name = true;
+        bool update_label = false;
         bool update_list = false;
+        bool reset_editable_transform = false;
+        uint8_t change_camera = 0;
         bool change_scene = false;
-        char bufor[32];
+        char bufor[128];
 
+        eString test_string;
+        eSRP test_srp;
+
+        TypeInfo* test_typeinfo = nullptr;
         eGroup* test_group;
-        eNode* test_node;
-        eTriMesh* test_trimesh;
-        eString test_str;
+        eNode *test_root, *test_node = nullptr;
+        eTransform* parent_xform = nullptr;
+
+        /********************************/
+        /* If no object is selected, and we are not updating List or Root, then cancel this function */
 
         switch (child_id)
         {
-            case (-6): // REBUILD COLLISION
+            case NODES_LISTBOX_ROOT:
+            case NODES_LISTBOX_UPDATE_CURRENT:
+            case NODES_LISTBOX_SET_MARKED_CHILD:
+            {
+                break;
+            }
+
+            default:
             {
                 if (nullptr == selectedObject)
                 {
                     return;
                 }
+            }
+        }
 
-                if (selectedObject->getType()->checkHierarchy(&E_TRIMESH_TYPEINFO))
+        /********************************/
+        /* Assing selected object to "eNode" pointer */
+
+        if ((nullptr != selectedObject) && (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO)))
+        {
+            test_node = (eNode*)selectedObject;
+        }
+
+        switch (child_id)
+        {
+            case NODES_LISTBOX_SET_MARKED_CHILD:
+            {
+                markedChildId = (int32_t)param;
+                reset_editable_transform = true;
+                break;
+            }
+
+            case NODES_EDITING_RESET_TRANSFORM:
+            {
+                reset_editable_transform = true;
+                break;
+            }
+
+            case NODES_EDITING_APPLY_TRANSFORM:
+            {
+                if (nullptr != test_node)
                 {
-                    test_trimesh = (eTriMesh*)selectedObject;
+                    GUI::getMovedSeletedTransform((void*)&test_srp);
+                    test_node->editingApplyNewTransform(test_srp, markedChildId);
+                }
 
-                    test_trimesh->createCollisionEntry();
+                reset_editable_transform = true;
 
+                break;
+            }
+
+            case NODES_EDITING_CHANGE_TYPE:
+            {
+                /* (...) */
+                break;
+            }
+
+            case NODES_EDITING_INSERT:
+            {
+                if (nullptr != test_node)
+                {
                     try
                     {
-                        test_trimesh->getGeoset()->buildAabbTree();
+                        if (test_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                        {
+                            test_group = (eGroup*)test_node;
+
+                            test_typeinfo = InterfaceManager.getTypeInfo((char*)param);
+
+                            if (nullptr != test_typeinfo)
+                            {
+                                if (test_typeinfo->checkHierarchy(&E_NODE_TYPEINFO))
+                                {
+                                    test_node = (eNode*)test_typeinfo->create();
+                                    test_group->appendChild(test_node);
+
+                                    sprintf_s
+                                    (
+                                        bufor, 128,
+                                        "Node (type \"%s\") added to group \"%s\".",
+                                        (char*)param,
+                                        test_group->getStringRepresentation().getText()
+                                    );
+
+                                    GUI::theWindowsManager.displayMessage
+                                    (
+                                        WINDOWS_MANAGER_MESSAGE_INFO,
+                                        bufor
+                                    );
+
+                                    update_list = true;
+                                }
+                                else
+                                {
+                                    throw ErrorMessage
+                                    (
+                                        "Unable to add new node:\n" \
+                                        "\"%s\" is not derived from \"eNode\"!",
+                                        (char*)param
+                                    );
+                                }
+                            }
+                        }
+                        else
+                        {
+                            throw ErrorMessage
+                            (
+                                "Unable to add new node:\n" \
+                                "Selected object is not derived from \"eGroup\"!"
+                            );
+                        }
                     }
                     catch (ErrorMessage &err)
                     {
                         err.display();
                     }
                 }
-                else if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+
+                break;
+            }
+
+            case NODES_EDITING_CHANGE_NAME:
+            {
+                if (nullptr != test_node)
                 {
-                    test_group = (eGroup*)selectedObject;
+                    test_node->setName(eString((char*)param));
 
-                    for (i = 0; i < test_group->getNodesCount(); i++)
-                    {
-                        test_trimesh = (eTriMesh*)test_group->getIthChild(i);
-
-                        if (test_trimesh->getType()->checkHierarchy(&E_TRIMESH_TYPEINFO))
-                        {
-                            test_trimesh->createCollisionEntry();
-
-                            try
-                            {
-                                test_trimesh->getGeoset()->buildAabbTree();
-                            }
-                            catch (ErrorMessage &err)
-                            {
-                                err.display();
-                            }
-                        }
-                    }
+                    update_name = false;
+                    update_label = true;
                 }
 
                 break;
             }
 
-            case (-5): // DELETE CURRENT NODE
-            case (-2): // CHANGE TO A PARENT NODE
+            case NODES_EDITING_SET_FLAG:
+            case NODES_EDITING_UNSET_FLAG:
             {
-                if (nullptr == selectedObject)
+                if (nullptr != test_node)
                 {
-                    return;
+                    if (NODES_EDITING_SET_FLAG == child_id)
+                    {
+                        test_node->setFlags((int32_t)param);
+                    }
+                    else
+                    {
+                        test_node->unsetFlags((int32_t)param);
+                    }
+
+                    update_label = true;
                 }
 
-                if (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
-                {
-                    test_node = ((eNode*)selectedObject)->getParentNode();
-                    if (nullptr != test_node)
-                    {
-                        if ((-5) == child_id)
-                        {
-                            if (test_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
-                            {
-                                test_group = (eGroup*)test_node;
+                break;
+            }
 
-                                test_group->findAndDeleteChild((eNode*)selectedObject);
+            case NODES_LISTBOX_COLLISION_CLEAR:
+            {
+                if (nullptr != test_node)
+                {
+                    test_node->editingClearCollision();
+                }
+
+                break;
+            }
+
+            case NODES_LISTBOX_COLLISION_REBUILD:
+            {
+                if (nullptr != test_node)
+                {
+                    test_node->editingRebuildCollision();
+                }
+
+                break;
+            }
+
+            case NODES_LISTBOX_DELETE:
+            case NODES_LISTBOX_PARENT:
+            {
+                if (nullptr != test_node)
+                {
+                    test_group = (eGroup*)test_node->getParentNode();
+
+                    if (nullptr != test_group)
+                    {
+                        if (NODES_LISTBOX_DELETE == child_id)
+                        {
+                            theLog.print
+                            (
+                                "================================\n" \
+                                "==        NODE DELETING       ==\n" \
+                                "==            BEGIN           ==\n" \
+                                "================================\n"
+                            );
+
+                            if (test_group->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                            {
+                                if (test_node->getReferenceCount() >= 2)
+                                {
+                                    test_root = test_node->getRootNode();
+
+                                    if (nullptr == test_root)
+                                    {
+                                        test_root = test_group->getRootNode();
+                                    }
+
+                                    if (nullptr != test_root)
+                                    {
+                                        test_root->findAndDereference(test_node);
+                                        /* (--dsp--) delete from scripts as well! */
+                                    }
+                                }
+
+                                test_group->findAndDeleteChild(test_node);
+                            }
+
+                            theLog.print
+                            (
+                                "================================\n" \
+                                "==        NODE DELETING       ==\n" \
+                                "==          FINISHED          ==\n" \
+                                "================================\n"
+                            );
+                        }
+                        else
+                        {
+                            /* Find current child ID to set selection in listbox */
+
+                            for (i = 0; (child_id < 0) && (i < test_group->getNodesCount()); i++)
+                            {
+                                if (test_group->getIthChild(i) == test_node)
+                                {
+                                    child_id = i;
+                                }
                             }
                         }
 
-                        selectedObject = test_node;
+                        parent_xform = (eTransform*)test_group;
+                        change_camera = 0x02; // backwards
+
+                        selectedObject = test_group;
+
                         change_scene = true;
                         update_list = true;
                     }
@@ -173,34 +369,25 @@ namespace ZookieWizard
                 break;
             }
 
-            case (-4): // TOGGLE VISIBILITY
+            case NODES_LISTBOX_FIND:
             {
-                if (nullptr == selectedObject)
+                if (nullptr != test_node)
                 {
-                    return;
-                }
-
-                if (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
-                {
-                    test_node = (eNode*)selectedObject;
-
-                    if (0x01 & test_node->getFlags())
-                    {
-                        test_node->unsetFlags(0x01);
-                    }
-                    else
-                    {
-                        test_node->setFlags(0x01);
-                    }
-
-                    update_list = true;
+                    test_srp.pos = test_node->editingGetCenterPoint();
+                    GUI::testCamera.reset(test_srp.pos.x, test_srp.pos.y, test_srp.pos.z);
                 }
 
                 break;
             }
 
-            case (-3): // RESET TO ROOT
+            case NODES_LISTBOX_ROOT:
             {
+                if (nullptr != test_node)
+                {
+                    parent_xform = (eTransform*)test_node->getParentNode();
+                }
+                change_camera = 0x03;
+
                 selectedObject = parentObject;
 
                 change_scene = true;
@@ -208,7 +395,7 @@ namespace ZookieWizard
                 break;
             }
 
-            case (-1): // UPDATE CURRENT NODE
+            case NODES_LISTBOX_UPDATE_CURRENT:
             {
                 update_list = true;
                 break;
@@ -216,19 +403,21 @@ namespace ZookieWizard
 
             default: // SWITCH TO A CHILD NODE
             {
-                if (nullptr == selectedObject)
-                {
-                    return;
-                }
-
                 if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
                 {
                     test_group = (eGroup*)selectedObject;
                     test_node = test_group->getIthChild(child_id);
 
+                    /* Don't update listbox selection */
+                    child_id = (-1);
+
                     if (nullptr != test_node)
                     {
+                        parent_xform = (eTransform*)test_group;
+                        change_camera = 0x01; // forwards
+
                         selectedObject = test_node;
+
                         change_scene = true;
                         update_list = true;
                     }
@@ -236,67 +425,206 @@ namespace ZookieWizard
             }
         }
 
+        /********************************/
+        /* Update pointer to current scene */
+
         if (change_scene)
         {
             changeGlobalScene();
         }
 
-        if (update_list)
+        /********************************/
+        /* Transform camera */
+
+        switch (change_camera)
         {
-            GUI::updateNodesList((-1), nullptr);
+            case 0x01: // forwards
+            {
+                /* Cancel parent's transformation */
+
+                if (parent_xform->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+                {
+                    test_srp = parent_xform->getXForm(true, false);
+                    GUI::repositionCamera(true, &test_srp);
+                }
+
+                break;
+            }
+
+            case 0x02: // backwards
+            {
+                /* Apply parent's transformation */
+
+                if (parent_xform->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+                {
+                    test_srp = parent_xform->getXForm(true, false);
+                    GUI::repositionCamera(false, &test_srp);
+                }
+
+                break;
+            }
+
+            case 0x03: // reset to root
+            {
+                while (nullptr != parent_xform)
+                {
+                    if (parent_xform->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+                    {
+                        test_srp = parent_xform->getXForm(true, false);
+                        GUI::repositionCamera(false, &test_srp);
+                    }
+
+                    parent_xform = (eTransform*)parent_xform->getParentNode();
+                }
+
+                break;
+            }
+        }
+
+        /********************************/
+        /* Reset editable transformation */
+
+        if (update_list || reset_editable_transform || (0 != change_camera))
+        {
+            test_node = nullptr;
+
+            if ((nullptr != selectedObject) && (markedChildId >= 0))
+            {
+                if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                {
+                    test_group = (eGroup*)selectedObject;
+                    test_node = test_group->getIthChild(markedChildId);
+                }
+            }
+            else
+            {
+                test_node = (eNode*)selectedObject;
+            }
+
+            if ((nullptr != test_node) && (test_node->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO)))
+            {
+                parent_xform = (eTransform*)test_node;
+
+                test_srp = parent_xform->getXForm(true, false);
+            }
+            else
+            {
+                test_srp = eSRP();
+            }
+
+            GUI::setMovedSeletedTransform((void*)&test_srp);
+        }
+
+        /********************************/
+        /* Send back current node info */
+
+        if (update_list || update_label)
+        {
+            /* Reset label */
+            GUI::updateNodesList((-3), nullptr);
+
+            if (update_list)
+            {
+                /* Reset listbox */
+                GUI::updateNodesList((-2), nullptr);
+                markedChildId = (-1);
+            }
 
             if (nullptr == selectedObject)
             {
                 return;
             }
-
-            sprintf_s(bufor, 32, "(%s)", selectedObject->getType()->name);
-
-            test_str = "Selected node: ";
-            test_str += bufor;
-            test_str += "\n\"";
-            test_str += selectedObject->getStringRepresentation();
-            test_str += "\"";
-
-            if (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
+            else if (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
             {
                 test_node = (eNode*)selectedObject;
+            }
+            else
+            {
+                test_node = nullptr;
+            }
 
-                if (0x01 & (test_node->getFlags()))
+            /* Send node name and node flags */
+            if (nullptr != test_node)
+            {
+                GUI::updateNodesList(1, (void*)test_node->getType()->name);
+
+                if (update_name)
                 {
-                    test_str += "\n[Enabled]";
+                    GUI::updateNodesList(2, (void*)test_node->getStringRepresentation().getText());
+                }
+
+                GUI::updateNodesList(3, (void*)test_node->getFlags());
+            }
+
+            /* Send back label text */
+
+            sprintf_s(bufor, 128, "< total nodes: %d >\n", theNodesCounter);
+
+            test_string = bufor;
+
+            sprintf_s(bufor, 128, "(%s)", selectedObject->getType()->name);
+
+            test_string += "Selected: ";
+            test_string += bufor;
+            test_string += "\n\"";
+            test_string += selectedObject->getStringRepresentation();
+            test_string += "\"";
+
+            if (nullptr != test_node)
+            {
+                i = test_node->getFlags();
+
+                sprintf_s(bufor, 128, "\n0x%08X [", i);
+                test_string += bufor;
+
+                if (0x01 & i)
+                {
+                    test_string += "Enabled]";
                 }
                 else
                 {
-                    test_str += "\n[Disabled]";
+                    test_string += "Disabled]";
                 }
             }
 
-            GUI::updateNodesList((-1), &test_str);
+            GUI::updateNodesList((-3), test_string.getText());
+        }
 
+        /********************************/
+        /* Sent back each child node name */
+
+        if (update_list)
+        {
             if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
             {
                 test_group = (eGroup*)selectedObject;
 
                 for (i = 0; i < test_group->getNodesCount(); i++)
                 {
-                    sprintf_s(bufor, 32, "[%d] ", i);
-                    test_str = bufor;
+                    sprintf_s(bufor, 128, "[%d] ", i);
+                    test_string = bufor;
 
                     test_node = test_group->getIthChild(i);
 
                     if (nullptr != test_node)
                     {
-                        sprintf_s(bufor, 32, "(%s) ", test_node->getType()->name);
-                        test_str += bufor;
-                        test_str += test_node->getStringRepresentation();
+                        sprintf_s(bufor, 128, "(%s) ", test_node->getType()->name);
+                        test_string += bufor;
+                        test_string += test_node->getStringRepresentation();
                     }
                     else
                     {
-                        test_str += "<< NULL >>";
+                        test_string += "<< NULL >>";
                     }
 
-                    GUI::updateNodesList(0, &test_str);
+                    /* Insert children names to the listbox */
+                    GUI::updateNodesList(0, test_string.getText());
+                }
+
+                /* Update selection of previous child when switching to the parent */
+                if (child_id >= 0)
+                {
+                    GUI::updateNodesList((-1), (void*)child_id);
                 }
             }
         }
@@ -436,7 +764,7 @@ namespace ZookieWizard
             {
                 importer.begin();
 
-                changeSelectedObject(-1);
+                changeSelectedObject((-1), nullptr);
             }
         }
     }

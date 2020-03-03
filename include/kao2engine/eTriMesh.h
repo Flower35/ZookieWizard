@@ -32,7 +32,13 @@ namespace ZookieWizard
 
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
-            void renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp) override;
+            bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id) override;
+
+            void editingRebuildCollision() override;
+            void editingClearCollision() override;
+            void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id) override;
+
+            void destroyNode() override;
 
             eGeoSet* getGeoset() const;
             void setGeoset(eGeoSet* new_geo);

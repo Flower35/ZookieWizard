@@ -4,9 +4,7 @@
 namespace ZookieWizard
 {
     class Gadget;
-
     struct TypeInfo;
-
     class Archive;
 
     ////////////////////////////////////////////////////////////////
@@ -26,17 +24,17 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
-    private:
+        private:
 
-        bool registerGadget(Gadget* gadget);
+            bool registerGadget(Gadget* gadget);
 
-        int findGadget(TypeInfo* info) const;
+            int findGadget(TypeInfo* info) const;
 
-    public:
+        public:
 
-        bool registerStaticGadgets();
+            bool registerStaticGadgets();
 
-        void serializeGadget(Archive &ar, Gadget** gadget) const;
+            void serializeGadget(Archive &ar, Gadget** gadget) const;
     };
 
     extern Kao2StaticPool StaticPool;

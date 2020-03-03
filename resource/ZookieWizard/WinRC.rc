@@ -61,32 +61,3 @@ FILEFLAGS 0
 		VALUE "Translation", 0x0415, 0x04E4
 	}
 }
-
-
-////////////////////////////////////////////////////////////////
-// Menu
-////////////////////////////////////////////////////////////////
-
-IDM_MENU MENU
-{
-	POPUP "&Denis the Kangaroo"
-    {
-		MENUITEM "&Open level", IDM_MENU_DENIS_OPEN
-		MENUITEM "&Convert level", IDM_MENU_DENIS_CONVERT
-	}
-	POPUP "&Game version"
-    {
-		MENUITEM "&1) Kangurek Kao: Runda 2 [PL]", IDM_MENU_VERSION_1
-		MENUITEM "&2) Kao the Kangaroo: Round 2 [EU]", IDM_MENU_VERSION_2
-		MENUITEM "&3) Kao: Tajemnica Wulkanu", IDM_MENU_VERSION_3
-	}
-	POPUP "Kao the Kangaroo: Round 2"
-    {
-		MENUITEM "&Open Archive", IDM_MENU_AR_OPEN
-		MENUITEM "&Save Archive", IDM_MENU_AR_SAVE
-		MENUITEM "Export &Scripts", IDM_MENU_AR_EXPORT_SCRIPTS
-		MENUITEM "Export &Proxies", IDM_MENU_AR_EXPORT_PROXIES
-		MENUITEM "Export &Readable Structure", IDM_MENU_AR_EXPORT_STRUCTURE
-        MENUITEM "Export &COLLADA dae", IDM_MENU_AR_EXPORT_COLLADA
-	}
-}

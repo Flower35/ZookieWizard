@@ -31,7 +31,7 @@ namespace ZookieWizard
     {
         /*[0x01CC]*/ unknown_01CC = 0x01;
 
-        /*[0x01D0]*/ target = nullptr;
+        /*[0x01D0]*/ camTarget = nullptr;
 
         /*[0x01D8-0x01E4]*/
         unknown_01D8[0] = 80.0f;
@@ -42,7 +42,7 @@ namespace ZookieWizard
 
     eCamera::~eCamera()
     {
-        target->decRef();
+        camTarget->decRef();
     }
 
 
@@ -57,7 +57,7 @@ namespace ZookieWizard
         eObserver::serialize(ar);
 
         /* Camera target point */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&target, &E_TRANSFORM_TYPEINFO);
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&camTarget, &E_TRANSFORM_TYPEINFO);
 
         /* Empty object link */
         i = 0x01;
@@ -79,6 +79,31 @@ namespace ZookieWizard
 
         /* [0x01CC] unknown */
         ar.readOrWrite(&unknown_01CC, 0x01);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCamera: find reference to some node when deleting it
+    ////////////////////////////////////////////////////////////////
+    void eCamera::findAndDereference(eNode* target)
+    {
+        eNode* targets_parent;
+
+        if (nullptr != camTarget)
+        {
+            targets_parent = camTarget->getParentNode();
+
+            if (nullptr != targets_parent)
+            {
+                if ((targets_parent == target)
+                  || (nullptr == targets_parent->getParentNode()))
+                {
+                    /* Is the target's parent invalid? (no longer has a valid parent) */
+
+                    camTarget->setParentNode(nullptr);
+                }
+            }
+        }
     }
 
 }

@@ -12,83 +12,107 @@ namespace ZookieWizard
     {
         /*** Defines and variables ***/
 
-            #include <ZookieWizard/GUI_defines.h>
+        #include <ZookieWizard/GUI_defines.h>
 
-            struct testCameraStruct
-            {
-                double pos_x;
-                double pos_y;
-                double pos_z;
+        #define TEST_CAMERA_DEFAULT_SPEED 10.0
+        #define TEST_CAMERA_DEFAULT_SPEED_TEXT "10.0"
 
-                double look_x;
-                double look_y;
-                double look_z;
+        #define TEST_CAMERA_NEAR_PLANE 1.0
+        #define TEST_CAMERA_FAR_PLANE 80000.0
 
-                double pitch;
-                double yaw;
+        struct testCameraStruct
+        {
+            double pos_x;
+            double pos_y;
+            double pos_z;
 
-                testCameraStruct();
-                void reset();
-            };
+            double look_x;
+            double look_y;
+            double look_z;
 
-            extern HWND myWindowsGroupMain[3];
-            extern HWND myWindowsGroupAr[8];
-            extern HWND myWindowsGroupDenis[4];
-            extern HWND myWindowsGroupAnimation[5];
-            extern HWND myWindowsGroupNodes[9];
+            double pitch;
+            double yaw;
+            double speed;
 
-            extern int32_t myWindowsCurrentGroup;
+            int16_t mouse_prev_x;
+            int16_t mouse_prev_y;
+            uint8_t mouse_mode;
 
-            extern HBITMAP myWindowsLogo;
-            extern HFONT myWindowsFont;
-            extern HDC openGL_DeviceContext;
-            extern HGLRC openGL_RenderingContext;
+            int8_t keyboard_x;
+            int8_t keyboard_y;
+            int8_t keyboard_z;
+            uint8_t object_mode;
 
-            extern int32_t mousePosAndButton[3];
-            extern float backgroundColor[3];
-            extern bool isOrthoMode;
-            extern testCameraStruct testCamera;
+            testCameraStruct();
+            void reset(float, float, float);
+        };
 
-            enum drawFlags
-            {
-                DRAW_FLAG_INVISIBLE = (1 << 0),
-                DRAW_FLAG_BOXZONES = (1 << 1),
-                DRAW_FLAG_PROXIES = (1 << 2),
-                DRAW_FLAG_ANIMS = (1 << 3),
+        extern HBITMAP myWindowLogo;
+        extern HFONT myWindowFont;
+        extern HDC openGL_DeviceContext;
+        extern HGLRC openGL_RenderingContext;
 
-                DRAW_FLAGS_COUNT = 4
-            };
+        extern float backgroundColor[3];
+        extern bool isOrthoMode;
+        extern testCameraStruct testCamera;
 
-            extern int32_t myDrawFlags;
+        enum drawFlags
+        {
+            DRAW_FLAG_OUTLINE = (1 << 0),
+            DRAW_FLAG_INVISIBLE = (1 << 1),
+            DRAW_FLAG_BOXZONES = (1 << 2),
+            DRAW_FLAG_PROXIES = (1 << 3),
+            DRAW_FLAG_ANIMS = (1 << 4)
+        };
 
-            extern LONGLONG timePrevious;
-            extern float timeCurrent;
-            extern bool timeUpdate;
-            extern int32_t animationID;
-            extern int32_t animationFPS;
+        extern int32_t myDrawFlags;
+
+        extern LONGLONG timePrevious;
+        extern float timeFrameStart;
+        extern float timeCurrent;
+        extern bool timeUpdate;
+        extern int32_t animationID;
+        extern int32_t animationFPS;
 
         /*** Functions ***/
 
-            bool createWindows(HINSTANCE hInstance);
-            bool prepareRendering();
+        bool createWindows(HINSTANCE hInstance);
+        bool prepareRendering();
 
-            LRESULT CALLBACK procedureOfRenderWindow(HWND, UINT, WPARAM, LPARAM);
-            LRESULT CALLBACK procedureOfMainWindow(HWND, UINT, WPARAM, LPARAM);
+        bool isAppRunning();
+        void render();
+        void setPerspective(GLsizei, GLsizei);
+        void changeView(bool);
 
-            bool isAppRunning();
-            void render();
-            void setPerspective(GLsizei, GLsizei);
-            void changeView(bool);
-            void moveCameraAndLook(int32_t, int32_t);
+        void moveCameraOrObject(int8_t x, int8_t y, int8_t z, uint8_t movement_mode);
+        void getMovedSeletedTransform(void* transform);
+        void setMovedSeletedTransform(void* transform);
+        void multiplyBySelectedObjectTransform();
+        void repositionCamera(bool returning, void* transform);
 
-            void closeWindows();
-            void changeWindowGroup();
-            void updateNodesList(int32_t, void*);
+        bool testWithCameraPlanes
+        (
+            float min_x, float min_y, float min_z,
+            float max_x, float max_y, float max_z
+        );
 
-            LONGLONG timerGet();
-            void timerReset();
-            float timerGetCurrent();
-            float timerGetFrames();
+        void renderBoundingBox
+        (
+            float thickness,
+            float color_r, float color_g, float color_b,
+            float min_x, float min_y, float min_z,
+            float max_x, float max_y, float max_z
+        );
+
+        void colorOfMarkedObject(float &color_r, float &color_g, float &color_b);
+
+        void closeWindows();
+        void updateNodesList(int32_t, void*);
+
+        LONGLONG timerGet();
+        void timerReset();
+        float timerGetCurrent();
+        float timerGetFrames();
     }
 }
 

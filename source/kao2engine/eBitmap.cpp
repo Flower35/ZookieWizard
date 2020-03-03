@@ -63,6 +63,46 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eBitmap: load raw data (8-bit or 24-bit)
+    ////////////////////////////////////////////////////////////////
+    void eBitmap::loadRaw(uint8_t* other_pixels, uint32_t* other_palette, int32_t new_width, int32_t new_height)
+    {
+        int32_t bpp = (nullptr != other_palette) ? 1 : 3;
+        int32_t length = bpp * new_width * new_height;
+
+        if (nullptr == other_pixels)
+        {
+            return;
+        }
+
+        deleteTexture();
+
+        if (nullptr != pixels)
+        {
+            delete[](pixels);
+            pixels = nullptr;
+        }
+
+        pixels = new uint8_t [length];
+        std::memcpy(pixels, other_pixels, length);
+
+        if (nullptr != other_palette)
+        {
+            if (nullptr == palette)
+            {
+                palette = new uint32_t [256];
+            }
+
+            std::memcpy(palette, other_palette, 256 * sizeof(uint32_t));
+        }
+
+        width = virtualWidth =  new_width;
+        height = virtualHeight = new_height;
+        type = bitmapType::RGB8;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eBitmap: load image from file
     ////////////////////////////////////////////////////////////////
     void eBitmap::loadFromFile(eString directory)
@@ -342,6 +382,8 @@ namespace ZookieWizard
                 path.getText()
             );
         }
+
+        deleteTexture();
     }
 
 
@@ -411,8 +453,10 @@ namespace ZookieWizard
             header[0x02] = 0x02;
             *(int16_t*)&(header[0x0C]) = width;
             *(int16_t*)&(header[0x0E]) = height;
+
+            /* Kao3 only supports 32-bit TGA, so we will always output in this format */
             header[0x10] = 0x08 * getBytesPerPixelOutput(bmp_ext);
-            header[0x11] = 0x08;
+            header[0x11] = (0x04 == header[0x10]) ? 0x08 : 0x00;
         }
         else
         {
@@ -434,25 +478,26 @@ namespace ZookieWizard
 
         if ((!bmp_ext) && (bitmapType::PAL8_RGBA8 == type))
         {
-            /* TGA, 8-bit -> 32-bit */
+            /* [TGA] 8-bit -> 32-bit */
 
             for (y = 0; y < height; y++)
             {
                 for (x = 0; x < width; x++)
                 {
-                    b = palette[pixels[y * width + x]];
-
-                    b = ((b & 0xFF00FF00) | ((b >> 16) & 0x000000FF) | ((b << 16) & 0x00FF0000));
+                    b = pixels[y * width + x];
 
                     a = (4 * width * height) - (4 * (y+1) * width) + (4 * x);
 
-                    *(int32_t*)&(output_pixels[a]) = b;
+                    output_pixels[a + 0] = palette[b + 2];
+                    output_pixels[a + 1] = palette[b + 1];
+                    output_pixels[a + 2] = palette[b + 0];
+                    output_pixels[a + 3] = palette[b + 3];
                 }
             }
         }
         else if (bmp_ext && (bitmapType::PAL8_RGBA8 == type))
         {
-            /* BMP, 8-bit (256 colors) */
+            /* [BMP] 8-bit (256 colors) */
 
             for (y = 0; y < height; y++)
             {
@@ -466,25 +511,26 @@ namespace ZookieWizard
         }
         else if ((!bmp_ext) && (bitmapType::RGBA8 == type))
         {
-            /* TGA, 32-bit (Truecolor) */
+            /* [TGA] 32-bit (Truecolor) */
 
             for (y = 0; y < height; y++)
             {
                 for (x = 0; x < width; x++)
                 {
-                    b = *(int32_t*)&(pixels[(4 * y * width) + (4 * x)]);
-
-                    b = ((b & 0xFF00FF00) | ((b >> 16) & 0x000000FF) | ((b << 16) & 0x00FF0000));
+                    b = (4 * y * width) + (4 * x);
 
                     a = (4 * width * height) - (4 * (y+1) * width) + (4 * x);
 
-                    *(int32_t*)&(output_pixels[a]) = b;
+                    output_pixels[a + 0] = pixels[b + 2];
+                    output_pixels[a + 1] = pixels[b + 1];
+                    output_pixels[a + 2] = pixels[b + 0];
+                    output_pixels[a + 3] = pixels[b + 3];
                 }
             }
         }
-        else if (bmp_ext && (bitmapType::RGB8 == type))
+        else if ((!bmp_ext) && (bitmapType::RGB8 == type))
         {
-            /* BMP, 24-bit */
+            /* [TGA] 24-bit -> 32-bit */
 
             for (y = 0; y < height; y++)
             {
@@ -492,23 +538,24 @@ namespace ZookieWizard
                 {
                     b = (3 * y * width) + (3 * x);
 
-                    a = (3 * width * height) - (3 * (y+1) * width) + (3 * x);
+                    a = (4 * width * height) - (4 * (y+1) * width) + (4 * x);
 
                     output_pixels[a + 0] = pixels[b + 2];
                     output_pixels[a + 1] = pixels[b + 1];
                     output_pixels[a + 2] = pixels[b + 0];
+                    output_pixels[a + 3] = 0xFF;
                 }
             }
         }
-        else if (bmp_ext && (bitmapType::RGBA8 == type))
+        else if (bmp_ext && (bitmapType::RGB8 == type))
         {
-            /* BMP, 32-bit -> 24-bit */
+            /* [BMP] 24-bit */
 
             for (y = 0; y < height; y++)
             {
                 for (x = 0; x < width; x++)
                 {
-                    b = (4 * y * width) + (4 * x);
+                    b = (3 * y * width) + (3 * x);
 
                     a = (3 * width * height) - (3 * (y+1) * width) + (3 * x);
 
@@ -744,7 +791,7 @@ namespace ZookieWizard
             case bitmapType::RGB8:
             case bitmapType::RGBX8:
             {
-                return 0x03;
+                return (bmp_ext ? 0x03 : 0x04);
             }
 
             default:
@@ -1045,6 +1092,54 @@ namespace ZookieWizard
                 }
             }
         }
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: check for transparency
+    ////////////////////////////////////////////////////////////////
+    bool eBitmap::isTransparent() const
+    {
+        int32_t a, b, x, y;
+
+        switch (type)
+        {
+            case bitmapType::RGBA8:
+            {
+                for (y = 0; y < height; y++)
+                {
+                    for (x = 0; x < width; x++)
+                    {
+                        a = (4 * y * width) + (4 * x);
+
+                        b = *(int32_t*)&(pixels[a]);
+
+                        if (0xFF000000 != (0xFF000000 & b))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                break;
+            }
+
+            case bitmapType::PAL8_RGBA8:
+            {
+                for (x = 0; x < 256; x++)
+                {
+                    b = palette[x];
+
+                    if (0xFF000000 != (0xFF000000 & b))
+                    {
+                        return true;
+                    }
+                }
+
+                break;
+            }
+        }
+
+        return false;
     }
 
 }

@@ -43,7 +43,7 @@ namespace ZookieWizard
 
         if (ar.isInReadMode())
         {
-            ar.replaceStringDuringSerialization(name, getDefaultGadgetName());
+            name = getDefaultGadgetName();
         }
     }
 

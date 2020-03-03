@@ -19,11 +19,7 @@ namespace ZookieWizard
     {
         /* Delete parent object and close archive */
 
-        if (nullptr != parentObject)
-        {
-            parentObject->decRef();
-            parentObject = nullptr;
-        }
+        destroyParent();
 
         close(true);
 
@@ -47,6 +43,7 @@ namespace ZookieWizard
 
         parentObject = nullptr;
         selectedObject = nullptr;
+        markedChildId = (-1);
 
         engineOpenedWith = (-1);
         engineSavedWith = (-1);
@@ -62,11 +59,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     Archive::~Archive()
     {
-        if (nullptr != parentObject)
-        {
-            parentObject->decRef();
-            parentObject = nullptr;
-        }
+        destroyParent();
 
         if (nullptr != tempStrList)
         {
@@ -896,7 +889,7 @@ namespace ZookieWizard
                         {
                             test_str.setPointer((eStringBase<char>*)tempItemsList[a]);
 
-                            if (s.compare(test_str, 0, 0, true))
+                            if (s.compare(test_str, 0, (-1), true))
                             {
                                 /* Copy constructor takes care of both reference counters */
                                 s = test_str;
@@ -944,57 +937,43 @@ namespace ZookieWizard
     }
 
 
-
     ////////////////////////////////////////////////////////////////
     // Ar: replace old string pointer during serialization!
     ////////////////////////////////////////////////////////////////
     void Archive::replaceStringDuringSerialization(eString &oldStr, eString newStr)
     {
-        int32_t requestedID;
-        int32_t previousCounter;
-
         /* Some Gadgets could break, if we change their name WHILE */
         /* old String pointers are still present in Archive's "temporary array". */
 
-        if (nullptr != oldStr.getPointer())
+        bool alreadyAdded = false;
+        int32_t i;
+        eStringBase<char>* thatPointer = oldStr.getPointer();
+
+        for (i = 0; (false == alreadyAdded) && (i < tempStrCount); i++)
         {
-            requestedID = findItem(oldStr.getPointer());
-
-            if ((requestedID >= 0) && (requestedID < tempItemsCount))
-            {
-                /* Name has been already serialized and it COULD be referenced later */
-
-                previousCounter = oldStr.getReferenceCount();
-
-                if (previousCounter <= 1)
-                {
-                    /* After replacement (which decreases old reference counter) */
-                    /* we need to keep old string intact, because */
-                    /* zero-length strings usually share same IDs */
-
-                    oldStr.incRef();
-
-                    addTempStr(oldStr.getPointer());
-                }
-
-                oldStr = newStr;
-            }
-            else
-            {
-                throw ErrorMessage
-                (
-                    "Archive::replaceStringDuringSerialization():\n" \
-                    "eString \"%s\" not found...",
-                    oldStr.getText()
-                );
-            }
+            alreadyAdded = (thatPointer == tempStrList[i]);
         }
-        else
+
+        if (false == alreadyAdded)
         {
-            /* Current name has not been set yet (Empty Pointer) */
+            /* Before replacement (which decreases old reference counter) */
+            /* we need to keep old string intact, because */
+            /* zero-length strings usually share same IDs */
 
-            oldStr = newStr;
+            oldStr.incRef();
+            addTempStr(thatPointer);
         }
+
+        oldStr = newStr;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Ar: compare some object with current root
+    ////////////////////////////////////////////////////////////////
+    bool Archive::compareWithMyRoot(eRefCounter* object) const
+    {
+        return (parentObject == object);
     }
 
 

@@ -55,6 +55,11 @@ namespace ZookieWizard
         );
     }
 
+    float ePoint3::getLength() const
+    {
+        return sqrtf((x * x) + (y * y) + (z * z));
+    }
+
     void ePoint3::serialize(Archive &ar)
     {
         ar.readOrWrite(&x, 0x04);
@@ -126,9 +131,14 @@ namespace ZookieWizard
         );
     }
 
+    float ePoint4::getLength() const
+    {
+        return sqrtf((x * x) + (y * y) + (z * z) + (w * w));
+    }
+
     void ePoint4::normalize()
     {
-        float length = sqrtf((x * x) + (y * y) + (z * z) + (w * w));
+        float length = getLength();
 
         if (0 != length)
         {
@@ -162,6 +172,18 @@ namespace ZookieWizard
     float dotProduct(const ePoint4 &a, const ePoint4 &b)
     {
         return ((a.x * b.x) + (a.y * b.y) + (a.z * b.z));
+    }
+
+    float angleBetweenVectors(const ePoint4 &a, const ePoint4 &b)
+    {
+        double length_a = a.getLength();
+        double length_b = b.getLength();
+
+        if ((0 != length_a) && (0 != length_b))
+        {
+            return (float)std::acos(dotProduct(a, b) / length_a / length_b);
+        }
+        return 0;
     }
 
     void calculateBoundaryBox
@@ -405,9 +427,14 @@ namespace ZookieWizard
         );
     }
 
+    float eQuat::getLength() const
+    {
+        return sqrtf((x * x) + (y * y) + (z * z) + (w * w));
+    }
+
     void eQuat::normalize()
     {
-        float length = sqrtf((x * x) + (y * y) + (z * z) + (w * w));
+        float length = getLength();
 
         if (0 != length)
         {
@@ -428,17 +455,43 @@ namespace ZookieWizard
 
         float t = transposed ? (-1.0f) : 1.0f;
 
-        float s1 = std::sinf(alpha / 2);
-        float s2 = std::sinf(beta / 2);
-        float s3 = std::sinf(gamma / 2);
-        float c1 = std::cosf(alpha / 2);
-        float c2 = std::cosf(beta / 2);
-        float c3 = std::cosf(gamma / 2);
+        alpha /= 2.0f;
+        beta /= 2.0f;
+        gamma /= 2.0f;
+
+        float s1 = std::sinf(alpha);
+        float s2 = std::sinf(beta);
+        float s3 = std::sinf(gamma);
+        float c1 = std::cosf(alpha);
+        float c2 = std::cosf(beta);
+        float c3 = std::cosf(gamma);
 
         x = t * (c2 * c3 * s1 - c1 * s2 * s3);
         y = t * (c2 * s1 * s3 + c1 * c3 * s2);
         z = t * (c1 * c2 * s3 - c3 * s1 * s2);
         w = c1 * c2 * c3 + s1 * s2 * s3;
+    }
+
+    void eQuat::fromAxisAngle(ePoint3 &axis, float angle)
+    {
+        float length = axis.getLength();
+        float s;
+
+        if (length > 0)
+        {
+            angle /= 2.0f;
+
+            s = std::sinf(angle);
+
+            x = axis.x / length * s;
+            y = axis.y / length * s;
+            z = axis.z / length * s;
+            w = std::cosf(angle);
+        }
+        else
+        {
+            eQuat();
+        }
     }
 
     void eQuat::toEulerAngles(bool inverse, float &alpha, float &beta, float &gamma) const

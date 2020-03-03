@@ -155,17 +155,17 @@ namespace ZookieWizard
         if ((i >= 0) && (i < count))
         {
             children[i]->decRef();
-            children[i] = nullptr;
 
             /* Shift every next child back */
 
             for (i++; i < count; i++)
             {
                 children[i - 1] = children[i];
-                children[i] = nullptr;
             }
 
             count--;
+
+            children[count] = nullptr;
         }
     }
 

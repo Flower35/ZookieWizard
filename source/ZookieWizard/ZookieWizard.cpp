@@ -1,7 +1,7 @@
 #include <ZookieWizard/ZookieWizard.h>
+#include <ZookieWizard/WindowsManager.h>
 
 #include <kao2ar/TypeInfo.h>
-
 #include <kao2ar/StaticPool.h>
 
 namespace ZookieWizard
@@ -42,7 +42,7 @@ namespace ZookieWizard
         }
 
         file.open(filename, test);
-        
+
         if (!file.is_open())
         {
             return false;
@@ -154,7 +154,7 @@ namespace ZookieWizard
     ErrorMessage::ErrorMessage(const char* message, ...)
     {
         va_list args;
-        
+
         va_start(args, message);
 
         vsprintf_s(text, 256, message, args);
@@ -164,9 +164,7 @@ namespace ZookieWizard
 
     void ErrorMessage::display()
     {
-        HWND window = GUI::myWindowsGroupMain[0];
-
-        MessageBox(window, text, MESSAGE_TITLE_ERROR, MB_ICONERROR);
+        GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_ERROR, text);
     }
 
 
@@ -195,13 +193,20 @@ namespace ZookieWizard
         /********************************/
         /* Create GUI windows and prepare OpenGL */
 
-        if (!GUI::createWindows(hInstance))
+        GUI::myWindowLogo = NULL;
+        GUI::myWindowFont = NULL;
+
+        if (false == GUI::createWindows(hInstance))
         {
             ErrorMessage
             (
+                "FATAL ERROR!\n" \
                 "Could not create Windows."
             )
             .display();
+
+            GUI::closeWindows();
+            return (-1);
         }
 
         memset(&ofn, 0, sizeof(OPENFILENAME));
@@ -209,16 +214,20 @@ namespace ZookieWizard
         ofn.lpstrFile = nullptr;
         ofn.nMaxFile = 0;
         ofn.lpstrFilter = "All files (*.*)\0*.*\0";
-        ofn.hwndOwner = GUI::myWindowsGroupMain[0];
+        ofn.hwndOwner = GUI::theWindowsManager.getMainWindow();
         ofn.hInstance = hInstance;
 
         if (!GUI::prepareRendering())
         {
             ErrorMessage
             (
+                "FATAL ERROR!\n" \
                 "Could not prepare OpenGL."
             )
             .display();
+
+            GUI::closeWindows();
+            return (-1);
         }
 
         /********************************/
@@ -235,6 +244,7 @@ namespace ZookieWizard
         {
             e.display();
 
+            GUI::closeWindows();
             return (-1);
         }
 
@@ -242,7 +252,6 @@ namespace ZookieWizard
         /* Close application */
 
         GUI::closeWindows();
-
         return 0;
     }
 

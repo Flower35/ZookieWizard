@@ -459,7 +459,7 @@ namespace ZookieWizard
 
                 try
                 {
-                    test_geoset->buildAabbTree();
+                    test_geoset->buildAabbTree(trimesh_name);
                 }
                 catch (ErrorMessage &err)
                 {

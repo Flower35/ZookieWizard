@@ -36,6 +36,22 @@ namespace ZookieWizard
     #define AR_ITEM_TYPE_STRING 0x01
     #define AR_ITEM_TYPE_OTHER 0x02
 
+    #define NODES_LISTBOX_SET_MARKED_CHILD (-1)
+    #define NODES_LISTBOX_UPDATE_CURRENT (-2)
+    #define NODES_LISTBOX_PARENT (-3)
+    #define NODES_LISTBOX_ROOT (-4)
+    #define NODES_LISTBOX_FIND (-5)
+    #define NODES_LISTBOX_DELETE (-6)
+    #define NODES_LISTBOX_COLLISION_REBUILD (-7)
+    #define NODES_LISTBOX_COLLISION_CLEAR (-8)
+    #define NODES_EDITING_SET_FLAG (-9)
+    #define NODES_EDITING_UNSET_FLAG (-10)
+    #define NODES_EDITING_CHANGE_NAME (-11)
+    #define NODES_EDITING_CHANGE_TYPE (-12)
+    #define NODES_EDITING_INSERT (-13)
+    #define NODES_EDITING_RESET_TRANSFORM (-14)
+    #define NODES_EDITING_APPLY_TRANSFORM (-15)
+
     class Archive
     {
         /*** Properties ***/
@@ -60,6 +76,7 @@ namespace ZookieWizard
 
             eRefCounter* parentObject;
             eObject* selectedObject;
+            int32_t markedChildId;
 
             eString mediaDirectory;
 
@@ -75,6 +92,8 @@ namespace ZookieWizard
             void deleteTempStrPtrs();
 
             void changeGlobalScene() const;
+
+            void destroyParent();
 
         public:
 
@@ -109,6 +128,7 @@ namespace ZookieWizard
             void serialize(eObject** o, TypeInfo* t);
             void serializeString(eString &s);
             void replaceStringDuringSerialization(eString &oldStr, eString newStr);
+            bool compareWithMyRoot(eRefCounter* object) const;
 
             void checkTypeInfo(TypeInfo** t);
 
@@ -118,7 +138,7 @@ namespace ZookieWizard
             void setMediaDir(eString new_media_dir);
 
             void renderScene(int32_t draw_flags) const;
-            void changeSelectedObject(int32_t child_id);
+            void changeSelectedObject(int32_t child_id, void* param);
 
             void copySceneFromMe(eScene** target) const;
             void setMyParentScene(eScene* pointer);

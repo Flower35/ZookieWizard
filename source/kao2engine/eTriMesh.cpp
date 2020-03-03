@@ -1,6 +1,7 @@
 #include <kao2engine/eTriMesh.h>
 #include <kao2ar/Archive.h>
 
+#include <kao2engine/ePhyTriMesh.h>
 #include <kao2engine/eGeoSet.h>
 
 #include <kao2engine/eTexture.h>
@@ -90,55 +91,202 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eTriMesh: dereference "eTransform" bones (if any exist)
+    ////////////////////////////////////////////////////////////////
+    void eTriMesh::destroyNode()
+    {
+        ePhyTriMesh* test_phy;
+
+        if (nullptr != geo)
+        {
+            test_phy = geo->getPhyTriMesh();
+
+            if (nullptr != test_phy)
+            {
+                test_phy->deleteBones();
+            }
+        }
+
+        eNode::destroyNode();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTriMesh: (editor option) rebuild collision
+    ////////////////////////////////////////////////////////////////
+    void eTriMesh::editingRebuildCollision()
+    {
+        eGeometry::editingRebuildCollision();
+
+        if (nullptr != geo)
+        {
+            try
+            {
+                geo->buildAabbTree(name);
+            }
+            catch (ErrorMessage &err)
+            {
+                err.display();
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTriMesh: (editor function) clear collision
+    ////////////////////////////////////////////////////////////////
+    void eTriMesh::editingClearCollision()
+    {
+        if (nullptr != geo)
+        {
+            geo->clearAabbTree();
+        }
+
+        eNode::editingClearCollision();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTriMesh: (editor option) apply new transformation
+    ////////////////////////////////////////////////////////////////
+    void eTriMesh::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
+    {
+        ePhyTriMesh* test_phy;
+
+        if (nullptr != geo)
+        {
+            geo->transformVertices(new_transform, name, boxBoundMin, boxBoundMax);
+
+            if (nullptr != axisListBox)
+            {
+                eGeometry::editingRebuildCollision();
+            }
+
+            test_phy = geo->getPhyTriMesh();
+
+            if (nullptr != test_phy)
+            {
+                test_phy->transformVertices(new_transform);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eTriMesh: render
     ////////////////////////////////////////////////////////////////
-    void eTriMesh::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
+    bool eTriMesh::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
     {
-        bool is_invisible = true;
-
         int32_t i, texID;
+        bool is_selected_or_marked;
+        bool use_outline;
+        float color[3];
+
+        eMatrix4x4 test_matrix;
+        eGeoArray<ePoint4>* vertex_array;
+        ePoint3 test_boundaries[2];
+        ePoint4 test_vertices[2];
 
         GLuint tex_name = 0;
         eTexture* test_texture;
 
-        if (GUI::drawFlags::DRAW_FLAG_INVISIBLE & draw_flags)
+        if (nullptr == geo)
         {
-            is_invisible = false;
-        }
-        else if (0x00000001 & flags)
-        {
-            is_invisible = false;
+            return false;
         }
 
-        if (false == is_invisible)
+        if (false == eNode::renderObject(draw_flags, anim, parent_srp, marked_id))
         {
-            if (nullptr != geo)
+            return false;
+        }
+
+        /* Testing 3D mesh boundaries */
+
+        test_matrix = parent_srp.getMatrix();
+
+        vertex_array = geo->getVerticesArray();
+
+        calculateBoundaryBox
+        (
+            test_boundaries[0], test_boundaries[1],
+            vertex_array->getLength(), vertex_array->getData(),
+            0, nullptr
+        );
+
+        for (i = 0; i < 2; i++)
+        {
+            test_vertices[i] = {test_boundaries[i].x, test_boundaries[i].y, test_boundaries[i].z, 1.0f};
+            test_vertices[i] = test_matrix * test_vertices[i];
+        }
+
+        if (false == GUI::testWithCameraPlanes
+          (test_vertices[0].x, test_vertices[0].y, test_vertices[0].z,
+          test_vertices[1].x, test_vertices[1].y, test_vertices[1].z))
+        {
+            return false;
+        }
+
+        /* Render 3D mesh */
+
+        is_selected_or_marked = (((-2) == marked_id) || ((-1) == marked_id));
+        use_outline = ((GUI::drawFlags::DRAW_FLAG_OUTLINE & draw_flags) && (((-2) == marked_id) || ((-3) == marked_id)));
+
+        if (is_selected_or_marked)
+        {
+            /* This object is selected (-1) or marked (-2) and can be moved around */
+            glPushMatrix();
+            GUI::multiplyBySelectedObjectTransform();
+        }
+
+        if (use_outline)
+        {
+            GUI::colorOfMarkedObject(color[0], color[1], color[2]);
+            glColor3f(color[0], color[1], color[2]);
+
+            //// glDisable(GL_DEPTH_TEST);
+            //// glPushMatrix();
+            //// glScalef(1.05f, 1.05f, 1.05f);
+
+            //// geo->draw(anim, draw_flags, 0, 0);
+
+            //// glPopMatrix();
+            //// glEnable(GL_DEPTH_TEST);
+        }
+
+        /* (--dsp--) `i < geo->getTextureCoordsCount()` */
+
+        for (i = 0; i < 1; i++)
+        {
+            if (nullptr != material)
             {
-                /* (--dsp--) `i < geo->getTextureCoordsCount()` */
-                /* (--dsp--) `i < 1` */
+                texID = geo->getTextureId(i);
 
-                for (i = 0; i < 1; i++)
+                test_texture = material->getIthTexture(texID);
+
+                if (nullptr != test_texture)
                 {
-                    if (nullptr != material)
-                    {
-                        texID = geo->getTextureId(i);
-
-                        test_texture = material->getIthTexture(texID);
-
-                        if (nullptr != test_texture)
-                        {
-                            tex_name = test_texture->getTextureName();
-                        }
-                        else
-                        {
-                            tex_name = 0;
-                        }
-                    }
-
-                    geo->draw(anim, draw_flags, tex_name, i);
+                    tex_name = test_texture->getTextureName();
+                }
+                else
+                {
+                    tex_name = 0;
                 }
             }
+
+            geo->draw(anim, draw_flags, tex_name, i);
         }
+
+        if (use_outline)
+        {
+            glColor3f(1.0f, 1.0f, 1.0f);
+        }
+
+        if (is_selected_or_marked)
+        {
+            glPopMatrix();
+        }
+
+        return true;
     }
 
 

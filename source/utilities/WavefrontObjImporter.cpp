@@ -1,5 +1,7 @@
 #include <utilities/WavefrontObjImporter.h>
 
+#include <kao2engine/Log.h>
+
 #include <kao2engine/eGroup.h>
 #include <kao2engine/eTriMesh.h>
 #include <kao2engine/eGeoSet.h>
@@ -441,6 +443,8 @@ namespace ZookieWizard
         ePoint2 dummy_point2;
         WavefrontObjImporterFace dummy_face;
 
+        theLog.print(" Parsing the OBJ document, please wait...\n");
+
         /********************************/
         /* Prepare space for elements */
 
@@ -467,6 +471,12 @@ namespace ZookieWizard
                 {
                     if (valid_keywords >= 2)
                     {
+                        for (a = 2; a < valid_keywords; a++)
+                        {
+                            keywords[1] += " ";
+                            keywords[1] += keywords[a];
+                        }
+
                         readMaterialInfo(keywords[1]);
                     }
                 }
@@ -642,6 +652,8 @@ namespace ZookieWizard
             return;
         }
 
+        theLog.print(eString(" Parsing material library \"") + filename + "\".\n");
+
         while (false == myFiles[1].endOfFileReached())
         {
             line << myFiles[1];
@@ -694,8 +706,8 @@ namespace ZookieWizard
 
                         dummy_obj_mtl.material->setName(dummy_obj_mtl.name);
 
-                        /* "eMaterial" flags: 0x01 = "2-sided", 0x08 = "alphaTest" */
-                        dummy_obj_mtl.material->setMaterialFlags(0x09);
+                        /* 0x01 = "2-sided" */
+                        dummy_obj_mtl.material->setMaterialFlags(0x01);
                     }
                 }
                 else if (keywords[0].compare("Ka"))
@@ -770,6 +782,12 @@ namespace ZookieWizard
 
                         dummy_obj_mtl.material->appendTexture(dummy_texture);
 
+                        if (dummy_bitmap->isTransparent())
+                        {
+                            /* 0x08 = "alphaTest" */
+                            dummy_obj_mtl.material->setMaterialFlags(0x08);
+                        }
+
                         /* Prepare for rendering! */
                         dummy_bitmap->generateTexture();
                     }
@@ -816,6 +834,7 @@ namespace ZookieWizard
         eString trimesh_name;
         ePoint3 boundaries[2];
 
+        eGroup* test_group = nullptr;
         eTriMesh* test_trimesh = nullptr;
         eGeoSet* test_geoset = nullptr;
         eMaterialState* dummy_mtl_state = nullptr;
@@ -833,6 +852,8 @@ namespace ZookieWizard
         ePoint2* test_uv_data = nullptr;
         ePoint4* test_normals_data = nullptr;
         ePoint4* test_colors_data = nullptr;
+
+        theLog.print(" Constructing 3D objects, please wait...\n");
 
         /********************************/
         /* Temporary list of vertices referenced by faces */
@@ -878,6 +899,24 @@ namespace ZookieWizard
 
         for (group_id = (-1); group_id < objGroupsCount; group_id++)
         {
+            if (groupHasMultipleMaterials(group_id))
+            {
+                test_group = new eGroup;
+                test_group++;
+
+                trimesh_name = fileName;
+
+                if (group_id >= 0)
+                {
+                    trimesh_name += " - ";
+                    trimesh_name += objGroups[group_id];
+                }
+
+                test_group->setName(trimesh_name);
+
+                test_group->setFlags(0x70000009);
+            }
+
             /********************************/
             /* Create new "eTriMesh" for every material (starting from NONE) */
 
@@ -939,7 +978,15 @@ namespace ZookieWizard
                 /********************************/
                 /* Continue if model is not empty */
 
-                if (total_vertices > 0)
+                if (total_vertices > 65535)
+                {
+                    ErrorMessage
+                    (
+                        "WavefrontObjImporter::constructTriMeshes():\n"
+                        "too many vertices! (max 65535 per object)"
+                    ).display();
+                }
+                else if (total_vertices > 0)
                 {
                     test_trimesh = new eTriMesh();
                     test_trimesh->incRef();
@@ -1093,7 +1140,16 @@ namespace ZookieWizard
                     /********************************/
                     /* Update "eGroup" */
 
-                    if (nullptr != parentGroup)
+                    if (nullptr != test_group)
+                    {
+                        test_group->appendChild(test_trimesh);
+
+                        if (nullptr != parentGroup)
+                        {
+                            parentGroup->appendChild(test_group);
+                        }
+                    }
+                    else if (nullptr != parentGroup)
                     {
                         parentGroup->appendChild(test_trimesh);
                     }
@@ -1107,7 +1163,41 @@ namespace ZookieWizard
                     test_trimesh->decRef();
                 }
             }
+
+            if (nullptr != test_group)
+            {
+                test_group->decRef();
+                test_group = nullptr;
+            }
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // WavefrontObjImporter: check if object should be grouped
+    ////////////////////////////////////////////////////////////////
+    bool WavefrontObjImporter::groupHasMultipleMaterials(const int32_t g_id) const
+    {
+        int32_t a, b;
+
+        for (a = 0; a < (objFacesCount - 1); a++)
+        {
+            if (g_id == objFaces[a].group_id)
+            {
+                for (b = (a + 1); b < objFacesCount; b++)
+                {
+                    if (g_id == objFaces[b].group_id)
+                    {
+                        if (objFaces[a].material_id != objFaces[b].material_id)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
 }

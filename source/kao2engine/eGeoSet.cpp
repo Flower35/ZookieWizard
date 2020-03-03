@@ -205,7 +205,8 @@ namespace ZookieWizard
 
             GUI::changeView(true);
 
-            if (0 != displayList)
+            /* DEBUG (moving objects) */
+            if (false && (0 != displayList))
             {
                 glCallList(displayList + texID);
             }
@@ -236,59 +237,13 @@ namespace ZookieWizard
                 {
                     if ((0x80000000 & boxes[i].leftNode) || (0x80000000 & boxes[i].rightNode))
                     {
-                        glColor3f(0, 1.0f, 0);
-                        glLineWidth(2.0f);
-                        glBegin(GL_LINES);
-
-                        /* Cube Front */
-
-                        glVertex3f(boxes[i].min.x, boxes[i].min.y, boxes[i].min.z);
-                        glVertex3f(boxes[i].max.x, boxes[i].min.y, boxes[i].min.z);
-
-                        glVertex3f(boxes[i].max.x, boxes[i].min.y, boxes[i].min.z);
-                        glVertex3f(boxes[i].max.x, boxes[i].min.y, boxes[i].max.z);
-
-                        glVertex3f(boxes[i].max.x, boxes[i].min.y, boxes[i].max.z);
-                        glVertex3f(boxes[i].min.x, boxes[i].min.y, boxes[i].max.z);
-
-                        glVertex3f(boxes[i].min.x, boxes[i].min.y, boxes[i].max.z);
-                        glVertex3f(boxes[i].min.x, boxes[i].min.y, boxes[i].min.z);
-
-                        /* Cube Back */
-
-                        glVertex3f(boxes[i].min.x, boxes[i].max.y, boxes[i].min.z);
-                        glVertex3f(boxes[i].max.x, boxes[i].max.y, boxes[i].min.z);
-
-                        glVertex3f(boxes[i].max.x, boxes[i].max.y, boxes[i].min.z);
-                        glVertex3f(boxes[i].max.x, boxes[i].max.y, boxes[i].max.z);
-
-                        glVertex3f(boxes[i].max.x, boxes[i].max.y, boxes[i].max.z);
-                        glVertex3f(boxes[i].min.x, boxes[i].max.y, boxes[i].max.z);
-
-                        glVertex3f(boxes[i].min.x, boxes[i].max.y, boxes[i].max.z);
-                        glVertex3f(boxes[i].min.x, boxes[i].max.y, boxes[i].min.z);
-
-                        /* Cube Left */
-
-                        glVertex3f(boxes[i].min.x, boxes[i].max.y, boxes[i].max.z);
-                        glVertex3f(boxes[i].min.x, boxes[i].min.y, boxes[i].max.z);
-
-                        glVertex3f(boxes[i].min.x, boxes[i].max.y, boxes[i].min.z);
-                        glVertex3f(boxes[i].min.x, boxes[i].min.y, boxes[i].min.z);
-
-                        /* Cube Right */
-
-                        glVertex3f(boxes[i].max.x, boxes[i].max.y, boxes[i].max.z);
-                        glVertex3f(boxes[i].max.x, boxes[i].min.y, boxes[i].max.z);
-
-                        glVertex3f(boxes[i].max.x, boxes[i].max.y, boxes[i].min.z);
-                        glVertex3f(boxes[i].max.x, boxes[i].min.y, boxes[i].min.z);
-
-                        /* Stop drawing lines */
-
-                        glEnd();
-                        glColor3f(1.0f, 1.0f, 1.0f);
-                        glLineWidth(1.0f);
+                        GUI::renderBoundingBox
+                        (
+                            1.0f,
+                            0, 1.0f, 0,
+                            boxes[i].min.x, boxes[i].min.y, boxes[i].min.z,
+                            boxes[i].max.x, boxes[i].max.y, boxes[i].max.z
+                        );
                     }
                 }
             }
@@ -659,9 +614,60 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eGeoSet: transform vertices and normals, recartulate bounding box
+    ////////////////////////////////////////////////////////////////
+    void eGeoSet::transformVertices(eSRP &new_transform, eString &mesh_name, ePoint3 &box_min, ePoint3 &box_max)
+    {
+        int32_t a, b, vertices_length;
+        ePoint4* vertices_data;
+        eMatrix4x4 matrix = new_transform.getMatrix();
+
+        const eGeoArray<ePoint4>* arrays[4] =
+        {
+            verticesArray[0], verticesArray[1],
+            normalsArray[0], normalsArray[1]
+        };
+
+        for (a = 0; a < 4; a++)
+        {
+            vertices_length = arrays[a]->getLength();
+            vertices_data = arrays[a]->getData();
+
+            if (nullptr != vertices_data)
+            {
+                for (b = 0; b < vertices_length; b++)
+                {
+                    vertices_data[b] = matrix * vertices_data[b];
+                }
+            }
+        }
+
+        vertices_length = verticesArray[0]->getLength();
+        vertices_data = verticesArray[0]->getData();
+
+        if (nullptr != vertices_data)
+        {
+            calculateBoundaryBox(box_min, box_max, vertices_length, vertices_data, 0, nullptr);
+        }
+
+        if (nullptr != aabbTree)
+        {
+            try
+            {
+                buildAabbTree(mesh_name);
+            }
+            catch (ErrorMessage &err)
+            {
+                err.display();
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eGeoSet: build "axis-aligned bounding boxes" tree
     ////////////////////////////////////////////////////////////////
-    void eGeoSet::buildAabbTree()
+    void eGeoSet::buildAabbTree(eString &mesh_name)
     {
         int32_t i, j, k, l, m, total_entries, total_leaves;
 
@@ -678,11 +684,7 @@ namespace ZookieWizard
 
         eABB* aabb_data = nullptr;
 
-        if (nullptr != aabbTree)
-        {
-            aabbTree->decRef();
-            aabbTree = nullptr;
-        }
+        clearAabbTree();
 
         if (nullptr == test_vertices_data)
         {
@@ -833,7 +835,21 @@ namespace ZookieWizard
 
             if ((0 == i) && (total_leaves > 0))
             {
-                temp_aabb_data = new eABB [total_leaves];
+                if (total_leaves > 1000)
+                {
+                    throw ErrorMessage
+                    (
+                        "eGeoSet::buildAabbTree():\n" \
+                        "too many collision triangles! (found %d, max 1000)\n\n" \
+                        "Please subdivide this eTriMesh: \"%s\"",
+                        total_leaves,
+                        mesh_name.getText()
+                    );
+                }
+                else
+                {
+                    temp_aabb_data = new eABB [total_leaves];
+                }
             }
         }
 
@@ -894,7 +910,9 @@ namespace ZookieWizard
                 throw ErrorMessage
                 (
                     "eGeoSet::buildAabbTree()\n" \
-                    "failure while adding leaf to the list!"
+                    "failure while adding leaf to the list!\n" \
+                    "(eTriMesh name: \"%s\")",
+                    mesh_name.getText()
                 );
             }
         }
@@ -910,8 +928,23 @@ namespace ZookieWizard
             throw ErrorMessage
             (
                 "eGeoSet::buildAabbTree()\n" \
-                "some entries went missing!"
+                "some entries went missing!\n" \
+                "(eTriMesh name: \"%s\")",
+                mesh_name.getText()
             );
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoSet: clear "axis-aligned bounding boxes" tree
+    ////////////////////////////////////////////////////////////////
+    void eGeoSet::clearAabbTree()
+    {
+        if (nullptr != aabbTree)
+        {
+            aabbTree->decRef();
+            aabbTree = nullptr;
         }
     }
 

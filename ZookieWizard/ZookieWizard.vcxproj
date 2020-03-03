@@ -406,11 +406,11 @@
     <ClCompile Include="..\source\utilities\ColladaExporter.cpp" />
     <ClCompile Include="..\source\utilities\WavefrontObjExporter.cpp" />
     <ClCompile Include="..\source\utilities\WavefrontObjImporter.cpp" />
+    <ClCompile Include="..\source\ZookieWizard\WindowsManager.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizard.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardGUI.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardMisc.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardRender.cpp" />
-    <ClCompile Include="..\source\ZookieWizard\ZookieWizardWindows.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resource\ZookieWizard\WinRC.rc" />

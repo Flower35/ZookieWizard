@@ -103,6 +103,8 @@ namespace ZookieWizard
 
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
+            void findAndDereference(eNode* target) override;
+
             void setBackgroundColor(GLfloat new_color[3]);
             void setCompileStrings(eString str_a, eString str_b);
 

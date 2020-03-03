@@ -125,18 +125,21 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ePivot: set animation object for rendering
     ////////////////////////////////////////////////////////////////
-    void ePivot::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
+    bool ePivot::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
     {
-        animations.setAnimation(GUI::animationID, GUI::timerGetFrames());
+        if (GUI::drawFlags::DRAW_FLAG_ANIMS & draw_flags)
+        {
+            animations.setAnimation(GUI::animationID, GUI::timerGetFrames());
+        }
 
-        eTransform::renderObject(&animations, draw_flags, parent_srp);
+        return eTransform::renderObject(draw_flags, &animations, parent_srp, marked_id);
     }
 
 
     ////////////////////////////////////////////////////////////////
     // ePivot: skip eSRP updating (if called from "eGroup")
     ////////////////////////////////////////////////////////////////
-    void ePivot::updateSRP(eAnimate* anim, eSRP &parent_srp)
+    void ePivot::updateSRP(bool update, eAnimate* anim, eSRP &parent_srp)
     {
         return;
     }

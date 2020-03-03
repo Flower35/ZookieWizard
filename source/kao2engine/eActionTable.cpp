@@ -64,7 +64,39 @@ namespace ZookieWizard
     eActionBase::~eActionBase()
     {
         /*[0x0C]*/ cameraPacket->decRef();
+        cameraPacket = nullptr;
+
         /*[0x04]*/ nodeTarget->decRef();
+        nodeTarget = nullptr;
+    }
+
+    eActionBase& eActionBase::operator = (const eActionBase &otherAction)
+    {
+        cameraPacket->decRef();
+        cameraPacket = nullptr;
+
+        nodeTarget->decRef();
+        nodeTarget = nullptr;
+
+        nodeTarget = otherAction.nodeTarget;
+        message = otherAction.message;
+        cameraPacket = otherAction.cameraPacket;
+        unknown_10 = otherAction.unknown_10;
+        unknown_14 = otherAction.unknown_14;
+        unknown_15 = otherAction.unknown_15;
+        actorName = otherAction.actorName;
+
+        if (nullptr != nodeTarget)
+        {
+            nodeTarget->incRef();
+        }
+
+        if (nullptr != cameraPacket)
+        {
+            cameraPacket->incRef();
+        }
+
+        return *this;
     }
 
     void eActionBase::serializeAction(Archive &ar)
@@ -128,6 +160,46 @@ namespace ZookieWizard
             for (i = 0; i < actionsCount; i++)
             {
                 actions[i].serializeAction(ar);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eActionTable: delete i-th action from the list
+    ////////////////////////////////////////////////////////////////
+    void eActionTable::deleteIthAction(int32_t i)
+    {
+        if ((i >= 0) && (i < actionsCount))
+        {
+            for (i++; i < actionsCount; i++)
+            {
+                actions[i - 1] = actions[i];
+            }
+
+            actionsCount--;
+
+            /* Reset the last action after shiftng */
+            actions[actionsCount] = eActionBase();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eActionTable: find reference to some node when deleting it
+    ////////////////////////////////////////////////////////////////
+    void eActionTable::findAndDeleteActionsWithNode(const eNode* target)
+    {
+        int32_t i;
+
+        for (i = 0; i < actionsCount; i++)
+        {
+            if (target == actions[i].nodeTarget)
+            {
+                deleteIthAction(i);
+
+                /* Actions were shifted to the left */
+                i--;
             }
         }
     }

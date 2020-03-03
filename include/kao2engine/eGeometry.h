@@ -35,6 +35,9 @@ namespace ZookieWizard
 
             void oldNodeSerialization(ePoint3* arg1);
 
+            ePoint3 editingGetCenterPoint() const override;
+            void editingRebuildCollision() override;
+
             eMaterial* getMaterial();
             void setMaterial(eMaterial* new_material);
 

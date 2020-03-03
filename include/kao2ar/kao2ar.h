@@ -76,6 +76,8 @@ namespace ZookieWizard
         ePoint3 operator - (const ePoint3&) const;
         ePoint3 operator * (float) const;
 
+        float getLength() const;
+
         void serialize(Archive &ar);
     };
 
@@ -96,6 +98,7 @@ namespace ZookieWizard
         ePoint4 operator - (const ePoint4&) const;
         ePoint4 operator * (float) const;
 
+        float getLength() const;
         void normalize();
 
         void serialize(Archive &ar);
@@ -103,6 +106,7 @@ namespace ZookieWizard
 
     ePoint4 crossProduct(const ePoint4&, const ePoint4&);
     float dotProduct(const ePoint4&, const ePoint4&);
+    float angleBetweenVectors(const ePoint4&, const ePoint4&);
     void calculateBoundaryBox(ePoint3&, ePoint3&, int32_t, const ePoint4*, int32_t, const ushort*);
 
     /* `sizeof(ePhyVertex) == 0x10` (16 bytes) */
@@ -148,9 +152,11 @@ namespace ZookieWizard
         eQuat operator * (const eQuat&) const;
         eQuat operator * (float) const;
 
+        float getLength() const;
         void normalize();
 
         void fromEulerAngles(bool, float, float, float);
+        void fromAxisAngle(ePoint3&, float);
         void toEulerAngles(bool, float&, float&, float&) const;
     };
 

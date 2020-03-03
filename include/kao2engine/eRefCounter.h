@@ -30,6 +30,7 @@ namespace ZookieWizard
 
             void incRef();
             void decRef();
+            int32_t getReferenceCount() const;
     };
 
 

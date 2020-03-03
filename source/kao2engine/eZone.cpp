@@ -94,4 +94,16 @@ namespace ZookieWizard
         }
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eZone: find reference to some node when deleting it
+    ////////////////////////////////////////////////////////////////
+    void eZone::findAndDereference(eNode* target)
+    {
+        enterActions.findAndDeleteActionsWithNode(target);
+
+        leaveActions.findAndDeleteActionsWithNode(target);
+    }
+
+
 }

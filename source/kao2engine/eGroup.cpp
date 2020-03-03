@@ -1,6 +1,8 @@
 #include <kao2engine/eGroup.h>
 #include <kao2ar/Archive.h>
 
+#include <kao2engine/eTriMesh.h>
+
 #include <utilities/ColladaExporter.h>
 
 namespace ZookieWizard
@@ -37,7 +39,25 @@ namespace ZookieWizard
     : eNode()
     {}
 
-    eGroup::~eGroup() {}
+    eGroup::~eGroup()
+    {
+        int32_t i;
+        eNode* child_node;
+
+        deleteNodesWithMultiRefs(true);
+
+        /* Failsafe (marks children as "invalid", as they no longer have a parent node link) */
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            child_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != child_node)
+            {
+                child_node->setParentNode(nullptr);
+            }
+        }
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -49,6 +69,86 @@ namespace ZookieWizard
         eNode::serialize(ar);
 
         nodes.serialize(ar, &E_NODE_TYPEINFO);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: destroy children nodes
+    ////////////////////////////////////////////////////////////////
+    void eGroup::destroyNode()
+    {
+        int32_t i;
+        eNode* child_node;
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            child_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != child_node)
+            {
+                child_node->destroyNode();
+            }
+        }
+
+        eNode::destroyNode();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: (editor option) rebuild collision
+    ////////////////////////////////////////////////////////////////
+    void eGroup::editingRebuildCollision()
+    {
+        int32_t i;
+        eNode* child_node;
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            child_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != child_node)
+            {
+                child_node->editingRebuildCollision();
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: (editor option) clear collision
+    ////////////////////////////////////////////////////////////////
+    void eGroup::editingClearCollision()
+    {
+        int32_t i;
+        eNode* child_node;
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            child_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != child_node)
+            {
+                child_node->editingClearCollision();
+            }
+        }
+
+        eNode::editingClearCollision();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: (editor option) apply new transformation
+    ////////////////////////////////////////////////////////////////
+    void eGroup::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
+    {
+        eNode* child_node;
+
+        child_node = (eNode*)nodes.getIthChild(marked_id);
+
+        if (nullptr != child_node)
+        {
+            child_node->editingApplyNewTransform(new_transform, (-1));
+        }
     }
 
 
@@ -79,19 +179,24 @@ namespace ZookieWizard
 
         if (nullptr != o)
         {
+            /* This is in case the child node already has parent, */
+            /* but is referenced only once (so it doesn't get deleted) */
+            o->incRef();
+
             previous_parent = (eGroup*)o->getParentNode();
 
             if (nullptr != previous_parent)
             {
                 if (previous_parent->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
                 {
-                    previous_parent->findAndDeleteChild(o);
+                    previous_parent->findAndDetachChild(o);
                 }
             }
 
             nodes.appendChild(o);
-
             o->setParentNode(this);
+
+            o->decRef();
         }
     }
 
@@ -101,6 +206,13 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::deleteIthChild(int32_t i)
     {
+        eNode* child_node = (eNode*)nodes.getIthChild(i);
+
+        if (nullptr != child_node)
+        {
+            child_node->destroyNode();
+        }
+
         nodes.deleteIthChild(i);
     }
 
@@ -110,37 +222,183 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::findAndDeleteChild(eNode* o)
     {
+        int32_t i;
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            if (nodes.getIthChild(i) == o)
+            {
+                deleteIthChild(i);
+                return;
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: detach specific node without deleting it
+    ////////////////////////////////////////////////////////////////
+    void eGroup::findAndDetachChild(eNode* o)
+    {
         nodes.findAndDeleteChild(o);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: find reference to some node when deleting it
+    ////////////////////////////////////////////////////////////////
+    void eGroup::findAndDereference(eNode* target)
+    {
+        int32_t i;
+        eNode* child_node;
+
+        if (referenceCount <= 0)
+        {
+            /* This group is invalid (for instance, it is being deleted) */
+            return;
+        }
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            child_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != child_node)
+            {
+                child_node->findAndDereference(target);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: delete "eXRefTarget" links after destroying "eXRefManager"
+    ////////////////////////////////////////////////////////////////
+    bool eGroup::deleteXRefTargets()
+    {
+        int32_t i;
+        eNode* child_node;
+
+        if (referenceCount <= 0)
+        {
+            /* This group is invalid (for instance, it is being deleted) */
+            return false;
+        }
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            child_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != child_node)
+            {
+                if (child_node->deleteXRefTargets())
+                {
+                    deleteIthChild(i);
+                    i--;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: remove nodes with multiple references
+    ////////////////////////////////////////////////////////////////
+    void eGroup::deleteNodesWithMultiRefs(bool canBeInvalid)
+    {
+        int32_t i;
+        eNode *root, *child_node;
+        eGroup* test_group;
+
+        if ((referenceCount <= 0) && (false == canBeInvalid))
+        {
+            return;
+        }
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            child_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != child_node)
+            {
+                /* Search recursively */
+
+                if (child_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                {
+                    test_group = (eGroup*)child_node;
+                    test_group->deleteNodesWithMultiRefs(false);
+                }
+            }
+        }
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            child_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != child_node)
+            {
+                /* Look for other objects referencing this child node */
+
+                if (child_node->getReferenceCount() >= 2)
+                {
+                    root = child_node->getRootNode();
+
+                    if (nullptr == root)
+                    {
+                        root = getRootNode();
+                    }
+
+                    if (nullptr != root)
+                    {
+                        root->findAndDereference(child_node);
+                        /* (--dsp--) delete from scripts as well! */
+                    }
+                }
+            }
+        }
     }
 
 
     ////////////////////////////////////////////////////////////////
     // eGroup: render each child node
     ////////////////////////////////////////////////////////////////
-    void eGroup::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
+    bool eGroup::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
     {
-        int32_t i;
-        eNode* test_node;
+        int32_t a, b;
+        eNode* child_node;
 
-        if (0 == (GUI::drawFlags::DRAW_FLAG_INVISIBLE & draw_flags))
+        if (false == eNode::renderObject(draw_flags, anim, parent_srp, marked_id))
         {
-            if (0 == (0x01 & flags))
+            return false;
+        }
+
+        for (a = 0; a < nodes.getSize(); a++)
+        {
+            child_node = (eNode*)nodes.getIthChild(a);
+
+            if (nullptr != child_node)
             {
-                return;
+                /* `0x01 & (child_node->getFlags() >> 0x0A)` */
+
+                /* Current object from Archive will have "ID >= (-1)" */
+                /* Object marked on list will receive "ID = (-2)" */
+                /* Object that is a child of marked group will receive "ID = (-3)" */
+                /* Any object that is not selected or marked will receive "ID = (-4)" */
+                if (((-2) == marked_id) || ((-3) == marked_id))
+                {
+                    b = (-3);
+                }
+                else
+                {
+                    b = (marked_id == a) ? (-2) : (-4);
+                }
+
+                child_node->renderObject(draw_flags, anim, parent_srp, b);
             }
         }
 
-        for (i = 0; i < nodes.getSize(); i++)
-        {
-            test_node = (eNode*)nodes.getIthChild(i);
-
-            if (nullptr != test_node)
-            {
-                /* `0x01 & (test_node->getFlags() >> 0x0A)` */
-
-                test_node->renderObject(anim, draw_flags, parent_srp);
-            }
-        }
+        return true;
     }
 
 
@@ -150,17 +408,17 @@ namespace ZookieWizard
     void eGroup::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
     {
         int32_t i;
-        eNode* test_node;
+        eNode* child_node;
 
         eNode::writeStructureToTextFile(file, indentation);
 
         for (i = 0; i < nodes.getSize(); i++)
         {
-            test_node = (eNode*)nodes.getIthChild(i);
+            child_node = (eNode*)nodes.getIthChild(i);
 
-            if (nullptr != test_node)
+            if (nullptr != child_node)
             {
-                test_node->writeStructureToTextFile(file, (indentation + 1));
+                child_node->writeStructureToTextFile(file, (indentation + 1));
             }
         }
     }
@@ -173,7 +431,7 @@ namespace ZookieWizard
     {
         int32_t i;
         char bufor[64];
-        eNode* test_node;
+        eNode* child_node;
 
         switch (exporter.getState())
         {
@@ -190,11 +448,11 @@ namespace ZookieWizard
 
                 for (i = 0; i < nodes.getSize(); i++)
                 {
-                    test_node = (eNode*)nodes.getIthChild(i);
+                    child_node = (eNode*)nodes.getIthChild(i);
 
-                    if (nullptr != test_node)
+                    if (nullptr != child_node)
                     {
-                        test_node->writeNodeToXmlFile(exporter);
+                        child_node->writeNodeToXmlFile(exporter);
                     }
                 }
 
@@ -216,11 +474,11 @@ namespace ZookieWizard
 
                 for (i = 0; i < nodes.getSize(); i++)
                 {
-                    test_node = (eNode*)nodes.getIthChild(i);
+                    child_node = (eNode*)nodes.getIthChild(i);
 
-                    if (nullptr != test_node)
+                    if (nullptr != child_node)
                     {
-                        test_node->writeNodeToXmlFile(exporter);
+                        child_node->writeNodeToXmlFile(exporter);
                     }
                 }
 

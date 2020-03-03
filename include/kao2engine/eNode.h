@@ -8,6 +8,8 @@ namespace ZookieWizard
     class eALBox;
     class eTransform;
 
+    extern const char* theNodeFlagNames[32];
+
     ////////////////////////////////////////////////////////////////
     // eNode interface
     ////////////////////////////////////////////////////////////////
@@ -45,10 +47,21 @@ namespace ZookieWizard
             eString getLogPrintMessage() const override;
             void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
 
-            virtual void updateSRP(eAnimate* anim, eSRP &parent_srp);
+            bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id) override;
+
+            virtual ePoint3 editingGetCenterPoint() const;
+            virtual void editingRebuildCollision();
+            virtual void editingClearCollision();
+            virtual void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id);
+
+            virtual void destroyNode();
+            virtual void updateSRP(bool update, eAnimate* anim, eSRP &parent_srp);
+            virtual void findAndDereference(eNode* target);
+            virtual bool deleteXRefTargets();
 
             void setName(eString new_name);
 
+            eNode* getRootNode() const;
             eNode* getParentNode() const;
             void setParentNode(eNode* new_parent);
 
@@ -73,6 +86,13 @@ namespace ZookieWizard
     static const int E_NODE_ID = 0x8000;
 
     extern TypeInfo E_NODE_TYPEINFO;
+
+
+    ////////////////////////////////////////////////////////////////
+    // Global Nodes counter
+    ////////////////////////////////////////////////////////////////
+
+    extern int32_t theNodesCounter;
 
 }
 

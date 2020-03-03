@@ -1,4 +1,5 @@
 #include <ZookieWizard/ZookieWizard.h>
+#include <ZookieWizard/WindowsManager.h>
 
 #include <kao2ar/Archive.h>
 #include <kao2engine/Log.h>
@@ -197,7 +198,7 @@ namespace ZookieWizard
 
             if (AR_MODE_READ == mode)
             {
-                myARs[0].changeSelectedObject(-3);
+                myARs[0].changeSelectedObject(NODES_LISTBOX_ROOT, nullptr);
             }
 
             /* Display message */
@@ -209,13 +210,12 @@ namespace ZookieWizard
 
             sprintf_s
             (
-                bufor,
-                256,
+                bufor, 256,
                 final_msg,
                 ar_name.getText()
             );
 
-            MessageBox(GUI::myWindowsGroupMain[0], bufor, MESSAGE_TITLE_INFO, MB_ICONINFORMATION);
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
         }
         catch (ErrorMessage &e)
         {
@@ -270,12 +270,10 @@ namespace ZookieWizard
 
             default:
             {
-                MessageBox
+                GUI::theWindowsManager.displayMessage
                 (
-                    GUI::myWindowsGroupMain[0],
-                    "Invalid engine version! (THIS SHOULD NEVER HAPPEN)",
-                    MESSAGE_TITLE_ERROR,
-                    (MB_ICONERROR | MB_OK)
+                    WINDOWS_MANAGER_MESSAGE_ERROR,
+                    "Invalid engine version! (THIS SHOULD NEVER HAPPEN)"
                 );
 
                 return;
@@ -286,12 +284,10 @@ namespace ZookieWizard
 
         currentGameVersion = engine_version;
 
-        MessageBox
+        GUI::theWindowsManager.displayMessage
         (
-            GUI::myWindowsGroupMain[0],
-            msg,
-            MESSAGE_TITLE_INFO,
-            (MB_ICONINFORMATION | MB_OK)
+            WINDOWS_MANAGER_MESSAGE_INFO,
+            msg
         );
     }
 
@@ -306,7 +302,7 @@ namespace ZookieWizard
         {
             myARs[0].writeStructureToTextFile();
 
-            MessageBox(GUI::myWindowsGroupMain[0], "Text file saved.", MESSAGE_TITLE_INFO, MB_ICONINFORMATION);
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, "Text file saved.");
         }
         catch (ErrorMessage &e)
         {
@@ -350,13 +346,12 @@ namespace ZookieWizard
 
             sprintf_s
             (
-                bufor,
-                256,
+                bufor, 256,
                 "<\"%s\">\n\nDenis Level Map loaded successfully! :)",
                 myDenisLevels[0].getName().getText()
             );
 
-            MessageBox(GUI::myWindowsGroupMain[0], bufor, MESSAGE_TITLE_INFO, MB_ICONINFORMATION);
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
         }
         catch (ErrorMessage &e)
         {
@@ -401,7 +396,7 @@ namespace ZookieWizard
 
             myARs[0].setMyParentScene(test_scene);
 
-            myARs[0].changeSelectedObject(-3);
+            myARs[0].changeSelectedObject(NODES_LISTBOX_ROOT, nullptr);
 
             theLog.print
             (
@@ -413,15 +408,14 @@ namespace ZookieWizard
 
             sprintf_s
             (
-                bufor,
-                256,
+                bufor, 256,
                     "Denis Map has been converted to Kao2 engine! \n\n" \
                     "Now you can save Archive to: \"%s/build/win32/%s.ar\"",
                 currentWorkingDirectory,
                 myDenisLevels[0].getName().getText()
             );
 
-            MessageBox(GUI::myWindowsGroupMain[0], bufor, MESSAGE_TITLE_INFO, MB_ICONINFORMATION);
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
         }
         catch (ErrorMessage &e)
         {
@@ -494,13 +488,12 @@ namespace ZookieWizard
 
             sprintf_s
             (
-                bufor,
-                256,
+                bufor, 256,
                 "<\"%s\">\n\nCOLLADA document exported successfully! :)",
                 filename.getText()
             );
 
-            MessageBox(GUI::myWindowsGroupMain[0], bufor, MESSAGE_TITLE_INFO, MB_ICONINFORMATION);
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
         }
         catch (ErrorMessage &e)
         {
@@ -573,13 +566,12 @@ namespace ZookieWizard
 
             sprintf_s
             (
-                bufor,
-                256,
+                bufor, 256,
                 "<\"%s\">\n\nOBJ document exported successfully! :)",
                 filename.getText()
             );
 
-            MessageBox(GUI::myWindowsGroupMain[0], bufor, MESSAGE_TITLE_INFO, MB_ICONINFORMATION);
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
         }
         catch (ErrorMessage &e)
         {
@@ -647,13 +639,12 @@ namespace ZookieWizard
 
             sprintf_s
             (
-                bufor,
-                256,
+                bufor, 256,
                 "<\"%s\">\n\nOBJ document imported successfully! :)",
                 filename.getText()
             );
 
-            MessageBox(GUI::myWindowsGroupMain[0], bufor, MESSAGE_TITLE_INFO, MB_ICONINFORMATION);
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
         }
         catch (ErrorMessage &e)
         {

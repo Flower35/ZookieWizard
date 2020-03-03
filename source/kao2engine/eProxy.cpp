@@ -131,6 +131,14 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     bool eProxy::canBeLoadedOrExported(int32_t &ar_flags)
     {
+        if (targetFile.getLength() > 0)
+        {
+            if ('?' == targetFile.getText()[0])
+            {
+                return false;
+            }
+        }
+
         if (false == targetFile.hasExtension("ar"))
         {
             return false;
@@ -194,18 +202,24 @@ namespace ZookieWizard
 
         /* "eProxy" additional info */
 
-        sprintf_s
-        (
-            bufor,
-            128,
-            " - proxy target: [%d] \"%s\"",
-            category,
-            targetFile.getText()
-        );
+        if (targetFile.getLength() > 0)
+        {
+            if ('?' != targetFile.getText()[0])
+            {
+                sprintf_s
+                (
+                    bufor,
+                    128,
+                    " - proxy target: [%d] \"%s\"",
+                    category,
+                    targetFile.getText()
+                );
 
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
+                ArFunctions::writeIndentation(file, indentation);
+                file << bufor;
+                ArFunctions::writeNewLine(file, 0);
+            }
+        }
 
         /* "eGroup" parent class */
 
@@ -224,73 +238,57 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eProxy: render
     ////////////////////////////////////////////////////////////////
-    void eProxy::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
+    bool eProxy::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
     {
+        bool is_selected_or_marked;
+
+        const float CUBE_WIDTH = (64.0f / 2);
+
+        /* Inactive color (blue) */
+        float color[3] = {0, 0, 1.0f};
+
         if (GUI::drawFlags::DRAW_FLAG_PROXIES & draw_flags)
         {
-            eTransform::renderObject(anim, draw_flags, parent_srp);
+            if (false == eTransform::renderObject(draw_flags, anim, parent_srp, marked_id))
+            {
+                return false;
+            }
 
-            /* (--dsp--) use `glCallList()` here !!! */
+            is_selected_or_marked = (((-2) == marked_id) || ((-1) == marked_id));
 
-            const float CUBE_WIDTH = (64.0f / 2);
-            const float CUBE_WIDTH_FRONT = 0.75f * CUBE_WIDTH;
+            if (is_selected_or_marked)
+            {
+                /* This object is selected (-1) or marked (-2) and can be moved around */
+                glPushMatrix();
+                GUI::multiplyBySelectedObjectTransform();
+            }
 
-            glBindTexture(GL_TEXTURE_2D, 0);
+            if ((GUI::drawFlags::DRAW_FLAG_OUTLINE & draw_flags) && (((-2) == marked_id) || ((-3) == marked_id)))
+            {
+                /* Active color */
+                GUI::colorOfMarkedObject(color[0], color[1], color[2]);
+            }
 
-            glColor3f(0, 0, 1.0f);
-            glLineWidth(2.0f);
-            glBegin(GL_LINES);
+            GUI::renderBoundingBox
+            (
+                2.0f,
+                color[0], color[1], color[2],
+                (modifiedTransform[0].pos.x - CUBE_WIDTH),
+                (modifiedTransform[0].pos.y - CUBE_WIDTH),
+                (modifiedTransform[0].pos.z - CUBE_WIDTH),
+                (modifiedTransform[0].pos.x + CUBE_WIDTH),
+                (modifiedTransform[0].pos.y + CUBE_WIDTH),
+                (modifiedTransform[0].pos.z + CUBE_WIDTH)
+            );
 
-            /* Cube Front */
 
-            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
-            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
-
-            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
-            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z + CUBE_WIDTH);
-
-            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z + CUBE_WIDTH);
-            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z + CUBE_WIDTH);
-
-            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z + CUBE_WIDTH);
-            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
-
-            /* Cube Back */
-
-            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z - CUBE_WIDTH);
-            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z - CUBE_WIDTH);
-
-            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z - CUBE_WIDTH);
-            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z + CUBE_WIDTH);
-
-            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z + CUBE_WIDTH);
-            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z + CUBE_WIDTH);
-
-            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z + CUBE_WIDTH);
-            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z - CUBE_WIDTH);
-
-            /* Cube Left */
-
-            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z + CUBE_WIDTH);
-            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z + CUBE_WIDTH);
-
-            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z - CUBE_WIDTH);
-            glVertex3f(defaultTransform[0].pos.x - CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
-
-            /* Cube Right */
-
-            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z + CUBE_WIDTH);
-            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z + CUBE_WIDTH);
-
-            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y + CUBE_WIDTH, defaultTransform[0].pos.z - CUBE_WIDTH);
-            glVertex3f(defaultTransform[0].pos.x + CUBE_WIDTH, defaultTransform[0].pos.y - CUBE_WIDTH_FRONT, defaultTransform[0].pos.z - CUBE_WIDTH);
-
-            /* Stop drawing lines */
-
-            glEnd();
-            glColor3f(1.0f, 1.0f, 1.0f);
-            glLineWidth(1.0f);
+            if (is_selected_or_marked)
+            {
+                glPopMatrix();
+            }
         }
+
+        return true;
     }
 
 }

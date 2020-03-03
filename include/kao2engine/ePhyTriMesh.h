@@ -9,6 +9,7 @@ namespace ZookieWizard
 {
     class eTransform;
     class eTriMesh;
+
     class eGeoSet;
     class eMorpherMod;
 
@@ -66,6 +67,9 @@ namespace ZookieWizard
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             eString getLogPrintMessage() const override;
+
+            void deleteBones();
+            void transformVertices(eSRP &new_transform);
 
             void prepareMatrices(bool update) const;
             void animateVertices();

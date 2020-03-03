@@ -61,14 +61,34 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eXRefProxy: delete "eXRefTarget" links after destroying "eXRefManager"
+    ////////////////////////////////////////////////////////////////
+    bool eXRefProxy::deleteXRefTargets()
+    {
+        target = nullptr;
+
+        /* Notify parent "eGroup" */
+
+        return true;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eXRefProxy: render in scene
     ////////////////////////////////////////////////////////////////
-    void eXRefProxy::renderObject(eAnimate* anim, int32_t draw_flags, eSRP &parent_srp)
+    bool eXRefProxy::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
     {
+        if (false == eNode::renderObject(draw_flags, anim, parent_srp, marked_id))
+        {
+            return false;
+        }
+
         if (nullptr != target)
         {
-            target->renderObject(anim, draw_flags, parent_srp);
+            target->renderObject(draw_flags, anim, parent_srp, marked_id);
         }
+
+        return true;
     }
 
 

@@ -29,6 +29,8 @@ namespace ZookieWizard
             eActionBase();
             ~eActionBase();
 
+            eActionBase& operator = (const eActionBase &otherAction);
+
             void serializeAction(Archive &ar);
     };
 
@@ -57,6 +59,9 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            void deleteIthAction(int32_t i);
+            void findAndDeleteActionsWithNode(const eNode* target);
     };
 
 

@@ -66,7 +66,7 @@ namespace ZookieWizard
             void incRef();
 
             /* Funkcje zwi¹zane z konstrukcj¹ i dekonstrukcj¹ */
-            eStringPtrBase<charT>(int count = (-1));
+            eStringPtrBase<charT>(int count = 0);
             eStringPtrBase<charT>(const charT* str);
             eStringPtrBase<charT>(const eStringPtrBase<charT>& str);
             ~eStringPtrBase();

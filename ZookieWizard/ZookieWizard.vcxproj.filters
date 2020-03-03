@@ -1017,10 +1017,10 @@
     <ClCompile Include="..\source\utilities\WavefrontObjImporter.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\ZookieWizard\ZookieWizardWindows.cpp">
+    <ClCompile Include="..\source\kao2ar\ArchiveMisc.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\ArchiveMisc.cpp">
+    <ClCompile Include="..\source\ZookieWizard\WindowsManager.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
   </ItemGroup>

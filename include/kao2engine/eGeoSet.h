@@ -69,7 +69,9 @@ namespace ZookieWizard
             eGeoArray<ushort>* getIndicesArray() const;
             ePhyTriMesh* getPhyTriMesh() const;
 
-            void buildAabbTree();
+            void transformVertices(eSRP &new_transform, eString &mesh_name, ePoint3 &box_min, ePoint3 &box_max);
+            void buildAabbTree(eString &mesh_name);
+            void clearAabbTree();
     };
 
 

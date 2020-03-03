@@ -105,39 +105,82 @@ namespace ZookieWizard
         }
 
         template <typename charT>
-        eStringPtrBase<charT> addStrings(const eStringPtrBase<charT>& str1, const charT* str2)
+        eStringPtrBase<charT> addStrings(const eStringPtrBase<charT>& str1, const charT* str2, int otherLength)
         {
             /* Przygotuj nowy ci¹g znaków */
             int count1 = str1.getLength();
-            int count2 = getCharArrayLength(str2);
-            int newCount = count1 + count2;
+            int newCount = count1 + otherLength;
             eStringPtrBase<charT> newStr(newCount);
             charT* newText = newStr.getText();
 
             /* Przypisz nowe dane */
             std::memcpy(newText, str1.getText(), sizeof(charT) * count1);
-            std::memcpy(&(newText[count1]), str2, sizeof(charT) * count2);
+            std::memcpy(&(newText[count1]), str2, sizeof(charT) * otherLength);
 
             /* Niepotrzebne `incRef`, bo wywo³ywany jest "copy constructor" */
             return newStr;
         }
 
         template <typename charT>
-        eStringPtrBase<charT> addStrings(const eStringPtrBase<charT>& str1, const eStringPtrBase<charT>& str2)
+        bool compareStrings(const eStringPtrBase<charT>& str1, const charT* str2, int otherLength, int pos, int count, bool case_sensitive)
         {
-            /* Przygotuj nowy ci¹g znaków */
-            int count1 = str1.getLength();
-            int count2 = str2.getLength();
-            int newCount = count1 + count2;
-            eStringPtrBase<charT> newStr(newCount);
-            charT* newText = newStr.getText();
+            charT* myText = str1.getText();
+            int myLength = str1.getLength();
 
-            /* Przypisz nowe dane */
-            std::memcpy(newText, str1.getText(), sizeof(charT) * count1);
-            std::memcpy(&(newText[count1]), str2.getText(), sizeof(charT) * count2);
+            /* Case when we compare full strings, instead of first string's portion */
 
-            /* Niepotrzebne `incRef`, bo wywo³ywany jest "copy constructor" */
-            return newStr;
+            if ((count < 0) && (pos <= 0) && (myLength != otherLength))
+            {
+                return false;
+            }
+
+            /* Other setups */
+
+            if (myLength <= 0)
+            {
+                return false;
+            }
+
+            if (pos < 0)
+            {
+                pos = myLength + pos;
+
+                if (pos < 0)
+                {
+                    pos = 0;
+                }
+            }
+            else if (pos >= myLength)
+            {
+                pos = 0;
+            }
+
+            if ((count <= 0) || ((pos + count) > myLength))
+            {
+                count = myLength - pos;
+            }
+
+            if (count > otherLength)
+            {
+                count = otherLength;
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                if (case_sensitive)
+                {
+                    if (myText[pos + i] != str2[i])
+                    {
+                        return false;
+                    }
+                }
+                else if (toLowerCase(myText[pos + i]) != toLowerCase(str2[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         template <typename charT>
@@ -386,8 +429,9 @@ namespace ZookieWizard
 
             /* Przypisz nowe dane (w operatorze mamy dostêp do prywatnej wartoœci) */
             pString = str.pString;
+
+            incRef();
         }
-        incRef();
     }
 
     template <typename charT>
@@ -411,26 +455,26 @@ namespace ZookieWizard
     template <typename charT>
     eStringPtrBase<charT> eStringPtrBase<charT>::operator + (const charT* str) const
     {
-        return StringFunctions::addStrings(*this, str);
+        return StringFunctions::addStrings(*this, str, StringFunctions::getCharArrayLength(str));
     }
 
     template <typename charT>
     eStringPtrBase<charT> eStringPtrBase<charT>::operator + (const eStringPtrBase<charT>& str) const
     {
-        return StringFunctions::addStrings(*this, str);
+        return StringFunctions::addStrings(*this, str.getText(), str.getLength());
     }
 
     template <typename charT>
     eStringPtrBase<charT>& eStringPtrBase<charT>::operator += (const charT* str)
     {
-        copy(StringFunctions::addStrings(*this, str));
+        copy((*this) + str);
         return *this;
     }
 
     template <typename charT>
     eStringPtrBase<charT>& eStringPtrBase<charT>::operator += (const eStringPtrBase<charT>& str)
     {
-        copy(StringFunctions::addStrings(*this, str));
+        copy((*this) + str);
         return *this;
     }
 
@@ -442,105 +486,15 @@ namespace ZookieWizard
     template <typename charT>
     bool eStringPtrBase<charT>::compare(const eStringPtrBase<charT>& str, int pos, int count, bool case_sensitive) const
     {
-        int otherCount = str.getLength();
-        int myCount = pString->getLength();
-
-        if (pString == str.pString)
-        {
-            return true;
-        }
-
-        /* Case when we compare full strings, instead of first string's portion */
-
-        if ((count <= 0) && (pos <= 0) && (myCount != otherCount))
-        {
-            return false;
-        }
-
-        /* Other setups */
-
-        if ((pos < 0) || (pos >= myCount))
-        {
-            pos = 0;
-        }
-
-        if ((count <= 0) || ((pos + count) > myCount))
-        {
-            count = myCount - pos;
-        }
-
-        if ((count <= 0) || (count < otherCount))
-        {
-            return false;
-        }
-
-        charT* myText = pString->getText();
-        charT* otherText = str.getText();
-        for (int i = 0; i < count; i++)
-        {
-            if (case_sensitive)
-            {
-                if (myText[pos + i] != otherText[i])
-                {
-                    return false;
-                }
-            }
-            else if (StringFunctions::toLowerCase(myText[pos + i]) != StringFunctions::toLowerCase(otherText[i]))
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return StringFunctions::compareStrings(*this, str.getText(), str.getLength(), pos, count, case_sensitive);
     }
 
     template <typename charT>
     bool eStringPtrBase<charT>::compare(const charT* str, int pos, int count, bool case_sensitive) const
     {
-        int otherCount = StringFunctions::getCharArrayLength(str);
-        int myCount = pString->getLength();
+        int otherLength = StringFunctions::getCharArrayLength(str);
 
-        /* Case when we compare full strings, instead of first string's portion */
-
-        if ((count <= 0) && (pos <= 0) && (myCount != otherCount))
-        {
-            return false;
-        }
-
-        /* Other setups */
-
-        if ((pos < 0) || (pos >= myCount))
-        {
-            pos = 0;
-        }
-
-        if ((count <= 0) || ((pos + count) > myCount))
-        {
-            count = myCount - pos;
-        }
-
-        if ((count <= 0) || (count < otherCount))
-        {
-            return false;
-        }
-
-        charT* myText = pString->getText();
-        for (int i = 0; i < count; i++)
-        {
-            if (case_sensitive)
-            {
-                if (myText[pos + i] != str[i])
-                {
-                    return false;
-                }
-            }
-            else if (StringFunctions::toLowerCase(myText[pos + i]) != StringFunctions::toLowerCase(str[i]))
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return StringFunctions::compareStrings(*this, str, otherLength, pos, count, case_sensitive);
     }
 
     template <typename charT>
@@ -572,20 +526,29 @@ namespace ZookieWizard
     template <typename charT>
     eStringPtrBase<charT> eStringPtrBase<charT>::getSubstring(int pos, int count) const
     {
-        int myCount = pString->getLength();
+        int myLength = pString->getLength();
 
-        if ((pos < 0) || (pos >= myCount))
+        if (pos < 0)
+        {
+            pos = myLength + pos;
+
+            if (pos < 0)
+            {
+                pos = 0;
+            }
+        }
+        else if (pos >= myLength)
         {
             pos = 0;
         }
 
-        if ((count <= 0) || ((pos + count) > myCount))
+        if ((count <= 0) || ((pos + count) > myLength))
         {
-            count = myCount - pos;
+            count = myLength - pos;
         }
 
         /* Niezmienone dane zapewni¹ kopiê referencji */
-        if ((0 == pos) && (myCount == count))
+        if ((0 == pos) && (myLength == count))
         {
             return *this;
         }
