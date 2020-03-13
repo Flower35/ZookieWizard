@@ -137,6 +137,12 @@ namespace ZookieWizard
             glMultMatrixf(transposedMatrix);
         }
 
+        if (GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_flags)
+        {
+            /* Draw helper arrow */
+            GUI::renderSpecialModel(ZOOKIEWIZARD_SPECIALMODEL_ARROW);
+        }
+
         /* Draw children nodes */
 
         eGroup::renderObject(draw_flags, anim, modifiedTransform[1], marked_id);

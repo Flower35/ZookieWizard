@@ -49,7 +49,7 @@ namespace ZookieWizard
             int32_t getTextureCoordsCount() const;
             int32_t getTextureId(int32_t i) const;
 
-            void draw(eAnimate* anim, int32_t draw_flags, GLuint tex_name, int32_t texID) const;
+            void draw(int32_t draw_flags, GLuint tex_name, int32_t texID) const;
             void displayVertexBufferObject(int32_t texID, bool c) const;
             void prepareForDrawing();
 

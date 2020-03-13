@@ -403,6 +403,8 @@ namespace ZookieWizard
 
             default: // SWITCH TO A CHILD NODE
             {
+                markedChildId = (-1);
+
                 if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
                 {
                     test_group = (eGroup*)selectedObject;
@@ -764,7 +766,7 @@ namespace ZookieWizard
             {
                 importer.begin();
 
-                changeSelectedObject((-1), nullptr);
+                changeSelectedObject(NODES_LISTBOX_UPDATE_CURRENT, nullptr);
             }
         }
     }

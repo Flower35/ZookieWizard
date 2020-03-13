@@ -411,6 +411,7 @@
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardGUI.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardMisc.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardRender.cpp" />
+    <ClCompile Include="..\source\ZookieWizard\ZookieWizardSpecialModels.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resource\ZookieWizard\WinRC.rc" />

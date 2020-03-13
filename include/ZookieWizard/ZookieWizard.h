@@ -21,7 +21,7 @@
 
 /* `vsprintf_s()` (for error messages) */
 #include <cstdio>
-    
+
 /* `std::strcmp()` */
 #include <cstring>
 
@@ -91,5 +91,6 @@ namespace ZookieWizard
 
 #include <ZookieWizard/ZookieWizardGUI.h>
 #include <ZookieWizard/ZookieWizardMisc.h>
+#include <ZookieWizard/ZookieWizardSpecialModels.h>
 
 #endif

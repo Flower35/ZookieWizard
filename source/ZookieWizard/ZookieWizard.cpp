@@ -230,6 +230,19 @@ namespace ZookieWizard
             return (-1);
         }
 
+        if (!GUI::prepareSpecialModels())
+        {
+            ErrorMessage
+            (
+                "FATAL ERROR!\n" \
+                "Could not prepare special models."
+            )
+                .display();
+
+            GUI::closeWindows();
+            return (-1);
+        }
+
         /********************************/
         /* Enter main loop */
 
@@ -244,6 +257,7 @@ namespace ZookieWizard
         {
             e.display();
 
+            GUI::clearSpecialModels();
             GUI::closeWindows();
             return (-1);
         }
@@ -251,6 +265,7 @@ namespace ZookieWizard
         /********************************/
         /* Close application */
 
+        GUI::clearSpecialModels();
         GUI::closeWindows();
         return 0;
     }

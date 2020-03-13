@@ -1,0 +1,24 @@
+#ifndef H_ZOOKIEWIZARD_SPECIALMODELS
+#define H_ZOOKIEWIZARD_SPECIALMODELS
+
+namespace ZookieWizard
+{
+    namespace GUI
+    {
+        ////////////////////////////////////////////////////////////////
+        // Special Models
+        ////////////////////////////////////////////////////////////////
+
+        #define ZOOKIEWIZARD_SPECIALMODEL_ARROW 0
+        #define ZOOKIEWIZARD_SPECIALMODEL_KAO 1
+        #define ZOOKIEWIZARD_SPECIALMODEL_CAMERA 2
+
+        #define ZOOKIEWIZARD_SPECIALMODEL_COUNT 3
+
+        bool prepareSpecialModels();
+        void renderSpecialModel(int32_t id);
+        void clearSpecialModels();
+    }
+}
+
+#endif

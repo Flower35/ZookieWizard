@@ -186,7 +186,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGeoSet: draw
     ////////////////////////////////////////////////////////////////
-    void eGeoSet::draw(eAnimate* anim, int32_t draw_flags, GLuint tex_name, int32_t texID) const
+    void eGeoSet::draw(int32_t draw_flags, GLuint tex_name, int32_t texID) const
     {
         int32_t i;
         eABB* boxes = nullptr;

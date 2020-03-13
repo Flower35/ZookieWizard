@@ -67,7 +67,7 @@ namespace ZookieWizard
             void setPath(eString new_path);
             eString getPath() const;
 
-            void loadRaw(uint8_t* other_pixels, uint32_t* other_palette, int32_t new_width, int32_t new_height);
+            void loadRaw(const uint8_t* other_pixels, const uint32_t* other_palette, int32_t new_width, int32_t new_height);
             void loadFromFile(eString directory);
             void exportImageFile(eString directory) const;
 

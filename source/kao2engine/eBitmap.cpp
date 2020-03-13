@@ -65,7 +65,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eBitmap: load raw data (8-bit or 24-bit)
     ////////////////////////////////////////////////////////////////
-    void eBitmap::loadRaw(uint8_t* other_pixels, uint32_t* other_palette, int32_t new_width, int32_t new_height)
+    void eBitmap::loadRaw(const uint8_t* other_pixels, const uint32_t* other_palette, int32_t new_width, int32_t new_height)
     {
         int32_t bpp = (nullptr != other_palette) ? 1 : 3;
         int32_t length = bpp * new_width * new_height;
@@ -98,7 +98,7 @@ namespace ZookieWizard
 
         width = virtualWidth =  new_width;
         height = virtualHeight = new_height;
-        type = bitmapType::RGB8;
+        type = (1 == bpp) ? bitmapType::PAL8_RGBA8 : bitmapType::RGB8;
     }
 
 

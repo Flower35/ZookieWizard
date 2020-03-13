@@ -273,7 +273,7 @@ namespace ZookieWizard
                 }
             }
 
-            geo->draw(anim, draw_flags, tex_name, i);
+            geo->draw(draw_flags, tex_name, i);
         }
 
         if (use_outline)

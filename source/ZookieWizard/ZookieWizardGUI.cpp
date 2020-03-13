@@ -225,6 +225,10 @@ namespace ZookieWizard
                     {
                         myDrawFlags |= drawFlags::DRAW_FLAG_ANIMS;
                     }
+                    else if (6 == (int32_t)custom_param)
+                    {
+                        myDrawFlags |= drawFlags::DRAW_FLAG_SPECIAL;
+                    }
                 }
                 else
                 {
@@ -251,6 +255,10 @@ namespace ZookieWizard
                     else if (5 == (int32_t)custom_param)
                     {
                         myDrawFlags &= (~ drawFlags::DRAW_FLAG_ANIMS);
+                    }
+                    else if (6 == (int32_t)custom_param)
+                    {
+                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_SPECIAL);
                     }
                 }
             }
@@ -503,17 +511,17 @@ namespace ZookieWizard
             theWindowsManager.updateReturningPosition();
 
             /********************************/
-            /* [PAGE 0] (0 – 5) Create checkboxes */
+            /* [PAGE 0] (0 – 6) Create checkboxes */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_AUTOCHECKBOX);
 
-            const char* render_flags_names[6] =
+            const char* render_flags_names[7] =
             {
-                "Draw WIREFRAME", "Outline SELECTED", "Draw INVISIBLE MESHES", "Draw BOX ZONES", "Draw PROXIES", "Update ANIMATIONS"
+                "Draw WIREFRAME", "Outline SELECTED", "Draw INVISIBLE MESHES", "Draw BOX ZONES", "Draw PROXIES", "Update ANIMATIONS", "Render SPECIAL HELPERS"
             };
 
-            for (a = 0; a < 6; a++)
+            for (a = 0; a < 7; a++)
             {
                 if (0 == theWindowsManager.addWindow(render_flags_names[a], RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_RenderFlags, (void*)a, 0x01))
                 {
@@ -524,7 +532,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (6) Create line decoration */
+            /* [PAGE 0] (7) Create line decoration */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
@@ -538,7 +546,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (7) Create button */
+            /* [PAGE 0] (8) Create button */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON);
@@ -551,7 +559,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (8) Create dummy label */
+            /* [PAGE 0] (9) Create dummy label */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
@@ -562,7 +570,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [PAGE 0] (9) Create editbox */
+            /* [PAGE 0] (10) Create editbox */
 
             theWindowsManager.setCurrentClassName("EDIT");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | ES_AUTOHSCROLL);
@@ -576,7 +584,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (10) Create line decoration */
+            /* [PAGE 0] (11) Create line decoration */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
@@ -590,7 +598,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (11) Create dummy label */
+            /* [PAGE 0] (12) Create dummy label */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
@@ -601,7 +609,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [PAGE 0] (12) Create editbox */
+            /* [PAGE 0] (13) Create editbox */
 
             theWindowsManager.setCurrentClassName("EDIT");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | ES_AUTOHSCROLL);
@@ -615,7 +623,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (13) Create button */
+            /* [PAGE 0] (14) Create button */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON);
@@ -628,7 +636,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (14) Create dummy label */
+            /* [PAGE 0] (15) Create dummy label */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
@@ -639,7 +647,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [PAGE 0] (15) Create editbox */
+            /* [PAGE 0] (16) Create editbox */
 
             theWindowsManager.setCurrentClassName("EDIT");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | ES_AUTOHSCROLL);
@@ -653,7 +661,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (16) Create line decoration */
+            /* [PAGE 0] (17) Create line decoration */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
@@ -667,7 +675,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (17) Create dummy label */
+            /* [PAGE 0] (18) Create dummy label */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);

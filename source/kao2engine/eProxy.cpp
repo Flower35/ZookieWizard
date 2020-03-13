@@ -247,6 +247,9 @@ namespace ZookieWizard
         /* Inactive color (blue) */
         float color[3] = {0, 0, 1.0f};
 
+        eSRP rendered_srp;
+        float test_matrix[16];
+
         if (GUI::drawFlags::DRAW_FLAG_PROXIES & draw_flags)
         {
             if (false == eTransform::renderObject(draw_flags, anim, parent_srp, marked_id))
@@ -262,6 +265,10 @@ namespace ZookieWizard
                 glPushMatrix();
                 GUI::multiplyBySelectedObjectTransform();
             }
+            else
+            {
+                rendered_srp = modifiedTransform[0];
+            }
 
             if ((GUI::drawFlags::DRAW_FLAG_OUTLINE & draw_flags) && (((-2) == marked_id) || ((-3) == marked_id)))
             {
@@ -269,18 +276,34 @@ namespace ZookieWizard
                 GUI::colorOfMarkedObject(color[0], color[1], color[2]);
             }
 
+            if ((GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_flags) && (1 == category))
+            {
+                if (false == is_selected_or_marked)
+                {
+                    rendered_srp.getMatrix().transpose(test_matrix);
+                    glPushMatrix();
+                    glMultMatrixf(test_matrix);
+                }
+
+                GUI::renderSpecialModel(ZOOKIEWIZARD_SPECIALMODEL_KAO);
+
+                if (false == is_selected_or_marked)
+                {
+                    glPopMatrix();
+                }
+            }
+
             GUI::renderBoundingBox
             (
                 2.0f,
                 color[0], color[1], color[2],
-                (modifiedTransform[0].pos.x - CUBE_WIDTH),
-                (modifiedTransform[0].pos.y - CUBE_WIDTH),
-                (modifiedTransform[0].pos.z - CUBE_WIDTH),
-                (modifiedTransform[0].pos.x + CUBE_WIDTH),
-                (modifiedTransform[0].pos.y + CUBE_WIDTH),
-                (modifiedTransform[0].pos.z + CUBE_WIDTH)
+                (rendered_srp.pos.x - CUBE_WIDTH),
+                (rendered_srp.pos.y - CUBE_WIDTH),
+                (rendered_srp.pos.z - CUBE_WIDTH),
+                (rendered_srp.pos.x + CUBE_WIDTH),
+                (rendered_srp.pos.y + CUBE_WIDTH),
+                (rendered_srp.pos.z + CUBE_WIDTH)
             );
-
 
             if (is_selected_or_marked)
             {

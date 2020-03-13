@@ -62,7 +62,8 @@ namespace ZookieWizard
             DRAW_FLAG_INVISIBLE = (1 << 1),
             DRAW_FLAG_BOXZONES = (1 << 2),
             DRAW_FLAG_PROXIES = (1 << 3),
-            DRAW_FLAG_ANIMS = (1 << 4)
+            DRAW_FLAG_ANIMS = (1 << 4),
+            DRAW_FLAG_SPECIAL = (1 << 5)
         };
 
         extern int32_t myDrawFlags;
