@@ -38,7 +38,9 @@ namespace ZookieWizard
             ePoint3 editingGetCenterPoint() const override;
             void editingRebuildCollision() override;
 
-            eMaterial* getMaterial();
+            eMaterial* findMaterial(eString &searched_path) const override;
+
+            eMaterial* getMaterial() const;
             void setMaterial(eMaterial* new_material);
 
             void setBoundaryBox(ePoint3 &new_min, ePoint3 &new_max);

@@ -6,6 +6,16 @@ namespace ZookieWizard
 {
 
     ////////////////////////////////////////////////////////////////
+    // Kao2 data structure: ePoint2
+    ////////////////////////////////////////////////////////////////
+
+    bool ePoint2::operator == (const ePoint2 &point) const
+    {
+        return (point.u == u) && (point.v == v);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Kao2 data structure: ePoint3
     // <kao2.00422780> (serialize)
     ////////////////////////////////////////////////////////////////
@@ -25,6 +35,12 @@ namespace ZookieWizard
     : x(_x), y(_y), z(_z)
     {}
 
+
+    bool ePoint3::operator == (const ePoint3 &point) const
+    {
+        return (point.x == x) && (point.y == y) && (point.z == z);
+    }
+
     ePoint3 ePoint3::operator + (const ePoint3 &point) const
     {
         return ePoint3
@@ -33,6 +49,15 @@ namespace ZookieWizard
             y + point.y,
             z + point.z
         );
+    }
+
+    ePoint3& ePoint3::operator += (const ePoint3 &point)
+    {
+        x += point.x;
+        y += point.y;
+        z += point.z;
+
+        return *this;
     }
 
     ePoint3 ePoint3::operator - (const ePoint3 &point) const
@@ -58,6 +83,18 @@ namespace ZookieWizard
     float ePoint3::getLength() const
     {
         return sqrtf((x * x) + (y * y) + (z * z));
+    }
+
+    void ePoint3::normalize()
+    {
+        float length = getLength();
+
+        if (0 != length)
+        {
+            x = x / length;
+            y = y / length;
+            z = z / length;
+        }
     }
 
     void ePoint3::serialize(Archive &ar)

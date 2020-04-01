@@ -60,6 +60,8 @@ namespace ZookieWizard
 
             bool hasInvisibleInName() const;
 
+            bool matchesPath(eString &searched_path) const;
+
             void setMaterialFlags(uint8_t bits_to_apply);
             void unsetMaterialFlags(uint8_t bits_to_erase);
 

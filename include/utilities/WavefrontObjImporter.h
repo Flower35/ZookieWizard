@@ -76,7 +76,7 @@ namespace ZookieWizard
             int32_t objGroupsCount;
             int32_t objGroupsMaxLength;
 
-            int16_t* referencedVertices;
+            uint16_t* referencedVertices;
 
         /*** Methods ***/
 
@@ -101,6 +101,7 @@ namespace ZookieWizard
 
             void readModelData();
             void readMaterialInfo(eString filename);
+            void checkForAlreadyExistingMaterials();
             void constructTriMeshes();
 
             bool groupHasMultipleMaterials(const int32_t g_id) const;

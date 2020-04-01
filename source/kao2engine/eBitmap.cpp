@@ -456,7 +456,10 @@ namespace ZookieWizard
 
             /* Kao3 only supports 32-bit TGA, so we will always output in this format */
             header[0x10] = 0x08 * getBytesPerPixelOutput(bmp_ext);
-            header[0x11] = (0x04 == header[0x10]) ? 0x08 : 0x00;
+
+            /* "Image Descriptor": bits [5]=0 [4]=0 indicate that image is strored from bottom-left */
+            /* bits [3-0] are designated as Alpha Channel bits */
+            header[0x11] = 0x08;
         }
         else
         {

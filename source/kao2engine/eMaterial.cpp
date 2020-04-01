@@ -306,6 +306,31 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eMaterial: check filename
+    ////////////////////////////////////////////////////////////////
+    bool eMaterial::matchesPath(eString &searched_path) const
+    {
+        int i;
+        eTexture* dummy_texture;
+
+        for (i = 0; i < textures.getSize(); i++)
+        {
+            dummy_texture = (eTexture*)textures.getIthChild(i);
+
+            if (nullptr != dummy_texture)
+            {
+                if (dummy_texture->matchesPath(searched_path))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eMaterial: apply or erase flag bits
     ////////////////////////////////////////////////////////////////
 

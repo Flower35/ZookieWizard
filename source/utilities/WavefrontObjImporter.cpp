@@ -422,6 +422,8 @@ namespace ZookieWizard
     {
         readModelData();
 
+        checkForAlreadyExistingMaterials();
+
         constructTriMeshes();
     }
 
@@ -823,6 +825,59 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // WavefrontObjImporter: check if materials with same paths already exist
+    ////////////////////////////////////////////////////////////////
+    void WavefrontObjImporter::checkForAlreadyExistingMaterials()
+    {
+        int i;
+
+        eNode* root;
+        eMaterial* matching_material;
+        eTexture* dummy_texture;
+        eBitmap* dummy_bitmap;
+        eString dummy_path;
+
+        if ((nullptr != parentGroup) && (objMaterialsCount > 0))
+        {
+            theLog.print(" Scanning for reused texture filenames...\n");
+
+            root = parentGroup->getRootNode();
+
+            if (nullptr == root)
+            {
+                root = parentGroup;
+            }
+
+            for (i = 0; i < objMaterialsCount; i++)
+            {
+                dummy_texture = objMaterials[i].material->getIthTexture(0);
+
+                if (nullptr != dummy_texture)
+                {
+                    dummy_bitmap = dummy_texture->getBitmap();
+
+                    if (nullptr != dummy_bitmap)
+                    {
+                        dummy_path = dummy_bitmap->getPath();
+
+                        matching_material = root->findMaterial(dummy_path);
+
+                        if (nullptr != matching_material)
+                        {
+                            theLog.print(eString(" @ REPLACING \"") + dummy_path + "\" WITH PREVIOUS INSTANCE\n");
+
+                            objMaterials[i].material->decRef();
+                            objMaterials[i].material = matching_material;
+                            matching_material->incRef();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // WavefrontObjImporter: construct "eTriMesh" objects
     // Append meshes to target "eGroup"
     ////////////////////////////////////////////////////////////////
@@ -832,7 +887,10 @@ namespace ZookieWizard
         int32_t total_indices, total_vertices, total_normals, total_mappings;
         float dummy_floats[3];
         eString trimesh_name;
-        ePoint3 boundaries[2];
+        ePoint3 dummy_vectors[2];
+
+        uint16_t temp_id[4];
+        bool temp_tests[3];
 
         eGroup* test_group = nullptr;
         eTriMesh* test_trimesh = nullptr;
@@ -857,8 +915,10 @@ namespace ZookieWizard
 
         /********************************/
         /* Temporary list of vertices referenced by faces */
+        /* [0] = objVertices ID, [1] = objMapping ID, */
+        /* [2] = objNormals ID, [3] = separate list of indices */
 
-        referencedVertices = new int16_t [2 * objVerticesCount];
+        referencedVertices = new uint16_t [4 * (3 * objFacesCount)];
 
         /********************************/
         /* Reposition "v", "vt", "vn" and "f" */
@@ -891,6 +951,53 @@ namespace ZookieWizard
                 objFaces[j].v_id[k]--;
                 objFaces[j].vt_id[k]--;
                 objFaces[j].vn_id[k]--;
+
+                /* Using same IDs for "duplicated" v/vt/vn entries */
+
+                m = objFaces[j].v_id[k];
+
+                if (m < objVerticesCount)
+                {
+                    for (l = 0; l < m; l++)
+                    {
+                        if (objVertices[l] == objVertices[m])
+                        {
+                            objFaces[j].v_id[k] = l;
+
+                            l = m; // explicit break
+                        }
+                    }
+                }
+
+                m = objFaces[j].vt_id[k];
+
+                if (m < objMappingCount)
+                {
+                    for (l = 0; l < m; l++)
+                    {
+                        if (objMapping[l] == objMapping[m])
+                        {
+                            objFaces[j].vt_id[k] = l;
+
+                            l = m; // explicit break
+                        }
+                    }
+                }
+
+                m = objFaces[j].vn_id[k];
+
+                if (m < objNormalsCount)
+                {
+                    for (l = 0; l < m; l++)
+                    {
+                        if (objNormals[l] == objNormals[m])
+                        {
+                            objFaces[j].vn_id[k] = l;
+
+                            l = m; // explicit break
+                        }
+                    }
+                }
             }
         }
 
@@ -930,48 +1037,115 @@ namespace ZookieWizard
                 /********************************/
                 /* Checking which vertices will be used */
 
-                std::memset(referencedVertices, 0, sizeof(int16_t) * (2 * objVerticesCount));
-
                 for (j = 0; j < objFacesCount; j++)
                 {
                     if (objFaces[j].matchesSetting(group_id, mat_id))
                     {
                         for (k = 0; k < 3; k++)
                         {
-                            l = objFaces[j].v_id[k];
-                            if ((l >= 0) && (l < objVerticesCount))
-                            {
-                                /* Number of repetitions */
-                                referencedVertices[2 * l + 1]++;
+                            temp_id[0] = objFaces[j].v_id[k];
+                            temp_id[1] = objFaces[j].vt_id[k];
+                            temp_id[2] = objFaces[j].vn_id[k];
 
-                                total_vertices++;
+                            temp_tests[0] = (temp_id[0] >= 0) && (temp_id[0] < objVerticesCount);
+                            temp_tests[1] = (temp_id[1] >= 0) && (temp_id[1] < objMappingCount);
+                            temp_tests[2] = (temp_id[2] >= 0) && (temp_id[2] < objNormalsCount);
+
+                            if (temp_tests[0])
+                            {
+                                m = 0;
+
+                                /* `3 == m` and the loop breaks only when a vertex with exact params existed */
+
+                                for (l = 0; (l < total_vertices) && (m < 3); l++)
+                                {
+                                    if (referencedVertices[4 * l + 0] == temp_id[0])
+                                    {
+                                        m = 1;
+
+                                        if (temp_tests[1])
+                                        {
+                                            if (referencedVertices[4 * l + 1] == temp_id[1])
+                                            {
+                                                m++;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            m++;
+                                        }
+
+                                        if (temp_tests[2])
+                                        {
+                                            if (m >= 2) // UV mapping must be matching too.
+                                            {
+                                                temp_id[3] = referencedVertices[4 * l + 2];
+
+                                                if (temp_id[3] != temp_id[2])
+                                                {
+                                                    if ((temp_id[3] >= 0) && (temp_id[3] < objNormalsCount))
+                                                    {
+                                                        objNormals[temp_id[3]] += objNormals[temp_id[2]];
+                                                        objNormals[temp_id[3]].normalize();
+
+                                                        m++;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    m++;
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            m++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        m = 0;
+                                    }
+                                }
+
+                                if (m < 3)
+                                {
+                                    /* Inserting another vertex parameters because it differs */
+
+                                    referencedVertices[4 * total_vertices + 0] = temp_id[0];
+
+                                    if (temp_tests[1])
+                                    {
+                                        referencedVertices[4 * total_vertices + 1] = temp_id[1];
+
+                                        total_mappings++;
+                                    }
+
+                                    if (temp_tests[2])
+                                    {
+                                        referencedVertices[4 * total_vertices + 2] = temp_id[2];
+
+                                        total_normals++;
+                                    }
+                                    else
+                                    {
+                                        /* marking Normal ID as invalid, so it cannot be used for addition */
+                                        referencedVertices[4 * total_vertices + 2] = (-1);
+                                    }
+
+                                    total_vertices++;
+                                }
+                                else
+                                {
+                                    /* Last matching vertex ID before loop counter was increased */
+                                    l--;
+                                }
+
+                                referencedVertices[4 * total_indices + 3] = l;
+
                                 total_indices++;
                             }
-
-                            l = objFaces[j].vt_id[k];
-                            if ((l >= 0) && (l < objMappingCount))
-                            {
-                                total_mappings++;
-                            }
-
-                            l = objFaces[j].vn_id[k];
-                            if ((l >= 0) && (l < objNormalsCount))
-                            {
-                                total_normals++;
-                            }
                         }
-                    }
-                }
-
-                k = 0;
-
-                for (j = 0; j < objVerticesCount; j++)
-                {
-                    if (referencedVertices[2 * j + 1] > 0)
-                    {
-                        /* Resulting ID in vertices array */
-                        referencedVertices[2 * j] = k;
-                        k += referencedVertices[2 * j + 1];
                     }
                 }
 
@@ -1068,78 +1242,64 @@ namespace ZookieWizard
                     /********************************/
                     /* Fill arrays: indices, vertices, UV mapping, normals */
 
-                    total_indices = 0;
-
-                    for (j = 0; j < objFacesCount; j++)
+                    for (j = 0; j < total_indices; j++)
                     {
-                        if (objFaces[j].matchesSetting(group_id, mat_id))
-                        {
-                            for (k = 0; k < 3; k++)
-                            {
-                                l = objFaces[j].v_id[k];
-                                if ((l >= 0) && (l < objVerticesCount))
-                                {
-                                    /* Calculate resulting vertex ID */
-                                    m = referencedVertices[2 * l] + referencedVertices[2 * l + 1] - 1;
-                                    referencedVertices[2 * l + 1]--;
-
-                                    test_indices_array_data[total_indices] = m;
-
-                                    /* Copy "v", "vt", and "vn" data */
-                                    test_vertices_data[m] = {objVertices[l].x, objVertices[l].y, objVertices[l].z, 1.0f};
-
-                                    l = objFaces[j].vt_id[k];
-                                    if ((l >= 0) && (l < objMappingCount))
-                                    {
-                                        test_uv_data[m] = objMapping[l];
-                                    }
-
-                                    l = objFaces[j].vn_id[k];
-                                    if ((l >= 0) && (l < objNormalsCount))
-                                    {
-                                        test_normals_data[m] = {objNormals[l].x, objNormals[l].y, objNormals[l].z, 0};
-                                    }
-                                }
-                                else
-                                {
-                                    test_indices_array_data[total_indices] = 0;
-                                }
-
-                                total_indices++;
-                            }
-
-                            //// test_indices_offsets_data[total_indices / 3] = 3;
-                        }
+                        test_indices_array_data[j] = referencedVertices[4 * j + 3];
                     }
 
                     for (j = 0; j < total_vertices; j++)
                     {
-                        test_colors_data[j] = {1.0f, 1.0f, 1.0f, 1.0f};
+                        k = referencedVertices[4 * j + 0];
 
-                        if (mat_id >= 0)
+                        test_vertices_data[j] = {objVertices[k].x, objVertices[k].y, objVertices[k].z, 1.0f};
+
+                        if (total_mappings > 0)
                         {
-                            if (nullptr != objMaterials[mat_id].material)
-                            {
-                                dummy_mtl_state = objMaterials[mat_id].material->getMaterialState();
+                            k = referencedVertices[4 * j + 1];
 
-                                if (nullptr != dummy_mtl_state)
-                                {
-                                    dummy_mtl_state->getDiffuseColor(dummy_floats);
-
-                                    test_colors_data[j].x = dummy_floats[0];
-                                    test_colors_data[j].y = dummy_floats[1];
-                                    test_colors_data[j].z = dummy_floats[2];
-                                }
-                            }
+                            test_uv_data[j] = objMapping[k];
                         }
+
+                        if (total_normals > 0)
+                        {
+                            k = referencedVertices[4 * j + 2];
+
+                            test_normals_data[j] = {objNormals[k].x, objNormals[k].y, objNormals[k].z, 0};
+                        }
+                    }
+
+                    /********************************/
+                    /* Tested colors */
+
+                    for (j = 0; j < total_vertices; j++)
+                    {
+                        /* Objects are no longer shiny, but some `eLight` source must exist in the scene */
+                        test_colors_data[j] = {0, 0, 0, 0};
+
+                        //// if (mat_id >= 0)
+                        //// {
+                        ////     if (nullptr != objMaterials[mat_id].material)
+                        ////     {
+                        ////         dummy_mtl_state = objMaterials[mat_id].material->getMaterialState();
+                        ////
+                        ////         if (nullptr != dummy_mtl_state)
+                        ////         {
+                        ////             dummy_mtl_state->getDiffuseColor(dummy_floats);
+                        ////
+                        ////             test_colors_data[j].x = dummy_floats[0];
+                        ////             test_colors_data[j].y = dummy_floats[1];
+                        ////             test_colors_data[j].z = dummy_floats[2];
+                        ////         }
+                        ////     }
+                        //// }
                     }
 
                     /********************************/
                     /* Calculate boundary box */
 
-                    calculateBoundaryBox(boundaries[0], boundaries[1], total_vertices, test_vertices_data, 0, nullptr);
+                    calculateBoundaryBox(dummy_vectors[0], dummy_vectors[1], total_vertices, test_vertices_data, 0, nullptr);
 
-                    test_trimesh->setBoundaryBox(boundaries[0], boundaries[1]);
+                    test_trimesh->setBoundaryBox(dummy_vectors[0], dummy_vectors[1]);
 
                     /********************************/
                     /* Update "eGroup" */

@@ -403,6 +403,69 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eGroup: find node by name
+    // <kao2.00483900>
+    ////////////////////////////////////////////////////////////////
+    eNode* eGroup::findNode(eString &searched_name) const
+    {
+        int32_t i;
+        eNode* test_node;
+
+        test_node = eNode::findNode(searched_name);
+
+        if (nullptr != test_node)
+        {
+            return test_node;
+        }
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            test_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != test_node)
+            {
+                test_node = test_node->findNode(searched_name);
+
+                if (nullptr != test_node)
+                {
+                    return test_node;
+                }
+            }
+        }
+
+        return nullptr;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: find material by path
+    ////////////////////////////////////////////////////////////////
+    eMaterial* eGroup::findMaterial(eString &searched_path) const
+    {
+        int32_t i;
+        eNode* child_node;
+        eMaterial* test_material;
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            child_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != child_node)
+            {
+                test_material = child_node->findMaterial(searched_path);
+
+                if (nullptr != test_material)
+                {
+                    return test_material;
+                }
+            }
+        }
+
+        return nullptr;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eGroup: export readable structure
     ////////////////////////////////////////////////////////////////
     void eGroup::writeStructureToTextFile(FileOperator &file, int32_t indentation) const

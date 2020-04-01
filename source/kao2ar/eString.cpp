@@ -184,6 +184,52 @@ namespace ZookieWizard
         }
 
         template <typename charT>
+        bool comparePaths(const eStringPtrBase<charT>& str1, const charT* str2, int otherLength)
+        {
+            int k;
+            int i[2];
+            charT testChar[2];
+
+            charT* texts[2] =
+            {
+                str1.getText(),
+                (charT*)str2
+            };
+
+            if (str1.getLength() != otherLength)
+            {
+                return false;
+            }
+
+            i[0] = 0;
+            i[1] = 0;
+
+            while ((i[0] < otherLength) && (i[1] < otherLength))
+            {
+                for (k = 0; k < 2; k++)
+                {
+                    testChar[k] = '/';
+
+                    while ((('/' == testChar[k]) || ('\\' == testChar[k])) && (i[k] < otherLength))
+                    {
+                        testChar[k] = toLowerCase(texts[k][i[k]]);
+                        i[k]++;
+                    }
+                }
+
+                if (testChar[0] != testChar[1])
+                {
+                    if (('/' != testChar[0]) && ('\\' != testChar[0]) && ('/' != testChar[1]) && ('\\' != testChar[1]))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        template <typename charT>
         charT toLowerCase(charT x)
         {
             /* Czy jest numerem lub ma³¹ liter¹ ASCII? */
@@ -495,6 +541,20 @@ namespace ZookieWizard
         int otherLength = StringFunctions::getCharArrayLength(str);
 
         return StringFunctions::compareStrings(*this, str, otherLength, pos, count, case_sensitive);
+    }
+
+    template <typename charT>
+    bool eStringPtrBase<charT>::comparePath(const eStringPtrBase<charT>& str) const
+    {
+        return StringFunctions::comparePaths(*this, str.getText(), str.getLength());
+    }
+
+    template <typename charT>
+    bool eStringPtrBase<charT>::comparePath(const charT* str) const
+    {
+        int otherLength = StringFunctions::getCharArrayLength(str);
+
+        return StringFunctions::comparePaths(*this, str, otherLength);
     }
 
     template <typename charT>

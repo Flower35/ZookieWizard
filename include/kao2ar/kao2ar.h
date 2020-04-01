@@ -59,6 +59,8 @@ namespace ZookieWizard
     {
         float u;
         float v;
+
+        bool operator == (const ePoint2&) const;
     };
 
     /* `sizeof(ePoint3) == 0x0C` (12 bytes) */
@@ -72,11 +74,15 @@ namespace ZookieWizard
         ePoint3(float initializer);
         ePoint3(float, float, float);
 
+        bool operator == (const ePoint3&) const;
+
         ePoint3 operator + (const ePoint3&) const;
+        ePoint3& operator += (const ePoint3&);
         ePoint3 operator - (const ePoint3&) const;
         ePoint3 operator * (float) const;
 
         float getLength() const;
+        void normalize();
 
         void serialize(Archive &ar);
     };

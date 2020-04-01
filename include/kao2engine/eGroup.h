@@ -45,6 +45,9 @@ namespace ZookieWizard
             void findAndDereference(eNode* target) override;
             bool deleteXRefTargets() override;
 
+            eNode* findNode(eString &searched_name) const override;
+            eMaterial* findMaterial(eString &searched_path) const override;
+
             int32_t getNodesCount() const;
             eNode* getIthChild(int32_t i) const;
             void appendChild(eNode* o);

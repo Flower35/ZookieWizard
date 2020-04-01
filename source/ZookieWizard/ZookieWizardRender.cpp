@@ -616,7 +616,7 @@ namespace ZookieWizard
             };
 
             float time = fmod(timerGetCurrent(), GLOW_INTERVAL);
-            float ratio = std::abs(std::sinf(M_PI * time / GLOW_INTERVAL));
+            float ratio = std::fabs(std::sinf(M_PI * time / GLOW_INTERVAL));
             float inv_ratio = (1.0f - ratio);
 
             color_r = ratio * tones[0][0] + inv_ratio * tones[1][0];

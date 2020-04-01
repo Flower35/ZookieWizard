@@ -7,6 +7,7 @@ namespace ZookieWizard
 {
     class eALBox;
     class eTransform;
+    class eMaterial;
 
     extern const char* theNodeFlagNames[32];
 
@@ -64,6 +65,9 @@ namespace ZookieWizard
             eNode* getRootNode() const;
             eNode* getParentNode() const;
             void setParentNode(eNode* new_parent);
+
+            virtual eNode* findNode(eString &searched_name) const;
+            virtual eMaterial* findMaterial(eString &searched_path) const;
 
             eTransform* getPreviousTransform() const;
             void setPreviousTransform();

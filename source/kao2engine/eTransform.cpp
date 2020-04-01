@@ -114,6 +114,10 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     bool eTransform::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
     {
+        bool is_selected_or_marked;
+        bool use_outline;
+        float color[3];
+
         if (false == eNode::renderObject(draw_flags, anim, parent_srp, marked_id))
         {
             return false;
@@ -127,7 +131,10 @@ namespace ZookieWizard
 
         glPushMatrix();
 
-        if (((-2) == marked_id) || ((-1) == marked_id))
+        is_selected_or_marked = (((-2) == marked_id) || ((-1) == marked_id));
+        use_outline = ((GUI::drawFlags::DRAW_FLAG_OUTLINE & draw_flags) && (((-2) == marked_id) || ((-3) == marked_id)));
+
+        if (is_selected_or_marked)
         {
             /* This object is selected (-1) or marked (-2) and can be moved around */
             GUI::multiplyBySelectedObjectTransform();
@@ -139,8 +146,19 @@ namespace ZookieWizard
 
         if (GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_flags)
         {
+            if (use_outline)
+            {
+                GUI::colorOfMarkedObject(color[0], color[1], color[2]);
+                glColor3f(color[0], color[1], color[2]);
+            }
+
             /* Draw helper arrow */
             GUI::renderSpecialModel(ZOOKIEWIZARD_SPECIALMODEL_ARROW);
+
+            if (use_outline)
+            {
+                glColor3f(1.0f, 1.0f, 1.0f);
+            }
         }
 
         /* Draw children nodes */

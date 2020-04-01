@@ -79,6 +79,8 @@ namespace ZookieWizard
             /* Ró¿ne funkcje operuj¹ce na tekstach */
             bool compare(const charT* str, int pos = 0, int count = 0, bool case_sensitive = false) const;
             bool compare(const eStringPtrBase<charT>& str, int pos = 0, int count = 0, bool case_sensitive = false) const;
+            bool comparePath(const charT* str) const;
+            bool comparePath(const eStringPtrBase<charT>& str) const;
             bool hasExtension(const charT* str) const;
             eStringPtrBase<charT> getSubstring(int pos, int count = 0) const;
             eStringPtrBase<charT> getFilename() const;

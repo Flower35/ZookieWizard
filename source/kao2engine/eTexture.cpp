@@ -163,4 +163,21 @@ namespace ZookieWizard
         return bmp;
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eTexture: check path
+    ////////////////////////////////////////////////////////////////
+    bool eTexture::matchesPath(eString &searched_path) const
+    {
+        if (nullptr != bmp)
+        {
+            if (searched_path.comparePath(bmp->getPath()))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

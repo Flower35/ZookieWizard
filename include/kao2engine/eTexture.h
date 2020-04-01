@@ -36,6 +36,8 @@ namespace ZookieWizard
 
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
+            bool matchesPath(eString &searched_path) const;
+
             GLuint getTextureName() const;
             eBitmap* getBitmap() const;
     };
