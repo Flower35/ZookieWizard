@@ -6,6 +6,7 @@
 namespace ZookieWizard
 {
     class eGroundTest;
+    class eNPCMap;
 
     ////////////////////////////////////////////////////////////////
     // ePathFinder interface
@@ -25,7 +26,7 @@ namespace ZookieWizard
 
             /*[0x1C]*/ eRefCounter* unknown_1C; // "eAStar"
 
-            /*[0x20]*/ eObject* unknown_20;
+            /*[0x20]*/ eNPCMap* map;
 
             /*[0x24]*/ uint8_t unknown_24;
 

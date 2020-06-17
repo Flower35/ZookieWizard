@@ -26,7 +26,7 @@ namespace ZookieWizard
             /*[0x08]*/ eScene* myScene;
             /*[0x0C]*/ eNode* parentNode;
 
-            /*[0x10-0x6F]*/ AxisList test[3][2];
+            /*[0x10-0x6F]*/ AxisList axis_list[3][2];
 
             /*[0x70]*/ int32_t seriesCount;
             /*[0x74]*/ int32_t seriesMaxLength;

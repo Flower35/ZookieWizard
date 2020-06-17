@@ -227,7 +227,7 @@ namespace ZookieWizard
             }
         }
 
-        if (GUI::drawFlags::DRAW_FLAG_BOXZONES & draw_flags)
+        if ((GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_flags) && (GUI::drawFlags::DRAW_FLAG_BOXZONES & draw_flags))
         {
             if (nullptr != aabbTree)
             {
@@ -239,7 +239,7 @@ namespace ZookieWizard
                     {
                         GUI::renderBoundingBox
                         (
-                            1.0f,
+                            0.5f,
                             0, 1.0f, 0,
                             boxes[i].min.x, boxes[i].min.y, boxes[i].min.z,
                             boxes[i].max.x, boxes[i].max.y, boxes[i].max.z

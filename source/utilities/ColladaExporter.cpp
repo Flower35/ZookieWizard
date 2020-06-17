@@ -16,8 +16,8 @@ namespace ZookieWizard
         tags = new ColladaExporterTag [16];
 
         objRefsCount = 0;
-        objRefsMaxLength = 1024; // (--dsp--) "32768"
-        objRefs = new ColladaExporterObjRef [1024];
+        objRefsMaxLength = 16384;
+        objRefs = new ColladaExporterObjRef [objRefsMaxLength];
     }
 
 

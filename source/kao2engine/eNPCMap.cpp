@@ -41,10 +41,6 @@ namespace ZookieWizard
 
         /*[0x1C]*/ flags |= 0x10000000;
 
-        /*[0xAC]*/ unknown_AC = 0;
-        /*[0xA8]*/ unknown_A8 = 0;
-        /*[0xB0]*/ unknown_B0 = 0;
-
         /*[0x48]*/ unknown_48 = 0x00;
     }
 
@@ -79,11 +75,11 @@ namespace ZookieWizard
 
         /* [0x64] unknown (3 floats) */
 
-        unknown_64.serialize(ar);
+        boxBoundMin.serialize(ar);
 
         /* [0x70] unknown (3 floats) */
 
-        unknown_70.serialize(ar);
+        boxBoundMax.serialize(ar);
 
         /* [0x54] unknown values */
 
@@ -130,11 +126,11 @@ namespace ZookieWizard
 
         /* [0x64] DUPLICATE SERIALIZATION */
 
-        unknown_64.serialize(ar);
+        boxBoundMin.serialize(ar);
 
         /* [0x70] DUPLICATE SERIALIZATION */
 
-        unknown_70.serialize(ar);
+        boxBoundMax.serialize(ar);
 
         /* [0x60] unknown series */
 
@@ -159,15 +155,53 @@ namespace ZookieWizard
 
         /* [0xA8] unknown values */
 
-        ar.readOrWrite(&unknown_A8, 0x04);
+        ar.readOrWrite(&navisCount, 0x04);
 
-        ar.readOrWrite(&unknown_AC, 0x04);
-        ar.readOrWrite(&unknown_B0, 0x04);
-        ar.readOrWrite(&unknown_B4, 0x04);
+        unknown_AC.serialize(ar);
 
         /* [0x48] unknown value */
 
         ar.readOrWrite(&unknown_48, 0x01);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNPCMap: custom setup
+    ////////////////////////////////////////////////////////////////
+    void eNPCMap::customSetup(ePoint3 &box_min, ePoint3 &box_max, int32_t navis_in_group)
+    {
+        int i, size;
+
+        boxBoundMin = box_min;
+        boxBoundMax = box_max;
+
+        unknown_48 = 0x00;
+
+        unknown_4C = 124;
+        unknown_50 = 124;
+
+        if (nullptr != unknown_60)
+        {
+            delete[](unknown_60);
+            unknown_60 = nullptr;
+        }
+
+        size = unknown_4C * unknown_50;
+
+        unknown_60 = new int32_t [size];
+
+        for (i = 0; i < size; i++)
+        {
+            unknown_60[i] = *(int32_t*)"KAO.";
+        }
+
+        unknown_54 = 48.0f;
+        unknown_58 = 32.0f;
+        unknown_5C = 64.0f;
+
+        navisCount = navis_in_group;
+
+        unknown_AC = (box_min + box_max) * 0.5f;
     }
 
 }

@@ -10,6 +10,11 @@
 
 namespace ZookieWizard
 {
+    #ifdef _DEBUG
+        /*** Finding memory leaks ***/
+        eNode* theNodesDebug[AR_MAX_ITEMS] = {nullptr};
+    #endif
+
     const char* theNodeFlagNames[32] =
     {
         "Enabled", // 0x00000001
@@ -85,6 +90,18 @@ namespace ZookieWizard
     {
         theNodesCounter++;
 
+        #ifdef _DEBUG
+            /*** Finding memory leaks ***/
+            for (int i = 0; i < AR_MAX_ITEMS; i++)
+            {
+                if (nullptr == theNodesDebug[i])
+                {
+                    theNodesDebug[i] = this;
+                    break;
+                }
+            }
+        #endif
+
         /*[0x08]*/ previousTransform = nullptr;
         /*[0x0C]*/ unknown_0C = 0x00FFFFFF;
         /*[0x10]*/ parent = nullptr;
@@ -106,6 +123,18 @@ namespace ZookieWizard
         axisListBox->decRef();
 
         theNodesCounter--;
+
+        #ifdef _DEBUG
+            /*** Finding memory leaks ***/
+            for (int i = 0; i < AR_MAX_ITEMS; i++)
+            {
+                if (this == theNodesDebug[i])
+                {
+                    theNodesDebug[i] = nullptr;
+                    break;
+                }
+            }
+        #endif
 
         /* Leave a message! */
 
@@ -294,15 +323,6 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eNode: empty function (for "eGroup" / "eXRefProxy")
-    ////////////////////////////////////////////////////////////////
-    bool eNode::deleteXRefTargets()
-    {
-        return false;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // eNode: get name
     ////////////////////////////////////////////////////////////////
     eString eNode::getStringRepresentation() const
@@ -314,7 +334,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eNode: internal rendering check
     ////////////////////////////////////////////////////////////////
-    bool eNode::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
+    bool eNode::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
     {
         if (0 == (GUI::drawFlags::DRAW_FLAG_INVISIBLE & draw_flags))
         {
@@ -437,7 +457,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     eNode* eNode::findNode(eString &searched_name) const
     {
-        if (name.compare(searched_name, 0, (-1), true))
+        if (name.compareExact(searched_name, true))
         {
             return (eNode*)this;
         }
@@ -495,13 +515,13 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eNode::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
     {
-        char bufor[512];
+        char bufor[1024];
         TypeInfo* info = getType();
 
         sprintf_s
         (
             bufor,
-            512,
+            1024,
             "[%08X] %s (\"%s\")",
             info->id,
             info->name,

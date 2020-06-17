@@ -6,6 +6,7 @@
 namespace ZookieWizard
 {
     class eFogEnv;
+    class eLight;
 
     ////////////////////////////////////////////////////////////////
     // eEnvironment interface
@@ -33,6 +34,8 @@ namespace ZookieWizard
             TypeInfo* getType() const override;
 
             void findAndDereference(eNode* target) override;
+
+            void addLighting(eLight* new_light);
     };
 
 

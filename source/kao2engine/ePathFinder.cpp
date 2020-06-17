@@ -2,6 +2,7 @@
 #include <kao2ar/Archive.h>
 
 #include <kao2engine/eGroundTest.h>
+#include <kao2engine/eNPCMap.h>
 
 namespace ZookieWizard
 {
@@ -38,7 +39,7 @@ namespace ZookieWizard
         /*[0x1C]*/ unknown_1C = nullptr;
         /*[0x28]*/ unknown_28 = nullptr;
 
-        /*[0x20]*/ unknown_20 = nullptr;
+        /*[0x20]*/ map = nullptr;
     }
 
     ePathFinder::~ePathFinder()
@@ -108,9 +109,9 @@ namespace ZookieWizard
 
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_1C, nullptr);
 
-        /* [0x20] unknown link */
+        /* [0x20] "eNPCMap" link */
 
-        ar.serialize((eObject**)&unknown_20, nullptr);
+        ar.serialize((eObject**)&map, &E_NPCMAP_TYPEINFO);
 
         /* [0x24] unknown value */
 

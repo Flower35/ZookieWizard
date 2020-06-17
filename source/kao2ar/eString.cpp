@@ -127,15 +127,6 @@ namespace ZookieWizard
             charT* myText = str1.getText();
             int myLength = str1.getLength();
 
-            /* Case when we compare full strings, instead of first string's portion */
-
-            if ((count < 0) && (pos <= 0) && (myLength != otherLength))
-            {
-                return false;
-            }
-
-            /* Other setups */
-
             if (myLength <= 0)
             {
                 return false;
@@ -155,7 +146,11 @@ namespace ZookieWizard
                 pos = 0;
             }
 
-            if ((count <= 0) || ((pos + count) > myLength))
+            if (count < 0)
+            {
+                count = myLength + count - pos;
+            }
+            else if ((0 == count) || ((pos + count) > myLength))
             {
                 count = myLength - pos;
             }
@@ -466,15 +461,15 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
 
     template <typename charT>
-    void eStringPtrBase<charT>::copy(const eStringPtrBase<charT>& str)
+    void eStringPtrBase<charT>::copy(const eStringPtrBase<charT>& sourceStr)
     {
-        if (pString != str.pString)
+        if (pString != sourceStr.pString)
         {
             /* Wyczyœæ obecne dane */
             decRef();
 
             /* Przypisz nowe dane (w operatorze mamy dostêp do prywatnej wartoœci) */
-            pString = str.pString;
+            pString = sourceStr.pString;
 
             incRef();
         }
@@ -544,6 +539,32 @@ namespace ZookieWizard
     }
 
     template <typename charT>
+    bool eStringPtrBase<charT>::compareExact(const eStringPtrBase<charT>& str, bool case_sensitive) const
+    {
+        int otherLength = str.getLength();
+
+        if (getLength() != otherLength)
+        {
+            return false;
+        }
+
+        return StringFunctions::compareStrings(*this, str.getText(), otherLength, 0, 0, case_sensitive);
+    }
+
+    template <typename charT>
+    bool eStringPtrBase<charT>::compareExact(const charT* str, bool case_sensitive) const
+    {
+        int otherLength = StringFunctions::getCharArrayLength(str);
+
+        if (getLength() != otherLength)
+        {
+            return false;
+        }
+
+        return StringFunctions::compareStrings(*this, str, otherLength, 0, 0, case_sensitive);
+    }
+
+    template <typename charT>
     bool eStringPtrBase<charT>::comparePath(const eStringPtrBase<charT>& str) const
     {
         return StringFunctions::comparePaths(*this, str.getText(), str.getLength());
@@ -602,7 +623,11 @@ namespace ZookieWizard
             pos = 0;
         }
 
-        if ((count <= 0) || ((pos + count) > myLength))
+        if (count < 0)
+        {
+            count = myLength + count - pos;
+        }
+        else if ((0 == count) || ((pos + count) > myLength))
         {
             count = myLength - pos;
         }

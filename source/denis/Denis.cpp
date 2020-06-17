@@ -86,6 +86,20 @@ namespace ZookieWizard
         myFile.close();
     }
 
+    bool DenisFileOperator::checkIfExists(eString path)
+    {
+        fileName = workingDirectory + path;
+
+        bool response = myFile.open
+        (
+            fileName.getText(),
+            (FILE_OPERATOR_MODE_READ | FILE_OPERATOR_MODE_BINARY)
+        );
+
+        myFile.close();
+
+        return response;
+    }
 
     ////////////////////////////////////////////////////////////////
     // Kao the Kangaroo: object types in level

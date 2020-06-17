@@ -30,7 +30,7 @@ namespace ZookieWizard
     #define AR_MODE_XREF_PATH (1 << 6)
 
     #define AR_MAX_ITEMS 65536
-    #define AR_MAX_TEMPSTR 128
+    #define AR_MAX_TEMPSTR 192
 
     #define AR_ITEM_TYPE_OBJECT 0x00
     #define AR_ITEM_TYPE_STRING 0x01
@@ -83,6 +83,8 @@ namespace ZookieWizard
             int32_t engineOpenedWith;
             int32_t engineSavedWith;
 
+            bool isLoadedAsProxy;
+
         /*** Methods ***/
 
         private:
@@ -102,7 +104,7 @@ namespace ZookieWizard
             ~Archive();
             Archive& operator = (const Archive &newAr);
 
-            bool open(eString filename, int32_t mode, int32_t engine_version);
+            bool open(eString filename, int32_t mode, int32_t engine_version, bool is_proxy, int32_t ver_max_override);
             void close(bool hide);
 
             /* State determining */
@@ -143,10 +145,11 @@ namespace ZookieWizard
             void copySceneFromMe(eScene** target) const;
             void setMyParentScene(eScene* pointer);
 
-            void writeStructureToTextFile() const;
+            void writeStructureToTextFile(const char* output_path) const;
             void writeStructureToXmlFile(eString filename) const;
             void writeSelectedObjectToObjFile(eString filename) const;
             void appendToSelectedObjectFromObjFile(eString filename);
+            int32_t appendNodesFromTxtFile(const char* filename);
     };
 
 }

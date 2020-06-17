@@ -115,4 +115,39 @@ namespace ZookieWizard
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&path, &E_PATHCAMCTRL_TYPEINFO);
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eObserver: getters and setters
+    ////////////////////////////////////////////////////////////////
+
+    float eObserver::getFieldOfView() const
+    {
+        return fov;
+    }
+
+    float eObserver::getNearPlane() const
+    {
+        return nearPlane;
+    }
+
+    float eObserver::getFarPlane() const
+    {
+        return farPlane;
+    }
+
+    void eObserver::setFieldOfView(float new_fov)
+    {
+        fov = new_fov;
+    }
+
+    void eObserver::setNearPlane(float new_value)
+    {
+        nearPlane = new_value;
+    }
+
+    void eObserver::setFarPlane(float new_value)
+    {
+        farPlane = new_value;
+    }
+
 }

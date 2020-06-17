@@ -1,5 +1,7 @@
 #include <utilities/WavefrontObjExporter.h>
 
+#include <kao2engine/eTransform.h>
+#include <kao2engine/eGroup.h>
 #include <kao2engine/eTriMesh.h>
 #include <kao2engine/eGeoSet.h>
 
@@ -16,7 +18,16 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     WavefrontObjExporter::WavefrontObjExporter()
     {
-        trimesh = nullptr;
+        totalVertices = 0;
+        totalNormals = 0;
+        totalMappings = 0;
+
+        materialsCount = 0;
+        materialsMaxLength = 512;
+        materials = new eMaterial* [materialsMaxLength];
+
+        meshGroup = nullptr;
+        meshTrimesh = nullptr;
     }
 
 
@@ -25,6 +36,11 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     WavefrontObjExporter::~WavefrontObjExporter()
     {
+        if (nullptr != materials)
+        {
+            delete[](materials);
+        }
+
         myFiles[0].close();
         myFiles[1].close();
     }
@@ -33,23 +49,43 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WavefrontObjExporter: open file and set working directory
     ////////////////////////////////////////////////////////////////
-    bool WavefrontObjExporter::openObj(eString filename, eTriMesh* target)
+    bool WavefrontObjExporter::openObj(eString filename, eObject* target)
     {
         int32_t i, j;
+        TypeInfo* test_typeinfo;
         char* text = filename.getText();
 
-        if (false == target->getType()->checkHierarchy(&E_TRIMESH_TYPEINFO))
+        if (nullptr == target)
         {
             throw ErrorMessage
             (
-                "WavefrontObjExporter::open():\n" \
-                "Selected object is not a \"eTriMesh\" type!"
+                "WavefrontObjExporter::openObj():\n" \
+                "No object selected!"
             );
 
             return false;
         }
 
-        trimesh = target;
+        test_typeinfo = target->getType();
+
+        if (test_typeinfo->checkHierarchy(&E_GROUP_TYPEINFO))
+        {
+            meshGroup = (eGroup*)target;
+        }
+        else if ((&E_TRIMESH_TYPEINFO) == test_typeinfo)
+        {
+            meshTrimesh = (eTriMesh*)target;
+        }
+        else
+        {
+            throw ErrorMessage
+            (
+                "WavefrontObjExporter::openObj():\n" \
+                "Selected object is not a \"eTriMesh\" nor \"eGroup\" type!"
+            );
+
+            return false;
+        }
 
         if (!myFiles[0].open(text, (FILE_OPERATOR_MODE_BINARY)))
         {
@@ -142,6 +178,8 @@ namespace ZookieWizard
     {
         bool uses_mtl = false;
 
+        eMatrix4x4 default_matrix;
+
         std::time_t current_time;
         std::tm time_info;
         char time_bufor[32];
@@ -157,7 +195,11 @@ namespace ZookieWizard
         /********************************/
         /* Write simple comment in header */
 
-        myFiles[0] << "# " << trimesh->getStringRepresentation();
+        myFiles[0] << "# " << (
+            (nullptr != meshGroup) ? meshGroup->getStringRepresentation() : (
+                (nullptr != meshTrimesh) ? meshTrimesh->getStringRepresentation() : ""
+            )
+        );
         writeNewLine(0);
 
         myFiles[0] << "# Exported with ZookieWizard at " << time_bufor;
@@ -167,8 +209,23 @@ namespace ZookieWizard
         /********************************/
         /* Get material info */
 
-        if (uses_mtl = writeMaterialInfo())
+        if (nullptr != meshGroup)
         {
+            uses_mtl = writeMaterialInfoFromGroup(meshGroup, false);
+        }
+        else if (nullptr != meshTrimesh)
+        {
+            uses_mtl = writeMaterialInfo(meshTrimesh, false);
+        }
+        else
+        {
+            uses_mtl = false;
+        }
+
+        if (uses_mtl)
+        {
+            myFiles[1].close();
+
             myFiles[0] << "mtllib " << fileName << ".mtl";
             writeNewLine(0);
             writeNewLine(0);
@@ -177,15 +234,62 @@ namespace ZookieWizard
         /********************************/
         /* Vertices, texture mapping, triangles */
 
-        writeModelData(uses_mtl);
+        if (nullptr != meshGroup)
+        {
+            writeModelDataFromGroup(meshGroup, default_matrix);
+        }
+        else if (nullptr != meshTrimesh)
+        {
+            writeModelData(meshTrimesh, default_matrix);
+        }
+
+        myFiles[0].close();
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // WavefrontObjExporter: write texturing info recursively
+    ////////////////////////////////////////////////////////////////
+    bool WavefrontObjExporter::writeMaterialInfoFromGroup(eGroup* current_group, bool file_opened)
+    {
+        int i;
+        bool result = file_opened;
+        eNode* child_node;
+        TypeInfo* test_typeinfo;
+
+        if (nullptr == current_group)
+        {
+            return result;
+        }
+
+        for (i = 0; i < current_group->getNodesCount(); i++)
+        {
+            child_node = (eNode*)current_group->getIthChild(i);
+
+            test_typeinfo = child_node->getType();
+
+            if (test_typeinfo->checkHierarchy(&E_GROUP_TYPEINFO))
+            {
+                result |= writeMaterialInfoFromGroup((eGroup*)child_node, result);
+            }
+            else if ((&E_TRIMESH_TYPEINFO) == test_typeinfo)
+            {
+                result |= writeMaterialInfo((eTriMesh*)child_node, result);
+            }
+        }
+
+        return result;
+    }
+
 
     ////////////////////////////////////////////////////////////////
     // WavefrontObjExporter: write texturing info
     ////////////////////////////////////////////////////////////////
-    bool WavefrontObjExporter::writeMaterialInfo()
+    bool WavefrontObjExporter::writeMaterialInfo(eTriMesh* current_trimesh, bool file_opened)
     {
-        eMaterial* test_material = trimesh->getMaterial();
+        int i;
+
+        eMaterial* test_material;
         eMaterialState* test_mtl_state;
 
         eTexture* test_texture;
@@ -196,14 +300,48 @@ namespace ZookieWizard
 
         /* Check if model uses any material */
 
-        if (nullptr != test_material)
+        if (nullptr == current_trimesh)
         {
-            if (!openMtl())
+            return false;
+        }
+
+        if (nullptr != (test_material = current_trimesh->getMaterial()))
+        {
+            if (false == file_opened)
             {
+                if (false == openMtl())
+                {
+                    return false;
+                }
+            }
+
+            /* Checking if material was already described and exported */
+
+            for (i = 0; i < materialsCount; i++)
+            {
+                if (materials[i] == test_material)
+                {
+                    return true;
+                }
+            }
+
+            if (materialsCount >= materialsMaxLength)
+            {
+                throw ErrorMessage
+                (
+                    "WavefrontObjExporter::writeMaterialInfo():\n" \
+                    "too many materials! Please increase \"materialsMaxCount\"."
+                );
+
                 return false;
             }
 
-            myFiles[1] << "newmtl material";
+            materials[materialsCount] = test_material;
+            materialsCount++;
+
+            sprintf_s(bufor, 128, "newmtl material_%d", materialsCount);
+            writeNewLine(1);
+            myFiles[1] << bufor;
             writeNewLine(1);
 
             test_mtl_state = test_material->getMaterialState();
@@ -243,11 +381,16 @@ namespace ZookieWizard
                     writeNewLine(1);
 
                     /* Actually export the image to hard drive */
-                    test_bitmap->exportImageFile(workingDirectory);
+                    try
+                    {
+                        test_bitmap->exportImageFile(workingDirectory);
+                    }
+                    catch (ErrorMessage &err)
+                    {
+                        err.display();
+                    }
                 }
             }
-
-            myFiles[1].close();
         }
 
         return true;
@@ -255,16 +398,58 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // WavefrontObjExporter: write model data recursively
+    ////////////////////////////////////////////////////////////////
+    void WavefrontObjExporter::writeModelDataFromGroup(eGroup* current_group, eMatrix4x4 &parent_matrix)
+    {
+        int i;
+        eNode* child_node;
+        TypeInfo* test_typeinfo;
+
+        eTransform* dummy_xform;
+        eMatrix4x4 current_matrix = parent_matrix;
+
+        if (nullptr == current_group)
+        {
+            return;
+        }
+
+        if (current_group->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+        {
+            dummy_xform = (eTransform*)current_group;
+
+            current_matrix = current_matrix * dummy_xform->getXForm(true, false).getMatrix();
+        }
+
+        for (i = 0; i < current_group->getNodesCount(); i++)
+        {
+            child_node = (eNode*)current_group->getIthChild(i);
+
+            test_typeinfo = child_node->getType();
+
+            if (test_typeinfo->checkHierarchy(&E_GROUP_TYPEINFO))
+            {
+                writeModelDataFromGroup((eGroup*)child_node, current_matrix);
+            }
+            else if ((&E_TRIMESH_TYPEINFO) == test_typeinfo)
+            {
+                writeModelData((eTriMesh*)child_node, current_matrix);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // WavefrontObjExporter: write model data
     ////////////////////////////////////////////////////////////////
-    void WavefrontObjExporter::writeModelData(bool uses_mtl)
+    void WavefrontObjExporter::writeModelData(eTriMesh* current_trimesh, eMatrix4x4 &parent_matrix)
     {
         int32_t a, b, c;
         int32_t f[3];
         char bufor[128];
 
         int32_t total_indices = 0;
-        int32_t array_length = 0;
+        int32_t array_length[3];
         ePoint4* array_data4 = nullptr;
         ePoint2* array_data2 = nullptr;
 
@@ -276,10 +461,18 @@ namespace ZookieWizard
 
         eGeoSet* geo = nullptr;
 
+        ePoint4 dummy_vertex;
+        eMaterial* dummy_material;
+
         /********************************/
         /* Get GeoSet */
 
-        geo = trimesh->getGeoset();
+        if (nullptr == current_trimesh)
+        {
+            return;
+        }
+
+        geo = current_trimesh->getGeoset();
 
         if (nullptr != geo)
         {
@@ -298,17 +491,19 @@ namespace ZookieWizard
 
             if (nullptr != vertices)
             {
-                array_length = vertices->getLength();
+                array_length[0] = vertices->getLength();
                 array_data4 = vertices->getData();
 
-                for (a = 0; a < array_length; a++)
+                for (a = 0; a < array_length[0]; a++)
                 {
+                    dummy_vertex = parent_matrix * array_data4[a];
+
                     sprintf_s
                     (
                         bufor, 128, "v %f %f %f",
-                        array_data4[a].x,
-                        array_data4[a].z,
-                        (- array_data4[a].y)
+                        dummy_vertex.x,
+                        dummy_vertex.z,
+                        (- dummy_vertex.y)
                     );
 
                     myFiles[0] << bufor;
@@ -317,16 +512,20 @@ namespace ZookieWizard
 
                 writeNewLine(0);
             }
+            else
+            {
+                array_length[0] = 0;
+            }
 
             /********************************/
             /* Write vertex normals */
 
             if (nullptr != normals)
             {
-                array_length = normals->getLength();
+                array_length[1] = normals->getLength();
                 array_data4 = normals->getData();
 
-                for (a = 0; a < array_length; a++)
+                for (a = 0; a < array_length[1]; a++)
                 {
                     sprintf_s
                     (
@@ -342,16 +541,20 @@ namespace ZookieWizard
 
                 writeNewLine(0);
             }
+            else
+            {
+                array_length[1] = 0;
+            }
 
             /********************************/
             /* Write UV mapping */
 
             if (nullptr != mapping)
             {
-                array_length = mapping->getLength();
+                array_length[2] = mapping->getLength();
                 array_data2 = mapping->getData();
 
-                for (a = 0; a < array_length; a++)
+                for (a = 0; a < array_length[2]; a++)
                 {
                     sprintf_s
                     (
@@ -366,14 +569,39 @@ namespace ZookieWizard
 
                 writeNewLine(0);
             }
+            else
+            {
+                array_length[2] = 0;
+            }
 
             /********************************/
             /* Write faces */
 
-            if (uses_mtl)
+            /* Set OBJ group name as trimesh name */
+
+            myFiles[0] << "o " << current_trimesh->getStringRepresentation();
+            writeNewLine(0);
+
+            /* Get material name */
+
+            if (nullptr != (dummy_material = current_trimesh->getMaterial()))
             {
-                myFiles[0] << "usemtl material";
-                writeNewLine(0);
+                c = 0;
+
+                for (a = 0; (!c) && (a < materialsCount); a++)
+                {
+                    if (dummy_material == materials[a])
+                    {
+                        c = 1 + a;
+                    }
+                }
+
+                if (c > 0)
+                {
+                    sprintf_s(bufor, 128, "usemtl material_%d", c);
+                    myFiles[0] << bufor;
+                    writeNewLine(0);
+                }
             }
 
             /* Checking order of parameters */
@@ -436,7 +664,12 @@ namespace ZookieWizard
 
         }
 
-        myFiles[0].close();
+        /********************************/
+        /* Update totals */
+
+        totalVertices += array_length[0];
+        totalNormals += array_length[1];
+        totalMappings += array_length[2];
     }
 
 
@@ -458,7 +691,9 @@ namespace ZookieWizard
                 sprintf_s
                 (
                     bufor, 128, "f %d %d %d",
-                    index[0], index[1], index[2]
+                    index[0] + totalVertices,
+                    index[1] + totalVertices,
+                    index[2] + totalVertices
                 );
 
                 break;
@@ -469,9 +704,9 @@ namespace ZookieWizard
                 sprintf_s
                 (
                     bufor, 128, "f %d/%d %d/%d %d/%d",
-                    index[0], index[0],
-                    index[1], index[1],
-                    index[2], index[2]
+                    index[0] + totalVertices, index[0] + totalMappings,
+                    index[1] + totalVertices, index[1] + totalMappings,
+                    index[2] + totalVertices, index[2] + totalMappings
                 );
 
                 break;
@@ -482,9 +717,9 @@ namespace ZookieWizard
                 sprintf_s
                 (
                     bufor, 128, "f %d//%d %d//%d %d//%d",
-                    index[0], index[0],
-                    index[1], index[1],
-                    index[2], index[2]
+                    index[0] + totalVertices, index[0] + totalNormals,
+                    index[1] + totalVertices, index[1] + totalNormals,
+                    index[2] + totalVertices, index[2] + totalNormals
                 );
 
                 break;
@@ -495,9 +730,9 @@ namespace ZookieWizard
                 sprintf_s
                 (
                     bufor, 128, "f %d/%d/%d %d/%d/%d %d/%d/%d",
-                    index[0], index[0], index[0],
-                    index[1], index[1], index[1],
-                    index[2], index[2], index[2]
+                    index[0] + totalVertices, index[0] + totalMappings, index[0] + totalNormals,
+                    index[1] + totalVertices, index[1] + totalMappings, index[1] + totalNormals,
+                    index[2] + totalVertices, index[2] + totalMappings, index[2] + totalNormals
                 );
 
                 break;
@@ -505,7 +740,7 @@ namespace ZookieWizard
 
             default:
             {
-                sprintf_s(bufor, 128, "f");
+                sprintf_s(bufor, 128, "");
             }
         }
 

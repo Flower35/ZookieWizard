@@ -173,7 +173,7 @@ namespace ZookieWizard
                         test_gadget[1] = (Gadget*)(gadgets.getIthChild(j));
                         test_names[1] = test_gadget[1]->getStringRepresentation();
 
-                        if (test_names[0].compare(test_names[1], 0, (-1), true))
+                        if (test_names[0].compareExact(test_names[1], true))
                         {
                             try
                             {
@@ -364,7 +364,7 @@ namespace ZookieWizard
 
                     if (nullptr != test_gadget)
                     {
-                        found_gadget_name = test_gadget->getStringRepresentation().compare(test_section->getStringRepresentation(), 0, (-1), true);
+                        found_gadget_name = test_gadget->getStringRepresentation().compareExact(test_section->getStringRepresentation(), true);
                     }
                 }
 
@@ -421,7 +421,7 @@ namespace ZookieWizard
 
                     if (nullptr != test_section)
                     {
-                        found_gadget_name = test_gadget->getStringRepresentation().compare(test_section->getStringRepresentation(), 0, (-1), true);
+                        found_gadget_name = test_gadget->getStringRepresentation().compareExact(test_section->getStringRepresentation(), true);
                     }
                 }
 

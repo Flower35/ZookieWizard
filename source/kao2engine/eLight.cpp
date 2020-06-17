@@ -86,4 +86,54 @@ namespace ZookieWizard
         }
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eLight: color getters and setters
+    ////////////////////////////////////////////////////////////////
+
+    void eLight::getDiffuseColor(float* values) const
+    {
+        values[0] = diffuse[0];
+        values[1] = diffuse[1];
+        values[2] = diffuse[2];
+    }
+
+    void eLight::getAmbientColor(float* values) const
+    {
+        values[0] = ambient[0];
+        values[1] = ambient[1];
+        values[2] = ambient[2];
+    }
+
+    void eLight::getSpecularColor(float* values) const
+    {
+        values[0] = specular[0];
+        values[1] = specular[1];
+        values[2] = specular[2];
+    }
+
+    void eLight::setDiffuseColor(float* values)
+    {
+        diffuse[0] = values[0];
+        diffuse[1] = values[1];
+        diffuse[2] = values[2];
+        diffuse[3] = 1.0f;
+    }
+
+    void eLight::setAmbientColor(float* values)
+    {
+        ambient[0] = values[0];
+        ambient[1] = values[1];
+        ambient[2] = values[2];
+        ambient[3] = 1.0f;
+    }
+
+    void eLight::setSpecularColor(float* values)
+    {
+        specular[0] = values[0];
+        specular[1] = values[1];
+        specular[2] = values[2];
+        specular[3] = 1.0f;
+    }
+
 }

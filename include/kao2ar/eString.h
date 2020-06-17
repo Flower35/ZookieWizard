@@ -59,7 +59,7 @@ namespace ZookieWizard
             /* Funkcje zwi¹zane z konstrukcj¹ */
             void create(int count);
             void create(const charT* str);
-            void copy(const eStringPtrBase<charT>& str);
+            void copy(const eStringPtrBase<charT>& sourceStr);
 
             /* Modyfikowanie referencji */
             void decRef();
@@ -79,6 +79,8 @@ namespace ZookieWizard
             /* Ró¿ne funkcje operuj¹ce na tekstach */
             bool compare(const charT* str, int pos = 0, int count = 0, bool case_sensitive = false) const;
             bool compare(const eStringPtrBase<charT>& str, int pos = 0, int count = 0, bool case_sensitive = false) const;
+            bool compareExact(const charT* str, bool case_sensitive = true) const;
+            bool compareExact(const eStringPtrBase<charT>& str, bool case_sensitive = true) const;
             bool comparePath(const charT* str) const;
             bool comparePath(const eStringPtrBase<charT>& str) const;
             bool hasExtension(const charT* str) const;

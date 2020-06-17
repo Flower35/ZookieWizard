@@ -18,8 +18,8 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x6C-0x74]*/ float direction[3];
-            /*[0x78]*/ eTransform* unknown_78;
+            /*[0x6C-0x74]*/ ePoint3 position;
+            /*[0x78]*/ eTransform* target;
 
         /*** Methods ***/
 
@@ -30,6 +30,9 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            ePoint3 getPosition() const;
+            void setPosition(ePoint3 &new_position);
     };
 
 

@@ -891,7 +891,7 @@ namespace ZookieWizard
 
                 if (0 == menu_id)
                 {
-                    return false;
+                    return NULL;
                 }
             }
             else

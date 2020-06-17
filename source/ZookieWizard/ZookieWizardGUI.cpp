@@ -53,6 +53,14 @@ namespace ZookieWizard
             {
                 exportArToCollada();
             }
+            else if ((-3) == (int32_t)custom_param)
+            {
+                bulkArchiveConverter();
+            }
+            else if ((-4) == (int32_t)custom_param)
+            {
+                generateEmptyScene();
+            }
         }
 
         void buttonFunc_EditBoxTyping(WPARAM wParam, LPARAM lParam, void* custom_param)
@@ -157,6 +165,10 @@ namespace ZookieWizard
                 else if (1 == (int32_t)custom_param)
                 {
                     importTrimeshFromObj();
+                }
+                else if (2 == (int32_t)custom_param)
+                {
+                    importNodesFromTxt();
                 }
             }
         }
@@ -494,10 +506,12 @@ namespace ZookieWizard
             test_menu = CreateMenu();
             AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)AR_MODE_READ), "&Open Archive");
             AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)AR_MODE_WRITE), "&Save Archive");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)AR_MODE_EXPORT_SCRIPTS), "Export &Scripts");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)(-4)), "Generate &empty scene");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)AR_MODE_EXPORT_SCRIPTS), "Export S&cripts");
             AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)AR_MODE_EXPORT_PROXIES), "Export &proxies");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)(-1)), "Export readable structure");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)(-2)), "Export &COLLADA dae");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)(-3)), "&Bulk archive converter");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)(-1)), "Export &readable structure");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)(-2)), "Export COLLADA &dae");
             AppendMenu(menu_bar, MF_POPUP, (UINT_PTR)test_menu, "Kao the Kangaroo: Round 2");
 
             SetMenu(main_window, menu_bar);
@@ -784,51 +798,56 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [PAGE 2] (1 – 8) Create buttons */
+            /* [PAGE 2] (1 – 9) Create buttons */
 
             theWindowsManager.setCurrentClassName("BUTTON");
-            theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON);
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON | BS_MULTILINE);
 
             theWindowsManager.setCurrentPadding(WINDOW_PADDING_SMALL, WINDOW_PADDING_SMALL);
 
             a = (RECT_TABS_X2 / 2) - (WINDOW_PADDING / 2);
 
-            if (0 == theWindowsManager.addWindow("^ Archive Root", a, WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_ROOT, 0))
+            if (0 == theWindowsManager.addWindow("^ Back to\nArchive Root", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_ROOT, 0))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("^ Parent Node", a, WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_PARENT, 0x01))
+            if (0 == theWindowsManager.addWindow("^ Back to\nParent Node", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_PARENT, 0x01))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Find Node", a, WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_FIND, 0))
+            if (0 == theWindowsManager.addWindow("Center Camera on Node", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_FIND, 0))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Delete Node", a, WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE, 0x01))
+            if (0 == theWindowsManager.addWindow("Delete Node", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE, 0x01))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Export TriMesh", a, WINDOW_HEIGHT, buttonFunc_NodesListObj, (void*)0, 0))
+            if (0 == theWindowsManager.addWindow("Export 3D Meshes to Wavefront OBJ", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListObj, (void*)0, 0))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Import TriMesh", a, WINDOW_HEIGHT, buttonFunc_NodesListObj, (void*)1, 0x01))
+            if (0 == theWindowsManager.addWindow("Import 3D Meshes from Wavefront OBJ", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListObj, (void*)1, 0x01))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Rebuild Collision", a, WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0))
+            if (0 == theWindowsManager.addWindow("Rebuild Collision", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Clear Collision", a, WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01))
+            if (0 == theWindowsManager.addWindow("Clear Collision", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01))
+            {
+                return false;
+            }
+
+            if (0 == theWindowsManager.addWindow("Import Nodes from TXT", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListObj, (void*)2, 0x01))
             {
                 return false;
             }
@@ -837,7 +856,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING_SMALL);
 
             /********************************/
-            /* [PAGE 2] (9) Create listbox */
+            /* [PAGE 2] (10) Create listbox */
 
             theWindowsManager.setCurrentClassName("LISTBOX");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_HSCROLL | WS_VSCROLL | LBS_DISABLENOSCROLL | LBS_HASSTRINGS | LBS_NOTIFY);

@@ -154,13 +154,13 @@ namespace ZookieWizard
 
         for (i = 0; i < 3; i++)
         {
-            test[i][0].coordLimit = boxBound[0 + i];
-            test[i][0].rowId = i;
-            test[i][0].columnId = 0x00;
+            axis_list[i][0].coordLimit = boxBound[0 + i];
+            axis_list[i][0].rowId = i;
+            axis_list[i][0].columnId = 0x00;
 
-            test[i][1].coordLimit = boxBound[3 + i];
-            test[i][1].rowId = i;
-            test[i][1].columnId = 0x01;
+            axis_list[i][1].coordLimit = boxBound[3 + i];
+            axis_list[i][1].rowId = i;
+            axis_list[i][1].columnId = 0x01;
         }
 
         if (0x02 != unknown_8C)
@@ -214,15 +214,15 @@ namespace ZookieWizard
 
         for (i = 0; i < 3; i++)
         {
-            test[i][1].alboxEntryId = collisionEntryId;
-            test[i][0].alboxEntryId = collisionEntryId;
+            axis_list[i][1].alboxEntryId = collisionEntryId;
+            axis_list[i][0].alboxEntryId = collisionEntryId;
         }
 
         /* */
 
         test_manager = myScene->getCollisionManager();
 
-        test_manager->function_00499390(test);
+        test_manager->function_00499390(axis_list);
     }
 
 
@@ -579,8 +579,8 @@ namespace ZookieWizard
         /* [0x10] [0x30] [0x50] :: <kao2.004BDE00> :: (2x) <kao2.004BAEF0> */
         for (i = 0; i < 3; i++)
         {
-            test[i][0].serialize(ar);
-            test[i][1].serialize(ar);
+            axis_list[i][0].serialize(ar);
+            axis_list[i][1].serialize(ar);
         }
 
         /* [0x70] unknown bytes group */
@@ -623,7 +623,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eALBox: get ID used with "eCollisionMgr"
+    // eALBox: get ID that represents position within "eCollisionMgr"
     ////////////////////////////////////////////////////////////////
     int32_t eALBox::getCollisionId() const
     {
@@ -636,9 +636,18 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     AxisList* eALBox::getAxisList(int32_t row, int32_t column) const
     {
+        if (nullptr == this)
+        {
+            throw ErrorMessage
+            (
+                "eALBox::getAxisList():\r\n" \
+                "non-existing collision entry found!"
+            );
+        }
+
         if ((row >= 0) && (row < 3) && (column >= 0) && (column < 2))
         {
-            return (AxisList*)&(test[row][column]);
+            return (AxisList*)&(axis_list[row][column]);
         }
 
         return nullptr;

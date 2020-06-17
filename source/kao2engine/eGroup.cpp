@@ -271,38 +271,6 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eGroup: delete "eXRefTarget" links after destroying "eXRefManager"
-    ////////////////////////////////////////////////////////////////
-    bool eGroup::deleteXRefTargets()
-    {
-        int32_t i;
-        eNode* child_node;
-
-        if (referenceCount <= 0)
-        {
-            /* This group is invalid (for instance, it is being deleted) */
-            return false;
-        }
-
-        for (i = 0; i < nodes.getSize(); i++)
-        {
-            child_node = (eNode*)nodes.getIthChild(i);
-
-            if (nullptr != child_node)
-            {
-                if (child_node->deleteXRefTargets())
-                {
-                    deleteIthChild(i);
-                    i--;
-                }
-            }
-        }
-
-        return false;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // eGroup: remove nodes with multiple references
     ////////////////////////////////////////////////////////////////
     void eGroup::deleteNodesWithMultiRefs(bool canBeInvalid)
@@ -363,12 +331,12 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGroup: render each child node
     ////////////////////////////////////////////////////////////////
-    bool eGroup::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
+    bool eGroup::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
     {
         int32_t a, b;
         eNode* child_node;
 
-        if (false == eNode::renderObject(draw_flags, anim, parent_srp, marked_id))
+        if (false == eNode::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
         {
             return false;
         }
@@ -394,7 +362,7 @@ namespace ZookieWizard
                     b = (marked_id == a) ? (-2) : (-4);
                 }
 
-                child_node->renderObject(draw_flags, anim, parent_srp, b);
+                child_node->renderObject(draw_flags, anim, parent_srp, parent_matrix, b);
             }
         }
 

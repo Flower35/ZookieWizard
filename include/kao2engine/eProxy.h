@@ -20,12 +20,15 @@ namespace ZookieWizard
             /*[0xAC]*/ eString targetFile;
             /*[0xB0]*/ int32_t category;
 
-            // 0 = "(particle)"
+            // 0 = "(particle) [ar]"
             // 1 = "(hero)"
-            // 3 = "(enemy)"
-            // 4 = "(fluff)"
-            // 5 = "(geoproxy)"
-            // 6 = "(object)"
+            // 2 = "(powerup) [def]"
+            // 3 = "(enemy) [def]"
+            // 4 = "(fluff) [def]"
+            // 5 = "(geoproxy) [ar]"
+            // 6 = "(object) [def]"
+
+            bool externalContent;
 
         /*** Methods ***/
 
@@ -43,7 +46,9 @@ namespace ZookieWizard
 
             void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
 
-            bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id) override;
+            bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id) override;
+
+            void destroyNode() override;
 
             void setTargetName(eString new_target);
             void setCategory(int32_t new_category);

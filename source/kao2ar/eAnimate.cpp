@@ -66,7 +66,7 @@ namespace ZookieWizard
                     for (b = 0; b < 2; b++)
                     {
                         a = 0x01;
-                        
+
                         ar.readOrWrite(&a, 0x04);
 
                         if (0x01 != a)
@@ -185,7 +185,7 @@ namespace ZookieWizard
         else
         {
             /* Kao2, older verion */
-            
+
             ArFunctions::serialize_AnimStates(ar, stateA);
             ArFunctions::serialize_AnimStates(ar, stateB);
 
@@ -234,7 +234,7 @@ namespace ZookieWizard
             {
                 first_frame = test_track->getStartFrame();
                 length_in_frames = test_track->getEndFrame() - first_frame;
-                time = first_frame + fmod(time, length_in_frames);
+                time = first_frame + ((length_in_frames > 0) ? fmod(time, length_in_frames) : 0);
 
                 state[0].setTime(time);
             }

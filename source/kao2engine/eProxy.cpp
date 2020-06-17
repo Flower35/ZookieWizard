@@ -33,6 +33,8 @@ namespace ZookieWizard
     : eTransform()
     {
         category = 0;
+
+        externalContent = false;
     }
 
     eProxy::~eProxy() {}
@@ -44,26 +46,37 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eProxy::serialize(Archive &ar)
     {
-        int32_t ar_flags;
+        int32_t a, b;
         eXRefTarget* test_xref_taget;
         eXRefProxy* test_xref_proxy;
+        eNode* test_node;
 
-        if ((0 == (0x00010000 & flags)) && (false == ar.isInReadMode()))
+        if (externalContent && (false == ar.isInReadMode()))
         {
-            /* Serialize "eNode" and "eTransform" (zero elements in "eGroup!") */
+            /* Serialize "eNode" part, skip the last element in "eGroup", */
+            /* and then serialize "eTransform" part. */
 
             eNode::serialize(ar);
 
-            ar_flags = 0;
-            ar.readOrWrite(&ar_flags, 0x04);
+            b = nodes.getSize() - 1;
+            ar.readOrWrite(&b, 0x04);
+
+            for (a = 0; a < b; a++)
+            {
+                test_node = (eNode*)nodes.getIthChild(a);
+
+                ar.serialize((eObject**)&test_node, &E_NODE_TYPEINFO);
+            }
 
             defaultTransform[0].serialize(ar);
             defaultTransform[1].serialize(ar);
 
-            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
+            ar.serialize((eObject**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
         }
         else
         {
+            /* No external content - regular parent class serialization */
+
             eTransform::serialize(ar);
         }
 
@@ -74,26 +87,52 @@ namespace ZookieWizard
         /********************************/
         /* Loading external models... */
 
-        if ((0 == (0x00010000 & flags)) && ar.isInReadMode())
+        if (ar.isInReadMode())
         {
-            if (nodes.getSize() <= 0)
+            /* Checking for proxies that have scripts in place of the name */
+            /* and usually contain some children nodes */
+
+            a = true;
+
+            switch (category)
             {
-                if (canBeLoadedOrExported(ar_flags))
+                case 1: // "hero"
+                case 2: // "powerup"
+                case 3: // "enemy"
+                case 4: // "fluff"
+                case 6: // "object"
                 {
-                    test_xref_taget = new eXRefTarget;
-                    test_xref_taget->incRef();
+                    a = false; // just skip loading anything external
 
-                    if (test_xref_taget->loadTarget(ar, ar_flags, targetFile))
+                    break;
+                }
+            }
+
+            /* Is this "eProxy" NOT already loaded? */
+
+            if (a && (0 == (0x00010000 & flags)))
+            {
+                if (nodes.getSize() <= 0)
+                {
+                    if (canBeLoadedOrExported(b))
                     {
-                        test_xref_proxy = new eXRefProxy(test_xref_taget);
-                        test_xref_proxy->incRef();
+                        test_xref_taget = new eXRefTarget;
+                        test_xref_taget->incRef();
 
-                        nodes.appendChild(test_xref_proxy);
+                        if (test_xref_taget->loadTarget(ar, b, targetFile))
+                        {
+                            test_xref_proxy = new eXRefProxy(test_xref_taget);
+                            test_xref_proxy->incRef();
 
-                        test_xref_proxy->decRef();
+                            nodes.appendChild(test_xref_proxy);
+
+                            test_xref_proxy->decRef();
+
+                            externalContent = true;
+                        }
+
+                        test_xref_taget->decRef();
                     }
-
-                    test_xref_taget->decRef();
                 }
             }
         }
@@ -101,11 +140,11 @@ namespace ZookieWizard
         /********************************/
         /* Saving external models... */
 
-        if (ar.isInExportProxiesMode())
+        if (externalContent && ar.isInExportProxiesMode())
         {
-            if (canBeLoadedOrExported(ar_flags))
+            if (canBeLoadedOrExported(b))
             {
-                test_xref_proxy = (eXRefProxy*)nodes.getIthChild(0);
+                test_xref_proxy = (eXRefProxy*)nodes.getIthChild(nodes.getSize() - 1);
 
                 if (nullptr != test_xref_proxy)
                 {
@@ -117,12 +156,45 @@ namespace ZookieWizard
 
                         if (nullptr != test_xref_taget)
                         {
-                            test_xref_taget->exportTarget(ar, ar_flags);
+                            test_xref_taget->exportTarget(ar, b);
                         }
                     }
                 }
             }
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eProxy: destroy before dereferencing
+    ////////////////////////////////////////////////////////////////
+    void eProxy::destroyNode()
+    {
+        eXRefTarget* test_xref_taget;
+        eXRefProxy* test_xref_proxy;
+        eNode* nested_scene;
+
+        test_xref_proxy = (eXRefProxy*)nodes.getIthChild(nodes.getSize() - 1);
+
+        if (nullptr != test_xref_proxy)
+        {
+            if (test_xref_proxy->getType()->checkHierarchy(&E_XREFPROXY_TYPEINFO))
+            {
+                test_xref_taget = test_xref_proxy->getXRefTarget();
+
+                if (nullptr != test_xref_taget)
+                {
+                    nested_scene = (eNode*)test_xref_taget->getLocalScene();
+
+                    if (nullptr != nested_scene)
+                    {
+                        nested_scene->destroyNode();
+                    }
+                }
+            }
+        }
+
+        eTransform::destroyNode();
     }
 
 
@@ -238,77 +310,67 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eProxy: render
     ////////////////////////////////////////////////////////////////
-    bool eProxy::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
+    bool eProxy::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
     {
         bool is_selected_or_marked;
+        bool use_outline;
 
-        const float CUBE_WIDTH = (64.0f / 2);
+        const float CUBE_HALF_WIDTH = (64.0f / 2);
 
         /* Inactive color (blue) */
         float color[3] = {0, 0, 1.0f};
 
-        eSRP rendered_srp;
-        float test_matrix[16];
-
         if (GUI::drawFlags::DRAW_FLAG_PROXIES & draw_flags)
         {
-            if (false == eTransform::renderObject(draw_flags, anim, parent_srp, marked_id))
+            if (false == eTransform::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
             {
                 return false;
             }
 
             is_selected_or_marked = (((-2) == marked_id) || ((-1) == marked_id));
+            use_outline = ((GUI::drawFlags::DRAW_FLAG_OUTLINE & draw_flags) && (((-2) == marked_id) || ((-3) == marked_id)));
+
+            glPushMatrix();
 
             if (is_selected_or_marked)
             {
                 /* This object is selected (-1) or marked (-2) and can be moved around */
-                glPushMatrix();
                 GUI::multiplyBySelectedObjectTransform();
             }
             else
             {
-                rendered_srp = modifiedTransform[0];
-            }
-
-            if ((GUI::drawFlags::DRAW_FLAG_OUTLINE & draw_flags) && (((-2) == marked_id) || ((-3) == marked_id)))
-            {
-                /* Active color */
-                GUI::colorOfMarkedObject(color[0], color[1], color[2]);
+                glMultMatrixf(transposedMatrix);
             }
 
             if ((GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_flags) && (1 == category))
             {
-                if (false == is_selected_or_marked)
+                if (use_outline)
                 {
-                    rendered_srp.getMatrix().transpose(test_matrix);
-                    glPushMatrix();
-                    glMultMatrixf(test_matrix);
+                    glColor3f(0, 1.0f, 0);
                 }
 
-                GUI::renderSpecialModel(ZOOKIEWIZARD_SPECIALMODEL_KAO);
+                GUI::renderSpecialModel(true, ZOOKIEWIZARD_SPECIALMODEL_KAO);
+            }
 
-                if (false == is_selected_or_marked)
-                {
-                    glPopMatrix();
-                }
+            if (use_outline)
+            {
+                /* Active color */
+                GUI::colorOfMarkedObject(color[0], color[1], color[2]);
             }
 
             GUI::renderBoundingBox
             (
                 2.0f,
                 color[0], color[1], color[2],
-                (rendered_srp.pos.x - CUBE_WIDTH),
-                (rendered_srp.pos.y - CUBE_WIDTH),
-                (rendered_srp.pos.z - CUBE_WIDTH),
-                (rendered_srp.pos.x + CUBE_WIDTH),
-                (rendered_srp.pos.y + CUBE_WIDTH),
-                (rendered_srp.pos.z + CUBE_WIDTH)
+                (0 - CUBE_HALF_WIDTH),
+                (0 - CUBE_HALF_WIDTH),
+                (0 - CUBE_HALF_WIDTH),
+                (0 + CUBE_HALF_WIDTH),
+                (0 + CUBE_HALF_WIDTH),
+                (0 + CUBE_HALF_WIDTH)
             );
 
-            if (is_selected_or_marked)
-            {
-                glPopMatrix();
-            }
+            glPopMatrix();
         }
 
         return true;

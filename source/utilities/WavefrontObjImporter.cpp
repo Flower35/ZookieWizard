@@ -469,7 +469,7 @@ namespace ZookieWizard
 
             if ((valid_keywords > 1) && ('#' != keywords[0].getText()[0]))
             {
-                if (keywords[0].compare("mtllib", 0, (-1), true))
+                if (keywords[0].compareExact("mtllib", true))
                 {
                     if (valid_keywords >= 2)
                     {
@@ -482,7 +482,7 @@ namespace ZookieWizard
                         readMaterialInfo(keywords[1]);
                     }
                 }
-                else if (keywords[0].compare("v", 0, (-1), true))
+                else if (keywords[0].compareExact("v", true))
                 {
                     if (valid_keywords >= 4)
                     {
@@ -499,7 +499,7 @@ namespace ZookieWizard
 
                     appendVertices(&dummy_point3, 1);
                 }
-                else if (keywords[0].compare("vt", 0, (-1), true))
+                else if (keywords[0].compareExact("vt", true))
                 {
                     if (valid_keywords >= 3)
                     {
@@ -514,7 +514,7 @@ namespace ZookieWizard
 
                     appendMapping(&dummy_point2, 1);
                 }
-                else if (keywords[0].compare("vn", 0, (-1), true))
+                else if (keywords[0].compareExact("vn", true))
                 {
                     if (valid_keywords >= 4)
                     {
@@ -531,7 +531,7 @@ namespace ZookieWizard
 
                     appendNormals(&dummy_point3, 1);
                 }
-                else if (keywords[0].compare("usemtl", 0, (-1), true))
+                else if (keywords[0].compareExact("usemtl", true))
                 {
                     current_mtl = (-1);
 
@@ -543,13 +543,13 @@ namespace ZookieWizard
 
                     for (a = 0; (current_mtl < 0) && (a < objMaterialsCount); a++)
                     {
-                        if (objMaterials[a].name.compare(keywords[1]))
+                        if (objMaterials[a].name.compareExact(keywords[1], true))
                         {
                             current_mtl = a;
                         }
                     }
                 }
-                else if (keywords[0].compare("o", 0, (-1), true))
+                else if (keywords[0].compareExact("o", true))
                 {
                     current_group = (-1);
 
@@ -561,7 +561,7 @@ namespace ZookieWizard
 
                     for (a = 0; (current_group < 0) && (a < objGroupsCount); a++)
                     {
-                        if (objGroups[a].compare(keywords[1]))
+                        if (objGroups[a].compareExact(keywords[1], true))
                         {
                             current_group = a;
                         }
@@ -573,7 +573,7 @@ namespace ZookieWizard
                         current_group = (objGroupsCount - 1);
                     }
                 }
-                else if (keywords[0].compare("f", 0, (-1), true))
+                else if (keywords[0].compareExact("f", true))
                 {
                     if (valid_keywords >= 4)
                     {
@@ -664,7 +664,7 @@ namespace ZookieWizard
 
             if ((valid_keywords > 1) && ('#' != keywords[0].getText()[0]))
             {
-                if (keywords[0].compare("newmtl", 0, (-1), true))
+                if (keywords[0].compareExact("newmtl", true))
                 {
                     if (valid_keywords >= 2)
                     {
@@ -712,7 +712,7 @@ namespace ZookieWizard
                         dummy_obj_mtl.material->setMaterialFlags(0x01);
                     }
                 }
-                else if (keywords[0].compare("Ka", 0, (-1), true))
+                else if (keywords[0].compareExact("Ka", true))
                 {
                     if (valid_keywords >= 4)
                     {
@@ -731,7 +731,7 @@ namespace ZookieWizard
 
                     dummy_obj_mtl.material->setMaterialState(dummy_mtl_state);
                 }
-                else if (keywords[0].compare("Kd", 0, (-1), true))
+                else if (keywords[0].compareExact("Kd", true))
                 {
                     if (valid_keywords >= 4)
                     {
@@ -750,7 +750,7 @@ namespace ZookieWizard
 
                     dummy_obj_mtl.material->setMaterialState(dummy_mtl_state);
                 }
-                else if (keywords[0].compare("Ks", 0, (-1), true))
+                else if (keywords[0].compareExact("Ks", true))
                 {
                     if (valid_keywords >= 4)
                     {
@@ -769,7 +769,7 @@ namespace ZookieWizard
 
                     dummy_obj_mtl.material->setMaterialState(dummy_mtl_state);
                 }
-                else if (keywords[0].compare("map_Kd", 0, (-1), true))
+                else if (keywords[0].compareExact("map_Kd", true))
                 {
                     if (valid_keywords >= 2)
                     {
@@ -1009,7 +1009,7 @@ namespace ZookieWizard
             if (groupHasMultipleMaterials(group_id))
             {
                 test_group = new eGroup;
-                test_group++;
+                test_group->incRef();
 
                 trimesh_name = fileName;
 

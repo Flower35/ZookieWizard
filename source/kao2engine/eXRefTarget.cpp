@@ -70,11 +70,11 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefTarget: render child scene in parent scene
     ////////////////////////////////////////////////////////////////
-    bool eXRefTarget::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
+    bool eXRefTarget::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
     {
         if (nullptr != scene)
         {
-            scene->renderObject(draw_flags, anim, parent_srp, marked_id);
+            scene->renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id);
         }
 
         return true;
@@ -86,13 +86,19 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     bool eXRefTarget::loadTarget(Archive &ar, int32_t ar_flags, eString model_name)
     {
+        bool result = false;
+        eScene* previous_scene;
         Archive parallel_ar(ar.getMediaDir());
 
         fileName = model_name;
 
+        /* Remember parent scene */
+        previous_scene = ArFunctions::getCurrentScene();
+
         if (nullptr != scene)
         {
             scene->decRef();
+            scene = nullptr;
         }
 
         try
@@ -101,19 +107,24 @@ namespace ZookieWizard
             (
                 fileName,
                 ((AR_MODE_READ | ar_flags) & (~ AR_MODE_WRITE)),
-                ar.getCurrentEngineVersion()
+                ar.getCurrentEngineVersion(),
+                true,
+                0
             );
 
             parallel_ar.copySceneFromMe(&scene);
 
-            return true;
+            result = true;
         }
         catch (ErrorMessage &e)
         {
             e.display();
         }
 
-        return false;
+        /* Restore parent scene */
+        ArFunctions::setCurrentScene(previous_scene);
+
+        return result;
     }
 
 
@@ -122,10 +133,18 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eXRefTarget::exportTarget(Archive &ar, int32_t ar_flags) const
     {
+        eScene* previous_scene;
         Archive parallel_ar(ar.getMediaDir());
 
         if (nullptr != scene)
         {
+            /* Remember parent scene */
+            previous_scene = ArFunctions::getCurrentScene();
+
+            /* Set nested secene as the current (global) scene */
+            ArFunctions::setCurrentScene(scene);
+
+            /* Prepare new archive to be saved */
             parallel_ar.setMyParentScene(scene);
 
             try
@@ -134,13 +153,18 @@ namespace ZookieWizard
                 (
                     fileName,
                     ((AR_MODE_WRITE | ar_flags) & (~ AR_MODE_READ)),
-                    ar.getCurrentEngineVersion()
+                    ar.getCurrentEngineVersion(),
+                    true,
+                    0
                 );
             }
             catch (ErrorMessage &e)
             {
                 e.display();
             }
+
+            /* Restore parent scene */
+            ArFunctions::setCurrentScene(previous_scene);
         }
     }
 

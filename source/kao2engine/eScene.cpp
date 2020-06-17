@@ -57,9 +57,9 @@ namespace ZookieWizard
     {
         function_00498B20();
 
-        if (this != ArFunctions::getCurrentScene())
+        if (this == ArFunctions::getCurrentScene())
         {
-            ArFunctions::setCurrentScene(this);
+            ArFunctions::setCurrentScene(nullptr);
         }
 
         if (nullptr != visSetA)
@@ -466,7 +466,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eScene: set compile strings (while creating new level)
     ////////////////////////////////////////////////////////////////
-    void eScene::setCompileStrings(eString str_a, eString str_b)
+    void eScene::setCompileStrings(eString &str_a, eString &str_b)
     {
         compileStrA = str_a;
         compileStrB = str_b;

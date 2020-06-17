@@ -9,10 +9,6 @@
 #include <kao2engine/eTriMesh.h>
 #include <kao2engine/eGeoSet.h>
 
-#include <utilities/ColladaExporter.h>
-#include <utilities/WavefrontObjExporter.h>
-#include <utilities/WavefrontObjImporter.h>
-
 namespace ZookieWizard
 {
 
@@ -25,10 +21,13 @@ namespace ZookieWizard
 
         if (nullptr != parentObject)
         {
-            if (parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
+            if (!isLoadedAsProxy)
             {
-                test_node = (eNode*)parentObject;
-                test_node->destroyNode();
+                if (parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
+                {
+                    test_node = (eNode*)parentObject;
+                    test_node->destroyNode();
+                }
             }
 
             parentObject->decRef();
@@ -85,10 +84,11 @@ namespace ZookieWizard
     void Archive::renderScene(int32_t draw_flags) const
     {
         eSRP default_srp;
+        eMatrix4x4 default_matrix;
 
         if (nullptr != selectedObject)
         {
-            selectedObject->renderObject(draw_flags, nullptr, default_srp, markedChildId);
+            selectedObject->renderObject(draw_flags, nullptr, default_srp, default_matrix, markedChildId);
         }
     }
 
@@ -664,8 +664,7 @@ namespace ZookieWizard
     {
         if (nullptr != parentObject)
         {
-            parentObject->decRef();
-            parentObject = nullptr;
+            destroyParent();
         }
 
         parentObject = pointer;
@@ -675,99 +674,6 @@ namespace ZookieWizard
             parentObject->incRef();
 
             selectedObject = parentObject;
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: show scene as a structured text file
-    ////////////////////////////////////////////////////////////////
-    void Archive::writeStructureToTextFile() const
-    {
-        FileOperator text_file;
-        eString output_path_str;
-        char* output_path;
-
-        if (nullptr != parentObject)
-        {
-            output_path_str = mediaDirectory + "ar.log";
-            output_path = output_path_str.getText();
-
-            text_file.setDir(output_path);
-            text_file.createDir();
-
-            if (!text_file.open(output_path, 0))
-            {
-                throw ErrorMessage
-                (
-                    "Archive::writeStructureToTextFile():\n" \
-                    "Could not open file: \"%s\"",
-                    output_path
-                );
-            }
-
-            parentObject->writeStructureToTextFile(text_file, 0);
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: show scene as XML file
-    ////////////////////////////////////////////////////////////////
-    void Archive::writeStructureToXmlFile(eString filename) const
-    {
-        eNode* test_node;
-        ColladaExporter exporter;
-
-        if (nullptr != parentObject)
-        {
-            if (parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
-            {
-                test_node = (eNode*)parentObject;
-
-                exporter.openXml(filename);
-
-                while (exporter.continueExporting())
-                {
-                    test_node->writeNodeToXmlFile(exporter);
-                }
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: export selected TriMesh to OBJ file
-    ////////////////////////////////////////////////////////////////
-    void Archive::writeSelectedObjectToObjFile(eString filename) const
-    {
-        WavefrontObjExporter exporter;
-
-        if (nullptr != selectedObject)
-        {
-            if (exporter.openObj(filename, (eTriMesh*)selectedObject))
-            {
-                exporter.begin();
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: import TriMesh to selected Group from OBJ file
-    ////////////////////////////////////////////////////////////////
-    void Archive::appendToSelectedObjectFromObjFile(eString filename)
-    {
-        WavefrontObjImporter importer;
-
-        if (nullptr != selectedObject)
-        {
-            if (importer.openObj(filename, (eGroup*)selectedObject))
-            {
-                importer.begin();
-
-                changeSelectedObject(NODES_LISTBOX_UPDATE_CURRENT, nullptr);
-            }
         }
     }
 

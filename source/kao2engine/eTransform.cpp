@@ -1,6 +1,8 @@
 #include <kao2engine/eTransform.h>
 #include <kao2ar/Archive.h>
 
+#include <kao2engine/eCamera.h>
+
 #include <utilities/ColladaExporter.h>
 
 namespace ZookieWizard
@@ -33,7 +35,8 @@ namespace ZookieWizard
     {
         /*[0xA8]*/ ctrl = nullptr;
 
-        defaultTransform[0].getMatrix().transpose(transposedMatrix);
+        currentMatrix = defaultTransform[0].getMatrix();
+        currentMatrix.transpose(transposedMatrix);
 
         jointType = false;
     }
@@ -57,10 +60,7 @@ namespace ZookieWizard
 
         if (ar.isInReadMode())
         {
-            modifiedTransform[0] = defaultTransform[0];
-            modifiedTransform[1] = defaultTransform[1];
-
-            modifiedTransform[0].getMatrix().transpose(transposedMatrix);
+            setXForm(defaultTransform[0]);
         }
 
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
@@ -78,7 +78,8 @@ namespace ZookieWizard
         modifiedTransform[0] = defaultTransform[0];
         modifiedTransform[1] = defaultTransform[1];
 
-        modifiedTransform[0].getMatrix().transpose(transposedMatrix);
+        currentMatrix = modifiedTransform[0].getMatrix();
+        currentMatrix.transpose(transposedMatrix);
     }
 
 
@@ -112,13 +113,12 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTransform: reposition the model in 3D space
     ////////////////////////////////////////////////////////////////
-    bool eTransform::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
+    bool eTransform::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
     {
         bool is_selected_or_marked;
         bool use_outline;
-        float color[3];
 
-        if (false == eNode::renderObject(draw_flags, anim, parent_srp, marked_id))
+        if (false == eNode::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
         {
             return false;
         }
@@ -126,6 +126,8 @@ namespace ZookieWizard
         /* Calculate transformation (for animations and for culling) */
 
         updateSRP((GUI::drawFlags::DRAW_FLAG_ANIMS & draw_flags), anim, parent_srp);
+
+        eMatrix4x4 render_matrix(parent_matrix * currentMatrix);
 
         /* Apply Transformation (on top of previous ones) */
 
@@ -148,12 +150,17 @@ namespace ZookieWizard
         {
             if (use_outline)
             {
-                GUI::colorOfMarkedObject(color[0], color[1], color[2]);
-                glColor3f(color[0], color[1], color[2]);
+                glColor3f(0, 1.0f, 0);
             }
 
-            /* Draw helper arrow */
-            GUI::renderSpecialModel(ZOOKIEWIZARD_SPECIALMODEL_ARROW);
+            /* Draw helper arrow or helper camera */
+            GUI::renderSpecialModel
+            (
+                (!use_outline),
+                getType()->checkHierarchy(&E_CAMERA_TYPEINFO)
+                    ? ZOOKIEWIZARD_SPECIALMODEL_CAMERA
+                    : ZOOKIEWIZARD_SPECIALMODEL_ARROW
+            );
 
             if (use_outline)
             {
@@ -163,7 +170,7 @@ namespace ZookieWizard
 
         /* Draw children nodes */
 
-        eGroup::renderObject(draw_flags, anim, modifiedTransform[1], marked_id);
+        eGroup::renderObject(draw_flags, anim, modifiedTransform[1], render_matrix, marked_id);
 
         /* Restore parent matrix */
 
@@ -182,17 +189,25 @@ namespace ZookieWizard
         eSRP test_srp;
         eSRP previous_srp;
 
-        if (update && (nullptr != ctrl))
+        if (update)
         {
-            previous_srp = modifiedTransform[0];
+            if ((nullptr != ctrl) && (nullptr != anim))
+            {
+                previous_srp = modifiedTransform[0];
 
-            modifiedTransform[0] = ctrl->ctrlGetTransform(test_srp, anim);
+                modifiedTransform[0] = ctrl->ctrlGetTransform(test_srp, anim);
 
-            /* (--dsp--) Checking if `previous_srp != form01` and changing some "eNode" flags */
+                /* (--dsp--) Checking if `previous_srp != form01` and changing some "eNode" flags */
+            }
+            else
+            {
+                modifiedTransform[0] = defaultTransform[0];
+            }
 
             /* Update render matrix */
 
-            modifiedTransform[0].getMatrix().transpose(transposedMatrix);
+            currentMatrix = modifiedTransform[0].getMatrix();
+            currentMatrix.transpose(transposedMatrix);
         }
 
         /* Update world transformation matrix */

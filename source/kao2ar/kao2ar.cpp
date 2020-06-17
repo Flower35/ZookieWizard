@@ -70,6 +70,15 @@ namespace ZookieWizard
         );
     }
 
+    ePoint3& ePoint3::operator -= (const ePoint3 &point)
+    {
+        x -= point.x;
+        y -= point.y;
+        z -= point.z;
+
+        return *this;
+    }
+
     ePoint3 ePoint3::operator * (float scalar) const
     {
         return ePoint3
@@ -78,6 +87,31 @@ namespace ZookieWizard
             y * scalar,
             z * scalar
         );
+    }
+
+    ePoint3::ePoint3(const ePoint4 &point)
+    {
+        x = point.x;
+        y = point.y;
+        z = point.z;
+    }
+
+    ePoint3& ePoint3::operator += (const ePoint4 &point)
+    {
+        x += point.x;
+        y += point.y;
+        z += point.z;
+
+        return *this;
+    }
+
+    ePoint3& ePoint3::operator -= (const ePoint4 &point)
+    {
+        x -= point.x;
+        y -= point.y;
+        z -= point.z;
+
+        return *this;
     }
 
     float ePoint3::getLength() const
@@ -157,6 +191,16 @@ namespace ZookieWizard
         );
     }
 
+    ePoint4& ePoint4::operator -= (const ePoint4 &point)
+    {
+        x -= point.x;
+        y -= point.y;
+        z -= point.z;
+        w -= point.w;
+
+        return *this;
+    }
+
     ePoint4 ePoint4::operator * (float scalar) const
     {
         return ePoint4
@@ -166,6 +210,32 @@ namespace ZookieWizard
             z * scalar,
             w * scalar
         );
+    }
+
+    ePoint4::ePoint4(const ePoint3 &point)
+    {
+        x = point.x;
+        y = point.y;
+        z = point.z;
+        w = 0;
+    }
+
+    ePoint4& ePoint4::operator += (const ePoint3 &point)
+    {
+        x += point.x;
+        y += point.y;
+        z += point.z;
+
+        return *this;
+    }
+
+    ePoint4& ePoint4::operator -= (const ePoint3 &point)
+    {
+        x -= point.x;
+        y -= point.y;
+        z -= point.z;
+
+        return *this;
     }
 
     float ePoint4::getLength() const
@@ -194,24 +264,22 @@ namespace ZookieWizard
         ar.readOrWrite(&w, 0x04);
     }
 
-    ePoint4 crossProduct(const ePoint4 &a, const ePoint4 &b)
+    ePoint3 crossProduct(const ePoint3 &a, const ePoint3 &b)
     {
-        ePoint4 result;
-
-        result.x = (a.y * b.z) - (a.z * b.y);
-        result.y = (a.z * b.x) - (a.x * b.z);
-        result.z = (a.x * b.y) - (a.y * b.x);
-        result.z = 0;
-
-        return result;
+        return ePoint3
+        {
+            (a.y * b.z) - (a.z * b.y),
+            (a.z * b.x) - (a.x * b.z),
+            (a.x * b.y) - (a.y * b.x)
+        };
     }
 
-    float dotProduct(const ePoint4 &a, const ePoint4 &b)
+    float dotProduct(const ePoint3 &a, const ePoint3 &b)
     {
         return ((a.x * b.x) + (a.y * b.y) + (a.z * b.z));
     }
 
-    float angleBetweenVectors(const ePoint4 &a, const ePoint4 &b)
+    float angleBetweenVectors(const ePoint3 &a, const ePoint3 &b)
     {
         double length_a = a.getLength();
         double length_b = b.getLength();
@@ -994,11 +1062,120 @@ namespace ZookieWizard
 
         if (start <= end)
         {
-            destination[parts] = source.getSubstring(start, end - start + 1);
-            parts++;
+            /* Could be a line containing only the LF symbol */
+            if (text[start] > 0x20)
+            {
+                destination[parts] = source.getSubstring(start, end - start + 1);
+                parts++;
+            }
         }
 
         return parts;
+    }
+
+    int32_t ArFunctions::propertyString(eString &source, eString* destination, int32_t max_entries, int32_t line_number)
+    {
+        int32_t counter, start[2], middle, end;
+        eString dummy;
+        char* text;
+
+        if (max_entries < 2)
+        {
+            throw ErrorMessage
+            (
+                "String parsing error (line %d):\n" \
+                "expected at least 2 entries! (before and after the `=` sign)",
+                line_number
+            );
+            return 0;
+        }
+
+        end = source.getLength() - 1;
+        text = source.getText();
+
+        start[0] = (-1);
+        start[1] = (-1);
+        middle = (-1);
+
+        for (counter = 0; counter < end; counter++)
+        {
+            if ('=' == text[counter])
+            {
+                if (counter <= 0)
+                {
+                    throw ErrorMessage
+                    (
+                        "String parsing error (line %d):\n" \
+                        "`=` sign found at the beginning!",
+                        line_number
+                    );
+                    return 0;
+                }
+                else if (middle < 0)
+                {
+                    middle = counter;
+                }
+                else
+                {
+                    throw ErrorMessage
+                    (
+                        "String parsing error (line %d):\n" \
+                        "multiple `=` signs found!",
+                        line_number
+                    );
+                    return 0;
+                }
+            }
+        }
+
+        if (middle < 0)
+        {
+            throw ErrorMessage
+            (
+                "String parsing error (line %d):\n" \
+                "`=` sign not found!",
+                line_number
+            );
+            return 0;
+        }
+
+        for (counter = 0; (start[1] < 0) && (counter < middle); counter++)
+        {
+            if (text[counter] > 0x20)
+            {
+                if (start[0] < 0)
+                {
+                    start[0] = counter;
+                }
+            }
+            else if (text[counter] <= 0x20)
+            {
+                if (start[0] >= 0)
+                {
+                    start[1] = counter;
+                }
+            }
+        }
+
+        if (start[0] < 0)
+        {
+            throw ErrorMessage
+            (
+                "String parsing error (line %d):\n" \
+                "Nothing found on the left side of `=` sign!",
+                line_number
+            );
+            return 0;
+        }
+
+        if (start[1] < 0)
+        {
+            start[1] = middle;
+        }
+
+        destination[0] = source.getSubstring(start[0], start[1] - start[0]);
+        dummy = source.getSubstring(middle + 1, 0);
+        return splitString(dummy, &(destination[1]), max_entries - 1);
     }
 
 }

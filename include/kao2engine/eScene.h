@@ -106,7 +106,7 @@ namespace ZookieWizard
             void findAndDereference(eNode* target) override;
 
             void setBackgroundColor(GLfloat new_color[3]);
-            void setCompileStrings(eString str_a, eString str_b);
+            void setCompileStrings(eString &str_a, eString &str_b);
 
             eCollisionMgr* getCollisionManager() const;
     };

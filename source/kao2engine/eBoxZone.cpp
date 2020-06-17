@@ -47,36 +47,9 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eBoxZone: (editor option) find object in 3D space
-    ////////////////////////////////////////////////////////////////
-    ePoint3 eBoxZone::editingGetCenterPoint() const
-    {
-        return (boxBoundMax - boxBoundMin) * 0.5f;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eBoxZone: (editor option) apply new transformation
-    ////////////////////////////////////////////////////////////////
-    void eBoxZone::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
-    {
-        ePoint4 test_point;
-        eMatrix4x4 matrix = new_transform.getMatrix();
-
-        test_point = {boxBoundMin.x, boxBoundMin.y, boxBoundMin.z, 1.0f};
-        test_point = matrix * test_point;
-        boxBoundMin = {test_point.x, test_point.y, test_point.z};
-
-        test_point = {boxBoundMax.x, boxBoundMax.y, boxBoundMax.z, 1.0f};
-        test_point = matrix * test_point;
-        boxBoundMax = {test_point.x, test_point.y, test_point.z};
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // eBoxZone: render
     ////////////////////////////////////////////////////////////////
-    bool eBoxZone::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
+    bool eBoxZone::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
     {
         bool is_selected_or_marked;
 
@@ -85,7 +58,7 @@ namespace ZookieWizard
 
         if (GUI::drawFlags::DRAW_FLAG_BOXZONES & draw_flags)
         {
-            if (false == eNode::renderObject(draw_flags, anim, parent_srp, marked_id))
+            if (false == eNode::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
             {
                 return false;
             }

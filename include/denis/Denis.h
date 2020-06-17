@@ -32,6 +32,8 @@ namespace ZookieWizard
 
             bool open(eString path);
             void close();
+
+            bool checkIfExists(eString path);
     };
 
 

@@ -175,16 +175,13 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTriMesh: render
     ////////////////////////////////////////////////////////////////
-    bool eTriMesh::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
+    bool eTriMesh::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
     {
         int32_t i, texID;
         bool is_selected_or_marked;
         bool use_outline;
         float color[3];
 
-        eMatrix4x4 test_matrix;
-        eGeoArray<ePoint4>* vertex_array;
-        ePoint3 test_boundaries[2];
         ePoint4 test_vertices[2];
 
         GLuint tex_name = 0;
@@ -195,28 +192,20 @@ namespace ZookieWizard
             return false;
         }
 
-        if (false == eNode::renderObject(draw_flags, anim, parent_srp, marked_id))
+        if (false == eNode::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
         {
             return false;
         }
 
         /* Testing 3D mesh boundaries */
 
-        test_matrix = parent_srp.getMatrix();
-
-        vertex_array = geo->getVerticesArray();
-
-        calculateBoundaryBox
-        (
-            test_boundaries[0], test_boundaries[1],
-            vertex_array->getLength(), vertex_array->getData(),
-            0, nullptr
-        );
+        test_vertices[0] = ePoint4(boxBoundMin);
+        test_vertices[1] = ePoint4(boxBoundMax);
 
         for (i = 0; i < 2; i++)
         {
-            test_vertices[i] = {test_boundaries[i].x, test_boundaries[i].y, test_boundaries[i].z, 1.0f};
-            test_vertices[i] = test_matrix * test_vertices[i];
+            test_vertices[i].w = 1.0f;
+            test_vertices[i] = parent_matrix * test_vertices[i];
         }
 
         if (false == GUI::testWithCameraPlanes
@@ -263,7 +252,7 @@ namespace ZookieWizard
 
                 test_texture = material->getIthTexture(texID);
 
-                if (nullptr != test_texture)
+                if ((false == use_outline) && (nullptr != test_texture))
                 {
                     tex_name = test_texture->getTextureName();
                 }

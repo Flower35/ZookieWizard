@@ -61,6 +61,7 @@ namespace ZookieWizard
 
         /********************************/
         /* Create new scene and new environment */
+        /* (current scene is automatically set in the constructor) */
 
         result_scene = new eScene();
         result_scene->setFlags(0x70071000);
@@ -87,11 +88,6 @@ namespace ZookieWizard
         result_scene->setCompileStrings(test_str, current_name);
 
         result_scene->setBackgroundColor(GUI::backgroundColor);
-
-        /********************************/
-        /* Will be useful after figuring out how "eALBox" works */
-
-        ArFunctions::setCurrentScene(result_scene);
 
         /********************************/
         /* Add environment (and update its parent) */

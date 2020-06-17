@@ -40,6 +40,14 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
 
+            ePoint3 editingGetCenterPoint() const override;
+            void editingRebuildCollision() override;
+            void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id) override;
+
+            void setBoundaryBox(ePoint3 &new_min, ePoint3 &new_max);
+
+            void createCollisionEntry();
+
             void findAndDereference(eNode* target) override;
     };
 

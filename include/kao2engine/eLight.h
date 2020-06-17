@@ -30,6 +30,14 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            void getDiffuseColor(float* values) const;
+            void getAmbientColor(float* values) const;
+            void getSpecularColor(float* values) const;
+
+            void setDiffuseColor(float* values);
+            void setAmbientColor(float* values);
+            void setSpecularColor(float* values);
     };
 
 

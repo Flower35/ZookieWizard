@@ -430,8 +430,9 @@ namespace ZookieWizard
         if (result.hasExtension("bmp"))
         {
             bmp_ext = true;
+            x = getBytesPerPixelOutput(bmp_ext);
 
-            a = getBytesPerPixel() * width * height;
+            a = x * width * height;
             b = isUsingPalette();
 
             header[0x00] = 'B';
@@ -449,13 +450,14 @@ namespace ZookieWizard
         else if (result.hasExtension("tga"))
         {
             bmp_ext = false;
+            x = getBytesPerPixelOutput(bmp_ext);
 
             header[0x02] = 0x02;
             *(int16_t*)&(header[0x0C]) = width;
             *(int16_t*)&(header[0x0E]) = height;
 
             /* Kao3 only supports 32-bit TGA, so we will always output in this format */
-            header[0x10] = 0x08 * getBytesPerPixelOutput(bmp_ext);
+            header[0x10] = 0x08 * x;
 
             /* "Image Descriptor": bits [5]=0 [4]=0 indicate that image is strored from bottom-left */
             /* bits [3-0] are designated as Alpha Channel bits */
@@ -465,14 +467,15 @@ namespace ZookieWizard
         {
             throw ErrorMessage
             (
-                "eBitmap::exportImageFile():\n"
-                "unsupported file extension! [%s]",
+                "eBitmap::exportImageFile():\n" \
+                "unsupported file extension!\n" \
+                "\"%s\"",
                 path.getText()
             );
         }
 
         /* Prepare output block */
-        output_size = width * height * getBytesPerPixelOutput(bmp_ext);
+        output_size = width * height * x;
         output_pixels = new uint8_t [output_size];
 
         /********************************/
@@ -487,18 +490,18 @@ namespace ZookieWizard
             {
                 for (x = 0; x < width; x++)
                 {
-                    b = pixels[y * width + x];
+                    b = palette[pixels[y * width + x]];
 
                     a = (4 * width * height) - (4 * (y+1) * width) + (4 * x);
 
-                    output_pixels[a + 0] = palette[b + 2];
-                    output_pixels[a + 1] = palette[b + 1];
-                    output_pixels[a + 2] = palette[b + 0];
-                    output_pixels[a + 3] = palette[b + 3];
+                    output_pixels[a + 0] = ((b >> 16) & 0x000000FF);
+                    output_pixels[a + 1] = ((b >> 8) & 0x000000FF);
+                    output_pixels[a + 2] = (b & 0x000000FF);
+                    output_pixels[a + 3] = ((b >> 24) & 0x000000FF);
                 }
             }
         }
-        else if (bmp_ext && (bitmapType::PAL8_RGBA8 == type))
+        else if (bmp_ext && ((bitmapType::PAL8_RGBA8 == type) || (bitmapType::PAL8_RGBX8 == type)))
         {
             /* [BMP] 8-bit (256 colors) */
 
@@ -579,9 +582,11 @@ namespace ZookieWizard
             throw ErrorMessage
             (
                 "eBitmap::exportImageFile():\n"
-                "unsupported output configuation! [%s] [%s]",
+                "unsupported output configuation! [%s] [%s]\n" \
+                "\"%s\"",
                 (bmp_ext ? "bmp" : "tga"),
-                getTypeName()
+                getTypeName(),
+                path.getText()
             );
         }
 
@@ -787,6 +792,7 @@ namespace ZookieWizard
             }
 
             case bitmapType::PAL8_RGBA8:
+            case bitmapType::PAL8_RGBX8:
             {
                 return (bmp_ext ? 0x01: 0x04);
             }
@@ -794,6 +800,7 @@ namespace ZookieWizard
             case bitmapType::RGB8:
             case bitmapType::RGBX8:
             {
+                /* This makes TGA textures compatible with KAO3 engine */
                 return (bmp_ext ? 0x03 : 0x04);
             }
 
@@ -887,7 +894,7 @@ namespace ZookieWizard
 
         /* Bitmap dimensions */
 
-        if (ar.isInWriteMode() && isLoadedFromExternalFile)
+        if (ar.checkGameEngine((-1), GAME_VERSION_KAO_TW_PC) && ar.isInWriteMode() && isLoadedFromExternalFile)
         {
             ar.readOrWrite(&a, 0x04);
             ar.readOrWrite(&a, 0x04);
@@ -905,7 +912,7 @@ namespace ZookieWizard
         }
         else
         {
-            if (ar.isInWriteMode() && isLoadedFromExternalFile)
+            if (ar.checkGameEngine((-1), GAME_VERSION_KAO_TW_PC) && ar.isInWriteMode() && isLoadedFromExternalFile)
             {
                 ar.readOrWrite(&a, 0x04);
                 ar.readOrWrite(&a, 0x04);
@@ -957,11 +964,16 @@ namespace ZookieWizard
             }
         }
 
-        /* Read image contents */
+        /* Read image contents: */
+        /* Save pixels ALWAYS if "ar.engineSavedWith" is different from "KAO_TW" */
+        /* Otherwise save pixels only when image was NOT loaded from external file */
 
-        if ((total_length > 0) && (!isLoadedFromExternalFile))
+        if ((!ar.checkGameEngine((-1), GAME_VERSION_KAO_TW_PC)) || (!isLoadedFromExternalFile))
         {
-            ar.readOrWrite(pixels, total_length);
+            if (total_length > 0)
+            {
+                ar.readOrWrite(pixels, total_length);
+            }
         }
 
         if (using_pal)
@@ -1039,7 +1051,14 @@ namespace ZookieWizard
         exporter.closeTag(); // "image"
 
         /* Actually export the image to hard drive */
-        exportImageFile(exporter.getWorkingDirectory());
+        try
+        {
+            exportImageFile(exporter.getWorkingDirectory());
+        }
+        catch (ErrorMessage &err)
+        {
+            err.display();
+        }
     }
 
 
@@ -1094,6 +1113,17 @@ namespace ZookieWizard
                     palette[i] = palette[i] | 0xFF000000;
                 }
             }
+        }
+        else
+        {
+            throw ErrorMessage
+            (
+                "eBitmap::setTransparencyColor()\n" \
+                "unsupported bitmap type! [%s]\n" \
+                "\"%s\"",
+                getTypeName(),
+                path.getText()
+            );
         }
     }
 

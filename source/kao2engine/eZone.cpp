@@ -96,6 +96,74 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eZone: (editor option) find object in 3D space
+    ////////////////////////////////////////////////////////////////
+    ePoint3 eZone::editingGetCenterPoint() const
+    {
+        return (boxBoundMax + boxBoundMin) * 0.5f;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eZone: (editor option) rebuild collision
+    ////////////////////////////////////////////////////////////////
+    void eZone::editingRebuildCollision()
+    {
+        createCollisionEntry();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eZone: (editor option) apply new transformation
+    ////////////////////////////////////////////////////////////////
+    void eZone::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
+    {
+        ePoint4 test_point;
+        eMatrix4x4 matrix = new_transform.getMatrix();
+
+        test_point = {boxBoundMin.x, boxBoundMin.y, boxBoundMin.z, 1.0f};
+        test_point = matrix * test_point;
+        boxBoundMin = {test_point.x, test_point.y, test_point.z};
+
+        test_point = {boxBoundMax.x, boxBoundMax.y, boxBoundMax.z, 1.0f};
+        test_point = matrix * test_point;
+        boxBoundMax = {test_point.x, test_point.y, test_point.z};
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eZone: set boundary box
+    ////////////////////////////////////////////////////////////////
+    void eZone::setBoundaryBox(ePoint3 &new_min, ePoint3 &new_max)
+    {
+        boxBoundMin = new_min;
+        boxBoundMax = new_max;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eZone: create collision entry
+    ////////////////////////////////////////////////////////////////
+    void eZone::createCollisionEntry()
+    {
+        eALBox* new_albox = nullptr;
+
+        float boundaries[6] =
+        {
+            boxBoundMin.x, boxBoundMin.y, boxBoundMin.z,
+            boxBoundMax.x, boxBoundMax.y, boxBoundMax.z
+        };
+
+        new_albox = new eALBox();
+        new_albox->incRef();
+
+        new_albox->createAxisListEntry(this, boundaries);
+
+        new_albox->decRef();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eZone: find reference to some node when deleting it
     ////////////////////////////////////////////////////////////////
     void eZone::findAndDereference(eNode* target)
@@ -104,6 +172,5 @@ namespace ZookieWizard
 
         leaveActions.findAndDeleteActionsWithNode(target);
     }
-
 
 }

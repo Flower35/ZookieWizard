@@ -35,7 +35,7 @@ namespace ZookieWizard
             void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
-            bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id) override;
+            bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id) override;
 
             void editingRebuildCollision() override;
             void editingClearCollision() override;
@@ -43,7 +43,6 @@ namespace ZookieWizard
 
             void destroyNode() override;
             void findAndDereference(eNode* target) override;
-            bool deleteXRefTargets() override;
 
             eNode* findNode(eString &searched_name) const override;
             eMaterial* findMaterial(eString &searched_path) const override;

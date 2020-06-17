@@ -271,7 +271,7 @@ namespace ZookieWizard
         ////////////////////////////////////////////////////////////////
         // Render special model
         ////////////////////////////////////////////////////////////////
-        void renderSpecialModel(int32_t id)
+        void renderSpecialModel(bool use_texture, int32_t id)
         {
             eTexture* dummy_texture = nullptr;
             GLuint texture_name = 0;
@@ -280,14 +280,14 @@ namespace ZookieWizard
             {
                 if (nullptr != mySpecialModels[id])
                 {
-                    if (nullptr != mySpecialModelsMaterials[id])
+                    if (use_texture && (nullptr != mySpecialModelsMaterials[id]))
                     {
                         dummy_texture = mySpecialModelsMaterials[id]->getIthTexture(0);
-                    }
 
-                    if (nullptr != dummy_texture)
-                    {
-                        texture_name = dummy_texture->getTextureName();
+                        if (nullptr != dummy_texture)
+                        {
+                            texture_name = dummy_texture->getTextureName();
+                        }
                     }
 
                     mySpecialModels[id]->draw(0, texture_name, 0);

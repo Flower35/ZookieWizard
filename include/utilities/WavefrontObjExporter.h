@@ -6,7 +6,10 @@
 
 namespace ZookieWizard
 {
+    class eObject;
+    class eGroup;
     class eTriMesh;
+    class eMaterial;
 
     ////////////////////////////////////////////////////////////////
     // WAVEFRONT OBJ Exporter class
@@ -18,10 +21,20 @@ namespace ZookieWizard
 
         protected:
 
+            int totalVertices;
+            int totalNormals;
+            int totalMappings;
+
+            int materialsCount;
+            int materialsMaxLength;
+            eMaterial** materials;
+
             FileOperator myFiles[2];
             eString fileName;
             eString workingDirectory;
-            eTriMesh* trimesh;
+
+            eGroup* meshGroup;
+            eTriMesh* meshTrimesh;
 
 
         /*** Methods ***/
@@ -31,7 +44,7 @@ namespace ZookieWizard
             WavefrontObjExporter();
             ~WavefrontObjExporter();
 
-            bool openObj(eString filename, eTriMesh* target);
+            bool openObj(eString filename, eObject* target);
             bool openMtl();
 
             void begin();
@@ -40,8 +53,11 @@ namespace ZookieWizard
 
             void writeNewLine(int32_t which_file);
 
-            bool writeMaterialInfo();
-            void writeModelData(bool uses_mtl);
+            bool writeMaterialInfo(eTriMesh* current_trimesh, bool file_opened);
+            void writeModelData(eTriMesh* current_trimesh, eMatrix4x4 &parent_matrix);
+
+            bool writeMaterialInfoFromGroup(eGroup* current_group, bool file_opened);
+            void writeModelDataFromGroup(eGroup* current_group, eMatrix4x4 &parent_matrix);
 
             void writeFace(int32_t params, int32_t index[3]);
     };

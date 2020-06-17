@@ -82,35 +82,57 @@ namespace ZookieWizard
         eTexture* test_texture = nullptr;
         eBitmap* test_bitmap = nullptr;
 
-        eString bitmap_path;
+        eString bitmap_path[3];
+
+        bool add_transparency = isTransparent;
 
         /********************************/
         /* Create bitmap and texture */
 
-        bitmap_path = "world/textures/8BIT/";
-        bitmap_path += name;
-        bitmap_path += ".bmp";
-
         test_bitmap = new eBitmap();
         test_bitmap->incRef();
 
-        test_bitmap->setPath(bitmap_path);
+        bitmap_path[0] = "world/textures/8BIT/";
+        bitmap_path[0] += name;
+        bitmap_path[1] = bitmap_path[0] + ".tga";
+        bitmap_path[2] = bitmap_path[0] + ".bmp";
+
+        if (file.checkIfExists(bitmap_path[0]))
+        {
+            /* "*.tga" texture found */
+
+            add_transparency = false;
+
+            bitmap_path[0] = bitmap_path[1];
+        }
+        else
+        {
+            /* otherwie load "*.bmp" texture */
+
+            bitmap_path[0] = bitmap_path[2];
+        }
+
+        test_bitmap->setPath(bitmap_path[0]);
 
         try
         {
             test_bitmap->loadFromFile(file.workingDirectory);
 
-            if (isTransparent)
+            if (add_transparency)
             {
+                /* Add alpha channel */
+
                 test_bitmap->setTransparencyColor(0x00000000);
+
+                /* Change extension to "*.tga" */
+
+                test_bitmap->setPath(bitmap_path[1]);
             }
 
             test_bitmap->generateTexture();
         }
         catch (ErrorMessage &e)
         {
-            /* Penguin Kelvin "*.tga": [width=1] [height=1] [isTransparent=false] [type=0] */
-
             e.display();
         }
 

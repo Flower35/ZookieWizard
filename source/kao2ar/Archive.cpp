@@ -19,8 +19,6 @@ namespace ZookieWizard
     {
         /* Delete parent object and close archive */
 
-        destroyParent();
-
         close(true);
 
         /* Acquire new directory */
@@ -47,6 +45,8 @@ namespace ZookieWizard
 
         engineOpenedWith = (-1);
         engineSavedWith = (-1);
+
+        isLoadedAsProxy = false;
 
         /* Set working directory */
 
@@ -135,7 +135,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Ar: open for reading
     ////////////////////////////////////////////////////////////////
-    bool Archive::open(eString filename, int32_t mode, int32_t engine_version)
+    bool Archive::open(eString filename, int32_t mode, int32_t engine_version, bool is_proxy, int32_t ver_max_override)
     {
         int32_t a;
         int32_t ver_min;
@@ -184,6 +184,8 @@ namespace ZookieWizard
         /* Remember mode flags, construct file path, remember engine version, open file. */
 
         modeFlags = mode;
+
+        isLoadedAsProxy = is_proxy;
 
         if (isInReadMode() && isInWriteMode())
         {
@@ -269,6 +271,11 @@ namespace ZookieWizard
 
         if (false == isInReadMode())
         {
+            if ((ver_max_override >= ver_min) && (ver_max_override < ver_max))
+            {
+                ver_max = ver_max_override;
+            }
+
             version = ver_max;
         }
 
@@ -466,6 +473,8 @@ namespace ZookieWizard
         if (hide)
         {
             selectedObject = nullptr;
+
+            destroyParent();
         }
 
         myFile.close();
@@ -559,8 +568,8 @@ namespace ZookieWizard
         {
             throw ErrorMessage
             (
-                "Archive initialized incorrectly?\n" \
-                "Not enough space for temporary string!\n" \
+                "Archive contains too many unnamed Gadgets!\n" \
+                "Not enough space for another string reference!\n" \
                 "(current size: %d)",
                 AR_MAX_TEMPSTR
             );
@@ -889,7 +898,7 @@ namespace ZookieWizard
                         {
                             test_str.setPointer((eStringBase<char>*)tempItemsList[a]);
 
-                            if (s.compare(test_str, 0, (-1), true))
+                            if (s.compareExact(test_str, true))
                             {
                                 /* Copy constructor takes care of both reference counters */
                                 s = test_str;

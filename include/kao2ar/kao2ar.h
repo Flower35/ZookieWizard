@@ -41,6 +41,7 @@ namespace ZookieWizard
         void writeNewLine(FileOperator &fo, int32_t indentation);
 
         int32_t splitString(eString &source, eString* destination, int32_t max_entries);
+        int32_t propertyString(eString &source, eString* destination, int32_t max_entries, int32_t line_number);
     }
 
     FileOperator& operator << (FileOperator &fo, const char* str);
@@ -53,6 +54,10 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
 
     typedef uint16_t ushort;
+
+    /* used-defined assignment */
+    struct ePoint3;
+    struct ePoint4;
 
     /* `sizeof(ePoint2) == 0x08` (8 bytes) */
     struct ePoint2
@@ -79,7 +84,12 @@ namespace ZookieWizard
         ePoint3 operator + (const ePoint3&) const;
         ePoint3& operator += (const ePoint3&);
         ePoint3 operator - (const ePoint3&) const;
+        ePoint3& operator -= (const ePoint3&);
         ePoint3 operator * (float) const;
+
+        ePoint3(const ePoint4&);
+        ePoint3& operator += (const ePoint4&);
+        ePoint3& operator -= (const ePoint4&);
 
         float getLength() const;
         void normalize();
@@ -102,7 +112,12 @@ namespace ZookieWizard
         ePoint4 operator + (const ePoint4&) const;
         ePoint4& operator += (const ePoint4&);
         ePoint4 operator - (const ePoint4&) const;
+        ePoint4& operator -= (const ePoint4&);
         ePoint4 operator * (float) const;
+
+        ePoint4(const ePoint3&);
+        ePoint4& operator += (const ePoint3&);
+        ePoint4& operator -= (const ePoint3&);
 
         float getLength() const;
         void normalize();
@@ -110,9 +125,9 @@ namespace ZookieWizard
         void serialize(Archive &ar);
     };
 
-    ePoint4 crossProduct(const ePoint4&, const ePoint4&);
-    float dotProduct(const ePoint4&, const ePoint4&);
-    float angleBetweenVectors(const ePoint4&, const ePoint4&);
+    ePoint3 crossProduct(const ePoint3&, const ePoint3&);
+    float dotProduct(const ePoint3&, const ePoint3&);
+    float angleBetweenVectors(const ePoint3&, const ePoint3&);
     void calculateBoundaryBox(ePoint3&, ePoint3&, int32_t, const ePoint4*, int32_t, const ushort*);
 
     /* `sizeof(ePhyVertex) == 0x10` (16 bytes) */

@@ -31,20 +31,21 @@ namespace ZookieWizard
     eXRefProxy::eXRefProxy(eXRefTarget* x)
     : eNode()
     {
-        if (nullptr != target)
-        {
-            target->decRef();
-        }
-
         target = x;
 
         if (nullptr != target)
         {
             target->incRef();
         }
+
+        unsetFlags(0x0400);
+        setFlags(0x10000100);
     }
 
-    eXRefProxy::~eXRefProxy() {}
+    eXRefProxy::~eXRefProxy()
+    {
+        target->decRef();
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -56,36 +57,24 @@ namespace ZookieWizard
         eNode::serialize(ar);
 
         /* [0x3C] target link */
-        ar.serialize((eObject**)&target, &E_XREFTARGET_TYPEINFO);
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eXRefProxy: delete "eXRefTarget" links after destroying "eXRefManager"
-    ////////////////////////////////////////////////////////////////
-    bool eXRefProxy::deleteXRefTargets()
-    {
-        target = nullptr;
-
-        /* Notify parent "eGroup" */
-
-        return true;
+        /* (changed to normal `eRefCounter` serialization for better memory management) */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&target, &E_XREFTARGET_TYPEINFO);
     }
 
 
     ////////////////////////////////////////////////////////////////
     // eXRefProxy: render in scene
     ////////////////////////////////////////////////////////////////
-    bool eXRefProxy::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
+    bool eXRefProxy::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
     {
-        if (false == eNode::renderObject(draw_flags, anim, parent_srp, marked_id))
+        if (false == eNode::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
         {
             return false;
         }
 
         if (nullptr != target)
         {
-            target->renderObject(draw_flags, anim, parent_srp, marked_id);
+            target->renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id);
         }
 
         return true;

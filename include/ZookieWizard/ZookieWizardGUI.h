@@ -18,7 +18,9 @@ namespace ZookieWizard
         #define TEST_CAMERA_DEFAULT_SPEED_TEXT "10.0"
 
         #define TEST_CAMERA_NEAR_PLANE 1.0
-        #define TEST_CAMERA_FAR_PLANE 80000.0
+        #define TEST_CAMERA_FAR_PLANE 30000.0
+
+        #define TEST_CAMERA_FOV 45.0
 
         struct testCameraStruct
         {
@@ -34,6 +36,10 @@ namespace ZookieWizard
             double yaw;
             double speed;
 
+            float culling_normals[6][3];
+            float culling_points[6][3];
+            double aspect_ratio;
+
             int16_t mouse_prev_x;
             int16_t mouse_prev_y;
             uint8_t mouse_mode;
@@ -45,6 +51,7 @@ namespace ZookieWizard
 
             testCameraStruct();
             void reset(float, float, float);
+            void calculateFrustum();
         };
 
         extern HBITMAP myWindowLogo;

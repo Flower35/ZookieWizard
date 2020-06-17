@@ -96,7 +96,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     ePoint3 eGeometry::editingGetCenterPoint() const
     {
-        return (boxBoundMax - boxBoundMin) * 0.5f;
+        return (boxBoundMax + boxBoundMin) * 0.5f;
     }
 
 

@@ -3,6 +3,10 @@
 
 #include <kao2ar/Archive.h>
 
+#ifdef _DEBUG
+    #define DEBUG_CAMERA_CULLING
+#endif
+
 namespace ZookieWizard
 {
     namespace GUI
@@ -54,6 +58,10 @@ namespace ZookieWizard
 
             pitch = 0;
             yaw = 0;
+
+            aspect_ratio = (4.0 / 3.0);
+
+            calculateFrustum();
         }
 
         static eSRP selectedObjectNewTransform;
@@ -104,6 +112,152 @@ namespace ZookieWizard
 
 
         ////////////////////////////////////////////////////////////////
+        // Calculate frustum culling planes for camera
+        ////////////////////////////////////////////////////////////////
+        void testCameraStruct::calculateFrustum()
+        {
+            /* Dimensions of the viewing frustum */
+
+            const float test = tanf((float)((TEST_CAMERA_FOV / 180.0f * M_PI) / 2.0f));
+
+            const float near_half_height = (float)(test * TEST_CAMERA_NEAR_PLANE);
+            const float near_half_width = (float)(near_half_height * aspect_ratio);
+
+            ePoint3 eyes
+            (
+                (float)testCamera.pos_x,
+                (float)testCamera.pos_y,
+                (float)testCamera.pos_z
+            );
+
+            ePoint3 look
+            (
+                (float)testCamera.look_x,
+                (float)testCamera.look_y,
+                (float)testCamera.look_z
+            );
+
+            ePoint3 directions[3] =
+            {
+                {0, 1, 0}, // forwads [+Y]
+                {1, 0, 0}, // right [+X]
+                {0, 0, 1}  // upwards [+Z]
+            };
+
+            ePoint3 test_point = crossProduct(directions[0], look);
+
+            eQuat rotation =
+            {
+                test_point.x,
+                test_point.y,
+                test_point.z,
+                (- 1.0f - dotProduct(directions[0], look))
+            };
+
+            rotation.normalize();
+
+            /* Special case, when look direction is [0, -1, 0] */
+            if (rotation.getLength() <= 0)
+            {
+                rotation = {0, 0, 1, 0};
+            }
+
+            ePoint3 dir_right = (directions[1] * rotation) * near_half_width;
+            ePoint3 dir_up = (directions[2] * rotation) * near_half_height;
+
+            /* Near plane */
+
+            culling_points[0][0] = (float)(testCamera.pos_x + (TEST_CAMERA_NEAR_PLANE * testCamera.look_x));
+            culling_points[0][1] = (float)(testCamera.pos_y + (TEST_CAMERA_NEAR_PLANE * testCamera.look_y));
+            culling_points[0][2] = (float)(testCamera.pos_z + (TEST_CAMERA_NEAR_PLANE * testCamera.look_z));
+
+            culling_normals[0][0] = (float)testCamera.look_x;
+            culling_normals[0][1] = (float)testCamera.look_y;
+            culling_normals[0][2] = (float)testCamera.look_z;
+
+            /* Far plane */
+
+            culling_points[1][0] = (float)(testCamera.pos_x + (TEST_CAMERA_FAR_PLANE * testCamera.look_x));
+            culling_points[1][1] = (float)(testCamera.pos_y + (TEST_CAMERA_FAR_PLANE * testCamera.look_y));
+            culling_points[1][2] = (float)(testCamera.pos_z + (TEST_CAMERA_FAR_PLANE * testCamera.look_z));
+
+            culling_normals[1][0] = (float)(-testCamera.look_x);
+            culling_normals[1][1] = (float)(-testCamera.look_y);
+            culling_normals[1][2] = (float)(-testCamera.look_z);
+
+            /* 4 corners of the viewing frustum (near plane) */
+
+            ePoint4 corners[4];
+
+            for (int a = 0; a < 4; a++)
+            {
+                corners[a].x = culling_points[0][0];
+                corners[a].y = culling_points[0][1];
+                corners[a].z = culling_points[0][2];
+            }
+
+            corners[0] = corners[0] - dir_right; // left
+            corners[0] = corners[0] - dir_up; // bottom
+
+            corners[1] = corners[1] - dir_right; // left
+            corners[1] = corners[1] + dir_up; // top
+
+            corners[2] = corners[2] + dir_right; // right
+            corners[2] = corners[2] - dir_up; // bottom
+
+            corners[3] = corners[3] + dir_right; // right
+            corners[3] = corners[3] + dir_up; // top
+
+            /* Setting up points that are lying on 4 other planes (top, bottom, left, right) */
+
+            for (int a = 0; a < 4; a++)
+            {
+                int b = 2 + a;
+                int c = (a % 2) + 1; // top-left or bottom-right
+
+                culling_points[b][0] = corners[c].x;
+                culling_points[b][1] = corners[c].y;
+                culling_points[b][2] = corners[c].z;
+            }
+
+            /* Vectors from camera center to near-plane-corners */
+
+            for (int a = 0; a < 4; a++)
+            {
+                corners[a] = corners[a] - eyes;
+            }
+
+            /* Information for other planes: two vector IDs for cross product */
+            /* All normals are pointing INWARDS (from outside into the camera viewing frustum) */
+
+            const int other_planes_vectors[4][2] =
+            {
+                {1, 3}, // top plane (top-left x top-right)
+                {2, 0}, // bottom plane (bottom-right x bottom-left)
+                {0, 1}, // left plane (bottom-left x top-left)
+                {3, 2}  // right plane (top-right x bottom-right)
+            };
+
+            for (int a = 0; a < 4; a++)
+            {
+                int b = 2 + a;
+
+                ePoint4 dummy_vector = crossProduct
+                (
+                    corners[other_planes_vectors[a][0]],
+                    corners[other_planes_vectors[a][1]]
+                );
+
+                dummy_vector.normalize();
+
+                culling_normals[b][0] = dummy_vector.x;
+                culling_normals[b][1] = dummy_vector.y;
+                culling_normals[b][2] = dummy_vector.z;
+            }
+        }
+
+
+        ////////////////////////////////////////////////////////////////
         // Check if object is visible in camera
         ////////////////////////////////////////////////////////////////
         bool testWithCameraPlanes
@@ -112,8 +266,6 @@ namespace ZookieWizard
             float max_x, float max_y, float max_z
         )
         {
-            int32_t a, b;
-
             ePoint4 points[8] =
             {
                 {min_x, min_y, min_z, 0},
@@ -126,60 +278,65 @@ namespace ZookieWizard
                 {max_x, max_y, max_z, 0}
             };
 
-            ePoint4 plane_normals[2] =
+            for (int a = 0; a < 6; a++)
             {
-                {
-                    (float)testCamera.look_x,
-                    (float)testCamera.look_y,
-                    (float)testCamera.look_z,
+                ePoint4 plane_point
+                (
+                    testCamera.culling_points[a][0],
+                    testCamera.culling_points[a][1],
+                    testCamera.culling_points[a][2],
                     0
-                },
-                {
-                    (float)(-testCamera.look_x),
-                    (float)(-testCamera.look_y),
-                    (float)(-testCamera.look_z),
+                );
+
+                ePoint4 plane_normal
+                (
+                    testCamera.culling_normals[a][0],
+                    testCamera.culling_normals[a][1],
+                    testCamera.culling_normals[a][2],
                     0
-                }
-            };
+                );
 
-            ePoint4 plane_points[2] =
-            {
+                bool is_outside_some_plane = true;
+
+                for (int b = 0; (is_outside_some_plane) && (b < 8); b++)
                 {
-                    (float)(testCamera.pos_x + (TEST_CAMERA_NEAR_PLANE * testCamera.look_x)),
-                    (float)(testCamera.pos_y + (TEST_CAMERA_NEAR_PLANE * testCamera.look_y)),
-                    (float)(testCamera.pos_z + (TEST_CAMERA_NEAR_PLANE * testCamera.look_z)),
-                    0
-                },
-                {
-                    (float)(testCamera.pos_x + (TEST_CAMERA_FAR_PLANE * testCamera.look_x)),
-                    (float)(testCamera.pos_y + (TEST_CAMERA_FAR_PLANE * testCamera.look_y)),
-                    (float)(testCamera.pos_z + (TEST_CAMERA_FAR_PLANE * testCamera.look_z)),
-                    0
-                }
-            };
-
-            ePoint4 dummy_vector;
-            float dummy_product;
-
-            for (a = 0; a < 2; a++)
-            {
-                for (b = 0; b < 8; b++)
-                {
-                    dummy_vector = points[b] - plane_points[a];
-                    dummy_product = dotProduct(plane_normals[a], dummy_vector);
-
-                    /* At least one point is further than the "Near plane" */
-                    if (dummy_product > 0)
+                    if (dotProduct(plane_normal, (points[b] - plane_point)) > 0)
                     {
-                        return true;
+                        /* At least one point of the bounding box */
+                        /* is inside the viewing frustum */
+                        is_outside_some_plane = false;
                     }
                 }
 
-                return false;
+                if (is_outside_some_plane)
+                {
+                    /* Every corner of the bounding box is outside ONE of the planes */
+                    /* (please notice that it will never be outside ALL of the planes) */
+
+                    #ifdef DEBUG_CAMERA_CULLING
+                        glPushMatrix();
+
+                        glLoadIdentity();
+
+                        gluLookAt
+                        (
+                            testCamera.pos_x, testCamera.pos_y, testCamera.pos_z,
+                            (testCamera.pos_x + testCamera.look_x),
+                            (testCamera.pos_y + testCamera.look_y),
+                            (testCamera.pos_z + testCamera.look_z),
+                            0, 0, 1.0
+                        );
+
+                        renderBoundingBox(1.0f, 1.0f, 0, 0, min_x, min_y, min_z, max_x, max_y, max_z);
+
+                        glPopMatrix();
+                    #endif
+
+                    return false;
+                }
             }
 
-            /* Every point of the bounding box is behind the camera */
-            return false;
+            return true;
         }
 
 
@@ -305,10 +462,12 @@ namespace ZookieWizard
             }
             else
             {
+                testCamera.aspect_ratio = ((double)new_width / (double)new_height);
+
                 gluPerspective
                 (
-                    45.0, // field of view
-                    ((GLfloat)new_width / (GLfloat)new_height), // aspect ratio
+                    TEST_CAMERA_FOV, // field of view
+                    testCamera.aspect_ratio, // aspect ratio
                     TEST_CAMERA_NEAR_PLANE, // zNear
                     TEST_CAMERA_FAR_PLANE // zFar
                 );
@@ -387,6 +546,7 @@ namespace ZookieWizard
         void moveCameraOrObject(int8_t x, int8_t y, int8_t z, uint8_t movement_mode)
         {
             bool angle_calculations = false;
+            bool frustum_calculations = false;
             float dir_x, dir_y, dir_z, dummy_angle;
             eQuat test_quaternion;
             ePoint3 test_direction;
@@ -421,6 +581,7 @@ namespace ZookieWizard
                         testCamera.pitch += (dir_z * ROTATING_SPEED * (testCamera.speed / 2.0));
 
                         angle_calculations = true;
+                        frustum_calculations = true;
                     }
                     else if ((0 == movement_mode) || (2 == movement_mode))
                     {
@@ -431,6 +592,8 @@ namespace ZookieWizard
                         {
                             testCamera.pos_x += (dir_x * testCamera.look_y * STRAFING_SPEED * testCamera.speed);
                             testCamera.pos_y -= (dir_x * testCamera.look_x * STRAFING_SPEED * testCamera.speed);
+
+                            frustum_calculations = true;
                         }
 
                         /* (y > 0) move forwards */
@@ -441,6 +604,18 @@ namespace ZookieWizard
                             testCamera.pos_x += (dir_y * testCamera.look_x * STRAFING_SPEED * testCamera.speed);
                             testCamera.pos_y += (dir_y * testCamera.look_y * STRAFING_SPEED * testCamera.speed);
                             testCamera.pos_z += (dir_y * testCamera.look_z * STRAFING_SPEED * testCamera.speed);
+
+                            frustum_calculations = true;
+                        }
+
+                        /* (z > 0) move uprawds */
+                        /* (z < 0) move downwards */
+
+                        if (0 != z)
+                        {
+                            testCamera.pos_z += (dir_z * STRAFING_SPEED * testCamera.speed);
+
+                            frustum_calculations = true;
                         }
                     }
                 }
@@ -487,7 +662,7 @@ namespace ZookieWizard
 
                         /* If camera is pointing "Y-forwards", the rotation will occur around "X-axis" */
                         dummy_angle = (float)(dir_y * ROTATING_SPEED * testCamera.speed * 10.0);
-                        test_quaternion.fromAxisAngle(test_direction, (M_PI * dummy_angle / 180.0f));
+                        test_quaternion.fromAxisAngle(test_direction, (float)(M_PI * dummy_angle / 180.0f));
 
                         selectedObjectNewTransform.rot = selectedObjectNewTransform.rot * test_quaternion;
                     }
@@ -499,7 +674,7 @@ namespace ZookieWizard
 
                         /* If camera is pointing "Y-forwards", the rotation will occur around "Y-axis" */
                         dummy_angle = (float)(dir_z * ROTATING_SPEED * testCamera.speed * 10.0);
-                        test_quaternion.fromAxisAngle(test_direction, (M_PI * dummy_angle / 180.0f));
+                        test_quaternion.fromAxisAngle(test_direction, (float)(M_PI * dummy_angle / 180.0f));
 
                         selectedObjectNewTransform.rot = selectedObjectNewTransform.rot * test_quaternion;
                     }
@@ -529,6 +704,13 @@ namespace ZookieWizard
                 testCamera.look_x = cos(testCamera.pitch) * sin(testCamera.yaw);
                 testCamera.look_y = cos(testCamera.pitch) * cos(testCamera.yaw);
                 testCamera.look_z = sin(testCamera.pitch);
+            }
+
+            /* Update viewing frustum */
+
+            if (frustum_calculations)
+            {
+                testCamera.calculateFrustum();
             }
         }
 
@@ -616,7 +798,7 @@ namespace ZookieWizard
             };
 
             float time = fmod(timerGetCurrent(), GLOW_INTERVAL);
-            float ratio = std::fabs(std::sinf(M_PI * time / GLOW_INTERVAL));
+            float ratio = std::fabs(std::sinf((float)(M_PI * time / GLOW_INTERVAL)));
             float inv_ratio = (1.0f - ratio);
 
             color_r = ratio * tones[0][0] + inv_ratio * tones[1][0];
@@ -640,7 +822,8 @@ namespace ZookieWizard
 
             /* Limit rendering to 60 fps */
 
-            if (time_start >= (1.0f / 60.0f))
+            //// if (time_elapsed >= (1.0f / 60.0f))
+            if (true) // [DEBUG] (makes system unresponsive for no reason)
             {
                 /* Remeber current frame starting time */
 
@@ -708,7 +891,7 @@ namespace ZookieWizard
             }
             else
             {
-                return GetTickCount();
+                return GetTickCount64();
             }
         }
 

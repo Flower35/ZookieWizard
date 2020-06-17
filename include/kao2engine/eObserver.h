@@ -38,6 +38,14 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            float getFieldOfView() const;
+            float getNearPlane() const;
+            float getFarPlane() const;
+
+            void setFieldOfView(float new_fov);
+            void setNearPlane(float new_value);
+            void setFarPlane(float new_value);
     };
 
 

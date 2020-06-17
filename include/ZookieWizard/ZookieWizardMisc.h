@@ -3,7 +3,7 @@
 
 namespace ZookieWizard
 {
-    
+
     ////////////////////////////////////////////////////////////////
     // miscellaneous
     ////////////////////////////////////////////////////////////////
@@ -33,13 +33,17 @@ namespace ZookieWizard
         void openOrSaveAr(int);
         void setGameVersion(int);
         void writeArStructureToTextFile();
+        void bulkArchiveConverter();
 
         void openDenisLevel();
         void convertDenisLevel();
 
+        void generateEmptyScene();
+
         void exportArToCollada();
         void exportTrimeshToObj();
         void importTrimeshFromObj();
+        void importNodesFromTxt();
 }
 
 #endif

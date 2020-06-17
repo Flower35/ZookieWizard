@@ -16,7 +16,7 @@ namespace ZookieWizard
         #define ZOOKIEWIZARD_SPECIALMODEL_COUNT 3
 
         bool prepareSpecialModels();
-        void renderSpecialModel(int32_t id);
+        void renderSpecialModel(bool use_texture, int32_t id);
         void clearSpecialModels();
     }
 }

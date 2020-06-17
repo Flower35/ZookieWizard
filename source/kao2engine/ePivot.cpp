@@ -125,14 +125,14 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ePivot: set animation object for rendering
     ////////////////////////////////////////////////////////////////
-    bool ePivot::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
+    bool ePivot::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
     {
         if (GUI::drawFlags::DRAW_FLAG_ANIMS & draw_flags)
         {
             animations.setAnimation(GUI::animationID, GUI::timerGetFrames());
         }
 
-        return eTransform::renderObject(draw_flags, &animations, parent_srp, marked_id);
+        return eTransform::renderObject(draw_flags, &animations, parent_srp, parent_matrix, marked_id);
     }
 
 
@@ -141,6 +141,10 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void ePivot::updateSRP(bool update, eAnimate* anim, eSRP &parent_srp)
     {
+        /* Do NOT animate SRP directly for Actors, as they have weird tracks attached */
+
+        modifiedTransform[1] = modifiedTransform[0].applyAnotherSRP(parent_srp);
+
         return;
     }
 

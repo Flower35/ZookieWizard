@@ -82,6 +82,7 @@ namespace ZookieWizard
             if (ar.isInReadMode())
             {
                 fog->decRef();
+                fog = nullptr;
             }
         }
     }
@@ -95,6 +96,15 @@ namespace ZookieWizard
         lights.findAndDeleteChild((eRefCounter*)target);
 
         eGroup::findAndDereference(target);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eEnvironment: add lighting source
+    ////////////////////////////////////////////////////////////////
+    void eEnvironment::addLighting(eLight* new_light)
+    {
+        lights.appendChild(new_light);
     }
 
 }

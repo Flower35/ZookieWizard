@@ -22,6 +22,7 @@ namespace ZookieWizard
             /*[0xA8]*/ eCtrl<eSRP>* ctrl;
 
             eSRP modifiedTransform[2];
+            eMatrix4x4 currentMatrix;
             float transposedMatrix[16];
             bool jointType;
 
@@ -37,7 +38,7 @@ namespace ZookieWizard
 
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
-            bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id) override;
+            bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id) override;
             void updateSRP(bool update, eAnimate* anim, eSRP &parent_srp) override;
 
             ePoint3 editingGetCenterPoint() const override;

@@ -32,16 +32,14 @@ namespace ZookieWizard
     : eLight()
     {
         /*[0x6C-0x74]*/
-        direction[0] = 1.0f;
-        direction[1] = 0;
-        direction[2] = 0;
+        position.x = 1.0f;
 
-        /*[0x78]*/ unknown_78 = nullptr;
+        /*[0x78]*/ target = nullptr;
     }
 
     eDirectionalLight::~eDirectionalLight()
     {
-        unknown_78->decRef();
+        target->decRef();
     }
 
 
@@ -53,11 +51,24 @@ namespace ZookieWizard
     {
         eLight::serialize(ar);
 
-        ar.readOrWrite(&(direction[0]), 0x04);
-        ar.readOrWrite(&(direction[1]), 0x04);
-        ar.readOrWrite(&(direction[2]), 0x04);
+        position.serialize(ar);
 
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_78, &E_TRANSFORM_TYPEINFO);
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&target, &E_TRANSFORM_TYPEINFO);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eDirectionalLight: get or set position
+    ////////////////////////////////////////////////////////////////
+
+    ePoint3 eDirectionalLight::getPosition() const
+    {
+        return position;
+    }
+
+    void eDirectionalLight::setPosition(ePoint3 &new_position)
+    {
+        position = new_position;
     }
 
 }

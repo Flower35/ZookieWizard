@@ -85,54 +85,14 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eCamera: render
     ////////////////////////////////////////////////////////////////
-    bool eCamera::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, int32_t marked_id)
+    bool eCamera::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
     {
-        bool is_selected_or_marked;
-
-        /* Inactive color (white) */
-        float color[3] = {1.0f, 1.0f, 1.0f};
-
-        eSRP rendered_srp;
-        float test_matrix[16];
-
         if (GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_flags)
         {
-            if (false == eTransform::renderObject(draw_flags, anim, parent_srp, marked_id))
+            if (false == eTransform::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
             {
                 return false;
             }
-
-            is_selected_or_marked = (((-2) == marked_id) || ((-1) == marked_id));
-
-            if (is_selected_or_marked)
-            {
-                /* This object is selected (-1) or marked (-2) and can be moved around */
-                glPushMatrix();
-                GUI::multiplyBySelectedObjectTransform();
-            }
-            else
-            {
-                rendered_srp = modifiedTransform[0];
-            }
-
-            if ((GUI::drawFlags::DRAW_FLAG_OUTLINE & draw_flags) && (((-2) == marked_id) || ((-3) == marked_id)))
-            {
-                /* Active color */
-                GUI::colorOfMarkedObject(color[0], color[1], color[2]);
-            }
-
-            if (false == is_selected_or_marked)
-            {
-                rendered_srp.getMatrix().transpose(test_matrix);
-                glPushMatrix();
-                glMultMatrixf(test_matrix);
-            }
-
-            glColor3f(color[0], color[1], color[2]);
-            GUI::renderSpecialModel(ZOOKIEWIZARD_SPECIALMODEL_CAMERA);
-            glColor3f(1.0f, 1.0f, 1.0f);
-
-            glPopMatrix();
         }
 
         return true;
@@ -160,6 +120,28 @@ namespace ZookieWizard
                     camTarget->setParentNode(nullptr);
                 }
             }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCamera: get or set the target point
+    ////////////////////////////////////////////////////////////////
+
+    eTransform* eCamera::getCameraTarget() const
+    {
+        return camTarget;
+    }
+
+    void eCamera::setCameraTarget(eTransform* new_target)
+    {
+        camTarget->decRef();
+
+        camTarget = new_target;
+
+        if (nullptr != camTarget)
+        {
+            camTarget->incRef();
         }
     }
 
