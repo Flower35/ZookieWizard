@@ -670,15 +670,14 @@ namespace ZookieWizard
     eMatrix4x4 operator * (const eMatrix4x4 &a, const eMatrix4x4 &b)
     {
         eMatrix4x4 c;
-        int32_t i, j, k;
 
-        for (i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
-            for (j = 0; j < 4; j++)
+            for (int j = 0; j < 4; j++)
             {
                 c.m[i][j] = 0;
 
-                for (k = 0; k < 4; k++)
+                for (int k = 0; k < 4; k++)
                 {
                     c.m[i][j] += a.m[i][k] * b.m[k][j];
                 }
@@ -690,35 +689,36 @@ namespace ZookieWizard
 
     ePoint4 operator * (const eMatrix4x4 &a, const ePoint4 &p)
     {
-        float b[4] = {p.x, p.y, p.z, p.w};
-        float c[4];
-        int32_t i, j;
-
-        for (i = 0; i < 4; i++)
+        return ePoint4
         {
-            c[i] = 0;
-
-            for (j = 0; j < 4; j++)
-            {
-                c[i] += a.m[i][j] * b[j];
-            }
-        }
-
-        return ePoint4(c[0], c[1], c[2], c[3]);
+            (a.m[0][0] * p.x) + (a.m[0][1] * p.y) + (a.m[0][2] * p.z) + (a.m[0][3] * p.w),
+            (a.m[1][0] * p.x) + (a.m[1][1] * p.y) + (a.m[1][2] * p.z) + (a.m[1][3] * p.w),
+            (a.m[2][0] * p.x) + (a.m[2][1] * p.y) + (a.m[2][2] * p.z) + (a.m[2][3] * p.w),
+            (a.m[3][0] * p.x) + (a.m[3][1] * p.y) + (a.m[3][2] * p.z) + (a.m[3][3] * p.w)
+        };
     }
 
     void eMatrix4x4::transpose(float result[16]) const
     {
-        int32_t columns;
-        int32_t rows;
+        result[0] = m[0][0];
+        result[1] = m[1][0];
+        result[2] = m[2][0];
+        result[3] = m[3][0];
 
-        for (rows = 0; rows < 4; rows++)
-        {
-            for (columns = 0; columns < 4; columns++)
-            {
-                result[4 * columns + rows] = m[rows][columns];
-            }
-        }
+        result[4] = m[0][1];
+        result[5] = m[1][1];
+        result[6] = m[2][1];
+        result[7] = m[3][1];
+
+        result[8] = m[0][2];
+        result[9] = m[1][2];
+        result[10] = m[2][2];
+        result[11] = m[3][2];
+
+        result[12] = m[0][3];
+        result[13] = m[1][3];
+        result[14] = m[2][3];
+        result[15] = m[3][3];
     }
 
     void eMatrix4x4::serialize(Archive &ar)

@@ -175,6 +175,27 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // Actor: destroy before dereferencing
+    ////////////////////////////////////////////////////////////////
+    void Actor::destroyNode()
+    {
+        /* Actors could contain references to themselves in NodeRefs */
+
+        unknown_04D0.clear();
+
+        unknown_04DC.clear();
+
+        if (nullptr != script)
+        {
+            script->decRef();
+            script = nullptr;
+        }
+
+        ePivot::destroyNode();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Actor: save script file
     ////////////////////////////////////////////////////////////////
     void Actor::saveMyScript(Archive &ar) const

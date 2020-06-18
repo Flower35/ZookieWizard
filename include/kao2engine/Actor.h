@@ -36,6 +36,8 @@ namespace ZookieWizard
 
             void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
 
+            void destroyNode() override;
+
             void saveMyScript(Archive &ar) const;
     };
 

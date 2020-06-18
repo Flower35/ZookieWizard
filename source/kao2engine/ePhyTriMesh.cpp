@@ -170,9 +170,30 @@ namespace ZookieWizard
                 );
             }
 
-            /********************************/
-            /* (--dsp--) This leads to some broken animations (eg. beavers) */
-            //// sortBoneIndices();
+            bool test = false;
+            int length = vertices->getLength();
+
+            if (false == (test = (defaultVertices->getLength() != length)))
+            {
+                if (false == (test = (defaultNormals->getLength() != length)))
+                {
+                    if (false == (test = (geo->getVerticesArray()->getLength() != length)))
+                    {
+                        test = (geo->getNormalsArray()->getLength() != length);
+                    }
+                }
+            }
+
+            if (true == test)
+            {
+                throw ErrorMessage
+                (
+                    "ePhyTriMesh::serialize():\n" \
+                    "invalid vertices count!"
+                );
+
+                return;
+            }
         }
 
         /* MorpherMod */
@@ -656,74 +677,23 @@ namespace ZookieWizard
     void ePhyTriMesh::animateVertices()
     {
         int32_t i, j;
-        int32_t length;
         int32_t bone_index;
         float bone_weight;
-        bool test;
 
         ePoint4 newVertex;
         ePoint4 newNormal;
         ePoint4 tempVertex;
         ePoint4 tempNormal;
 
-        ePhyVertex* phyVertices;
-        ePoint4* sourceVertices;
-        ePoint4* sourceNormals;
-        ePoint4* destinationVertices;
-        ePoint4* destinationNormals;
-
-        /* Sanity check */
-
-        test = false;
-        length = vertices->getLength();
-
-        if (!test)
-        {
-            i = defaultVertices->getLength();
-
-            test = ((0 != i) && (length != i));
-        }
-
-        if (!test)
-        {
-            i = defaultNormals->getLength();
-
-            test = ((0 != i) && (length != i));
-        }
-
-        if (!test)
-        {
-            i = geo->getVerticesArray()->getLength();
-
-            test = ((0 != i) && (length != i));
-        }
-
-        if (!test)
-        {
-            i = geo->getNormalsArray()->getLength();
-
-            test = ((0 != i) && (length != i));
-        }
-
-        if (test)
-        {
-            throw ErrorMessage
-            (
-                "ePhyTriMesh::animateVertices():\n" \
-                "invalid vertices count!"
-            );
-
-            return;
-        }
-
         /* Set arrays */
 
-        phyVertices = vertices->getData();
+        int32_t length = vertices->getLength();
+        ePhyVertex* phyVertices = vertices->getData();
 
-        sourceVertices = defaultVertices->getData();
-        sourceNormals = defaultNormals->getData();
-        destinationVertices = geo->getVerticesArray()->getData();
-        destinationNormals = geo->getNormalsArray()->getData();
+        ePoint4* sourceVertices = defaultVertices->getData();
+        ePoint4* sourceNormals = defaultNormals->getData();
+        ePoint4* destinationVertices = geo->getVerticesArray()->getData();
+        ePoint4* destinationNormals = geo->getNormalsArray()->getData();
 
         if (nullptr == sourceVertices)
         {

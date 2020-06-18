@@ -47,7 +47,7 @@ namespace ZookieWizard
             /*[0x0C]*/ eString name;
             /*[0x10]*/ State* ownerState;
             /*[0x14 - 0x1C]*/ Collection<ArFunctions::serialize_eRefCounter> subStates;
-            /*[0x20]*/ State* currentState;
+            /*[0x20]*/ State* defaultState;
             /*[0x24 - 0x2C]*/ Collection<ArFunctions::serialize_StringSection> stringSections;
             /*[0x30 - 0x38]*/ Collection<ArFunctions::serialize_Property> properties;
             /*[0x3C - 0x44]*/ VoidInstruction* instructions[3];

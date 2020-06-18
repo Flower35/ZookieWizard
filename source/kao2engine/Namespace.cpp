@@ -43,6 +43,8 @@ namespace ZookieWizard
         {
             delete[](nodeRefNames);
         }
+
+        unknown_0078->decRef();
     }
 
 

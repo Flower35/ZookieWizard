@@ -16,17 +16,27 @@ namespace ZookieWizard
     template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
     Collection<Func>::~Collection()
     {
-        int32_t i;
+        clear();
 
         if (nullptr != children)
         {
-            for (i = 0; i < count; i++)
-            {
-                children[i]->decRef();
-            }
-
             delete[](children);
         }
+    }
+
+    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    void Collection<Func>::clear()
+    {
+        for (int32_t i = 0; i < count; i++)
+        {
+            if (nullptr != children[i])
+            {
+                children[i]->decRef();
+                children[i] = nullptr;
+            }
+        }
+
+        count = 0;
     }
 
     template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>

@@ -33,6 +33,8 @@ namespace ZookieWizard
             Collection<Func>();
             ~Collection<Func>();
 
+            void clear();
+
             void serialize(Archive &ar, TypeInfo* t);
 
             int32_t getSize() const;

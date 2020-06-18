@@ -206,7 +206,7 @@ namespace ZookieWizard
             GUI::changeView(true);
 
             /* DEBUG (moving objects) */
-            if (false && (0 != displayList))
+            if (0 != displayList)
             {
                 glCallList(displayList + texID);
             }
@@ -218,7 +218,7 @@ namespace ZookieWizard
                     phy->animateVertices();
                 }
 
-                displayVertexBufferObject(texID, false);
+                displayVertexBufferObject(texID);
             }
 
             if (0 != tex_name)
@@ -255,10 +255,9 @@ namespace ZookieWizard
     // eGeoSet: generate OpenGL Display List
     // <kao2.0046A190>
     ////////////////////////////////////////////////////////////////
-    void eGeoSet::displayVertexBufferObject(int32_t texID, bool c) const
+    void eGeoSet::displayVertexBufferObject(int32_t texID) const
     {
-        int32_t i;
-        int32_t j;
+        int32_t i, j;
 
         /* VERTICES */
 
@@ -303,7 +302,7 @@ namespace ZookieWizard
 
         /* (--dsp--) COLORS (disabled: no dynamic lights in renderer) */
 
-        if ((false) && (false == c))
+        if (false)
         {
             if (nullptr != colorsArray)
             {
@@ -327,11 +326,6 @@ namespace ZookieWizard
 
             for (i = 0; i < indicesOffsets->getLength(); i++)
             {
-                if (true == c)
-                {
-                    /* (--dsp--) <kao2.0046A268> */
-                }
-
                 if (nullptr != indicesArray)
                 {
                     glDrawElements
@@ -380,8 +374,8 @@ namespace ZookieWizard
 
         /* DISABLE CLIENT STATES */
 
-        glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
     }
@@ -393,37 +387,9 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGeoSet::prepareForDrawing()
     {
-        int32_t a;
-        int32_t b;
-        GLuint lists;
-
-        if (0 == displayList)
+        if (0 != displayList)
         {
-            if ((referenceCount > 2) && (nullptr != phy))
-            {
-                unknown_08 |= 0x00001000;
-            }
-
-            /* Lists are NOT generated for animated meshes */
-            if (0 == (0x00000100 & unknown_08))
-            {
-                b = getTextureCoordsCount();
-
-                lists = glGenLists(b);
-
-                for (a = 0; a < b; a++)
-                {
-                    /* (--dsp--) "eDrawContext" <kao2.0046A679> */
-
-                    glNewList((lists + a), GL_COMPILE);
-
-                    displayVertexBufferObject(a, false);
-
-                    glEndList();
-                }
-
-                displayList = lists;
-            }
+            glDeleteLists(displayList, getTextureCoordsCount());
         }
     }
 

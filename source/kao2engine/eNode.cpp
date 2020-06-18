@@ -256,19 +256,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eNode::destroyNode()
     {
-        eString result;
-
         editingClearCollision();
-
-        /* Leave a message! */
-
-        result += " - node (";
-        result += getType()->name;
-        result += ") \"";
-        result += name;
-        result += "\" was marked for deletion.\n";
-
-        theLog.print(result);
     }
 
 

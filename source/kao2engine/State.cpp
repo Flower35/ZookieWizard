@@ -40,7 +40,7 @@ namespace ZookieWizard
         /*[0x09]*/ isTerminal = false;
         /*[0x0C]*/ name = s;
         /*[0x10]*/ ownerState = x;
-        /*[0x20]*/ currentState = nullptr;
+        /*[0x20]*/ defaultState = nullptr;
 
         /*[0x3C-0x44]*/
         instructions[0] = nullptr;
@@ -64,6 +64,8 @@ namespace ZookieWizard
         {
             delete[](newGadgets);
         }
+
+        defaultState->decRef();
     }
 
 
@@ -136,8 +138,8 @@ namespace ZookieWizard
 
         if (ar.getVersion() <= 0x87)
         {
-            /* [0x20] Default state link */
-            ar.serialize((eObject**)&currentState, &E_STATE_TYPEINFO);
+            /* [0x20] Default state (changed from a link to reference for better memory management) */
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&defaultState, &E_STATE_TYPEINFO);
         }
 
         /* [0x24] Collection of String Sections */
@@ -217,7 +219,7 @@ namespace ZookieWizard
             ar.readOrWrite(&unknown_78, 0x04);
 
             /* [0x20] Default state with reference */
-            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&currentState, &E_STATE_TYPEINFO);
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&defaultState, &E_STATE_TYPEINFO);
 
             /* [0x6C-0x74] new gadgets group */
 

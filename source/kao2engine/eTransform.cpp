@@ -187,34 +187,36 @@ namespace ZookieWizard
     void eTransform::updateSRP(bool update, eAnimate* anim, eSRP &parent_srp)
     {
         eSRP test_srp;
-        eSRP previous_srp;
 
         if (update)
         {
-            if ((nullptr != ctrl) && (nullptr != anim))
+            if (nullptr != ctrl)
             {
-                previous_srp = modifiedTransform[0];
+                if (nullptr != anim)
+                {
+                    modifiedTransform[0] = ctrl->ctrlGetTransform(test_srp, anim);
+                }
+                else
+                {
+                    modifiedTransform[0] = defaultTransform[0];
+                }
 
-                modifiedTransform[0] = ctrl->ctrlGetTransform(test_srp, anim);
+                /* Update render matrix */
 
-                /* (--dsp--) Checking if `previous_srp != form01` and changing some "eNode" flags */
+                currentMatrix = modifiedTransform[0].getMatrix();
+                currentMatrix.transpose(transposedMatrix);
             }
-            else
-            {
-                modifiedTransform[0] = defaultTransform[0];
-            }
 
-            /* Update render matrix */
+            /* Update world transformation matrix */
 
-            currentMatrix = modifiedTransform[0].getMatrix();
-            currentMatrix.transpose(transposedMatrix);
+            modifiedTransform[1] = modifiedTransform[0].applyAnotherSRP(parent_srp);
+
+            /* (--dsp--) <kao2.0047BD9A> (update "eALBox" if exists) */
         }
-
-        /* Update world transformation matrix */
-
-        modifiedTransform[1] = modifiedTransform[0].applyAnotherSRP(parent_srp);
-
-        /* (--dsp--) <kao2.0047BD9A> (update "eALBox" if exists) */
+        else
+        {
+            modifiedTransform[1] = test_srp;
+        }
     }
 
 
