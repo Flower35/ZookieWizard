@@ -17,23 +17,23 @@ namespace ZookieWizard
 
     const char* theNodeFlagNames[32] =
     {
-        "Enabled", // 0x00000001
+        "Visible (node)", // 0x00000001
         "???", // 0x00000002
-        "???", // 0x00000004
-        "???", // 0x00000008
+        "Awoken (actor)", // 0x00000004
+        "Enabled (node)", // 0x00000008
         "???", // 0x00000010
         "???", // 0x00000020
         "???", // 0x00000040
         "???", // 0x00000080
         "???", // 0x00000100
         "???", // 0x00000200
-        "Checked when rendering groups", // 0x00000400
+        "Can be rendered (node)", // 0x00000400
         "???", // 0x00000800
-        "???", // 0x00001000
+        "SRP Inheritance (pivot)", // 0x00001000
         "???", // 0x00002000
-        "???", // 0x00004000
+        "Anim Inheritance (pivot)", // 0x00004000
         "???", // 0x00008000
-        "Proxy already loaded", // 0x00010000
+        "Already loaded (proxy)", // 0x00010000
         "???", // 0x00020000
         "???", // 0x00040000
         "???", // 0x00080000
@@ -45,9 +45,9 @@ namespace ZookieWizard
         "???", // 0x02000000
         "???", // 0x04000000
         "???", // 0x08000000
-        "???", // 0x10000000
-        "???", // 0x20000000
-        "???", // 0x40000000
+        "\"WS mesh\" DrawPass #1", // 0x10000000
+        "\"WS mesh\" DrawPass #2", // 0x20000000
+        "\"WS mesh\" DrawPass #3", // 0x40000000
         "???", // 0x80000000
     };
 
@@ -116,8 +116,8 @@ namespace ZookieWizard
 
     eNode::~eNode()
     {
-        eString result;
-        char bufor[16];
+        //// eString result;
+        //// char bufor[16];
 
         unknown_34->decRef();
         axisListBox->decRef();
@@ -138,15 +138,15 @@ namespace ZookieWizard
 
         /* Leave a message! */
 
-        sprintf_s(bufor, 16, "%d", theNodesCounter);
+        //// sprintf_s(bufor, 16, "%d", theNodesCounter);
 
-        result += " - node \"";
-        result += name;
-        result += "\" destroyed! [";
-        result += bufor;
-        result += " still exist]\n";
+        //// result += " - node \"";
+        //// result += name;
+        //// result += "\" destroyed! [";
+        //// result += bufor;
+        //// result += " still exist]\n";
 
-        theLog.print(result);
+        //// theLog.print(result);
     }
 
 
@@ -183,6 +183,9 @@ namespace ZookieWizard
                 GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_WARNING, bufor);
             }
         }
+
+        /* (--dsp--) DEBUG DEBUG DEBUG DEBUG */
+        unknown_0C = 0x00FFFFFF;
 
         ar.readOrWrite(&unknown_0C, 0x04);
 
@@ -221,9 +224,9 @@ namespace ZookieWizard
 
         ar.readOrWrite(&flags02, 0x02);
 
-        if (false == ar.isInReadMode())
+        if (ar.isInReadMode())
         {
-            flags02 |= 0x2000;
+            flags |= 0x00002000;
         }
 
         /* From "Kao Challengers" */
@@ -523,8 +526,10 @@ namespace ZookieWizard
         (
             bufor,
             512,
-            " - flags: %08X (visGroup: %d)",
+            " - flags: %08X %08X %04X (visGroup: %d)",
+            unknown_0C,
             flags,
+            flags02,
             visGroup
         );
 

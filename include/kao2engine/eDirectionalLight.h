@@ -33,6 +33,9 @@ namespace ZookieWizard
 
             ePoint3 getPosition() const;
             void setPosition(ePoint3 &new_position);
+
+            eTransform* getLightTarget() const;
+            void setLightTarget(eTransform* new_target);
     };
 
 

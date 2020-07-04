@@ -218,7 +218,7 @@ namespace ZookieWizard
                     phy->animateVertices();
                 }
 
-                displayVertexBufferObject(texID);
+                displayVertexBufferObject(texID, GUI::drawFlags::DRAW_FLAG_COLORS & draw_flags);
             }
 
             if (0 != tex_name)
@@ -255,7 +255,7 @@ namespace ZookieWizard
     // eGeoSet: generate OpenGL Display List
     // <kao2.0046A190>
     ////////////////////////////////////////////////////////////////
-    void eGeoSet::displayVertexBufferObject(int32_t texID) const
+    void eGeoSet::displayVertexBufferObject(int32_t texID, bool use_color) const
     {
         int32_t i, j;
 
@@ -300,22 +300,19 @@ namespace ZookieWizard
             );
         };
 
-        /* (--dsp--) COLORS (disabled: no dynamic lights in renderer) */
+        /* (COLORS */
 
-        if (false)
+        if (use_color && (nullptr != colorsArray))
         {
-            if (nullptr != colorsArray)
-            {
-                glEnableClientState(GL_COLOR_ARRAY);
+            glEnableClientState(GL_COLOR_ARRAY);
 
-                glColorPointer
-                (
-                    0x04,
-                    GL_FLOAT,
-                    0,
-                    colorsArray->getData()
-                );
-            }
+            glColorPointer
+            (
+                0x04,
+                GL_FLOAT,
+                0,
+                colorsArray->getData()
+            );
         }
 
         /* INDICES (strips or triangles) */

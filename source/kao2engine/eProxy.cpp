@@ -47,8 +47,6 @@ namespace ZookieWizard
     void eProxy::serialize(Archive &ar)
     {
         int32_t a, b;
-        eXRefTarget* test_xref_taget;
-        eXRefProxy* test_xref_proxy;
         eNode* test_node;
 
         if (externalContent && (false == ar.isInReadMode()))
@@ -89,52 +87,7 @@ namespace ZookieWizard
 
         if (ar.isInReadMode())
         {
-            /* Checking for proxies that have scripts in place of the name */
-            /* and usually contain some children nodes */
-
-            a = true;
-
-            switch (category)
-            {
-                case 1: // "hero"
-                case 2: // "powerup"
-                case 3: // "enemy"
-                case 4: // "fluff"
-                case 6: // "object"
-                {
-                    a = false; // just skip loading anything external
-
-                    break;
-                }
-            }
-
-            /* Is this "eProxy" NOT already loaded? */
-
-            if (a && (0 == (0x00010000 & flags)))
-            {
-                if (nodes.getSize() <= 0)
-                {
-                    if (canBeLoadedOrExported(b))
-                    {
-                        test_xref_taget = new eXRefTarget;
-                        test_xref_taget->incRef();
-
-                        if (test_xref_taget->loadTarget(ar, b, targetFile))
-                        {
-                            test_xref_proxy = new eXRefProxy(test_xref_taget);
-                            test_xref_proxy->incRef();
-
-                            nodes.appendChild(test_xref_proxy);
-
-                            test_xref_proxy->decRef();
-
-                            externalContent = true;
-                        }
-
-                        test_xref_taget->decRef();
-                    }
-                }
-            }
+            reloadXRef(ar);
         }
 
         /********************************/
@@ -142,25 +95,7 @@ namespace ZookieWizard
 
         if (externalContent && ar.isInExportProxiesMode())
         {
-            if (canBeLoadedOrExported(b))
-            {
-                test_xref_proxy = (eXRefProxy*)nodes.getIthChild(nodes.getSize() - 1);
-
-                if (nullptr != test_xref_proxy)
-                {
-                    /* Child node could be "eTriMesh" */
-
-                    if (test_xref_proxy->getType()->checkHierarchy(&E_XREFPROXY_TYPEINFO))
-                    {
-                        test_xref_taget = test_xref_proxy->getXRefTarget();
-
-                        if (nullptr != test_xref_taget)
-                        {
-                            test_xref_taget->exportTarget(ar, b);
-                        }
-                    }
-                }
-            }
+            exportXRef(ar);
         }
     }
 
@@ -199,44 +134,95 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eProxy: set archive flags and file extension
+    // eProxy: reload XRef
     ////////////////////////////////////////////////////////////////
-    bool eProxy::canBeLoadedOrExported(int32_t &ar_flags)
+    void eProxy::reloadXRef(Archive &ar)
     {
-        if (targetFile.getLength() > 0)
+        int32_t ar_flags;
+
+        eXRefTarget* test_xref_taget;
+        eXRefProxy* test_xref_proxy;
+
+        /* The category must be "particle" or "geoproxy" */
+
+        if (0 == category)
         {
-            if ('?' == targetFile.getText()[0])
-            {
-                return false;
-            }
+            ar_flags = AR_MODE_XREF_PATH;
+        }
+        else if (5 == category)
+        {
+            ar_flags = 0;
+        }
+        else
+        {
+            return;
         }
 
-        if (false == targetFile.hasExtension("ar"))
-        {
-            return false;
-        }
+        /* Is this "eProxy" NOT already loaded? */
 
-        switch (category)
+        if ((0 == (0x00010000 & flags)) && (nodes.getSize() <= 0))
         {
-            case 0: // (particle)
+            test_xref_taget = new eXRefTarget;
+            test_xref_taget->incRef();
+
+            if (test_xref_taget->loadTarget(ar, ar_flags, targetFile))
             {
-                ar_flags = (AR_MODE_XREF_PATH);
+                test_xref_proxy = new eXRefProxy(test_xref_taget);
+                test_xref_proxy->incRef();
 
-                return true;
+                nodes.appendChild(test_xref_proxy);
+
+                test_xref_proxy->decRef();
+
+                externalContent = true;
             }
 
-            case 3: // (enemy)
-            case 4: // (fluff)
-            case 5: // (geoproxy)
-            case 6: // (object)
-            {
-                ar_flags = 0;
+            test_xref_taget->decRef();
+        }
+    }
 
-                return true;
-            }
+
+    ////////////////////////////////////////////////////////////////
+    // eProxy: export XRef
+    ////////////////////////////////////////////////////////////////
+    void eProxy::exportXRef(Archive &ar)
+    {
+        int32_t ar_flags;
+
+        eXRefTarget* test_xref_taget;
+        eXRefProxy* test_xref_proxy;
+
+        /* The category must be "particle" or "geoproxy" */
+
+        if (0 == category)
+        {
+            ar_flags = AR_MODE_XREF_PATH;
+        }
+        else if (5 == category)
+        {
+            ar_flags = 0;
+        }
+        else
+        {
+            return;
         }
 
-        return false;
+        test_xref_proxy = (eXRefProxy*)nodes.getIthChild(nodes.getSize() - 1);
+
+        if (nullptr != test_xref_proxy)
+        {
+            /* Child node could be "eTriMesh" */
+
+            if (test_xref_proxy->getType()->checkHierarchy(&E_XREFPROXY_TYPEINFO))
+            {
+                test_xref_taget = test_xref_proxy->getXRefTarget();
+
+                if (nullptr != test_xref_taget)
+                {
+                    test_xref_taget->exportTarget(ar, ar_flags);
+                }
+            }
+        }
     }
 
 
@@ -255,6 +241,11 @@ namespace ZookieWizard
     void eProxy::setCategory(int32_t new_category)
     {
         category = new_category;
+
+        /* For now, set this unknown flag (that somehow controls collision) */
+        /* when the category is set to "geoproxy" */
+
+        flags02 = (5 == category) ? 0x0000 : 0x00FF;
     }
 
 

@@ -166,6 +166,49 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eActionTable: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eActionTable::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
+    {
+        eString target_name;
+
+        char bufor[256];
+
+        for (int i = 0; i < actionsCount; i++)
+        {
+            if (nullptr != actions[i].nodeTarget)
+            {
+                target_name = actions[i].nodeTarget->getStringRepresentation();
+            }
+            else
+            {
+                target_name = actions[i].actorName;
+            }
+
+            if (target_name.getLength() <= 0)
+            {
+                target_name = "<UNNAMED TARGET>";
+            }
+
+            sprintf_s
+            (
+                bufor,
+                256,
+                "    [%d/%d]: \"%s\".%s()",
+                (i + 1),
+                actionsCount,
+                target_name.getText(),
+                actions[i].message.getText()
+            );
+
+            ArFunctions::writeIndentation(file, indentation);
+            file << bufor;
+            ArFunctions::writeNewLine(file, 0);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eActionTable: delete i-th action from the list
     ////////////////////////////////////////////////////////////////
     void eActionTable::deleteIthAction(int32_t i)
@@ -202,6 +245,49 @@ namespace ZookieWizard
                 i--;
             }
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eActionTable: clear all the actions
+    ////////////////////////////////////////////////////////////////
+    void eActionTable::clearActions()
+    {
+        while (actionsCount > 0)
+        {
+            deleteIthAction(0);
+
+            /* Actions are shifted to the first position */
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eActionTable: insert a new action
+    ////////////////////////////////////////////////////////////////
+    void eActionTable::addAction(eActionBase &new_action)
+    {
+        if ((actionsCount + 1) >= actionsMaxLength)
+        {
+            eActionBase* dummy_actions = new eActionBase [actionsMaxLength + 1];
+
+            if (nullptr != actions)
+            {
+                for (int i = 0; i < actionsCount; i++)
+                {
+                    dummy_actions[i] = actions[i];
+                }
+
+                delete[](actions);
+            }
+
+            actions = dummy_actions;
+
+            actionsMaxLength++;
+        }
+
+        actions[actionsCount] = new_action;
+        actionsCount++;
     }
 
 }

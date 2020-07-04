@@ -8,7 +8,7 @@
 
 namespace ZookieWizard
 {
-    MaterialType materialTypes[16] =
+    MaterialType theMaterialTypes[16] =
     {
         {0x00000000, "NORMAL"},
         {0x00000001, "ICE"},
@@ -27,6 +27,12 @@ namespace ZookieWizard
         {0x2000000E, "KILL_OBJECT"},
         {0x80000000, "DESTROYABLE"}
     };
+
+    const char* theMaterialSound[6] =
+    {
+        "GRASS", "WOOD", "METAL", "STONE", "SNOW", "SAND"
+    };
+
 
     ////////////////////////////////////////////////////////////////
     // eMaterial interface
@@ -67,10 +73,14 @@ namespace ZookieWizard
         {
             textures.appendChild(x);
         }
+
+        GUI::materialsManager_InsertMaterial(this);
     }
 
     eMaterial::~eMaterial()
     {
+        GUI::materialsManager_DeleteMaterial(this);
+
         state->decRef();
     }
 
@@ -134,7 +144,7 @@ namespace ZookieWizard
                         unknown_22 = 0x40;
 
                         test &= 0x00FFFFFF;
-                        collisionType = materialTypes[test].id;
+                        collisionType = theMaterialTypes[test].id;
 
                         break;
                     }
@@ -147,7 +157,7 @@ namespace ZookieWizard
                     default:
                     {
                         test &= 0x00FFFFFF;
-                        collisionType = materialTypes[test].id;
+                        collisionType = theMaterialTypes[test].id;
 
                     }
                 }
@@ -164,6 +174,11 @@ namespace ZookieWizard
 
         /* Material name */
         ar.serializeString(name);
+
+        if (ar.isInReadMode())
+        {
+            GUI::materialsManager_UpdateMaterialName(this);
+        }
 
         /* [0x28] unknown */
         ar.readOrWrite(&transpLayer, 0x04);
@@ -293,6 +308,8 @@ namespace ZookieWizard
     void eMaterial::setName(eString new_name)
     {
         name = new_name;
+
+        GUI::materialsManager_UpdateMaterialName(this);
     }
 
 
@@ -327,6 +344,15 @@ namespace ZookieWizard
         }
 
         return false;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterial: get textures count
+    ////////////////////////////////////////////////////////////////
+    int32_t eMaterial::getTexturesCount() const
+    {
+        return textures.getSize();
     }
 
 
@@ -379,14 +405,29 @@ namespace ZookieWizard
     // eMaterial: get or set collision type
     ////////////////////////////////////////////////////////////////
 
-    void eMaterial::setCollisionType(int32_t new_type)
+    void eMaterial::setCollisionType(uint32_t new_type)
     {
         collisionType = new_type;
     }
 
-    int32_t eMaterial::getCollisionType() const
+    uint32_t eMaterial::getCollisionType() const
     {
         return collisionType;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterial: get or set sound type
+    ////////////////////////////////////////////////////////////////
+
+    uint16_t eMaterial::getSoundType() const
+    {
+        return unknown_22;
+    }
+
+    void eMaterial::setSoundType(uint16_t new_type)
+    {
+        unknown_22 = new_type;
     }
 
 }

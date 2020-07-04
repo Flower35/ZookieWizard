@@ -22,14 +22,17 @@ namespace ZookieWizard
 
         struct WindowsManagerPage
         {
-            char name[16];
+            char name[32];
             int32_t windowsCount;
             HWND* windows;
+            void (*enterPageFunc)();
+            void (*leavePageFunc)();
 
             WindowsManagerPage();
             void close();
 
             void setName(const char* new_name);
+            void setEnterAndLeaveFunctions(void (*enter_func)(), void (*leave_func)());
             void addWindow(HWND entry);
 
             void hideWindows();
@@ -96,7 +99,7 @@ namespace ZookieWizard
                 void setCurrentPosition(int32_t x, int32_t y);
                 void offsetCurrentPosition(int32_t x, int32_t y);
 
-                void addPage(const char* name);
+                void addPage(const char* name, void (*enter_func)(), void (*leave_func)());
                 void switchPage(int32_t number);
 
                 HMENU addStaticFunction(void_func_with_params function, void* custom_param);

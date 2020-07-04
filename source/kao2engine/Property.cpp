@@ -243,10 +243,8 @@ namespace ZookieWizard
         }
 
         /* Very nice debugging information! ;) */
-
-        sprintf_s(bufor, 32, " // offset = %i", offset);
-
-        result += bufor;
+        //// sprintf_s(bufor, 32, " // offset = %i", offset);
+        //// result += bufor;
 
         return result;
     }

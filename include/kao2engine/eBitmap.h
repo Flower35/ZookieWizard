@@ -68,13 +68,15 @@ namespace ZookieWizard
             eString getPath() const;
 
             void loadRaw(const uint8_t* other_pixels, const uint32_t* other_palette, int32_t new_width, int32_t new_height);
-            void loadFromFile(eString directory);
+            bool loadFromFile(eString directory, bool silent_if_not_exists);
             void exportImageFile(eString directory) const;
 
             GLuint getTextureName() const;
 
             void setTransparencyColor(uint32_t color);
             bool isTransparent() const;
+
+            float getAspectRatio() const;
     };
 
 

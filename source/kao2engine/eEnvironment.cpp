@@ -107,4 +107,61 @@ namespace ZookieWizard
         lights.appendChild(new_light);
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eEnvironment: fog editing
+    ////////////////////////////////////////////////////////////////
+
+    void eEnvironment::setFogColor(float* values)
+    {
+        if (nullptr == fog)
+        {
+            fog = new eFogEnv();
+            fog->incRef();
+        }
+
+        flags |= 0x00001000;
+
+        fog->setFogColor(values);
+    }
+
+    void eEnvironment::setFogStart(float value)
+    {
+        if (nullptr == fog)
+        {
+            fog = new eFogEnv();
+            fog->incRef();
+        }
+
+        flags |= 0x00001000;
+
+        fog->setFogStart(value);
+    }
+
+    void eEnvironment::setFogEnd(float value)
+    {
+        if (nullptr == fog)
+        {
+            fog = new eFogEnv();
+            fog->incRef();
+        }
+
+        flags |= 0x00001000;
+
+        fog->setFogEnd(value);
+    }
+
+    void eEnvironment::setFogMax(float value)
+    {
+        if (nullptr == fog)
+        {
+            fog = new eFogEnv();
+            fog->incRef();
+        }
+
+        flags |= 0x00001000;
+
+        fog->setFogMax(value);
+    }
+
 }

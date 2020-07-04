@@ -38,10 +38,17 @@ namespace ZookieWizard
         unknown_01D8[1] = 600.0f;
         unknown_01D8[2] = 0;
         unknown_01D8[3] = 200.0f;
+
+        unknown_additional_01 = nullptr;
+
+        unknown_additional_02[0] = 1.0f;
+        unknown_additional_02[1] = 1.0f;
     }
 
     eCamera::~eCamera()
     {
+        unknown_additional_01->decRef();
+
         camTarget->decRef();
     }
 
@@ -79,6 +86,23 @@ namespace ZookieWizard
 
         /* [0x01CC] unknown */
         ar.readOrWrite(&unknown_01CC, 0x01);
+
+        /* "Asterix & Obelix XXL 2: Mission Wifix" */
+        if (ar.getVersion() >= 0x91)
+        {
+            throw ErrorMessage
+            (
+                "eCamera::serialize():\n" \
+                "archve versions 145-147 ARE NOT SUPPORTED!"
+            );
+
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_additional_01, &E_LEAFCTRL_FLOAT_TYPEINFO);
+
+            for (i = 0; i < 2; i++)
+            {
+                ar.readOrWrite(&(unknown_additional_02[i]), 0x04);
+            }
+        }
     }
 
 

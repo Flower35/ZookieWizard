@@ -35,10 +35,10 @@ namespace ZookieWizard
         /*[0x0174]*/ color[1] = 0.5f;
         /*[0x0178]*/ color[2] = 0.5f;
 
-        /*[0x017C]*/ ambient[0] = 0.0f;
-        /*[0x0180]*/ ambient[1] = 0.0f;
-        /*[0x0184]*/ ambient[2] = 0.0f;
-        /*[0x0188]*/ ambient[3] = 0.0f;
+        /*[0x017C]*/ ambient[0] = 0;
+        /*[0x0180]*/ ambient[1] = 0;
+        /*[0x0184]*/ ambient[2] = 0;
+        /*[0x0188]*/ ambient[3] = 1.0f;
 
         /*(kao3)[0x02AC]*/ visSetA_count = 0;
         /*(kao3)[0x02B0]*/ visSetA_maxLength = 0;

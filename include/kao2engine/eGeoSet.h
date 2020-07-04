@@ -40,7 +40,7 @@ namespace ZookieWizard
 
         private:
 
-            void displayVertexBufferObject(int32_t texID) const;
+            void displayVertexBufferObject(int32_t texID, bool use_color) const;
 
         public:
 

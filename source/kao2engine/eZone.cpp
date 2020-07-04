@@ -96,6 +96,31 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eZone: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eZone::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
+    {
+        /* "eNode" parent class */
+
+        eNode::writeStructureToTextFile(file, indentation);
+
+        /* "eZone" additional info */
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << " - enter actions:";
+        ArFunctions::writeNewLine(file, 0);
+
+        enterActions.writeStructureToTextFile(file, indentation);
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << " - leave actions:";
+        ArFunctions::writeNewLine(file, 0);
+
+        leaveActions.writeStructureToTextFile(file, indentation);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eZone: (editor option) find object in 3D space
     ////////////////////////////////////////////////////////////////
     ePoint3 eZone::editingGetCenterPoint() const
@@ -128,6 +153,8 @@ namespace ZookieWizard
         test_point = {boxBoundMax.x, boxBoundMax.y, boxBoundMax.z, 1.0f};
         test_point = matrix * test_point;
         boxBoundMax = {test_point.x, test_point.y, test_point.z};
+
+        createCollisionEntry();
     }
 
 
@@ -138,6 +165,8 @@ namespace ZookieWizard
     {
         boxBoundMin = new_min;
         boxBoundMax = new_max;
+
+        createCollisionEntry();
     }
 
 
@@ -146,7 +175,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eZone::createCollisionEntry()
     {
-        eALBox* new_albox = nullptr;
+        eALZoneSensor* new_sensor = nullptr;
 
         float boundaries[6] =
         {
@@ -154,12 +183,20 @@ namespace ZookieWizard
             boxBoundMax.x, boxBoundMax.y, boxBoundMax.z
         };
 
-        new_albox = new eALBox();
-        new_albox->incRef();
+        new_sensor = new eALZoneSensor(this, boundaries);
+    }
 
-        new_albox->createAxisListEntry(this, boundaries);
 
-        new_albox->decRef();
+    ////////////////////////////////////////////////////////////////
+    // eZone: clear actions (zone could reference its own group)
+    ////////////////////////////////////////////////////////////////
+    void eZone::destroyNode()
+    {
+        enterActions.clearActions();
+
+        leaveActions.clearActions();
+
+        eNode::destroyNode();
     }
 
 
@@ -171,6 +208,38 @@ namespace ZookieWizard
         enterActions.findAndDeleteActionsWithNode(target);
 
         leaveActions.findAndDeleteActionsWithNode(target);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eZone: clear all the actions ("enterActions" or "leaveActions")
+    ////////////////////////////////////////////////////////////////
+    void eZone::zoneClearActions(bool enter_or_leave)
+    {
+        if (enter_or_leave)
+        {
+            enterActions.clearActions();
+        }
+        else
+        {
+            leaveActions.clearActions();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eZone: insert a new action ("enterActions" or "leaveActions")
+    ////////////////////////////////////////////////////////////////
+    void eZone::zoneAddAction(bool enter_or_leave, eActionBase &new_action)
+    {
+        if (enter_or_leave)
+        {
+            enterActions.addAction(new_action);
+        }
+        else
+        {
+            leaveActions.addAction(new_action);
+        }
     }
 
 }

@@ -157,7 +157,7 @@ namespace ZookieWizard
 
         va_start(args, message);
 
-        vsprintf_s(text, 256, message, args);
+        vsprintf_s(text, 512, message, args);
 
         va_end(args);
     }
@@ -174,6 +174,10 @@ namespace ZookieWizard
 
     int32_t Start(HINSTANCE hInstance)
     {
+        int32_t test_value = 0;
+        bool prepared_special_models = false;
+        bool prepared_materials_viewer = false;
+
         /********************************/
         /* Prepare Kao2 engine! */
 
@@ -187,87 +191,123 @@ namespace ZookieWizard
         {
             e.display();
 
-            return (-1);
+            test_value = (-1);
         }
 
         /********************************/
         /* Create GUI windows and prepare OpenGL */
 
-        GUI::myWindowLogo = NULL;
-        GUI::myWindowFont = NULL;
-
-        if (false == GUI::createWindows(hInstance))
+        if (0 == test_value)
         {
-            ErrorMessage
-            (
-                "FATAL ERROR!\n" \
-                "Could not create Windows."
-            )
-            .display();
+            GUI::myWindowLogo = NULL;
+            GUI::myWindowFont = NULL;
 
-            GUI::closeWindows();
-            return (-1);
-        }
-
-        memset(&ofn, 0, sizeof(OPENFILENAME));
-        ofn.lStructSize = sizeof(OPENFILENAME);
-        ofn.lpstrFile = nullptr;
-        ofn.nMaxFile = 0;
-        ofn.lpstrFilter = "All files (*.*)\0*.*\0";
-        ofn.hwndOwner = GUI::theWindowsManager.getMainWindow();
-        ofn.hInstance = hInstance;
-
-        if (!GUI::prepareRendering())
-        {
-            ErrorMessage
-            (
-                "FATAL ERROR!\n" \
-                "Could not prepare OpenGL."
-            )
-            .display();
-
-            GUI::closeWindows();
-            return (-1);
-        }
-
-        if (!GUI::prepareSpecialModels())
-        {
-            ErrorMessage
-            (
-                "FATAL ERROR!\n" \
-                "Could not prepare special models."
-            )
+            if (false == GUI::createWindows(hInstance))
+            {
+                ErrorMessage
+                (
+                    "FATAL ERROR!\n" \
+                    "Could not create Windows."
+                )
                 .display();
 
-            GUI::closeWindows();
-            return (-1);
+                test_value = (-1);
+            }
+        }
+
+        if (0 == test_value)
+        {
+            memset(&ofn, 0, sizeof(OPENFILENAME));
+            ofn.lStructSize = sizeof(OPENFILENAME);
+            ofn.lpstrFile = nullptr;
+            ofn.nMaxFile = 0;
+            ofn.lpstrFilter = "All files (*.*)\0*.*\0";
+            ofn.hwndOwner = GUI::theWindowsManager.getMainWindow();
+            ofn.hInstance = hInstance;
+
+            if (!GUI::prepareRendering())
+            {
+                ErrorMessage
+                (
+                    "FATAL ERROR!\n" \
+                    "Could not prepare OpenGL."
+                )
+                .display();
+
+                test_value = (-1);
+            }
+        }
+
+        if (0 == test_value)
+        {
+            if (!GUI::prepareMaterialsManager())
+            {
+                ErrorMessage
+                (
+                    "FATAL ERROR!\n" \
+                    "Could not prepare materials manager."
+                )
+                    .display();
+
+                test_value = (-1);
+            }
+
+            prepared_materials_viewer = true;
+        }
+
+        if (0 == test_value)
+        {
+            if (!GUI::prepareSpecialModels())
+            {
+                ErrorMessage
+                (
+                    "FATAL ERROR!\n" \
+                    "Could not prepare special models."
+                )
+                    .display();
+
+                test_value = (-1);
+            }
+
+            prepared_special_models = true;
         }
 
         /********************************/
         /* Enter main loop */
 
-        try
+        if (0 == test_value)
         {
-            while (GUI::isAppRunning())
+            try
             {
-                GUI::render();
+                while (GUI::isAppRunning())
+                {
+                    GUI::render();
+                }
             }
-        }
-        catch (ErrorMessage &e)
-        {
-            e.display();
+            catch (ErrorMessage &e)
+            {
+                e.display();
 
-            GUI::clearSpecialModels();
-            GUI::closeWindows();
-            return (-1);
+                test_value = (-1);
+            }
         }
 
         /********************************/
         /* Close application */
 
-        GUI::clearSpecialModels();
+        if (prepared_materials_viewer)
+        {
+            GUI::clearMaterialsManager();
+        }
+
+        if (prepared_special_models)
+        {
+            GUI::clearSpecialModels();
+        }
+
         GUI::closeWindows();
-        return 0;
+
+        return test_value;
     }
 
 }

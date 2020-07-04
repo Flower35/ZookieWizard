@@ -10,7 +10,7 @@ namespace ZookieWizard
     class Archive;
 
     ////////////////////////////////////////////////////////////////
-    // 
+    //
     ////////////////////////////////////////////////////////////////
 
     struct eAnimate
@@ -18,23 +18,27 @@ namespace ZookieWizard
         /*** Properties ***/
 
             /*[0x04-0x0C]*/ Collection<ArFunctions::serialize_eRefCounter> tracks;
-            /*[0x10]*/ eAnimState** stateA;
-            /*[0x14]*/ eAnimState** stateB;
-            /*[0x18]*/ bool unknown18;
-            /*[0x34]*/ int32_t unknown34;
-            /*[0x38]*/ bool unknown38;
+            /*[0x10]*/ eAnimState** animStateA;
+            /*[0x14]*/ eAnimState** animStateB;
+            /*[0x18]*/ bool unknown_18;
+            /*[0x34]*/ int32_t unknown_34;
+            /*[0x38]*/ bool unknown_38;
 
-            /*(kao3)[0x0120]*/ int32_t states_count;
-            /*(kao3)[0x012C]*/ eAnimState state[1];
+            /*(kao3)[0x0120]*/ int32_t animStatesCount;
+            /*(kao3)[0x012C]*/ eAnimState currentAnimState[1];
 
         /*** Methods ***/
 
             eAnimate();
             ~eAnimate();
 
+            void clearAnimStateContainers();
+
             void serialize(Archive &ar);
 
             void setAnimation(int32_t anim_id, float time);
+
+            void rebuildEmptyAnimState();
     };
 
     namespace ArFunctions

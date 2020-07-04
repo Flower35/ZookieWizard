@@ -170,6 +170,10 @@ namespace ZookieWizard
                 {
                     importNodesFromTxt();
                 }
+                else if (3 == (int32_t)custom_param)
+                {
+                    changeNodesWithTxt();
+                }
             }
         }
 
@@ -215,29 +219,37 @@ namespace ZookieWizard
                 {
                     if (0 == (int32_t)custom_param)
                     {
-                        glPolygonMode(GL_FRONT, GL_LINE);
+                        renderingLimitFramerate = true;
                     }
                     else if (1 == (int32_t)custom_param)
                     {
-                        myDrawFlags |= drawFlags::DRAW_FLAG_OUTLINE;
+                        glPolygonMode(GL_FRONT, GL_LINE);
                     }
                     else if (2 == (int32_t)custom_param)
                     {
-                        myDrawFlags |= drawFlags::DRAW_FLAG_INVISIBLE;
+                        myDrawFlags |= drawFlags::DRAW_FLAG_OUTLINE;
                     }
                     else if (3 == (int32_t)custom_param)
                     {
-                        myDrawFlags |= drawFlags::DRAW_FLAG_BOXZONES;
+                        myDrawFlags |= drawFlags::DRAW_FLAG_INVISIBLE;
                     }
                     else if (4 == (int32_t)custom_param)
                     {
-                        myDrawFlags |= drawFlags::DRAW_FLAG_PROXIES;
+                        myDrawFlags |= drawFlags::DRAW_FLAG_BOXZONES;
                     }
                     else if (5 == (int32_t)custom_param)
                     {
-                        myDrawFlags |= drawFlags::DRAW_FLAG_ANIMS;
+                        myDrawFlags |= drawFlags::DRAW_FLAG_PROXIES;
                     }
                     else if (6 == (int32_t)custom_param)
+                    {
+                        myDrawFlags |= drawFlags::DRAW_FLAG_ANIMS;
+                    }
+                    else if (7 == (int32_t)custom_param)
+                    {
+                        myDrawFlags |= drawFlags::DRAW_FLAG_COLORS;
+                    }
+                    else if (8 == (int32_t)custom_param)
                     {
                         myDrawFlags |= drawFlags::DRAW_FLAG_SPECIAL;
                     }
@@ -246,29 +258,37 @@ namespace ZookieWizard
                 {
                     if (0 == (int32_t)custom_param)
                     {
-                        glPolygonMode(GL_FRONT, GL_FILL);
+                        renderingLimitFramerate = false;
                     }
                     else if (1 == (int32_t)custom_param)
                     {
-                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_OUTLINE);
+                        glPolygonMode(GL_FRONT, GL_FILL);
                     }
                     else if (2 == (int32_t)custom_param)
                     {
-                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_INVISIBLE);
+                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_OUTLINE);
                     }
                     else if (3 == (int32_t)custom_param)
                     {
-                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_BOXZONES);
+                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_INVISIBLE);
                     }
                     else if (4 == (int32_t)custom_param)
                     {
-                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_PROXIES);
+                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_BOXZONES);
                     }
                     else if (5 == (int32_t)custom_param)
                     {
-                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_ANIMS);
+                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_PROXIES);
                     }
                     else if (6 == (int32_t)custom_param)
+                    {
+                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_ANIMS);
+                    }
+                    else if (7 == (int32_t)custom_param)
+                    {
+                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_COLORS);
+                    }
+                    else if (8 == (int32_t)custom_param)
                     {
                         myDrawFlags &= (~ drawFlags::DRAW_FLAG_SPECIAL);
                     }
@@ -425,9 +445,10 @@ namespace ZookieWizard
             int32_t a, b;
             char bufor[64];
             HMENU menu_bar, test_menu;
-            HWND main_window, scroll_window;
+            HWND main_window, scroll_window, listbox_window;
 
             const int WINDOW_HEIGHT = 24;
+            const int NODES_BUTTON_HEIGHT = (int)(2.25 * WINDOW_HEIGHT);
             const int WINDOW_PADDING = 16;
             const int WINDOW_PADDING_SMALL = 8;
             const int TOP_OFFSET = 8;
@@ -498,9 +519,10 @@ namespace ZookieWizard
             AppendMenu(menu_bar, MF_POPUP, (UINT_PTR)test_menu, "Denis the Kangaroo");
 
             test_menu = CreateMenu();
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_KAO2_PL_PC), "&1) Kangurek Kao: Runda 2 [PL]");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_KAO2_EUR_PC), "&2) Kao the Kangaroo: Round 2 [EU]");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_KAO_TW_PC), "&3) Kao: Tajemnica Wulkanu");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_KAO2_PL_PC), "&1) Kangurek Kao: Runda 2 [PL, Retail] [PC]");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_KAO2_EUR_PC), "&2) Kao the Kangaroo: Round 2 [EU, Digital] [PC]");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_KAO_TW_PC), "&3) Kao: Tajemnica Wulkanu [PC]");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_ASTERIX_XXL2_PSP), "&4) Asterix & Obelix XXL 2: Mission Wifix [PSP]");
             AppendMenu(menu_bar, MF_POPUP, (UINT_PTR)test_menu, "Game &version");
 
             test_menu = CreateMenu();
@@ -519,7 +541,7 @@ namespace ZookieWizard
             /********************************/
             /* [PAGE 0] */
 
-            theWindowsManager.addPage("Render settings");
+            theWindowsManager.addPage("Render settings", nullptr, nullptr);
 
             theWindowsManager.setCurrentPosition(RECT_TABS_X1, TOP_OFFSET);
             theWindowsManager.updateReturningPosition();
@@ -530,12 +552,22 @@ namespace ZookieWizard
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_AUTOCHECKBOX);
 
-            const char* render_flags_names[7] =
+            const int RENDER_FLAGS_COUNT = 9;
+
+            const char* render_flags_names[RENDER_FLAGS_COUNT] =
             {
-                "Draw WIREFRAME", "Outline SELECTED", "Draw INVISIBLE MESHES", "Draw BOX ZONES", "Draw PROXIES", "Update ANIMATIONS", "Render SPECIAL HELPERS"
+                "Limit rendering framerate (30 fps)",
+                "Draw WIREFRAME",
+                "Outline SELECTED",
+                "Draw INVISIBLE MESHES",
+                "Draw BOX ZONES",
+                "Draw PROXIES",
+                "Update ANIMATIONS",
+                "Render COLORS and LIGHTS",
+                "Render SPECIAL HELPERS"
             };
 
-            for (a = 0; a < 7; a++)
+            for (a = 0; a < RENDER_FLAGS_COUNT; a++)
             {
                 if (0 == theWindowsManager.addWindow(render_flags_names[a], RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_RenderFlags, (void*)a, 0x01))
                 {
@@ -702,7 +734,7 @@ namespace ZookieWizard
             /********************************/
             /* [PAGE 1] */
 
-            theWindowsManager.addPage("theAR + Denis");
+            theWindowsManager.addPage("theAR + Denis", nullptr, nullptr);
 
             theWindowsManager.setCurrentPosition(RECT_TABS_X1, TOP_OFFSET);
 
@@ -782,7 +814,7 @@ namespace ZookieWizard
             /********************************/
             /* [PAGE 2] */
 
-            theWindowsManager.addPage("Nodes list");
+            theWindowsManager.addPage("Nodes list", nullptr, nullptr);
 
             theWindowsManager.setCurrentPosition(RECT_TABS_X1, TOP_OFFSET);
 
@@ -798,7 +830,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [PAGE 2] (1 – 9) Create buttons */
+            /* [PAGE 2] (1 – 12) Create buttons */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON | BS_MULTILINE);
@@ -807,47 +839,62 @@ namespace ZookieWizard
 
             a = (RECT_TABS_X2 / 2) - (WINDOW_PADDING / 2);
 
-            if (0 == theWindowsManager.addWindow("^ Back to\nArchive Root", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_ROOT, 0))
+            if (0 == theWindowsManager.addWindow("^ Back to the\nArchive Root", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_ROOT, 0))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("^ Back to\nParent Node", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_PARENT, 0x01))
+            if (0 == theWindowsManager.addWindow("^ Back to the\nParent Node", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_PARENT, 0x01))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Center Camera on Node", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_FIND, 0))
+            if (0 == theWindowsManager.addWindow("Center the Camera on the Current Node", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_CENTER_CAMERA, 0))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Delete Node", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE, 0x01))
+            if (0 == theWindowsManager.addWindow("Delete Current Node", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE_CURRENT, 0x01))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Export 3D Meshes to Wavefront OBJ", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListObj, (void*)0, 0))
+            if (0 == theWindowsManager.addWindow("Delete All Children from the Current Group", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE_CHILDREN, 0))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Import 3D Meshes from Wavefront OBJ", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListObj, (void*)1, 0x01))
+            if (0 == theWindowsManager.addWindow("Delete\nSelected Node\n(from the list)", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE_SELECTED, 0x01))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Rebuild Collision", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0))
+            if (0 == theWindowsManager.addWindow("Export 3D Meshes to Wavefront OBJ", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)0, 0))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Clear Collision", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01))
+            if (0 == theWindowsManager.addWindow("Import 3D Meshes from Wavefront OBJ", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)1, 0x01))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Import Nodes from TXT", a, 2 * WINDOW_HEIGHT, buttonFunc_NodesListObj, (void*)2, 0x01))
+            if (0 == theWindowsManager.addWindow("Rebuild Collision Data", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0))
+            {
+                return false;
+            }
+
+            if (0 == theWindowsManager.addWindow("Clear Collision Data", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01))
+            {
+                return false;
+            }
+
+            if (0 == theWindowsManager.addWindow("Import Nodes from a TXT file", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)2, 0))
+            {
+                return false;
+            }
+
+            if (0 == theWindowsManager.addWindow("Change Nodes with a TXT file", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)3, 0x01))
             {
                 return false;
             }
@@ -856,21 +903,23 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING_SMALL);
 
             /********************************/
-            /* [PAGE 2] (10) Create listbox */
+            /* [PAGE 2] (13) Create listbox */
 
             theWindowsManager.setCurrentClassName("LISTBOX");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_HSCROLL | WS_VSCROLL | LBS_DISABLENOSCROLL | LBS_HASSTRINGS | LBS_NOTIFY);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == theWindowsManager.addWindow("", RECT_TABS_X2, 384, buttonFunc_NodesListChild, nullptr, 0x01))
+            if (0 == (listbox_window = theWindowsManager.addWindow("", RECT_TABS_X2, 384, buttonFunc_NodesListChild, nullptr, 0x01)))
             {
                 return false;
             }
 
+            SendMessage(listbox_window, LB_SETHORIZONTALEXTENT, (WPARAM)512, 0);
+
             /********************************/
             /* [PAGE 3] */
 
-            theWindowsManager.addPage("Node editing");
+            theWindowsManager.addPage("Node editing", nullptr, nullptr);
 
             theWindowsManager.setCurrentPosition(RECT_TABS_X1, TOP_OFFSET);
 
@@ -978,7 +1027,15 @@ namespace ZookieWizard
             /********************************/
             /* [PAGE 4] */
 
-            theWindowsManager.addPage("Object movement");
+            if (false == materialsManager_AddWindows())
+            {
+                return false;
+            }
+
+            /********************************/
+            /* [PAGE 5] */
+
+            theWindowsManager.addPage("Object movement", nullptr, nullptr);
 
             theWindowsManager.setCurrentPosition(RECT_TABS_X1, TOP_OFFSET);
 
@@ -988,7 +1045,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [PAGE 4] Create buttons */
+            /* [PAGE 5] Create buttons */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON);

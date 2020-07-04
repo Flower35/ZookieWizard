@@ -71,4 +71,28 @@ namespace ZookieWizard
         position = new_position;
     }
 
+    ////////////////////////////////////////////////////////////////
+    // eDirectionalLight: get or set target point
+    ////////////////////////////////////////////////////////////////
+
+    eTransform* eDirectionalLight::getLightTarget() const
+    {
+        return target;
+    }
+
+    void eDirectionalLight::setLightTarget(eTransform* new_target)
+    {
+        if (nullptr != target)
+        {
+            target->decRef();
+        }
+
+        target = new_target;
+
+        if (nullptr != target)
+        {
+            target->incRef();
+        }
+    }
+
 }

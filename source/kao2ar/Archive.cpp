@@ -15,19 +15,6 @@ namespace ZookieWizard
         Archive(eString(-1));
     }
 
-    Archive& Archive::operator = (const Archive &newAr)
-    {
-        /* Delete parent object and close archive */
-
-        close(true);
-
-        /* Acquire new directory */
-
-        setMediaDir(newAr.mediaDirectory);
-
-        return *this;
-    }
-
     Archive::Archive(eString new_media_dir)
     {
         /* Reset values */
@@ -109,6 +96,7 @@ namespace ZookieWizard
             {
                 switch (current_engine)
                 {
+                    case GAME_VERSION_ASTERIX_XXL2_PSP:
                     case GAME_VERSION_KAO_TW_PC:
                     {
                         result += "build/pc/";
@@ -164,6 +152,14 @@ namespace ZookieWizard
             {
                 ver_min = 0x8B;
                 ver_max = 0x90;
+
+                break;
+            }
+
+            case GAME_VERSION_ASTERIX_XXL2_PSP:
+            {
+                ver_min = 0x8B;
+                ver_max = 0x93;
 
                 break;
             }
@@ -429,6 +425,7 @@ namespace ZookieWizard
             case GAME_VERSION_KAO2_PL_PC:
             case GAME_VERSION_KAO2_EUR_PC:
             case GAME_VERSION_KAO_TW_PC:
+            case GAME_VERSION_ASTERIX_XXL2_PSP:
             {
                 result &= (opened == engineOpenedWith);
 
@@ -442,6 +439,7 @@ namespace ZookieWizard
             case GAME_VERSION_KAO2_PL_PC:
             case GAME_VERSION_KAO2_EUR_PC:
             case GAME_VERSION_KAO_TW_PC:
+            case GAME_VERSION_ASTERIX_XXL2_PSP:
             {
                 result &= (saved == engineSavedWith);
 

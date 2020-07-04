@@ -69,4 +69,53 @@ namespace ZookieWizard
         }
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eFogEnv: some getters and setters
+    ////////////////////////////////////////////////////////////////
+
+    void eFogEnv::getFogColor(float* values) const
+    {
+        values[0] = color[0];
+        values[1] = color[1];
+        values[2] = color[2];
+    }
+
+    float eFogEnv::getFogStart() const
+    {
+        return fogStart;
+    }
+
+    float eFogEnv::getFogEnd() const
+    {
+        return fogEnd;
+    }
+
+    float eFogEnv::getFogMax() const
+    {
+        return fogMax;
+    }
+
+    void eFogEnv::setFogColor(float* values)
+    {
+        color[0] = values[0];
+        color[1] = values[1];
+        color[2] = values[2];
+    }
+
+    void eFogEnv::setFogStart(float value)
+    {
+        fogStart = value;
+    }
+
+    void eFogEnv::setFogEnd(float value)
+    {
+        fogEnd = value;
+    }
+
+    void eFogEnv::setFogMax(float value)
+    {
+        fogMax = value;
+    }
+
 }

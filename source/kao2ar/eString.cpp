@@ -143,21 +143,26 @@ namespace ZookieWizard
             }
             else if (pos >= myLength)
             {
-                pos = 0;
+                pos = myLength - 1;
             }
 
             if (count < 0)
             {
-                count = myLength + count - pos;
+                count = myLength + 1 + count - pos;
+
+                if (count < 0)
+                {
+                    count = 0;
+                }
             }
-            else if ((0 == count) || ((pos + count) > myLength))
+            else if ((pos + count) > myLength)
             {
                 count = myLength - pos;
             }
 
             if (count > otherLength)
             {
-                count = otherLength;
+                return false;
             }
 
             for (int i = 0; i < count; i++)
@@ -548,7 +553,7 @@ namespace ZookieWizard
             return false;
         }
 
-        return StringFunctions::compareStrings(*this, str.getText(), otherLength, 0, 0, case_sensitive);
+        return StringFunctions::compareStrings(*this, str.getText(), otherLength, 0, (-1), case_sensitive);
     }
 
     template <typename charT>
@@ -561,7 +566,7 @@ namespace ZookieWizard
             return false;
         }
 
-        return StringFunctions::compareStrings(*this, str, otherLength, 0, 0, case_sensitive);
+        return StringFunctions::compareStrings(*this, str, otherLength, 0, (-1), case_sensitive);
     }
 
     template <typename charT>
@@ -609,6 +614,11 @@ namespace ZookieWizard
     {
         int myLength = pString->getLength();
 
+        if (myLength <= 0)
+        {
+            return *this;
+        }
+
         if (pos < 0)
         {
             pos = myLength + pos;
@@ -620,14 +630,19 @@ namespace ZookieWizard
         }
         else if (pos >= myLength)
         {
-            pos = 0;
+            pos = myLength - 1;
         }
 
         if (count < 0)
         {
-            count = myLength + count - pos;
+            count = myLength + 1 + count - pos;
+
+            if (count < 0)
+            {
+                count = 0;
+            }
         }
-        else if ((0 == count) || ((pos + count) > myLength))
+        else if ((pos + count) > myLength)
         {
             count = myLength - pos;
         }

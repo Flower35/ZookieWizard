@@ -12,11 +12,12 @@ namespace ZookieWizard
 
     struct MaterialType
     {
-        int32_t id;
+        uint32_t id;
         const char* name;
     };
 
-    extern MaterialType materialTypes[16];
+    extern MaterialType theMaterialTypes[16];
+    extern const char* theMaterialSound[6];
 
     ////////////////////////////////////////////////////////////////
     // eMaterial interface
@@ -32,9 +33,9 @@ namespace ZookieWizard
             /*[0x08-0x10]*/ Collection<ArFunctions::serialize_eRefCounter> textures;
             /*[0x14]*/ uint8_t materialFlags;
             /*[0x18]*/ eMaterialState* state;
-            /*[0x1C]*/ int32_t collisionType;
-            /*[0x20]*/ int16_t unknown_20;
-            /*[0x22]*/ int16_t unknown_22;
+            /*[0x1C]*/ uint32_t collisionType;
+            /*[0x20]*/ uint16_t unknown_20;
+            /*[0x22]*/ uint16_t unknown_22;
             /*[0x24]*/ eString name;
             /*[0x28]*/ int32_t transpLayer;
             /*[0x2C]*/ float unknown_2C;
@@ -62,14 +63,19 @@ namespace ZookieWizard
 
             bool matchesPath(eString &searched_path) const;
 
+            int32_t getTexturesCount() const;
+
             void setMaterialFlags(uint8_t bits_to_apply);
             void unsetMaterialFlags(uint8_t bits_to_erase);
 
             eMaterialState* getMaterialState() const;
             void setMaterialState(eMaterialState* new_mtl_state);
 
-            int32_t getCollisionType() const;
-            void setCollisionType(int32_t new_type);
+            uint32_t getCollisionType() const;
+            void setCollisionType(uint32_t new_type);
+
+            uint16_t getSoundType() const;
+            void setSoundType(uint16_t new_type);
 
     };
 

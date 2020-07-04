@@ -60,8 +60,13 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
 
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
+
             void deleteIthAction(int32_t i);
             void findAndDeleteActionsWithNode(const eNode* target);
+
+            void clearActions();
+            void addAction(eActionBase &new_action);
     };
 
 

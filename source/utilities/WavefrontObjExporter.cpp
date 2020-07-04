@@ -119,7 +119,7 @@ namespace ZookieWizard
 
                     if (j < 0)
                     {
-                        fileName = filename.getSubstring((i + 1));
+                        fileName = filename.getSubstring(i + 1);
                     }
                     else
                     {

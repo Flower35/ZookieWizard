@@ -29,12 +29,9 @@ namespace ZookieWizard
     eOmniLight::eOmniLight()
     : eLight()
     {
-        /*[0x6C]*/ direction[0] = 0;
-        /*[0x70]*/ direction[1] = 0;
-        /*[0x74]*/ direction[2] = 0;
-        /*[0x78]*/ direction[3] = 1.0f;
-        /*[0x7C]*/ direction[4] = 0;
-        /*[0x80]*/ direction[5] = 0;
+        /*[0x78]*/ attenuationConstant = 1.0f;
+        /*[0x7C]*/ attenuationLinear = 0;
+        /*[0x80]*/ attenuationQuadratic = 0;
     }
 
     eOmniLight::~eOmniLight() {}
@@ -48,12 +45,26 @@ namespace ZookieWizard
     {
         eLight::serialize(ar);
 
-        ar.readOrWrite(&(direction[0]), 0x04);
-        ar.readOrWrite(&(direction[1]), 0x04);
-        ar.readOrWrite(&(direction[2]), 0x04);
-        ar.readOrWrite(&(direction[3]), 0x04);
-        ar.readOrWrite(&(direction[4]), 0x04);
-        ar.readOrWrite(&(direction[5]), 0x04);
+        position.serialize(ar);
+
+        ar.readOrWrite(&attenuationConstant, 0x04);
+        ar.readOrWrite(&attenuationLinear, 0x04);
+        ar.readOrWrite(&attenuationQuadratic, 0x04);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eOmniLight: get or set position
+    ////////////////////////////////////////////////////////////////
+
+    ePoint3 eOmniLight::getPosition() const
+    {
+        return position;
+    }
+
+    void eOmniLight::setPosition(ePoint3 &new_position)
+    {
+        position = new_position;
     }
 
 }

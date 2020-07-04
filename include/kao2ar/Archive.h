@@ -40,17 +40,19 @@ namespace ZookieWizard
     #define NODES_LISTBOX_UPDATE_CURRENT (-2)
     #define NODES_LISTBOX_PARENT (-3)
     #define NODES_LISTBOX_ROOT (-4)
-    #define NODES_LISTBOX_FIND (-5)
-    #define NODES_LISTBOX_DELETE (-6)
-    #define NODES_LISTBOX_COLLISION_REBUILD (-7)
-    #define NODES_LISTBOX_COLLISION_CLEAR (-8)
-    #define NODES_EDITING_SET_FLAG (-9)
-    #define NODES_EDITING_UNSET_FLAG (-10)
-    #define NODES_EDITING_CHANGE_NAME (-11)
-    #define NODES_EDITING_CHANGE_TYPE (-12)
-    #define NODES_EDITING_INSERT (-13)
-    #define NODES_EDITING_RESET_TRANSFORM (-14)
-    #define NODES_EDITING_APPLY_TRANSFORM (-15)
+    #define NODES_LISTBOX_CENTER_CAMERA (-5)
+    #define NODES_LISTBOX_DELETE_CURRENT (-6)
+    #define NODES_LISTBOX_DELETE_CHILDREN (-7)
+    #define NODES_LISTBOX_DELETE_SELECTED (-8)
+    #define NODES_LISTBOX_COLLISION_REBUILD (-9)
+    #define NODES_LISTBOX_COLLISION_CLEAR (-10)
+    #define NODES_EDITING_SET_FLAG (-11)
+    #define NODES_EDITING_UNSET_FLAG (-12)
+    #define NODES_EDITING_CHANGE_NAME (-13)
+    #define NODES_EDITING_CHANGE_TYPE (-14)
+    #define NODES_EDITING_INSERT (-15)
+    #define NODES_EDITING_RESET_TRANSFORM (-16)
+    #define NODES_EDITING_APPLY_TRANSFORM (-17)
 
     class Archive
     {
@@ -102,7 +104,6 @@ namespace ZookieWizard
             Archive();
             Archive(eString new_media_dir);
             ~Archive();
-            Archive& operator = (const Archive &newAr);
 
             bool open(eString filename, int32_t mode, int32_t engine_version, bool is_proxy, int32_t ver_max_override);
             void close(bool hide);
@@ -150,6 +151,8 @@ namespace ZookieWizard
             void writeSelectedObjectToObjFile(eString filename) const;
             void appendToSelectedObjectFromObjFile(eString filename);
             int32_t appendNodesFromTxtFile(const char* filename);
+            int32_t changeNodesWithTxtFile(const char* filename);
+
     };
 
 }

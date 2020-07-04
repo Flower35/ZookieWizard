@@ -153,14 +153,12 @@ namespace ZookieWizard
 
             /* Clear archive when loading new file */
 
-            if (skip_creating_new_ar)
+            if (false == skip_creating_new_ar)
             {
-                myARs[0].setMediaDir(currentWorkingDirectory);
+                myARs[0].close(true);
             }
-            else
-            {
-                myARs[0] = Archive(currentWorkingDirectory);
-            }
+
+            myARs[0].setMediaDir(currentWorkingDirectory);
 
             /* Set target filename or leave directory path */
 
@@ -250,7 +248,7 @@ namespace ZookieWizard
             case GAME_VERSION_KAO2_PL_PC:
             {
                 msg = "Nice, you have selected:\n\n" \
-                    "\"Kangurek Kao: Runda 2\" [PL]\n\n" \
+                    "\"Kangurek Kao: Runda 2\" [PL, Retail]\n\n" \
                     "ar versions: 0x67 (103) — 0x87 (135)";
                 break;
             }
@@ -258,7 +256,7 @@ namespace ZookieWizard
             case GAME_VERSION_KAO2_EUR_PC:
             {
                 msg = "Nice, you have selected:\n\n" \
-                    "\"Kao the Kangaroo: Round 2\" [EUR/USA]\n\n" \
+                    "\"Kao the Kangaroo: Round 2\" [EUR/USA, Digital]\n\n" \
                     "ar versions: 0x67 (103) — 0x89 (137)";
                 break;
             }
@@ -268,6 +266,14 @@ namespace ZookieWizard
                 msg = "Nice, you have selected:\n\n" \
                     "\"Kangurek Kao: Tajemnica Wulkanu\"\n\n" \
                     "ar versions: 0x8B (139) — 0x90 (144)";
+                break;
+            }
+
+            case GAME_VERSION_ASTERIX_XXL2_PSP:
+            {
+                msg = "Nice, you have selected:\n\n" \
+                    "\"Asterix & Obelix XXL 2: Mission Wifix\"\n\n" \
+                    "ar versions: 0x8B (139) — 0x93 (147)";
                 break;
             }
 
@@ -313,7 +319,7 @@ namespace ZookieWizard
             ofn.lpstrFilter = "Text files (*.log)\0*.log\0";
             ofn.Flags = OFN_OVERWRITEPROMPT;
 
-            if (0 == GetOpenFileName(&ofn))
+            if (0 == GetSaveFileName(&ofn))
             {
                 return;
             }
@@ -410,6 +416,7 @@ namespace ZookieWizard
                     case GAME_VERSION_KAO2_PL_PC:
                     case GAME_VERSION_KAO2_EUR_PC:
                     case GAME_VERSION_KAO_TW_PC:
+                    case GAME_VERSION_ASTERIX_XXL2_PSP:
                     {
                         break;
                     }
@@ -450,6 +457,13 @@ namespace ZookieWizard
                         k = 0x90;
                         break;
                     }
+
+                    case GAME_VERSION_ASTERIX_XXL2_PSP:
+                    {
+                        j = 0x8B;
+                        k = 0x93;
+                        break;
+                    }
                 }
 
                 if ((params[i][1] < j) || (params[i][1] > k))
@@ -471,43 +485,46 @@ namespace ZookieWizard
 
             while (!list.endOfFileReached())
             {
-                keywords[0] << list;
+                keywords[1] << list;
 
-                /* "*.ar" */
-
-                if (keywords[0].getLength() > 3)
+                if (ArFunctions::splitString(keywords[1], keywords, 1) >= 1)
                 {
-                    /* Source archive */
+                    /* "*.ar" */
 
-                    dummy_ar.setMediaDir(media_dirs[0]);
+                    if ((keywords[0].getLength() > 3) && ('#' != keywords[0].getText()[0]))
+                    {
+                        /* Source archive */
 
-                    dummy_ar.open
-                    (
-                        keywords[0],
-                        (AR_MODE_ABSOLUTE_PATH | AR_MODE_XREF_PATH | AR_MODE_READ),
-                        params[0][0],
-                        false,
-                        0
-                    );
+                        dummy_ar.setMediaDir(media_dirs[0]);
 
-                    dummy_ar.close(false);
+                        dummy_ar.open
+                        (
+                            keywords[0],
+                            (AR_MODE_ABSOLUTE_PATH | AR_MODE_XREF_PATH | AR_MODE_READ),
+                            params[0][0],
+                            false,
+                            0
+                        );
 
-                    /* Destination archive */
+                        dummy_ar.close(false);
 
-                    dummy_ar.setMediaDir(media_dirs[1]);
+                        /* Destination archive */
 
-                    dummy_ar.open
-                    (
-                        keywords[0],
-                        (AR_MODE_ABSOLUTE_PATH | AR_MODE_XREF_PATH | AR_MODE_WRITE),
-                        params[1][0],
-                        false,
-                        params[1][1]
-                    );
+                        dummy_ar.setMediaDir(media_dirs[1]);
 
-                    dummy_ar.close(true);
+                        dummy_ar.open
+                        (
+                            keywords[0],
+                            (AR_MODE_ABSOLUTE_PATH | AR_MODE_XREF_PATH | AR_MODE_WRITE),
+                            params[1][0],
+                            false,
+                            params[1][1]
+                        );
 
-                    i++;
+                        dummy_ar.close(true);
+
+                        i++;
+                    }
                 }
             }
 
@@ -704,6 +721,7 @@ namespace ZookieWizard
 
         new_scene = new eScene();
         new_scene->setFlags(0x70071000);
+        new_scene->rebuildEmptyAnimState();
 
         global_env = new eEnvironment("global_env");
         global_env->setFlags(0x70000000);
@@ -1022,8 +1040,8 @@ namespace ZookieWizard
 
             ofn.lpstrFile = bufor;
             ofn.nMaxFile = 256;
-            ofn.lpstrTitle = "Opening a TXT file...";
-            ofn.lpstrFilter = "Text files (*.txt)\0*.txt\0";
+            ofn.lpstrTitle = "Opening a TXT/DEF file...";
+            ofn.lpstrFilter = "Text files (*.txt)\0*.txt\0Definition files (*.def)\0*.def\0";
             ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
 
             if (0 == GetOpenFileName(&ofn))
@@ -1036,17 +1054,22 @@ namespace ZookieWizard
             theLog.print
             (
                 "================================\n" \
-                "==  PROXIES FROM TXT IMPORT   ==\n" \
+                "==   NODES FROM TXT IMPORT    ==\n" \
                 "==            BEGIN           ==\n" \
                 "================================\n"
             );
+
+            /* Refreshing the "Media directory" will be useful */
+            /* when reloading "eProxy" nodes of the "geoproxy" category */
+
+            myARs[0].setMediaDir(currentWorkingDirectory);
 
             result = myARs[0].appendNodesFromTxtFile(filename.getText());
 
             theLog.print
             (
                 "================================\n" \
-                "==  PROXIES FROM TXT IMPORT   ==\n" \
+                "==   NODES FROM TXT IMPORT    ==\n" \
                 "==          FINISHED          ==\n" \
                 "================================\n"
             );
@@ -1054,7 +1077,7 @@ namespace ZookieWizard
             sprintf_s
             (
                 bufor, 256,
-                "<\"%s\">\n\n%d proxies successfully added :)",
+                "<\"%s\">\n\n%d nodes successfully added :)",
                 filename.getText(),
                 result
             );
@@ -1066,7 +1089,98 @@ namespace ZookieWizard
             theLog.print
             (
                 "================================\n" \
-                "==  PROXIES FROM TXT IMPORT   ==\n" \
+                "==   NODES FROM TXT IMPORT    ==\n" \
+                "==            oops!           ==\n" \
+                "================================\n"
+            );
+
+            e.display();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // miscellaneous: Change Kao2 Nodes with a "*.txt" file
+    ////////////////////////////////////////////////////////////////
+
+    void changeNodesWithTxt()
+    {
+        int32_t result;
+        eString filename;
+        char bufor[256];
+
+        try
+        {
+            /* Show instruction */
+
+            GUI::theWindowsManager.displayMessage
+            (
+                WINDOWS_MANAGER_MESSAGE_INFO,
+                "Select a text file structured in a following way:\n\n" \
+                "  node nodeType nodeRefName(\"mask\")\n" \
+                "  send nodeRefName.customMessage(params)\n" \
+                "\n--------------------------------\n" \
+                "    EXAMPLE:\n\n" \
+                "  node eEnvironment env(\"/global_env\")\n" \
+                "  node eBoxZone zone(\"/*/boxZone01\")\n" \
+                "  node eGroup group(\"/*/#VS-magazyn?1\")\n\n" \
+                "  send env.setFogColor(1, 0.5, 1)\n" \
+                "  send zone.clearEnterActions()\n" \
+                "  send zone.addEnterAction(group, \"enable\")\n" \
+                "  send zone.addLeaveAction(\"$hero\", \"disableSteering\")\n\n"
+            );
+
+            /* Try to open a text file */
+
+            bufor[0] = 0x00;
+
+            ofn.lpstrFile = bufor;
+            ofn.nMaxFile = 256;
+            ofn.lpstrTitle = "Opening a TXT/DEF file...";
+            ofn.lpstrFilter = "Text files (*.txt)\0*.txt\0Definition files (*.def)\0*.def\0";
+            ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
+
+            if (0 == GetOpenFileName(&ofn))
+            {
+                return;
+            }
+
+            filename = bufor;
+
+            theLog.print
+            (
+                "================================\n" \
+                "==   CHANGE NODES WITH TXT    ==\n" \
+                "==            BEGIN           ==\n" \
+                "================================\n"
+            );
+
+            result = myARs[0].changeNodesWithTxtFile(filename.getText());
+
+            theLog.print
+            (
+                "================================\n" \
+                "==   CHANGE NODES WITH TXT    ==\n" \
+                "==          FINISHED          ==\n" \
+                "================================\n"
+            );
+
+            sprintf_s
+            (
+                bufor, 256,
+                "<\"%s\">\n\n%d node messages succesfully parsed :)",
+                filename.getText(),
+                result
+            );
+
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+        }
+        catch (ErrorMessage &e)
+        {
+            theLog.print
+            (
+                "================================\n" \
+                "==   CHANGE NODES WITH TXT    ==\n" \
                 "==            oops!           ==\n" \
                 "================================\n"
             );

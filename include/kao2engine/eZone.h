@@ -40,6 +40,8 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
 
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
+
             ePoint3 editingGetCenterPoint() const override;
             void editingRebuildCollision() override;
             void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id) override;
@@ -48,7 +50,11 @@ namespace ZookieWizard
 
             void createCollisionEntry();
 
+            void destroyNode() override;
             void findAndDereference(eNode* target) override;
+
+            void zoneClearActions(bool enter_or_leave);
+            void zoneAddAction(bool enter_or_leave, eActionBase &new_action);
     };
 
 

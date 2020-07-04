@@ -77,14 +77,14 @@ namespace ZookieWizard
             int getReferenceCount() const;
 
             /* Ró¿ne funkcje operuj¹ce na tekstach */
-            bool compare(const charT* str, int pos = 0, int count = 0, bool case_sensitive = false) const;
-            bool compare(const eStringPtrBase<charT>& str, int pos = 0, int count = 0, bool case_sensitive = false) const;
+            bool compare(const charT* str, int pos = 0, int count = (-1), bool case_sensitive = false) const;
+            bool compare(const eStringPtrBase<charT>& str, int pos = 0, int count = (-1), bool case_sensitive = false) const;
             bool compareExact(const charT* str, bool case_sensitive = true) const;
             bool compareExact(const eStringPtrBase<charT>& str, bool case_sensitive = true) const;
             bool comparePath(const charT* str) const;
             bool comparePath(const eStringPtrBase<charT>& str) const;
             bool hasExtension(const charT* str) const;
-            eStringPtrBase<charT> getSubstring(int pos, int count = 0) const;
+            eStringPtrBase<charT> getSubstring(int pos, int count = (-1)) const;
             eStringPtrBase<charT> getFilename() const;
 
             /* Operatory przypisywania i kopiowania */

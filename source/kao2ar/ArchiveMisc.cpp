@@ -7,7 +7,6 @@
 #include <kao2engine/eXRefTarget.h>
 #include <kao2engine/eXRefProxy.h>
 #include <kao2engine/eTriMesh.h>
-#include <kao2engine/eGeoSet.h>
 
 namespace ZookieWizard
 {
@@ -17,6 +16,9 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void Archive::destroyParent()
     {
+        eString message;
+        char number_buffer[16];
+
         eNode* test_node;
 
         if (nullptr != parentObject)
@@ -32,6 +34,14 @@ namespace ZookieWizard
 
             parentObject->decRef();
             parentObject = nullptr;
+
+            sprintf_s(number_buffer, 16, "%d", theNodesCounter);
+
+            message += " - archive's root object destroyed! [";
+            message += number_buffer;
+            message += " nodes still exist]\n";
+
+            theLog.print(message);
         }
     }
 
@@ -114,6 +124,7 @@ namespace ZookieWizard
         eGroup* test_group;
         eNode *test_root, *test_node = nullptr;
         eTransform* parent_xform = nullptr;
+        eTriMesh* test_trimesh;
 
         /********************************/
         /* If no object is selected, and we are not updating List or Root, then cancel this function */
@@ -295,7 +306,7 @@ namespace ZookieWizard
                 break;
             }
 
-            case NODES_LISTBOX_DELETE:
+            case NODES_LISTBOX_DELETE_CURRENT:
             case NODES_LISTBOX_PARENT:
             {
                 if (nullptr != test_node)
@@ -304,7 +315,7 @@ namespace ZookieWizard
 
                     if (nullptr != test_group)
                     {
-                        if (NODES_LISTBOX_DELETE == child_id)
+                        if (NODES_LISTBOX_DELETE_CURRENT == child_id)
                         {
                             theLog.print
                             (
@@ -369,7 +380,74 @@ namespace ZookieWizard
                 break;
             }
 
-            case NODES_LISTBOX_FIND:
+            case NODES_LISTBOX_DELETE_CHILDREN:
+            case NODES_LISTBOX_DELETE_SELECTED:
+            {
+                if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                {
+                    test_group = (eGroup*)selectedObject;
+
+                    theLog.print
+                    (
+                        "================================\n" \
+                        "==        NODE DELETING       ==\n" \
+                        "==            BEGIN           ==\n" \
+                        "================================\n"
+                    );
+
+                    if (NODES_LISTBOX_DELETE_CHILDREN == child_id)
+                    {
+                        while (nullptr != (test_node = test_group->getIthChild(0)))
+                        {
+                            test_root = test_node->getRootNode();
+
+                            if (nullptr == test_root)
+                            {
+                                test_root = test_group->getRootNode();
+                            }
+
+                            if (nullptr != test_root)
+                            {
+                                test_root->findAndDereference(test_node);
+                            }
+
+                            test_group->deleteIthChild(0);
+                        }
+
+                    }
+                    else if (nullptr != (test_node = test_group->getIthChild(markedChildId)))
+                    {
+                        test_root = test_node->getRootNode();
+
+                        if (nullptr == test_root)
+                        {
+                            test_root = test_group->getRootNode();
+                        }
+
+                        if (nullptr != test_root)
+                        {
+                            test_root->findAndDereference(test_node);
+                        }
+
+                        test_group->deleteIthChild(markedChildId);
+                    }
+
+                    theLog.print
+                    (
+                        "================================\n" \
+                        "==        NODE DELETING       ==\n" \
+                        "==          FINISHED          ==\n" \
+                        "================================\n"
+                    );
+
+                    child_id = (-1);
+                    update_list = true;
+                }
+
+                break;
+            }
+
+            case NODES_LISTBOX_CENTER_CAMERA:
             {
                 if (nullptr != test_node)
                 {
@@ -556,6 +634,15 @@ namespace ZookieWizard
                 }
 
                 GUI::updateNodesList(3, (void*)test_node->getFlags());
+
+                /* Update material selection in Materials Manager, if the selected object is a "eTriMesh" */
+
+                if (test_node->getType()->checkHierarchy(&E_TRIMESH_TYPEINFO))
+                {
+                    test_trimesh = (eTriMesh*)test_node;
+
+                    GUI::materialsManager_SetCurrentMaterialFromTriMesh(test_trimesh->getMaterial());
+                }
             }
 
             /* Send back label text */

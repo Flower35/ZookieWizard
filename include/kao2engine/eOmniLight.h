@@ -17,7 +17,10 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x6C-0x80]*/ float direction[6];
+            /*[0x6C-0x74]*/ ePoint3 position;
+            /*[0x78]*/ float attenuationConstant;
+            /*[0x7C]*/ float attenuationLinear;
+            /*[0x80]*/ float attenuationQuadratic;
 
         /*** Methods ***/
 
@@ -28,6 +31,9 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            ePoint3 getPosition() const;
+            void setPosition(ePoint3 &new_position);
     };
 
 

@@ -186,7 +186,7 @@ namespace ZookieWizard
 
                     if (j < 0)
                     {
-                        fileName = filename.getSubstring((i + 1));
+                        fileName = filename.getSubstring(i + 1);
                     }
                     else
                     {
@@ -780,7 +780,7 @@ namespace ZookieWizard
                         }
 
                         dummy_bitmap->setPath(keywords[1]);
-                        dummy_bitmap->loadFromFile(workingDirectory);
+                        dummy_bitmap->loadFromFile(workingDirectory, false);
 
                         dummy_obj_mtl.material->appendTexture(dummy_texture);
 
@@ -1274,7 +1274,7 @@ namespace ZookieWizard
                     for (j = 0; j < total_vertices; j++)
                     {
                         /* Objects are no longer shiny, but some `eLight` source must exist in the scene */
-                        test_colors_data[j] = {0, 0, 0, 0};
+                        test_colors_data[j] = {0, 0, 0, 1.0f};
 
                         //// if (mat_id >= 0)
                         //// {

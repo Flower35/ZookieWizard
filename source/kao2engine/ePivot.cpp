@@ -148,4 +148,13 @@ namespace ZookieWizard
         return;
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // ePivot: rebuild "eAnimState"(s) in "eAnimate"
+    ////////////////////////////////////////////////////////////////
+    void ePivot::rebuildEmptyAnimState()
+    {
+        animations.rebuildEmptyAnimState();
+    }
+
 }

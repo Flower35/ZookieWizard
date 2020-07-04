@@ -32,10 +32,6 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
-        private:
-
-            bool canBeLoadedOrExported(int32_t &ar_flags);
-
         public:
 
             eProxy();
@@ -49,6 +45,9 @@ namespace ZookieWizard
             bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id) override;
 
             void destroyNode() override;
+
+            void reloadXRef(Archive &ar);
+            void exportXRef(Archive &ar);
 
             void setTargetName(eString new_target);
             void setCategory(int32_t new_category);

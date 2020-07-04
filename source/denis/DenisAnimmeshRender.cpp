@@ -228,7 +228,7 @@ namespace ZookieWizard
 
         try
         {
-            test_bitmap->loadFromFile(file.workingDirectory);
+            test_bitmap->loadFromFile(file.workingDirectory, false);
             test_bitmap->generateTexture();
         }
         catch (ErrorMessage &e)

@@ -31,6 +31,16 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            void getFogColor(float* values) const;
+            float getFogStart() const;
+            float getFogEnd() const;
+            float getFogMax() const;
+
+            void setFogColor(float* values);
+            void setFogStart(float value);
+            void setFogEnd(float value);
+            void setFogMax(float value);
     };
 
 

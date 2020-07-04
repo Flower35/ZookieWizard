@@ -346,7 +346,87 @@ namespace ZookieWizard
         ////////////////////////////////////////////////////////////////
         LRESULT CALLBACK procedureOfRenderWindow(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
         {
-            procedureForObjectMovement(0, hWnd, Msg, wParam, lParam);
+            if (isOrthoMode)
+            {
+                int mouse_mode = 0;
+
+                switch (Msg)
+                {
+                    case WM_LBUTTONDOWN:
+                    case WM_RBUTTONDOWN:
+                    {
+                        mouse_mode = 2;
+                        break;
+                    }
+
+                    case WM_LBUTTONUP:
+                    case WM_RBUTTONUP:
+                    {
+                        mouse_mode = 3;
+                        break;
+                    }
+
+                    case WM_MOUSEMOVE:
+                    {
+                        mouse_mode = 1;
+                        break;
+                    }
+                }
+
+                if (0 != mouse_mode)
+                {
+                    float mouse_x = 0, mouse_y = 0, ratio = 0;
+
+                    RECT render_window_area;
+                    GetClientRect(hWnd, &render_window_area);
+
+                    float half_width = (render_window_area.right - render_window_area.left) * 0.5f;
+                    float half_height = (render_window_area.bottom - render_window_area.top) * 0.5f;
+
+                    if (0 != half_height)
+                    {
+                        ratio = half_width / half_height;
+                    }
+
+                    switch (Msg)
+                    {
+                        case WM_LBUTTONDOWN:
+                        case WM_RBUTTONDOWN:
+                        case WM_LBUTTONUP:
+                        case WM_RBUTTONUP:
+                        case WM_MOUSEMOVE:
+                        {
+                            if (0 != half_width)
+                            {
+                                mouse_x = (float)(((int16_t)LOWORD(lParam) - half_width) / half_width);
+
+                                if (ratio > 1.0f)
+                                {
+                                    mouse_x *= ratio;
+                                }
+                            }
+
+                            if (0 != half_height)
+                            {
+                                mouse_y = (float)(((int16_t)HIWORD(lParam) - half_height) / half_height);
+
+                                if ((ratio < 1.0f) && (ratio > 0))
+                                {
+                                    mouse_y /= ratio;
+                                }
+                            }
+
+                            break;
+                        }
+                    }
+
+                    materialsManager_ParseMouse(10.0f * mouse_x, (-10.0f) * mouse_y, mouse_mode);
+                }
+            }
+            else
+            {
+                procedureForObjectMovement(0, hWnd, Msg, wParam, lParam);
+            }
 
             return DefWindowProc(hWnd, Msg, wParam, lParam);
         }
@@ -540,11 +620,19 @@ namespace ZookieWizard
             name[0] = 0x00;
             windowsCount = 0;
             windows = nullptr;
+            enterPageFunc = nullptr;
+            leavePageFunc = nullptr;
         }
 
         void WindowsManagerPage::setName(const char* new_name)
         {
-            strcpy_s(name, 16, new_name);
+            strcpy_s(name, 32, new_name);
+        }
+
+        void WindowsManagerPage::setEnterAndLeaveFunctions(void (*enter_func)(), void (*leave_func)())
+        {
+            enterPageFunc = enter_func;
+            leavePageFunc = leave_func;
         }
 
         void WindowsManagerPage::close()
@@ -584,9 +672,7 @@ namespace ZookieWizard
 
         void WindowsManagerPage::hideWindows()
         {
-            int32_t i;
-
-            for (i = 0; i < windowsCount; i++)
+            for (int i = 0; i < windowsCount; i++)
             {
                 ShowWindow(windows[i], SW_HIDE);
             }
@@ -594,9 +680,7 @@ namespace ZookieWizard
 
         void WindowsManagerPage::showWindows()
         {
-            int32_t i;
-
-            for (i = 0; i < windowsCount; i++)
+            for (int i = 0; i < windowsCount; i++)
             {
                 ShowWindow(windows[i], SW_SHOW);
             }
@@ -735,7 +819,7 @@ namespace ZookieWizard
         ////////////////////////////////////////////////////////////////
         // WindowsManager: add page
         ////////////////////////////////////////////////////////////////
-        void WindowsManager::addPage(const char* name)
+        void WindowsManager::addPage(const char* name, void (*enter_func)(), void (*leave_func)())
         {
             WindowsManagerPage* temp = new WindowsManagerPage [pagesCount + 1];
 
@@ -749,6 +833,7 @@ namespace ZookieWizard
 
             pages = temp;
             pages[pagesCount].setName(name);
+            pages[pagesCount].setEnterAndLeaveFunctions(enter_func, leave_func);
 
             currentPageNumber = pagesCount;
             pagesCount++;
@@ -763,6 +848,7 @@ namespace ZookieWizard
         void WindowsManager::switchPage(int32_t number)
         {
             char bufor[32];
+            int previous_page_number = currentPageNumber;
 
             if (pagesCount <= 0)
             {
@@ -805,7 +891,20 @@ namespace ZookieWizard
                 pages[number].hideWindows();
             }
 
+            if ((previous_page_number >= 0) && (previous_page_number < pagesCount))
+            {
+                if (nullptr != pages[previous_page_number].leavePageFunc)
+                {
+                    pages[previous_page_number].leavePageFunc();
+                }
+            }
+
             pages[currentPageNumber].showWindows();
+
+            if (nullptr != pages[currentPageNumber].enterPageFunc)
+            {
+                pages[currentPageNumber].enterPageFunc();
+            }
 
             /* Update pages label */
 

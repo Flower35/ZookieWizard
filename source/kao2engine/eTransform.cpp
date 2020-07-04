@@ -55,6 +55,38 @@ namespace ZookieWizard
     {
         eGroup::serialize(ar);
 
+        if (ar.isInWriteMode())
+        {
+            const int SETTING_XFORM_MAX_PARENTS = 16;
+            eTransform* parents_list[SETTING_XFORM_MAX_PARENTS];
+            eTransform* test_parent;
+            int32_t parents_index = 0;
+
+            defaultTransform[1] = eSRP();
+
+            /* Finding the parents with "eTransform" type, to set the second version of `defaultTransform` */
+
+            test_parent = (eTransform*)parent;
+
+            while ((nullptr != test_parent) && (parents_index < SETTING_XFORM_MAX_PARENTS))
+            {
+                if (test_parent->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+                {
+                    parents_list[parents_index] = test_parent;
+                    parents_index++;
+                }
+
+                test_parent = (eTransform*)(test_parent->parent);
+            }
+
+            for (int32_t i = parents_index - 1; i >= 0; i--)
+            {
+                defaultTransform[1] = defaultTransform[1].applyAnotherSRP(parents_list[i]->getXForm(true, false));
+            }
+
+            defaultTransform[1] = defaultTransform[0].applyAnotherSRP(defaultTransform[1]);
+        }
+
         defaultTransform[0].serialize(ar);
         defaultTransform[1].serialize(ar);
 
@@ -74,6 +106,8 @@ namespace ZookieWizard
     {
         defaultTransform[0] = new_xform;
         defaultTransform[1] = defaultTransform[0];
+
+        /* Updating modified transforms and creating a matrix */
 
         modifiedTransform[0] = defaultTransform[0];
         modifiedTransform[1] = defaultTransform[1];
@@ -241,7 +275,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     ePoint3 eTransform::editingGetCenterPoint() const
     {
-        return modifiedTransform[1].pos;
+        return modifiedTransform[0].pos;
     }
 
 

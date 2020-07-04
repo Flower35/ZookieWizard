@@ -86,7 +86,7 @@ namespace ZookieWizard
     {
         if (nullptr != anim)
         {
-            ctrlApplyTransform(&e, anim->state[0].getTime());
+            ctrlApplyTransform(&e, anim->currentAnimState[0].getTime());
         }
 
         return e;

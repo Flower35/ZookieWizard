@@ -30,6 +30,7 @@ namespace ZookieWizard
         bool timeUpdate = false;
         int32_t animationID = 0;
         int32_t animationFPS = 1;
+        bool renderingLimitFramerate = false;
 
         testCameraStruct::testCameraStruct()
         {
@@ -410,8 +411,8 @@ namespace ZookieWizard
         ////////////////////////////////////////////////////////////////
         void setPerspective(GLsizei new_width, GLsizei new_height)
         {
-            float p_x = 1.0f;
-            float p_y = 1.0f;
+            float p_x = 10.0f;
+            float p_y = 10.0f;
 
             /* DO NOT DIVICE BY ZERO! */
             if (0 == new_width)
@@ -443,19 +444,19 @@ namespace ZookieWizard
                 /* Calculate proportions */
                 if (new_height > new_width)
                 {
-                    p_y = (float)new_height / (float)new_width;
+                    p_y = 10.0f * (float)new_height / (float)new_width;
                 }
                 else if (new_height < new_width)
                 {
-                    p_x = (float)new_width / (float)new_height;
+                    p_x = 10.0f * (float)new_width / (float)new_height;
                 }
 
                 glOrtho
                 (
                     (-p_x), // left
                     p_x, // right
-                    (-p_y), // top
-                    p_y, // bottom
+                    (-p_y), // bottom
+                    p_y, // top
                     0.0, // zNear
                     1.0 // zFar
                 );
@@ -572,13 +573,13 @@ namespace ZookieWizard
                         /* (x > 0) look to the right (ADD) */
                         /* (x < 0) look to the left (SUBTRACT) */
 
-                        testCamera.yaw += (dir_x * ROTATING_SPEED * (testCamera.speed / 2.0));
+                        testCamera.yaw += (dir_x * ROTATING_SPEED * (TEST_CAMERA_DEFAULT_SPEED / 2.0));
 
                         /* Modify "rot_X" from "z" (vertical) parameter */
                         /* (z > 0) look up (ADD) */
                         /* (z < 0) look down (SUBTRACT) */
 
-                        testCamera.pitch += (dir_z * ROTATING_SPEED * (testCamera.speed / 2.0));
+                        testCamera.pitch += (dir_z * ROTATING_SPEED * (TEST_CAMERA_DEFAULT_SPEED / 2.0));
 
                         angle_calculations = true;
                         frustum_calculations = true;
@@ -820,10 +821,9 @@ namespace ZookieWizard
             time_start = timerGetCurrent();
             time_elapsed = time_start - timeFrameStart;
 
-            /* Limit rendering to 60 fps */
+            /* Limit rendering to 30 fps */
 
-            //// if (time_elapsed >= (1.0f / 60.0f))
-            if (true) // [DEBUG] (makes system unresponsive for no reason)
+            if ((false == renderingLimitFramerate) || (time_elapsed >= (1.0f / 30.0f)))
             {
                 /* Remeber current frame starting time */
 
@@ -837,22 +837,36 @@ namespace ZookieWizard
 
                 glLoadIdentity();
 
-                gluLookAt
-                (
-                    testCamera.pos_x, // eyes X
-                    testCamera.pos_y, // eyes Y
-                    testCamera.pos_z, // eyes Z
-                    (testCamera.pos_x + testCamera.look_x), // center X
-                    (testCamera.pos_y + testCamera.look_y), // center Y
-                    (testCamera.pos_z + testCamera.look_z), // center Z
-                    0, // up X
-                    0, // up Y
-                    1.0 // up Z
-                );
+                if (isOrthoMode)
+                {
+                    gluLookAt
+                    (
+                        0, 0, 0, // eyes
+                        0, 0, (-1), // look direction
+                        0, 1, 0 // up
+                    );
 
-                /* Render one frame */
+                    materialsManager_Render();
+                }
+                else
+                {
+                    gluLookAt
+                    (
+                        testCamera.pos_x, // eyes X
+                        testCamera.pos_y, // eyes Y
+                        testCamera.pos_z, // eyes Z
+                        (testCamera.pos_x + testCamera.look_x), // center X
+                        (testCamera.pos_y + testCamera.look_y), // center Y
+                        (testCamera.pos_z + testCamera.look_z), // center Z
+                        0, // up X
+                        0, // up Y
+                        1.0 // up Z
+                    );
 
-                myARs[0].renderScene(myDrawFlags);
+                    /* Render one frame */
+
+                    myARs[0].renderScene(myDrawFlags);
+                }
 
                 SwapBuffers(openGL_DeviceContext);
             }

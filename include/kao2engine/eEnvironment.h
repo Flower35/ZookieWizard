@@ -36,6 +36,10 @@ namespace ZookieWizard
             void findAndDereference(eNode* target) override;
 
             void addLighting(eLight* new_light);
+            void setFogColor(float* values);
+            void setFogStart(float value);
+            void setFogEnd(float value);
+            void setFogMax(float value);
     };
 
 

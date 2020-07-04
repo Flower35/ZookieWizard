@@ -75,7 +75,7 @@ namespace ZookieWizard
     {
         public:
 
-            char text[256];
+            char text[512];
 
             ErrorMessage(const char* message, ...);
 
@@ -92,5 +92,7 @@ namespace ZookieWizard
 #include <ZookieWizard/ZookieWizardGUI.h>
 #include <ZookieWizard/ZookieWizardMisc.h>
 #include <ZookieWizard/ZookieWizardSpecialModels.h>
+#include <ZookieWizard/ZookieWizardMaterials.h>
+
 
 #endif

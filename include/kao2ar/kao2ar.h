@@ -15,6 +15,7 @@ namespace ZookieWizard
     #define GAME_VERSION_KAO2_PL_PC 1
     #define GAME_VERSION_KAO2_EUR_PC 2
     #define GAME_VERSION_KAO_TW_PC 3
+    #define GAME_VERSION_ASTERIX_XXL2_PSP 4
 
 
     ////////////////////////////////////////////////////////////////
@@ -42,6 +43,10 @@ namespace ZookieWizard
 
         int32_t splitString(eString &source, eString* destination, int32_t max_entries);
         int32_t propertyString(eString &source, eString* destination, int32_t max_entries, int32_t line_number);
+        int32_t splitParams(eString &source, eString* destination, int32_t max_entries);
+        eString removeComment(eString source, bool hashtag_or_slashes);
+
+        bool compareNameWithWildcards(const char* source, const char* format);
     }
 
     FileOperator& operator << (FileOperator &fo, const char* str);

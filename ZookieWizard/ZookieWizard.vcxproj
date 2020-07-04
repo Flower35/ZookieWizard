@@ -68,10 +68,12 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -99,6 +101,7 @@
     <ClCompile Include="..\source\kao2ar\eObject.cpp" />
     <ClCompile Include="..\source\kao2ar\eString.cpp" />
     <ClCompile Include="..\source\kao2ar\kao2ar.cpp" />
+    <ClCompile Include="..\source\kao2ar\TextFilesParsing.cpp" />
     <ClCompile Include="..\source\kao2ar\StaticPool.cpp" />
     <ClCompile Include="..\source\kao2ar\TypeInfo.cpp" />
     <ClCompile Include="..\source\kao2engine\Actor.cpp" />
@@ -383,6 +386,7 @@
     <ClCompile Include="..\source\kao2engine\MsgInstruction.cpp" />
     <ClCompile Include="..\source\kao2engine\Namespace.cpp" />
     <ClCompile Include="..\source\kao2engine\NodeRef.cpp" />
+    <ClCompile Include="..\source\kao2engine\NodeRefLinker.cpp" />
     <ClCompile Include="..\source\kao2engine\NodeRefSendInstruction.cpp" />
     <ClCompile Include="..\source\kao2engine\NotInstruction.cpp" />
     <ClCompile Include="..\source\kao2engine\OwnerUpdateInstruction.cpp" />
@@ -410,6 +414,7 @@
     <ClCompile Include="..\source\ZookieWizard\WindowsManager.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizard.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardGUI.cpp" />
+    <ClCompile Include="..\source\ZookieWizard\ZookieWizardMaterials.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardMisc.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardRender.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardSpecialModels.cpp" />

@@ -44,10 +44,14 @@ namespace ZookieWizard
         /*[0x1C]*/ pixels = nullptr;
         /*[0x20]*/ palette = nullptr;
         /*[0x24]*/ type = (-1);
+
+        GUI::materialsManager_InsertBitmap(this);
     }
 
     eBitmap::~eBitmap()
     {
+        GUI::materialsManager_DeleteBitmap(this);
+
         deleteTexture();
 
         if (nullptr != pixels)
@@ -105,7 +109,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eBitmap: load image from file
     ////////////////////////////////////////////////////////////////
-    void eBitmap::loadFromFile(eString directory)
+    bool eBitmap::loadFromFile(eString directory, bool silent_if_not_exists)
     {
         FileOperator file;
         eString result;
@@ -120,8 +124,19 @@ namespace ZookieWizard
 
         /* Get path and open file */
 
+        full_path = path.getText();
+        a = 0;
+        b = path.getLength();
+
+        while ((b > 3) && ('.' == full_path[a + 0]) && ('.' == full_path[a + 1])
+          && (('/' == full_path[a + 2]) || ('\\' == full_path[a + 2])))
+        {
+            a += 3;
+            b -= 3;
+        }
+
         result += directory;
-        result += path;
+        result += path.getSubstring(a);
 
         theLog.print(eString(" @ LOADING BITMAP: \"") + result + "\"\n");
 
@@ -129,12 +144,17 @@ namespace ZookieWizard
 
         if (!file.open(full_path, (FILE_OPERATOR_MODE_READ | FILE_OPERATOR_MODE_BINARY)))
         {
-            throw ErrorMessage
-            (
-                "Bitmap::loadFromFile():\n" \
-                "Could not open file: \"%s\"",
-                full_path
-            );
+            if (false == silent_if_not_exists)
+            {
+                throw ErrorMessage
+                (
+                    "Bitmap::loadFromFile():\n" \
+                    "Could not open file: \"%s\"",
+                    full_path
+                );
+            }
+
+            return false;
         }
 
         /* Check file format (only BMP and TGA are supported by game engine) */
@@ -146,7 +166,7 @@ namespace ZookieWizard
 
             if (*(int16_t*)"BM" != (0x0000FFFF & a))
             {
-                return;
+                return false;
             }
 
             /* [0x02] Dummy (file size) */
@@ -234,7 +254,7 @@ namespace ZookieWizard
 
                 default:
                 {
-                    return;
+                    return false;
                 }
             }
 
@@ -266,7 +286,7 @@ namespace ZookieWizard
 
             if (0 != (0x000000FF & a))
             {
-                return;
+                return false;
             }
 
             /* [0x01] "Color Map Type" */
@@ -274,7 +294,7 @@ namespace ZookieWizard
 
             if (0 != (0x000000FF & a))
             {
-                return;
+                return false;
             }
 
             /* [0x02] "Image Type" */
@@ -283,7 +303,7 @@ namespace ZookieWizard
 
             if (2 != (0x000000FF & a))
             {
-                return;
+                return false;
             }
 
             /* [0x03-0x07] "Color Map Specification" */
@@ -293,7 +313,7 @@ namespace ZookieWizard
 
                 if (0 != (0x000000FF & a))
                 {
-                    return;
+                    return false;
                 }
             }
 
@@ -302,7 +322,7 @@ namespace ZookieWizard
 
             if (0 != (0x0000FFFF & a))
             {
-                return;
+                return false;
             }
 
             /* [0x0A] "Y-origin of Image" */
@@ -310,7 +330,7 @@ namespace ZookieWizard
 
             if (0 != (0x0000FFFF & a))
             {
-                return;
+                return false;
             }
 
             /* [0x0C] "Image Width" */
@@ -330,7 +350,7 @@ namespace ZookieWizard
 
             if (32 != bpp)
             {
-                return;
+                return false;
             }
 
             /* [0x11] "Image Descriptor" */
@@ -338,7 +358,7 @@ namespace ZookieWizard
 
             if (8 != (0x000000FF & a))
             {
-                return;
+                return false;
             }
 
             /* [0x12] "Image data" */
@@ -381,9 +401,13 @@ namespace ZookieWizard
                 "unsupported file extension! [%s]",
                 path.getText()
             );
+
+            return false;
         }
 
         deleteTexture();
+
+        return true;
     }
 
 
@@ -404,8 +428,19 @@ namespace ZookieWizard
 
         /* Get path and open file */
 
+        full_path = path.getText();
+        a = 0;
+        b = path.getLength();
+
+        while ((b > 3) && ('.' == full_path[a + 0]) && ('.' == full_path[a + 1])
+            && (('/' == full_path[a + 2]) || ('\\' == full_path[a + 2])))
+        {
+            a += 3;
+            b -= 3;
+        }
+
         result += directory;
-        result += path;
+        result += path.getSubstring(a);
 
         theLog.print(eString(" @ EXPORTING BITMAP: \"") + result + "\"\n");
 
@@ -515,7 +550,7 @@ namespace ZookieWizard
                 );
             }
         }
-        else if ((!bmp_ext) && (bitmapType::RGBA8 == type))
+        else if ((!bmp_ext) && ((bitmapType::RGBA8 == type) || (bitmapType::RGBX8 == type)))
         {
             /* [TGA] 32-bit (Truecolor) */
 
@@ -562,6 +597,24 @@ namespace ZookieWizard
                 for (x = 0; x < width; x++)
                 {
                     b = (3 * y * width) + (3 * x);
+
+                    a = (3 * width * height) - (3 * (y+1) * width) + (3 * x);
+
+                    output_pixels[a + 0] = pixels[b + 2];
+                    output_pixels[a + 1] = pixels[b + 1];
+                    output_pixels[a + 2] = pixels[b + 0];
+                }
+            }
+        }
+        else if (bmp_ext && (bitmapType::RGBA8 == type))
+        {
+            /* [BMP] 32-bit -> 24-bit (lost alpha channel information!) */
+
+            for (y = 0; y < height; y++)
+            {
+                for (x = 0; x < width; x++)
+                {
+                    b = (4 * y * width) + (4 * x);
 
                     a = (3 * width * height) - (3 * (y+1) * width) + (3 * x);
 
@@ -928,6 +981,32 @@ namespace ZookieWizard
 
         ar.readOrWrite(&type, 0x04);
 
+        if (ar.isInReadMode())
+        {
+            switch (type)
+            {
+                case bitmapType::RGBA8:
+                case bitmapType::RGB8:
+                case bitmapType::PAL8_RGBA8:
+                case bitmapType::PAL8_RGBX8:
+                case bitmapType::RGBX8:
+                {
+                    break;
+                }
+
+                default:
+                {
+                    throw ErrorMessage
+                    (
+                        "eBitmap::serialize():\n" \
+                        "unsupported bitap type 0x%08X!", type
+                    );
+
+                    return;
+                }
+            }
+        }
+
         total_length = getBytesPerPixel() * width * height;
 
         using_pal = isUsingPalette();
@@ -986,6 +1065,11 @@ namespace ZookieWizard
 
         ar.serializeString(path);
 
+        if (ar.isInReadMode())
+        {
+            GUI::materialsManager_UpdateBitmapName(this);
+        }
+
         /* Load texture from file, Bind texture */
 
         if (ar.isInReadMode())
@@ -994,7 +1078,7 @@ namespace ZookieWizard
             {
                 try
                 {
-                    loadFromFile(ar.getMediaDir());
+                    loadFromFile(ar.getMediaDir(), false);
 
                     isLoadedFromExternalFile = true;
                 }
@@ -1069,6 +1153,8 @@ namespace ZookieWizard
     void eBitmap::setPath(eString new_path)
     {
         path = new_path;
+
+        GUI::materialsManager_UpdateBitmapName(this);
     }
 
     eString eBitmap::getPath() const
@@ -1173,6 +1259,22 @@ namespace ZookieWizard
         }
 
         return false;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: get aspect ratio (width to height)
+    ////////////////////////////////////////////////////////////////
+    float eBitmap::getAspectRatio() const
+    {
+        float ratio = 1.0f;
+
+        if ((width > 0) && (height > 0))
+        {
+            ratio = (float)width / (float)height;
+        }
+
+        return ratio;
     }
 
 }

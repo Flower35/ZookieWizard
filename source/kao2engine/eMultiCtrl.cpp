@@ -60,13 +60,13 @@ namespace ZookieWizard
 
         if (nullptr != anim)
         {
-            id = anim->state[0].getAnimId();
+            id = anim->currentAnimState[0].getAnimId();
 
             controller = (eCtrl<T>*)controllers.getIthChild(id);
 
             if (nullptr != controller)
             {
-                controller->ctrlApplyTransform(&e, anim->state[0].getTime());
+                controller->ctrlApplyTransform(&e, anim->currentAnimState[0].getTime());
             }
         }
 

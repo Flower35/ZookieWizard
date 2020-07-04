@@ -44,6 +44,7 @@ namespace ZookieWizard
         void exportTrimeshToObj();
         void importTrimeshFromObj();
         void importNodesFromTxt();
+        void changeNodesWithTxt();
 }
 
 #endif

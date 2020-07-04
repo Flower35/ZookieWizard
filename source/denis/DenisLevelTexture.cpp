@@ -116,7 +116,7 @@ namespace ZookieWizard
 
         try
         {
-            test_bitmap->loadFromFile(file.workingDirectory);
+            test_bitmap->loadFromFile(file.workingDirectory, false);
 
             if (add_transparency)
             {
