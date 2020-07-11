@@ -749,18 +749,21 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void Archive::setMyParentScene(eScene* pointer)
     {
-        if (nullptr != parentObject)
+        if (parentObject != pointer)
         {
-            destroyParent();
-        }
+            if (nullptr != parentObject)
+            {
+                destroyParent();
+            }
 
-        parentObject = pointer;
+            parentObject = pointer;
 
-        if (nullptr != parentObject)
-        {
-            parentObject->incRef();
+            if (nullptr != parentObject)
+            {
+                parentObject->incRef();
 
-            selectedObject = parentObject;
+                selectedObject = parentObject;
+            }
         }
     }
 

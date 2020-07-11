@@ -79,6 +79,8 @@ namespace ZookieWizard
         eString node_name;
         eString test_names[2];
 
+        TypeInfo* test_typeinfo;
+
         if (nullptr == node)
         {
             return nullptr;
@@ -202,10 +204,14 @@ namespace ZookieWizard
                 {
                     test_names[0] = mask.getSubstring(0, slash_position);
                     test_names[1] = mask.getSubstring(slash_position + 1);
+
+                    test_typeinfo = &E_GROUP_TYPEINFO;
                 }
                 else
                 {
                     test_names[0] = mask;
+
+                    test_typeinfo = linkType;
                 }
 
                 if (node->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
@@ -220,7 +226,7 @@ namespace ZookieWizard
                         {
                             node_name = test_node[0]->getStringRepresentation();
 
-                            if (test_node[0]->getType()->checkHierarchy(linkType))
+                            if (test_node[0]->getType()->checkHierarchy(test_typeinfo))
                             {
                                 if (ArFunctions::compareNameWithWildcards(node_name.getText(), test_txt))
                                 {

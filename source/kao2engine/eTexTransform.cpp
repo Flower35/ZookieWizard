@@ -29,18 +29,18 @@ namespace ZookieWizard
     eTexTransform::eTexTransform()
     : eRefCounter()
     {
-        unknown_08 = nullptr;
-        unknown_0C = nullptr;
-        unknown_10 = nullptr;
-        unknown_14 = nullptr;
+        xScale = nullptr;
+        yScale = nullptr;
+        uOffset = nullptr;
+        vOffset = nullptr;
     }
 
     eTexTransform::~eTexTransform()
     {
-        unknown_08->decRef();
-        unknown_0C->decRef();
-        unknown_10->decRef();
-        unknown_14->decRef();
+        xScale->decRef();
+        yScale->decRef();
+        uOffset->decRef();
+        vOffset->decRef();
     }
 
 
@@ -50,17 +50,17 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eTexTransform::serialize(Archive &ar)
     {
-        /* unknown */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_08, &E_LEAFCTRL_FLOAT_TYPEINFO);
+        /* Texture's X-scale controller */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&xScale, &E_LEAFCTRL_FLOAT_TYPEINFO);
 
-        /* unknown */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_0C, &E_LEAFCTRL_FLOAT_TYPEINFO);
+        /* Texture's Y-scale controller */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&yScale, &E_LEAFCTRL_FLOAT_TYPEINFO);
 
-        /* unknown */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_10, &E_LEAFCTRL_FLOAT_TYPEINFO);
+        /* Texture's U-offset controller */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&uOffset, &E_LEAFCTRL_FLOAT_TYPEINFO);
 
-        /* unknown */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_14, &E_LEAFCTRL_FLOAT_TYPEINFO);
+        /* Texture's V-offset controller */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&vOffset, &E_LEAFCTRL_FLOAT_TYPEINFO);
     }
 
 }

@@ -131,8 +131,7 @@ namespace ZookieWizard
 
         sprintf_s
         (
-            bufor,
-            128,
+            bufor, 128,
             " - script: \"%s\"",
             test_str.getText()
         );
@@ -148,17 +147,58 @@ namespace ZookieWizard
             test_track = (eTrack*)animations.tracks.getIthChild(i);
             sprintf_s
             (
-                bufor,
-                128,
-                " - track [%d]: \"%s\"",
+                bufor, 128,
+                " - track [%d]: \"%s\" [%.2f, %.2f]",
                 i,
-                test_track->getStringRepresentation().getText()
+                test_track->getStringRepresentation().getText(),
+                test_track->getStartFrame(),
+                test_track->getEndFrame()
             );
 
             ArFunctions::writeIndentation(file, indentation);
             file << bufor;
             ArFunctions::writeNewLine(file, 0);
         }
+
+        /* "eTransform" parent class */
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform pos: (%f, %f, %f)",
+            defaultTransform[0].pos.x,
+            defaultTransform[0].pos.y,
+            defaultTransform[0].pos.z
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform rot: (%f, %f, %f, %f)",
+            defaultTransform[0].rot.x,
+            defaultTransform[0].rot.y,
+            defaultTransform[0].rot.z,
+            defaultTransform[0].rot.w
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform scl: (%f)",
+            defaultTransform[0].scale
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
 
         /* "eGroup" parent class */
 

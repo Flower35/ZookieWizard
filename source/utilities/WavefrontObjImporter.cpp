@@ -786,8 +786,8 @@ namespace ZookieWizard
 
                         if (dummy_bitmap->isTransparent())
                         {
-                            /* 0x08 = "alphaTest" */
-                            dummy_obj_mtl.material->setMaterialFlags(0x08);
+                            /* 0x02 = "TM_BLEND" */
+                            dummy_obj_mtl.material->setMaterialFlags(0x02);
                         }
 
                         /* Prepare for rendering! */

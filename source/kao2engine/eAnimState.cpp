@@ -81,26 +81,14 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eAnimState: get time for animations
+    // eAnimState: get or set the time for animations
     ////////////////////////////////////////////////////////////////
+
     float eAnimState::getTime() const
     {
         return citt;
     }
 
-
-    ////////////////////////////////////////////////////////////////
-    // eAnimState: get animation ID
-    ////////////////////////////////////////////////////////////////
-    int eAnimState::getAnimId() const
-    {
-        return aID;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eAnimState: set time for animations
-    ////////////////////////////////////////////////////////////////
     void eAnimState::setTime(float current_time)
     {
         citt = current_time;
@@ -108,11 +96,62 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eAnimState: set animation ID
+    // eAnimState: get or set the animation ID
     ////////////////////////////////////////////////////////////////
+
+    int eAnimState::getAnimId() const
+    {
+        return aID;
+    }
+
     void eAnimState::setAnimId(int32_t current_anim_id)
     {
         aID = current_anim_id;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eAnimState: get or set the first keyframe number
+    ////////////////////////////////////////////////////////////////
+
+    float eAnimState::getStartFrame() const
+    {
+        return startFrame;
+    }
+
+    void eAnimState::setStartFrame(float new_value)
+    {
+        startFrame = new_value;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eAnimState: get or set the number of keyframes
+    ////////////////////////////////////////////////////////////////
+
+    float eAnimState::getEndFrame() const
+    {
+        return endFrame;
+    }
+
+    void eAnimState::setEndFrame(float new_value)
+    {
+        endFrame = new_value;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eAnimState: get or set the looping type
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eAnimState::getLoopType() const
+    {
+        return loopType;
+    }
+
+    void eAnimState::setLoopType(int32_t new_value)
+    {
+        loopType = new_value;
     }
 
 }

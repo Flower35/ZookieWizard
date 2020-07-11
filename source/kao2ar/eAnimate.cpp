@@ -283,10 +283,12 @@ namespace ZookieWizard
                 first_frame = test_track->getStartFrame();
                 length_in_frames = test_track->getEndFrame() - first_frame;
                 time = first_frame + ((length_in_frames > 0) ? fmod(time, length_in_frames) : 0);
-
-                currentAnimState[0].setTime(time);
             }
         }
+
+        /* Always update the animation timer, regardless if there are any animations in the Scene */
+
+        currentAnimState[0].setTime(time);
     }
 
 
@@ -300,12 +302,21 @@ namespace ZookieWizard
         /* Reset current Anim State */
 
         currentAnimState[0] = eAnimState();
+
+        currentAnimState[0].setStartFrame(0);
+        currentAnimState[0].setEndFrame(1.0e+30f);
+        currentAnimState[0].setLoopType(loopTypeEnum::QUARTZ);
+
         animStatesCount = 1;
 
         /* Create new Anim State "containers" */
 
         animStateB = animStateA = new (eAnimState*);
         (*animStateA) = new eAnimState;
+
+        (**animStateA).setStartFrame(0);
+        (**animStateA).setEndFrame(1.0e+30f);
+        (**animStateA).setLoopType(loopTypeEnum::QUARTZ);
 
         (**animStateA).incRef();
         (**animStateB).incRef();

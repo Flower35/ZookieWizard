@@ -23,6 +23,11 @@ namespace ZookieWizard
             /*[vptr]+0x24]*/ virtual T ctrlGetTransform(T, eAnimate*) const;
             /*[vptr]+0x28]*/ virtual void ctrlApplyTransform(T*, float) const = 0;
 
+            virtual void ctrlSetStaticKeyframe(T &new_value, int32_t param) = 0;
+
+            virtual void ctrlClearKeyframes(int anim_id) = 0;
+            virtual void ctrlAddKeyframe(int anim_id, float new_time, T &new_data, int param) = 0;
+
     };
 
 

@@ -72,4 +72,39 @@ namespace ZookieWizard
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_0C, &E_LEAFCTRL_FLOAT_TYPEINFO);
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // ePathConstrainCtrl: set static keyframes for fun
+    ////////////////////////////////////////////////////////////////
+    void ePathConstrainCtrl::ctrlSetStaticKeyframe(ePoint3 &new_value, int32_t param)
+    {
+        /* (...) don't know what to do... */
+        return;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePathConstrainCtrl: clear keyframes for specific animation
+    ////////////////////////////////////////////////////////////////
+    void ePathConstrainCtrl::ctrlClearKeyframes(int anim_id)
+    {
+        if (nullptr != unknown_0C)
+        {
+            unknown_0C->ctrlClearKeyframes(anim_id);
+        }
+
+        /* (...) don't know what to do... */
+        return;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePathConstrainCtrl: update specific animation
+    ////////////////////////////////////////////////////////////////
+    void ePathConstrainCtrl::ctrlAddKeyframe(int anim_id, float new_time, ePoint3 &new_data, int param)
+    {
+        /* (...) don't know what to do... */
+        return;
+    }
+
 }

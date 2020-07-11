@@ -2,6 +2,7 @@
 
 #include <kao2engine/eGroup.h>
 #include <kao2engine/eMaterial.h>
+#include <kao2engine/eLeafCtrl.h>
 #include <kao2engine/eTriMesh.h>
 #include <kao2engine/eGeoSet.h>
 
@@ -221,6 +222,7 @@ namespace ZookieWizard
         eString trimesh_name;
         ePoint3 boundaries[2];
 
+        eLeafCtrl<float>* test_visctrl = nullptr;
         eTriMesh* test_trimesh = nullptr;
         eGeoSet* test_geoset = nullptr;
 
@@ -259,10 +261,20 @@ namespace ZookieWizard
                     j += 2;
                 }
 
-                if (0 != textures[i].transparency)
+                if ((textures[i].transparency > 0) && (textures[i].transparency < 8))
                 {
-                    /* Use material with "alpha test" flags enabled */
+                    /* Use material with "TM_BLEND" flag enabled */
                     j++;
+
+                    /* Set Node's static opacity */
+
+                    test_visctrl = new eLeafCtrl<float>;
+                    test_visctrl->incRef();
+
+                    test_visctrl->setDefaultValue((8 - textures[i].transparency) / 8.0f);
+
+                    test_trimesh->setVisCtrl(test_visctrl);
+                    test_visctrl->decRef();
                 }
 
                 trimesh_name += materials_list[j]->getStringRepresentation();
@@ -391,7 +403,7 @@ namespace ZookieWizard
                     test_colors_data[m].x = (vertices[l].c.color_red / 255.0f);
                     test_colors_data[m].y = (vertices[l].c.color_green / 255.0f);
                     test_colors_data[m].z = (vertices[l].c.color_blue / 255.0f);
-                    test_colors_data[m].w = (8.0f - textures[i].transparency) / 8.0f;
+                    test_colors_data[m].w = 1.0f;
                 }
 
                 test_indices_offsets_data[j] = textures[i].faces[j].verticesCount;

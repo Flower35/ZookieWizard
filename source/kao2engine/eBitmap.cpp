@@ -606,7 +606,7 @@ namespace ZookieWizard
                 }
             }
         }
-        else if (bmp_ext && (bitmapType::RGBA8 == type))
+        else if (bmp_ext && ((bitmapType::RGBA8 == type) || (bitmapType::RGBX8 == type)))
         {
             /* [BMP] 32-bit -> 24-bit (lost alpha channel information!) */
 
@@ -663,6 +663,72 @@ namespace ZookieWizard
         if (nullptr != output_pixels)
         {
             delete[](output_pixels);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: copy pixels from other bitmap
+    ////////////////////////////////////////////////////////////////
+    void eBitmap::copyBitmap(const eBitmap* source)
+    {
+        if (nullptr != source)
+        {
+            /* Copy properties */
+
+            virtualWidth = source->virtualWidth;
+            virtualHeight = source->virtualHeight;
+            width = source->width;
+            height = source->height;
+            type = source->type;
+            path = source->path;
+
+            /* Copy pixels array */
+
+            int total_length = getBytesPerPixel() * width * height;
+
+            if (nullptr != pixels)
+            {
+                delete[](pixels);
+                pixels = nullptr;
+            }
+
+            if (total_length > 0)
+            {
+                pixels = new uint8_t [total_length];
+            }
+
+            if (nullptr != source->pixels)
+            {
+                std::memcpy(pixels, source->pixels, total_length);
+            }
+
+            /* Copy palette array */
+
+            if (isUsingPalette())
+            {
+                if (nullptr == palette)
+                {
+                    palette = new uint32_t [256];
+                }
+
+                if (nullptr != source->palette)
+                {
+                    std::memcpy(palette, source->palette, (256 * 4));
+                }
+            }
+            else
+            {
+                if (nullptr != palette)
+                {
+                    delete[](palette);
+                    palette = nullptr;
+                }
+            }
+
+            /* Regenerate 2D texture */
+
+            generateTexture();
         }
     }
 
@@ -1213,6 +1279,7 @@ namespace ZookieWizard
         }
     }
 
+
     ////////////////////////////////////////////////////////////////
     // eBitmap: check for transparency
     ////////////////////////////////////////////////////////////////
@@ -1259,6 +1326,86 @@ namespace ZookieWizard
         }
 
         return false;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: change alpha channel based on given factor (0 to 1)
+    ////////////////////////////////////////////////////////////////
+    void eBitmap::changeAlphaChannel(float factor)
+    {
+        int32_t a, b, x, y;
+        uint8_t alpha;
+
+        if (factor < 0)
+        {
+            factor = 0;
+        }
+        else if (factor > 1.0f)
+        {
+            factor = 1.0f;
+        }
+
+        if (bitmapType::RGBX8 == type)
+        {
+            type = bitmapType::RGBA8;
+        }
+        else if (bitmapType::PAL8_RGBX8 == type)
+        {
+            type = bitmapType::PAL8_RGBA8;
+        }
+
+        switch (type)
+        {
+            case bitmapType::RGBA8:
+            {
+                for (y = 0; y < height; y++)
+                {
+                    for (x = 0; x < width; x++)
+                    {
+                        a = (4 * y * width) + (4 * x);
+
+                        b = *(int32_t*)&(pixels[a]);
+
+                        alpha = (b >> 24) & 0x00FF;
+                        alpha = (uint8_t)roundf(factor * alpha);
+
+                        b = (b & 0x00FFFFFF) | ((alpha << 24) & 0xFF000000);
+                        *(int32_t*)&(pixels[a]) = b;
+                    }
+                }
+
+                break;
+            }
+
+            case bitmapType::PAL8_RGBA8:
+            {
+                for (x = 0; x < 256; x++)
+                {
+                    b = palette[x];
+
+                    alpha = (b >> 24) & 0x00FF;
+                    alpha = (uint8_t)roundf(factor * alpha);
+
+                    b = (b & 0x00FFFFFF) | ((alpha << 24) & 0xFF000000);
+                    palette[x] = b;
+                }
+
+                break;
+            }
+
+            default:
+            {
+                throw ErrorMessage
+                (
+                    "eBitmap::changeAlphaChannel()\n" \
+                    "unsupported bitmap type! [%s]\n" \
+                    "\"%s\"",
+                    getTypeName(),
+                    path.getText()
+                );
+            }
+        }
     }
 
 

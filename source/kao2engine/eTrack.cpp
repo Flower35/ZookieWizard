@@ -81,16 +81,22 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTrack: get animation name
+    // eTrack: get or set the track name
     ////////////////////////////////////////////////////////////////
+
     eString eTrack::getStringRepresentation() const
     {
         return name;
     }
 
+    void eTrack::setName(eString new_name)
+    {
+        name = new_name;
+    }
+
 
     ////////////////////////////////////////////////////////////////
-    // eTrack: get times
+    // eTrack: get or set the first keyframe number
     ////////////////////////////////////////////////////////////////
 
     float eTrack::getStartFrame() const
@@ -98,9 +104,39 @@ namespace ZookieWizard
         return startFrame;
     }
 
+    void eTrack::setStartFrame(float new_value)
+    {
+        startFrame = new_value;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTrack: get or set the number of keyframes
+    ////////////////////////////////////////////////////////////////
+
     float eTrack::getEndFrame() const
     {
         return endFrame;
+    }
+
+    void eTrack::setEndFrame(float new_value)
+    {
+        endFrame = new_value;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTrack: get or set the looping type
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eTrack::getLoopType() const
+    {
+        return loopType;
+    }
+
+    void eTrack::setLoopType(int32_t new_value)
+    {
+        loopType = new_value;
     }
 
 }

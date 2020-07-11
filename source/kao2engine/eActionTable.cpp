@@ -72,28 +72,42 @@ namespace ZookieWizard
 
     eActionBase& eActionBase::operator = (const eActionBase &otherAction)
     {
-        cameraPacket->decRef();
-        cameraPacket = nullptr;
-
-        nodeTarget->decRef();
-        nodeTarget = nullptr;
-
-        nodeTarget = otherAction.nodeTarget;
         message = otherAction.message;
-        cameraPacket = otherAction.cameraPacket;
         unknown_10 = otherAction.unknown_10;
         unknown_14 = otherAction.unknown_14;
         unknown_15 = otherAction.unknown_15;
         actorName = otherAction.actorName;
 
-        if (nullptr != nodeTarget)
+        if (nodeTarget != otherAction.nodeTarget)
         {
-            nodeTarget->incRef();
+            if (nullptr != nodeTarget)
+            {
+                nodeTarget->decRef();
+                nodeTarget = nullptr;
+            }
+
+            nodeTarget = otherAction.nodeTarget;
+
+            if (nullptr != nodeTarget)
+            {
+                nodeTarget->incRef();
+            }
         }
 
-        if (nullptr != cameraPacket)
+        if (cameraPacket != otherAction.cameraPacket)
         {
-            cameraPacket->incRef();
+            if (nullptr != cameraPacket)
+            {
+                cameraPacket->decRef();
+                cameraPacket = nullptr;
+            }
+
+            cameraPacket = otherAction.cameraPacket;
+
+            if (nullptr != cameraPacket)
+            {
+                cameraPacket->incRef();
+            }
         }
 
         return *this;

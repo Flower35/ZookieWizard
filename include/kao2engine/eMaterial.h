@@ -18,6 +18,7 @@ namespace ZookieWizard
 
     extern MaterialType theMaterialTypes[16];
     extern const char* theMaterialSound[6];
+    extern const char* theMaterialFlags[4];
 
     ////////////////////////////////////////////////////////////////
     // eMaterial interface
@@ -65,6 +66,7 @@ namespace ZookieWizard
 
             int32_t getTexturesCount() const;
 
+            uint8_t getMaterialFlags() const;
             void setMaterialFlags(uint8_t bits_to_apply);
             void unsetMaterialFlags(uint8_t bits_to_erase);
 

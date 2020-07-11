@@ -69,14 +69,7 @@ namespace ZookieWizard
     void DenisLevelTexture::convertToKao2(DenisFileOperator &file, eMaterial** materials_list) const
     {
         int32_t i;
-
-        uint8_t test_flags[4] =
-        {
-            0x00, // normal
-            0x0E, // + "transparent" + "alpha test"
-            0x01, // + "2-sided"
-            0x0F // + "2-sided" + "transparent" + "alpha test"
-        };
+        uint8_t material_flags;
 
         eMaterial* test_material = nullptr;
         eTexture* test_texture = nullptr;
@@ -87,7 +80,7 @@ namespace ZookieWizard
         bool add_transparency = isTransparent;
 
         /********************************/
-        /* Create bitmap and texture */
+        /* Create bitmap */
 
         test_bitmap = new eBitmap();
         test_bitmap->incRef();
@@ -136,10 +129,11 @@ namespace ZookieWizard
             e.display();
         }
 
+        /********************************/
+        /* Create texture */
+
         test_texture = new eTexture(test_bitmap);
         test_texture->incRef();
-
-        test_bitmap->decRef();
 
         /********************************/
         /* Create four types of materials */
@@ -149,13 +143,32 @@ namespace ZookieWizard
             test_material = new eMaterial(test_texture);
 
             test_material->setName(name);
-            test_material->setMaterialFlags(test_flags[i]);
+
+            material_flags = 0;
+
+            if (i >= 2)
+            {
+                /* "2-sided" flag */
+                material_flags |= 0x01;
+            }
+
+            if ((i % 2) > 0)
+            {
+                /* "TM_BLEND" flag */
+                material_flags |= 0x02;
+            }
+
+            test_material->setMaterialFlags(material_flags);
+
+            /* Store this new material into the materials list of the current Denis level */
 
             materials_list[i] = test_material;
             test_material->incRef();
         }
 
         test_texture->decRef();
+
+        test_bitmap->decRef();
     }
 
 }

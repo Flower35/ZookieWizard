@@ -30,7 +30,7 @@ namespace ZookieWizard
     : State("", nullptr)
     {
         /*[0x78]*/ unknown_0078 = nullptr;
-        /*[0x80]*/ unknown_0080 = 0x00;
+        /*[0x80]*/ isPersistent = false;
 
         nodeRefNames_count = 0;
         nodeRefNames_maxLength = 0;
@@ -64,14 +64,14 @@ namespace ZookieWizard
             /* State */
             State::serialize(ar);
 
-            /* [0x80] unknown */
+            /* [0x80] The "persistent" modifier */
             if (ar.getVersion() >= 0x7B)
             {
-                ar.readOrWrite(&unknown_0080, 0x01);
+                ar.readOrWrite(&isPersistent, 0x01);
             }
             else
             {
-                unknown_0080 = 0x00;
+                isPersistent = false;
             }
         }
         else if (ar.getVersion() >= 0x89)
@@ -82,7 +82,7 @@ namespace ZookieWizard
             ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_0078, &E_NAMESPACE_TYPEINFO);
 
             /* [0x80/0x84] unknown */
-            ar.readOrWrite(&unknown_0080, 0x01);
+            ar.readOrWrite(&isPersistent, 0x01);
 
             /* [0x88] unknown */
             ar.readOrWrite(&unknown_0088, 0x04);

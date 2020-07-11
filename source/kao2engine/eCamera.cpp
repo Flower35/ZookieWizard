@@ -29,7 +29,7 @@ namespace ZookieWizard
     eCamera::eCamera()
     : eObserver()
     {
-        /*[0x01CC]*/ unknown_01CC = 0x01;
+        /*[0x01CC]*/ lookingAtCurrentFollowCamera = true;
 
         /*[0x01D0]*/ camTarget = nullptr;
 
@@ -84,8 +84,8 @@ namespace ZookieWizard
         ar.readOrWrite(&(unknown_01D8[0]), 0x04);
         ar.readOrWrite(&(unknown_01D8[2]), 0x04);
 
-        /* [0x01CC] unknown */
-        ar.readOrWrite(&unknown_01CC, 0x01);
+        /* [0x01CC] Shold the camera look at the Actor with `eFollowCameraCtrl.makeCurrent()` */
+        ar.readOrWrite(&lookingAtCurrentFollowCamera, 0x01);
 
         /* "Asterix & Obelix XXL 2: Mission Wifix" */
         if (ar.getVersion() >= 0x91)
@@ -159,14 +159,25 @@ namespace ZookieWizard
 
     void eCamera::setCameraTarget(eTransform* new_target)
     {
-        camTarget->decRef();
-
-        camTarget = new_target;
-
-        if (nullptr != camTarget)
+        if (camTarget != new_target)
         {
-            camTarget->incRef();
+            if (nullptr != camTarget)
+            {
+                camTarget->decRef();
+            }
+
+            camTarget = new_target;
+
+            if (nullptr != camTarget)
+            {
+                camTarget->incRef();
+            }
         }
+    }
+
+    void eCamera::setLookingAtFollowCamera(bool value)
+    {
+        lookingAtCurrentFollowCamera = value;
     }
 
 }

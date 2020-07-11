@@ -5,6 +5,8 @@
 #include <kao2engine/Log.h>
 
 #include <kao2engine/eALBox.h>
+#include <kao2engine/eLeafCtrl.h>
+#include <kao2engine/eMultiCtrl.h>
 #include <kao2engine/eScene.h>
 #include <kao2engine/eGeometry.h>
 
@@ -107,8 +109,8 @@ namespace ZookieWizard
         /*[0x10]*/ parent = nullptr;
         /*[0x18]*/ axisListBox = nullptr;
         /*[0x1C]*/ flags = 0x249D;
-        /*[0x30]*/ flags02 = 0x00FF;
-        /*[0x34]*/ unknown_34 = nullptr;
+        /*[0x30]*/ flagsCollisionResponse = 0x00FF;
+        /*[0x34]*/ visCtrl = nullptr;
         /*[0x2C]*/ sphBound[3] = -1.0f;
 
         visGroup = (-1);
@@ -119,7 +121,7 @@ namespace ZookieWizard
         //// eString result;
         //// char bufor[16];
 
-        unknown_34->decRef();
+        visCtrl->decRef();
         axisListBox->decRef();
 
         theNodesCounter--;
@@ -166,7 +168,7 @@ namespace ZookieWizard
 
         ar.serialize((eObject**)&parent, &E_GROUP_TYPEINFO);
 
-        if (nullptr == parent)
+        if (ar.isInDebugMode() && (nullptr == parent))
         {
             if ((false == getType()->checkHierarchy(&E_SCENE_TYPEINFO))
               && (false == ar.compareWithMyRoot(this)))
@@ -183,9 +185,6 @@ namespace ZookieWizard
                 GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_WARNING, bufor);
             }
         }
-
-        /* (--dsp--) DEBUG DEBUG DEBUG DEBUG */
-        unknown_0C = 0x00FFFFFF;
 
         ar.readOrWrite(&unknown_0C, 0x04);
 
@@ -220,9 +219,14 @@ namespace ZookieWizard
         ar.readOrWrite(&(sphBound[2]), 0x04);
         ar.readOrWrite(&(sphBound[3]), 0x04);
 
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_34, &E_REFCOUNTER_TYPEINFO);
+        /* Node's visibility controller (`GL_DIFFUSE` alpha channel, from 0 to 1.0) */
 
-        ar.readOrWrite(&flags02, 0x02);
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&visCtrl, &E_CTRL_FLOAT_TYPEINFO);
+
+        /* Some almost-deprecated flags. */
+        /* Object's collision is checked only when this valuse is NOT `0x00FF`. */
+
+        ar.readOrWrite(&flagsCollisionResponse, 0x02);
 
         if (ar.isInReadMode())
         {
@@ -289,6 +293,8 @@ namespace ZookieWizard
             axisListBox->decRef();
             axisListBox = nullptr;
         }
+
+        flagsCollisionResponse = 0x00FF;
     }
 
 
@@ -311,6 +317,46 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eNode::findAndDereference(eNode* target)
     {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: add empty animation track (if the node uses "eMultiCtrl")
+    ////////////////////////////////////////////////////////////////
+    void eNode::ctrlExpandAnimTracks(int32_t new_size)
+    {
+        eMultiCtrl<float>* multi_ctrl;
+
+        if (nullptr != visCtrl)
+        {
+            /* We only want to modify the `visCtrl` that already has multiple tracks */
+
+            if (visCtrl->getType()->checkHierarchy(&E_MULTICTRL_FLOAT_TYPEINFO))
+            {
+                multi_ctrl = (eMultiCtrl<float>*)visCtrl;
+
+                multi_ctrl->multiCtrl_SetSize(new_size);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: remove specific animation track (if the node uses "eMultiCtrl")
+    ////////////////////////////////////////////////////////////////
+    void eNode::ctrlRemoveAnimTrack(int32_t deleted_id)
+    {
+        eMultiCtrl<float>* multi_ctrl;
+
+        if (nullptr != visCtrl)
+        {
+            if (visCtrl->getType()->checkHierarchy(&E_MULTICTRL_FLOAT_TYPEINFO))
+            {
+                multi_ctrl = (eMultiCtrl<float>*)visCtrl;
+
+                multi_ctrl->multiCtrl_DeleteTrack(deleted_id);
+            }
+        }
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -408,6 +454,109 @@ namespace ZookieWizard
             {
                 axisListBox->incRef();
             }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: get or set the Alpha channel Controller
+    ////////////////////////////////////////////////////////////////
+
+    eCtrl<float>* eNode::getVisCtrl() const
+    {
+        return visCtrl;
+    }
+
+    void eNode::setVisCtrl(eCtrl<float>* new_visctrl)
+    {
+        if (visCtrl != new_visctrl)
+        {
+            if (nullptr != visCtrl)
+            {
+                visCtrl->decRef();
+            }
+
+            visCtrl = new_visctrl;
+
+            if (nullptr != visCtrl)
+            {
+                visCtrl->incRef();
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: editing the Alpha channel Controller
+    ////////////////////////////////////////////////////////////////
+
+    void eNode::visCtrlClear(int anim_id)
+    {
+        if (nullptr != visCtrl)
+        {
+            if (anim_id < 0)
+            {
+                visCtrl->decRef();
+                visCtrl = nullptr;
+            }
+            else
+            {
+                visCtrl->ctrlClearKeyframes(anim_id);
+            }
+        }
+    }
+
+    void eNode::visCtrlSetStatic(float opacity)
+    {
+        if (nullptr == visCtrl)
+        {
+            visCtrl = new eLeafCtrl<float>;
+            visCtrl->incRef();
+        }
+
+        visCtrl->ctrlSetStaticKeyframe(opacity, 0x01);
+    }
+
+    void eNode::visCtrlAddKeyframe(int anim_id, float time, float opacity)
+    {
+        eMultiCtrl<float>* multi_ctrl;
+
+        if (anim_id < 0)
+        {
+            if (nullptr == visCtrl)
+            {
+                visCtrl = new eLeafCtrl<float>;
+                visCtrl->incRef();
+            }
+
+            visCtrl->ctrlAddKeyframe(0, time, opacity, 0x01);
+        }
+        else
+        {
+            /* "anim_id" corresponds to a specific track in "eMultiCtrl" */
+
+            if (nullptr == visCtrl)
+            {
+                multi_ctrl = new eMultiCtrl<float>;
+
+                multi_ctrl->multiCtrl_SetSize(1 + anim_id);
+
+                visCtrl = multi_ctrl;
+                visCtrl->incRef();
+            }
+            else if (false == visCtrl->getType()->checkHierarchy(&E_MULTICTRL_FLOAT_TYPEINFO))
+            {
+                multi_ctrl = new eMultiCtrl<float>;
+
+                multi_ctrl->multiCtrl_SetSize(1 + anim_id);
+                multi_ctrl->multiCtrl_SetTrack(anim_id, visCtrl);
+
+                visCtrl->decRef();
+                visCtrl = multi_ctrl;
+                visCtrl->incRef();
+            }
+
+            visCtrl->ctrlAddKeyframe(anim_id, time, opacity, 0x01);
         }
     }
 
@@ -516,7 +665,7 @@ namespace ZookieWizard
             "[%08X] %s (\"%s\")",
             info->id,
             info->name,
-            name.getText()
+            name.getSubstring(0, 1024 - 64).getText()
         );
 
         ArFunctions::writeNewLine(file, indentation);
@@ -529,7 +678,7 @@ namespace ZookieWizard
             " - flags: %08X %08X %04X (visGroup: %d)",
             unknown_0C,
             flags,
-            flags02,
+            flagsCollisionResponse,
             visGroup
         );
 

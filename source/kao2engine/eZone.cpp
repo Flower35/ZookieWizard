@@ -100,11 +100,24 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eZone::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
     {
+        char bufor[64];
         /* "eNode" parent class */
 
         eNode::writeStructureToTextFile(file, indentation);
 
         /* "eZone" additional info */
+
+        sprintf_s(bufor, 64, " - boxBoundMin: (%f, %f, %f)", boxBoundMin.x, boxBoundMin.y, boxBoundMin.z);
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        sprintf_s(bufor, 64, " - boxBoundMax: (%f, %f, %f)", boxBoundMax.x, boxBoundMax.y, boxBoundMax.z);
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
 
         ArFunctions::writeIndentation(file, indentation);
         file << " - enter actions:";

@@ -24,12 +24,15 @@ namespace ZookieWizard
 
         int32_t myDrawFlags = 0;
 
+        bool usePerformanceCounter = false;
+        LARGE_INTEGER performanceCounterFrequency;
+
         LONGLONG timePrevious = 0;
         float timeFrameStart = 0;
         float timeCurrent = 0;
         bool timeUpdate = false;
         int32_t animationID = 0;
-        int32_t animationFPS = 1;
+        int32_t animationFPS = ANIMATION_FRAMERATE_DEFAULT;
         bool renderingLimitFramerate = false;
 
         testCameraStruct::testCameraStruct()
@@ -342,7 +345,7 @@ namespace ZookieWizard
 
 
         ////////////////////////////////////////////////////////////////
-        // Prepare OpenGL window
+        // Prepare timers and the OpenGL window
         ////////////////////////////////////////////////////////////////
         bool prepareRendering()
         {
@@ -352,6 +355,8 @@ namespace ZookieWizard
             /* Reset global timer */
             timerReset();
             timeUpdate = true;
+
+            usePerformanceCounter = (QueryPerformanceFrequency(&performanceCounterFrequency));
 
             /* Reset selected object transform matrix */
             selectedObjectNewTransform.getMatrix().transpose(selectedObjectTransposedMatrix);
@@ -814,61 +819,67 @@ namespace ZookieWizard
         void render()
         {
             char bufor[64];
-            float time_start, time_elapsed;
+            float time_start, time_elapsed = 0;
 
-            /* Get time at the beginning, measure elapsed time */
+            /* Check if the window is not minimized */
 
-            time_start = timerGetCurrent();
-            time_elapsed = time_start - timeFrameStart;
-
-            /* Limit rendering to 30 fps */
-
-            if ((false == renderingLimitFramerate) || (time_elapsed >= (1.0f / 30.0f)))
+            if (false == IsIconic(theWindowsManager.getMainWindow()))
             {
-                /* Remeber current frame starting time */
+                /* Get time at the beginning, measure elapsed time */
 
-                timeFrameStart = time_start;
+                time_start = timerGetCurrent();
+                time_elapsed = time_start - timeFrameStart;
 
-                /* Prepare frame and camera */
+                /* Limit rendering to 30 fps */
 
-                glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-                moveCameraOrObject(testCamera.keyboard_x, testCamera.keyboard_y, testCamera.keyboard_z, 0);
-
-                glLoadIdentity();
-
-                if (isOrthoMode)
+                if ((false == renderingLimitFramerate) || (0 == timeFrameStart) || (time_elapsed >= (1.0f / 30.0f)))
                 {
-                    gluLookAt
-                    (
-                        0, 0, 0, // eyes
-                        0, 0, (-1), // look direction
-                        0, 1, 0 // up
-                    );
+                    /* Remeber current frame starting time */
 
-                    materialsManager_Render();
+                    timeFrameStart = time_start;
+
+                    /* Prepare frame and camera */
+
+                    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+                    moveCameraOrObject(testCamera.keyboard_x, testCamera.keyboard_y, testCamera.keyboard_z, 0);
+
+                    glLoadIdentity();
+
+                    if (isOrthoMode)
+                    {
+                        gluLookAt
+                        (
+                            0, 0, 0, // eyes
+                            0, 0, (-1), // look direction
+                            0, 1, 0 // up
+                        );
+
+                        materialsManager_Render();
+                    }
+                    else
+                    {
+                        gluLookAt
+                        (
+                            testCamera.pos_x, // eyes X
+                            testCamera.pos_y, // eyes Y
+                            testCamera.pos_z, // eyes Z
+                            (testCamera.pos_x + testCamera.look_x), // center X
+                            (testCamera.pos_y + testCamera.look_y), // center Y
+                            (testCamera.pos_z + testCamera.look_z), // center Z
+                            0, // up X
+                            0, // up Y
+                            1.0 // up Z
+                        );
+
+                        /* Render one frame */
+
+                        myARs[0].renderScene(myDrawFlags);
+                    }
+
+                    glFlush();
+                    SwapBuffers(openGL_DeviceContext);
                 }
-                else
-                {
-                    gluLookAt
-                    (
-                        testCamera.pos_x, // eyes X
-                        testCamera.pos_y, // eyes Y
-                        testCamera.pos_z, // eyes Z
-                        (testCamera.pos_x + testCamera.look_x), // center X
-                        (testCamera.pos_y + testCamera.look_y), // center Y
-                        (testCamera.pos_z + testCamera.look_z), // center Z
-                        0, // up X
-                        0, // up Y
-                        1.0 // up Z
-                    );
-
-                    /* Render one frame */
-
-                    myARs[0].renderScene(myDrawFlags);
-                }
-
-                SwapBuffers(openGL_DeviceContext);
             }
 
             /* Update main window title */
@@ -894,14 +905,13 @@ namespace ZookieWizard
         {
             /* Returns time in miliseconds */
 
-            static LARGE_INTEGER s_frequency;
+            LARGE_INTEGER now;
 
-            if (QueryPerformanceFrequency(&s_frequency))
+            if (usePerformanceCounter)
             {
-                LARGE_INTEGER now;
                 QueryPerformanceCounter(&now);
 
-                return (1000LL * now.QuadPart / s_frequency.QuadPart);
+                return (1000LL * now.QuadPart / performanceCounterFrequency.QuadPart);
             }
             else
             {
@@ -913,6 +923,7 @@ namespace ZookieWizard
         {
             timePrevious = timerGet();
             timeCurrent = 0;
+            timeFrameStart = 0;
         }
 
         float timerGetCurrent()

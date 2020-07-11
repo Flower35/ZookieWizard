@@ -300,7 +300,7 @@ namespace ZookieWizard
             );
         };
 
-        /* (COLORS */
+        /* COLORS */
 
         if (use_color && (nullptr != colorsArray))
         {
@@ -422,61 +422,73 @@ namespace ZookieWizard
 
     void eGeoSet::setVerticesArray(eGeoArray<ePoint4>* new_vertices_array)
     {
-        if (nullptr != verticesArray[0])
+        if (verticesArray[0] != new_vertices_array)
         {
-            verticesArray[0]->decRef();
-        }
+            if (nullptr != verticesArray[0])
+            {
+                verticesArray[0]->decRef();
+            }
 
-        verticesArray[0] = new_vertices_array;
+            verticesArray[0] = new_vertices_array;
 
-        if (nullptr != verticesArray[0])
-        {
-            verticesArray[0]->incRef();
+            if (nullptr != verticesArray[0])
+            {
+                verticesArray[0]->incRef();
+            }
         }
     }
 
     void eGeoSet::setNormalsArray(eGeoArray<ePoint4>* new_normals_array)
     {
-        if (nullptr != normalsArray[0])
+        if (normalsArray[0] != new_normals_array)
         {
-            normalsArray[0]->decRef();
-        }
+            if (nullptr != normalsArray[0])
+            {
+                normalsArray[0]->decRef();
+            }
 
-        normalsArray[0] = new_normals_array;
+            normalsArray[0] = new_normals_array;
 
-        if (nullptr != normalsArray[0])
-        {
-            normalsArray[0]->incRef();
+            if (nullptr != normalsArray[0])
+            {
+                normalsArray[0]->incRef();
+            }
         }
     }
 
     void eGeoSet::setIndicesOffsets(eGeoArray<ushort>* new_indices_offets)
     {
-        if (nullptr != indicesOffsets)
+        if (indicesOffsets != new_indices_offets)
         {
-            indicesOffsets->decRef();
-        }
+            if (nullptr != indicesOffsets)
+            {
+                indicesOffsets->decRef();
+            }
 
-        indicesOffsets = new_indices_offets;
+            indicesOffsets = new_indices_offets;
 
-        if (nullptr != indicesOffsets)
-        {
-            indicesOffsets->incRef();
+            if (nullptr != indicesOffsets)
+            {
+                indicesOffsets->incRef();
+            }
         }
     }
 
     void eGeoSet::setIndicesArray(eGeoArray<ushort>* new_indices_array)
     {
-        if (nullptr != indicesArray)
+        if (indicesArray != new_indices_array)
         {
-            indicesArray->decRef();
-        }
+            if (nullptr != indicesArray)
+            {
+                indicesArray->decRef();
+            }
 
-        indicesArray = new_indices_array;
+            indicesArray = new_indices_array;
 
-        if (nullptr != indicesArray)
-        {
-            indicesArray->incRef();
+            if (nullptr != indicesArray)
+            {
+                indicesArray->incRef();
+            }
         }
     }
 
@@ -484,45 +496,51 @@ namespace ZookieWizard
     {
         int32_t i;
 
-        for (i = 0; i < 4; i++)
+        if (texCoordsArray[0] != new_uv_array)
         {
-            if (nullptr != texCoordsArray[i])
+            for (i = 0; i < 4; i++)
             {
-                texCoordsArray[i]->decRef();
+                if (nullptr != texCoordsArray[i])
+                {
+                    texCoordsArray[i]->decRef();
 
-                texCoordsArray[i] = nullptr;
+                    texCoordsArray[i] = nullptr;
+                }
+
+                texCoordsId[i] = 0;
             }
 
-            texCoordsId[i] = 0;
-        }
+            texCoordsArray[0] = new_uv_array;
+            texCoordsId[0] = 0;
 
-        texCoordsArray[0] = new_uv_array;
-        texCoordsId[0] = 0;
+            if (nullptr != texCoordsArray[0])
+            {
+                texCoordsArray[0]->incRef();
 
-        if (nullptr != texCoordsArray[0])
-        {
-            texCoordsArray[0]->incRef();
-
-            texCoordsCount = 1;
-        }
-        else
-        {
-            texCoordsCount = 0;
+                texCoordsCount = 1;
+            }
+            else
+            {
+                texCoordsCount = 0;
+            }
         }
     }
 
     void eGeoSet::setColorsArray(eGeoArray<ePoint4>* new_colors_array)
     {
-        if (nullptr != colorsArray)
+        if (colorsArray != new_colors_array)
         {
-            colorsArray->decRef();
-        }
+            if (nullptr != colorsArray)
+            {
+                colorsArray->decRef();
+            }
 
-        colorsArray = new_colors_array;
+            colorsArray = new_colors_array;
 
-        if (nullptr != colorsArray)
-        {
-            colorsArray->incRef();
+            if (nullptr != colorsArray)
+            {
+                colorsArray->incRef();
+            }
         }
     }
 

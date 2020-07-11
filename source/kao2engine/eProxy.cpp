@@ -66,6 +66,11 @@ namespace ZookieWizard
                 ar.serialize((eObject**)&test_node, &E_NODE_TYPEINFO);
             }
 
+            if (ar.isInWriteMode())
+            {
+                deserializationCorrection();
+            }
+
             defaultTransform[0].serialize(ar);
             defaultTransform[1].serialize(ar);
 
@@ -242,10 +247,10 @@ namespace ZookieWizard
     {
         category = new_category;
 
-        /* For now, set this unknown flag (that somehow controls collision) */
+        /* For now, set this collision-related flag */
         /* when the category is set to "geoproxy" */
 
-        flags02 = (5 == category) ? 0x0000 : 0x00FF;
+        flagsCollisionResponse = (5 == category) ? 0x0000 : 0x00FF;
     }
 
 
@@ -271,8 +276,7 @@ namespace ZookieWizard
             {
                 sprintf_s
                 (
-                    bufor,
-                    128,
+                    bufor, 128,
                     " - proxy target: [%d] \"%s\"",
                     category,
                     targetFile.getText()
@@ -283,6 +287,46 @@ namespace ZookieWizard
                 ArFunctions::writeNewLine(file, 0);
             }
         }
+
+        /* "eTransform" parent class */
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform pos: (%f, %f, %f)",
+            defaultTransform[0].pos.x,
+            defaultTransform[0].pos.y,
+            defaultTransform[0].pos.z
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform rot: (%f, %f, %f, %f)",
+            defaultTransform[0].rot.x,
+            defaultTransform[0].rot.y,
+            defaultTransform[0].rot.z,
+            defaultTransform[0].rot.w
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform scl: (%f)",
+            defaultTransform[0].scale
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
 
         /* "eGroup" parent class */
 

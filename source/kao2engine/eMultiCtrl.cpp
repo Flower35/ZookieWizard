@@ -45,6 +45,15 @@ namespace ZookieWizard
         return &E_MULTICTRL_FLOAT_TYPEINFO;
     }
 
+    template <typename T>
+    eMultiCtrl<T>::eMultiCtrl()
+    : eCtrl<T>()
+    {}
+
+    template <typename T>
+    eMultiCtrl<T>::~eMultiCtrl()
+    {}
+
 
     ////////////////////////////////////////////////////////////////
     // eMultiCtrl: animation function
@@ -104,7 +113,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eMultiCtrl serialization (and explicit templates)
+    // eMultiCtrl serialization
     // <kao2.????????>
     ////////////////////////////////////////////////////////////////
 
@@ -117,5 +126,146 @@ namespace ZookieWizard
     {
         controllers.serialize(ar, &E_LEAFCTRL_FLOAT_TYPEINFO);
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMultiCtrl: set static keyframes for fun
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eMultiCtrl<T>::ctrlSetStaticKeyframe(T &new_value, int32_t param)
+    {
+        int id;
+        eCtrl<T>* controller;
+
+        if (0 != param)
+        {
+            for (id = 0; id < controllers.getSize(); id++)
+            {
+                controller = (eCtrl<T>*)controllers.getIthChild(id);
+
+                if (nullptr != controller)
+                {
+                    controller->ctrlSetStaticKeyframe(new_value, param);
+                }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMultiCtrl: clear keyframes for specific animation
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eMultiCtrl<T>::ctrlClearKeyframes(int anim_id)
+    {
+        eCtrl<T>* controller = (eCtrl<T>*)controllers.getIthChild(anim_id);
+
+        if (nullptr != controller)
+        {
+            controller->ctrlClearKeyframes(anim_id);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMultiCtrl: update specific animation
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eMultiCtrl<T>::ctrlAddKeyframe(int anim_id, float new_time, T &new_data, int param)
+    {
+        if (0 != param)
+        {
+            eCtrl<T>* controller = (eCtrl<T>*)controllers.getIthChild(anim_id);
+
+            if (nullptr != controller)
+            {
+                controller->ctrlAddKeyframe(anim_id, new_time, new_data, param);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMultiCtrl: set a minimal number of controllers
+    // (Kao2 engine requires that the children controllers cannot be `NULL`!)
+    ////////////////////////////////////////////////////////////////
+
+    void eMultiCtrl<eSRP>::multiCtrl_SetSize(int32_t new_size)
+    {
+        eSRPCombineCtrl* dummy_controller;
+
+        for (int i = controllers.getSize(); i < new_size; i++)
+        {
+            dummy_controller = new eSRPCombineCtrl;
+
+            controllers.appendChild(dummy_controller);
+        }
+    }
+
+    void eMultiCtrl<float>::multiCtrl_SetSize(int32_t new_size)
+    {
+        eLeafCtrl<float>* dummy_controller;
+
+        for (int i = controllers.getSize(); i < new_size; i++)
+        {
+            dummy_controller = new eLeafCtrl<float>;
+
+            controllers.appendChild(dummy_controller);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMultiCtrl: replace specific controller
+    ////////////////////////////////////////////////////////////////
+
+    void eMultiCtrl<eSRP>::multiCtrl_SetTrack(int32_t id, void* new_controller)
+    {
+        eSRPCombineCtrl* dummy_track = (eSRPCombineCtrl*)new_controller;
+
+        if (nullptr != dummy_track)
+        {
+            if (false == dummy_track->getType()->checkHierarchy(&E_SRPCOMBINECTRL_TYPEINFO))
+            {
+                return;
+            }
+
+            controllers.setIthChild(id, dummy_track);
+        }
+    }
+
+    void eMultiCtrl<float>::multiCtrl_SetTrack(int32_t id, void* new_controller)
+    {
+        eLeafCtrl<float>* dummy_track = (eLeafCtrl<float>*)new_controller;
+
+        if (nullptr != dummy_track)
+        {
+            if (false == dummy_track->getType()->checkHierarchy(&E_LEAFCTRL_FLOAT_TYPEINFO))
+            {
+                return;
+            }
+
+            controllers.setIthChild(id, dummy_track);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMultiCtrl: delete specific controller
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eMultiCtrl<T>::multiCtrl_DeleteTrack(int32_t deleted_id)
+    {
+        controllers.deleteIthChild(deleted_id);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Explicit templates
+    ////////////////////////////////////////////////////////////////
+
+    template class eMultiCtrl<float>;
+
+    template class eMultiCtrl<eSRP>;
 
 }

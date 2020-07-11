@@ -165,6 +165,28 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eTexture: set texture transform
+    ////////////////////////////////////////////////////////////////
+    void eTexture::setTextureTransform(eTexTransform* new_form)
+    {
+        if (form != new_form)
+        {
+            if (nullptr != form)
+            {
+                form->decRef();
+            }
+
+            form = new_form;
+
+            if (nullptr != form)
+            {
+                form->incRef();
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eTexture: check path
     ////////////////////////////////////////////////////////////////
     bool eTexture::matchesPath(eString &searched_path) const

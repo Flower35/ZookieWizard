@@ -62,6 +62,8 @@ namespace ZookieWizard
 
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
+            void copyBitmap(const eBitmap* source);
+
             void generateTexture();
 
             void setPath(eString new_path);
@@ -75,6 +77,7 @@ namespace ZookieWizard
 
             void setTransparencyColor(uint32_t color);
             bool isTransparent() const;
+            void changeAlphaChannel(float factor);
 
             float getAspectRatio() const;
     };

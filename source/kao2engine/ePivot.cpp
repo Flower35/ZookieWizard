@@ -96,17 +96,58 @@ namespace ZookieWizard
             test_track = (eTrack*)animations.tracks.getIthChild(i);
             sprintf_s
             (
-                bufor,
-                128,
-                " - track [%d]: \"%s\"",
+                bufor, 128,
+                " - track [%d]: \"%s\" [%.2f, %.2f]",
                 i,
-                test_track->getStringRepresentation().getText()
+                test_track->getStringRepresentation().getText(),
+                test_track->getStartFrame(),
+                test_track->getEndFrame()
             );
 
             ArFunctions::writeIndentation(file, indentation);
             file << bufor;
             ArFunctions::writeNewLine(file, 0);
         }
+
+        /* "eTransform" parent class */
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform pos: (%f, %f, %f)",
+            defaultTransform[0].pos.x,
+            defaultTransform[0].pos.y,
+            defaultTransform[0].pos.z
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform rot: (%f, %f, %f, %f)",
+            defaultTransform[0].rot.x,
+            defaultTransform[0].rot.y,
+            defaultTransform[0].rot.z,
+            defaultTransform[0].rot.w
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform scl: (%f)",
+            defaultTransform[0].scale
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
 
         /* "eGroup" parent class */
 
@@ -155,6 +196,57 @@ namespace ZookieWizard
     void ePivot::rebuildEmptyAnimState()
     {
         animations.rebuildEmptyAnimState();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePivot: changing the number of animation tracks
+    ////////////////////////////////////////////////////////////////
+
+    void ePivot::animAddTrack(eString anim_name, float first_frame, float frames_count)
+    {
+        eTrack* dummy_track = new eTrack;
+
+        if (first_frame < 0)
+        {
+            first_frame = 0;
+        }
+
+        if (frames_count < 0)
+        {
+            frames_count = (-frames_count);
+        }
+
+        dummy_track->setName(anim_name);
+        dummy_track->setStartFrame(first_frame);
+        dummy_track->setEndFrame(first_frame + frames_count);
+
+        animations.tracks.appendChild(dummy_track);
+
+        ctrlExpandAnimTracks(animations.tracks.getSize());
+    }
+
+    void ePivot::animRemoveTrack(eString anim_name)
+    {
+        int result = (-1);
+        eTrack* dummy_track;
+
+        for (int i = 0; (result < 0) && (i < animations.tracks.getSize()); i++)
+        {
+            dummy_track = (eTrack*)animations.tracks.getIthChild(i);
+
+            if ((nullptr != dummy_track) && (dummy_track->getStringRepresentation().compareExact(anim_name, true)))
+            {
+                result = i;
+            }
+        }
+
+        if (result >= 0)
+        {
+            animations.tracks.deleteIthChild(result);
+
+            ctrlRemoveAnimTrack(result);
+        }
     }
 
 }

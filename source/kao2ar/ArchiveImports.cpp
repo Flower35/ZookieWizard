@@ -8,6 +8,7 @@
 #include <kao2engine/eBillboard.h>
 #include <kao2engine/eNaviPoint.h>
 #include <kao2engine/eProxy.h>
+#include <kao2engine/ePathCamCtrl.h>
 #include <kao2engine/eCamera.h>
 #include <kao2engine/eDirectionalLight.h>
 #include <kao2engine/eOmniLight.h>
@@ -123,7 +124,7 @@ namespace ZookieWizard
         bool file_is_valid;
         bool line_is_valid;
         FileOperator text_file;
-        eGroup* dummy_group;
+        eGroup* dummy_group[2];
         eEnvironment* dummy_env;
         eSRP dummy_srp;
         int32_t dummy_count;
@@ -145,6 +146,7 @@ namespace ZookieWizard
         eBillboard* dummy_billboard = nullptr;
         eNaviPoint* dummy_navi = nullptr;
         eProxy* dummy_proxy = nullptr;
+        ePathCamCtrl* dummy_pathcamctrl = nullptr;
         eCamera* dummy_camera = nullptr;
         eLight* dummy_light = nullptr;
         eDirectionalLight* dummy_dir_light = nullptr;
@@ -187,53 +189,55 @@ namespace ZookieWizard
             (eNode**)&dummy_npcmap
         };
 
-        const int NUMBER_OF_PROPERTIES = 15;
+        const int NUMBER_OF_PROPERTIES = 17;
 
         const char* properties[NUMBER_OF_PROPERTIES] =
         {
-            "name", "pos", "rot", "scl",
+            "parent", "name", "pos", "rot", "scl",
             "link", "category",
-            "fov", "nearPlane", "farPlane",
+            "fov", "nearPlane", "farPlane", "useCurrentFollow",
             "diffuse", "ambient", "specular",
             "min", "max", "count"
         };
 
-        const int PARSER_PROPERTY_ID_NAME = 0;
-        const int PARSER_PROPERTY_ID_POS = 1;
-        const int PARSER_PROPERTY_ID_ROT = 2;
-        const int PARSER_PROPERTY_ID_SCL = 3;
-        const int PARSER_PROPERTY_ID_LINK = 4;
-        const int PARSER_PROPERTY_ID_CATEGORY = 5;
-        const int PARSER_PROPERTY_ID_FOV = 6;
-        const int PARSER_PROPERTY_ID_NEARPLANE = 7;
-        const int PARSER_PROPERTY_ID_FARPLANE = 8;
-        const int PARSER_PROPERTY_ID_DIFFUSE = 9;
-        const int PARSER_PROPERTY_ID_AMBIENT = 10;
-        const int PARSER_PROPERTY_ID_SPECULAR = 11;
-        const int PARSER_PROPERTY_ID_MIN = 12;
-        const int PARSER_PROPERTY_ID_MAX = 13;
-        const int PARSER_PROPERTY_ID_COUNT = 14;
+        const int PARSER_PROPERTY_ID_PARENT = 0;
+        const int PARSER_PROPERTY_ID_NAME = 1;
+        const int PARSER_PROPERTY_ID_POS = 2;
+        const int PARSER_PROPERTY_ID_ROT = 3;
+        const int PARSER_PROPERTY_ID_SCL = 4;
+        const int PARSER_PROPERTY_ID_LINK = 5;
+        const int PARSER_PROPERTY_ID_CATEGORY = 6;
+        const int PARSER_PROPERTY_ID_FOV = 7;
+        const int PARSER_PROPERTY_ID_NEARPLANE = 8;
+        const int PARSER_PROPERTY_ID_FARPLANE = 9;
+        const int PARSER_PROPERTY_ID_USECURRENTFOLLOW = 10;
+        const int PARSER_PROPERTY_ID_DIFFUSE = 11;
+        const int PARSER_PROPERTY_ID_AMBIENT = 12;
+        const int PARSER_PROPERTY_ID_SPECULAR = 13;
+        const int PARSER_PROPERTY_ID_MIN = 14;
+        const int PARSER_PROPERTY_ID_MAX = 15;
+        const int PARSER_PROPERTY_ID_COUNT = 16;
 
         const int properties_args[NUMBER_OF_PROPERTIES] =
         {
-            1, 3, 3, 1,
+            1, 1, 3, 3, 1,
             1, 1,
-            1, 1, 1,
+            1, 1, 1, 1,
             3, 3, 3,
             3, 3, 1
         };
 
         const bool properties_of_classes[NUMBER_OF_CLASSES][NUMBER_OF_PROPERTIES] =
         {
-            {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // eTransform
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0}, // eBoxZone
-            {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // eBillbord
-            {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // eNaviPoint
-            {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // eProxy
-            {1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // eCamera
-            {1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0}, // eDirectionalLight
-            {1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0}, // eOmniLight
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1}  // eNPCMap
+            {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // eTransform
+            {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0}, // eBoxZone
+            {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // eBillbord
+            {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // eNaviPoint
+            {1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // eProxy
+            {1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0}, // eCamera
+            {1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0}, // eDirectionalLight
+            {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0}, // eOmniLight
+            {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1}  // eNPCMap
         };
 
         bool found_any_property;
@@ -260,7 +264,7 @@ namespace ZookieWizard
                 );
             }
 
-            dummy_group = (eGroup*)selectedObject;
+            dummy_group[0] = (eGroup*)selectedObject;
 
             if (!text_file.open(filename, FILE_OPERATOR_MODE_READ))
             {
@@ -328,6 +332,8 @@ namespace ZookieWizard
                 {
                     if (found_any_property)
                     {
+
+
                         switch (current_object)
                         {
                             case PARSER_OBJECT_ID_TRANSFORM:
@@ -341,6 +347,11 @@ namespace ZookieWizard
                                 if (PARSER_OBJECT_ID_CAMERA == current_object)
                                 {
                                     dummy_camera->setCameraTarget(dummy_xform);
+
+                                    dummy_pathcamctrl->setCameraLink(dummy_camera);
+                                    dummy_pathcamctrl->setPosition(dummy_srp.pos);
+
+                                    dummy_camera->setPathCamCtrl(dummy_pathcamctrl);
                                 }
                                 else if (PARSER_OBJECT_ID_PROXY == current_object)
                                 {
@@ -386,7 +397,7 @@ namespace ZookieWizard
 
                                 if (dummy_light != nullptr)
                                 {
-                                    dummy_env = (eEnvironment*)dummy_group;
+                                    dummy_env = (eEnvironment*)dummy_group[1];
 
                                     while ((nullptr != dummy_env) && (dummy_env->getType() != &E_ENVIRONMENT_TYPEINFO))
                                     {
@@ -410,7 +421,7 @@ namespace ZookieWizard
                             }
                         }
 
-                        dummy_group->appendChild(*(class_pointers[current_object]));
+                        dummy_group[1]->appendChild(*(class_pointers[current_object]));
 
                         result++;
                     }
@@ -426,6 +437,8 @@ namespace ZookieWizard
                 if (parser_state >= 0)
                 {
                     /* Rest parser settings */
+
+                    dummy_group[1] = dummy_group[0];
 
                     found_any_property = false;
 
@@ -490,6 +503,8 @@ namespace ZookieWizard
                             dummy_xform = nullptr;
 
                             dummy_camera = new eCamera();
+
+                            dummy_pathcamctrl = new ePathCamCtrl();
 
                             node_flags_to_apply = 0x40000040;
                             break;
@@ -603,6 +618,20 @@ namespace ZookieWizard
 
                     switch (parser_state)
                     {
+                        case PARSER_PROPERTY_ID_PARENT:
+                        {
+                            dummy_group[1] = (eGroup*)noderef_linker.findLink
+                            (
+                                ArFunctions::getCurrentScene(),
+                                dummy_group[0],
+                                "Parent",
+                                keywords[2],
+                                &E_GROUP_TYPEINFO
+                            );
+
+                            break;
+                        }
+
                         case PARSER_PROPERTY_ID_NAME:
                         {
                             (*(class_pointers[current_object]))->setName(keywords[2]);
@@ -652,7 +681,7 @@ namespace ZookieWizard
                                     dummy_xform = (eTransform*)noderef_linker.findLink
                                     (
                                         ArFunctions::getCurrentScene(),
-                                        dummy_group,
+                                        dummy_group[1],
                                         "Target",
                                         keywords[2],
                                         &E_TRANSFORM_TYPEINFO
@@ -717,6 +746,22 @@ namespace ZookieWizard
                             f[0] = (float)std::atof(keywords[2].getText());
 
                             dummy_camera->setFarPlane(f[0]);
+
+                            break;
+                        }
+
+                        case PARSER_PROPERTY_ID_USECURRENTFOLLOW:
+                        {
+                            if (keywords[2].compareExact("true", false))
+                            {
+                                a = 1;
+                            }
+                            else
+                            {
+                                a = std::atoi(keywords[2].getText());
+                            }
+
+                            dummy_camera->setLookingAtFollowCamera((bool)a);
 
                             break;
                         }
@@ -798,6 +843,7 @@ namespace ZookieWizard
     {
         int a, b, c, start_pos, end_pos;
         float f[3];
+        int i[3];
 
         int line_counter, parser_state, result = 0;
 
@@ -811,11 +857,15 @@ namespace ZookieWizard
         int noderef_send_id;
         int message_send_id;
 
-        const int MESSAGES_MAX_PARAMS = 3;
+        const int MESSAGES_MAX_PARAMS = 10;
         eString message_params[MESSAGES_MAX_PARAMS];
 
         eGroup* dummy_group;
+        eSRP dummy_srp;
 
+        eNode* dummy_node = nullptr;
+        eTransform* dummy_xform = nullptr;
+        ePivot* dummy_pivot = nullptr;
         eEnvironment* dummy_env = nullptr;
         eZone* dummy_zone = nullptr;
         eActionBase dummy_zone_action;
@@ -842,10 +892,23 @@ namespace ZookieWizard
         const int PARSER_KEYWORD_ID_NODE = 0;
         const int PARSER_KEYWORD_ID_SEND = 1;
 
-        const int NUMBER_OF_MESSAGES = 8;
+        const int NUMBER_OF_MESSAGES = 21;
 
         const char* messages_strings[NUMBER_OF_MESSAGES] =
         {
+            "visCtrlClear",
+            "visCtrlSetStatic",
+            "visCtrlAddKeyframe",
+            "setPos",
+            "setRot",
+            "setScl",
+            "ctrlClearKeyframes",
+            "ctrlSetStaticScale",
+            "ctrlSetStaticRotation",
+            "ctrlSetStaticPosition",
+            "ctrlAddKeyframe",
+            "animAddTrack",
+            "animRemoveTrack",
             "setFogColor",
             "setFogStart",
             "setFogEnd",
@@ -856,17 +919,43 @@ namespace ZookieWizard
             "addLeaveAction"
         };
 
-        const int PARSER_MESSAGE_ID_SETFOGCOLOR = 0;
-        const int PARSER_MESSAGE_ID_SETFOGCSTART = 1;
-        const int PARSER_MESSAGE_ID_SETFOGEND = 2;
-        const int PARSER_MESSAGE_ID_SETFOGMAX = 3;
-        const int PARSER_MESSAGE_ID_CLEARENTERACTIONS = 4;
-        const int PARSER_MESSAGE_ID_CLEARLEAVEACTIONS = 5;
-        const int PARSER_MESSAGE_ID_ADDENTERACTION = 6;
-        const int PARSER_MESSAGE_ID_ADDLEAVEACTION = 7;
+        const int PARSER_MESSAGE_ID_VISCTRLCLEAR = 0;
+        const int PARSER_MESSAGE_ID_VISCTRLSETSTATIC = 1;
+        const int PARSER_MESSAGE_ID_VISCTRLADDKEYFRAME = 2;
+        const int PARSER_MESSAGE_ID_SETPOS = 3;
+        const int PARSER_MESSAGE_ID_SETROT = 4;
+        const int PARSER_MESSAGE_ID_SETSCL = 5;
+        const int PARSER_MESSAGE_ID_CTRLCLEARKEYFRAMES = 6;
+        const int PARSER_MESSAGE_ID_CTRLSETSTATICSCALE = 7;
+        const int PARSER_MESSAGE_ID_CTRLSETSTATICROTATION = 8;
+        const int PARSER_MESSAGE_ID_CTRLSETSTATICPOSITION = 9;
+        const int PARSER_MESSAGE_ID_CTRLADDKEYFRAME = 10;
+        const int PARSER_MESSAGE_ID_ANIMADDTRACK = 11;
+        const int PARSER_MESSAGE_ID_ANIMREMOVETRACK = 12;
+        const int PARSER_MESSAGE_ID_SETFOGCOLOR = 13;
+        const int PARSER_MESSAGE_ID_SETFOGCSTART = 14;
+        const int PARSER_MESSAGE_ID_SETFOGEND = 15;
+        const int PARSER_MESSAGE_ID_SETFOGMAX = 16;
+        const int PARSER_MESSAGE_ID_CLEARENTERACTIONS = 17;
+        const int PARSER_MESSAGE_ID_CLEARLEAVEACTIONS = 18;
+        const int PARSER_MESSAGE_ID_ADDENTERACTION = 19;
+        const int PARSER_MESSAGE_ID_ADDLEAVEACTION = 20;
 
         TypeInfo* messages_object_types[NUMBER_OF_MESSAGES] =
         {
+            &E_NODE_TYPEINFO, // `visCtrlClear()`
+            &E_NODE_TYPEINFO, // `visCtrlSetStatic()`
+            &E_NODE_TYPEINFO, // `visCtrlAddKeyframe()`
+            &E_TRANSFORM_TYPEINFO, // `setPos()`
+            &E_TRANSFORM_TYPEINFO, // `setRot()`
+            &E_TRANSFORM_TYPEINFO, // `setScl()`
+            &E_TRANSFORM_TYPEINFO, // `ctrlClearKeyframes()`
+            &E_TRANSFORM_TYPEINFO, // `ctrlSetStaticScale()`
+            &E_TRANSFORM_TYPEINFO, // `ctrlSetStaticRotation()`
+            &E_TRANSFORM_TYPEINFO, // `ctrlSetStaticPosition()`
+            &E_TRANSFORM_TYPEINFO, // `ctrlAddKeyframe()`
+            &E_PIVOT_TYPEINFO, // `animAddTrack()`
+            &E_PIVOT_TYPEINFO, // `animRemoveTrack()`
             &E_ENVIRONMENT_TYPEINFO, // `setFogColor()`
             &E_ENVIRONMENT_TYPEINFO, // `setFogStart()`
             &E_ENVIRONMENT_TYPEINFO, // `setFogEnd()`
@@ -879,14 +968,27 @@ namespace ZookieWizard
 
         const uint8_t messages_params_count[NUMBER_OF_MESSAGES] =
         {
-            3, // `setFogColor()`
-            1, // `setFogStart()`
-            1, // `setFogEnd()`
-            1, // `setFogMax()`
-            0, // `clearEnterActions()`
-            0, // `clearLeaveActions()`
-            2, // `addEnterAction()`
-            2  // `addLeaveAction()`
+            1,  // `visCtrlClear()`
+            1,  // `visCtrlSetStatic()`
+            3,  // `visCtrlAddKeyframe()`
+            3,  // `setPos()`
+            3,  // `setRot()`
+            1,  // `setScl()`
+            1,  // `ctrlClearKeyframes()`
+            1,  // `ctrlSetStaticScale()`
+            3,  // `ctrlSetStaticRotation()`
+            3,  // `ctrlSetStaticPosition()`
+            10, // `ctrlAddKeyframe()`
+            3,  // `animAddTrack()`
+            1,  // `animRemoveTrack()`
+            3,  // `setFogColor()`
+            1,  // `setFogStart()`
+            1,  // `setFogEnd()`
+            1,  // `setFogMax()`
+            0,  // `clearEnterActions()`
+            0,  // `clearLeaveActions()`
+            2,  // `addEnterAction()`
+            2   // `addLeaveAction()`
         };
 
         /********************************/
@@ -898,7 +1000,7 @@ namespace ZookieWizard
             {
                 throw ErrorMessage
                 (
-                    "Archive::appendNodesFromTxtFile():\n\n" \
+                    "Archive::changeNodesWithTxtFile():\n\n" \
                     "Selected object is not a \"eGroup\" type!"
                 );
             }
@@ -1335,7 +1437,7 @@ namespace ZookieWizard
                                             }
                                         }
 
-                                        if (noderef_send_id < 0)
+                                        if (message_send_id < 0)
                                         {
                                             throw ErrorMessage
                                             (
@@ -1403,8 +1505,42 @@ namespace ZookieWizard
                                         );
                                     }
 
+                                    /********************************/
+                                    /* Prepare before finishing sending the message */
+
                                     switch (message_send_id)
                                     {
+                                        case PARSER_MESSAGE_ID_VISCTRLCLEAR:
+                                        case PARSER_MESSAGE_ID_VISCTRLSETSTATIC:
+                                        case PARSER_MESSAGE_ID_VISCTRLADDKEYFRAME:
+                                        {
+                                            dummy_node = (eNode*)noderefs_pointers[noderef_send_id];
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_SETPOS:
+                                        case PARSER_MESSAGE_ID_SETROT:
+                                        case PARSER_MESSAGE_ID_SETSCL:
+                                        case PARSER_MESSAGE_ID_CTRLCLEARKEYFRAMES:
+                                        case PARSER_MESSAGE_ID_CTRLSETSTATICSCALE:
+                                        case PARSER_MESSAGE_ID_CTRLSETSTATICROTATION:
+                                        case PARSER_MESSAGE_ID_CTRLSETSTATICPOSITION:
+                                        case PARSER_MESSAGE_ID_CTRLADDKEYFRAME:
+                                        {
+                                            dummy_xform = (eTransform*)noderefs_pointers[noderef_send_id];
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_ANIMADDTRACK:
+                                        case PARSER_MESSAGE_ID_ANIMREMOVETRACK:
+                                        {
+                                            dummy_pivot = (ePivot*)noderefs_pointers[noderef_send_id];
+
+                                            break;
+                                        }
+
                                         case PARSER_MESSAGE_ID_SETFOGCOLOR:
                                         case PARSER_MESSAGE_ID_SETFOGCSTART:
                                         case PARSER_MESSAGE_ID_SETFOGEND:
@@ -1426,8 +1562,202 @@ namespace ZookieWizard
                                         }
                                     }
 
+                                    /********************************/
+                                    /* Do the right action with the given message */
+
                                     switch (message_send_id)
                                     {
+                                        case PARSER_MESSAGE_ID_VISCTRLCLEAR:
+                                        {
+                                            i[0] = std::atoi(message_params[0].getText());
+
+                                            dummy_node->visCtrlClear(i[0]);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_VISCTRLSETSTATIC:
+                                        {
+                                            f[0] = (float)std::atof(message_params[0].getText());
+
+                                            dummy_node->visCtrlSetStatic(f[0]);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_VISCTRLADDKEYFRAME:
+                                        {
+                                            i[0] = std::atoi(message_params[0].getText());
+                                            f[0] = (float)std::atof(message_params[1].getText());
+                                            f[1] = (float)std::atof(message_params[2].getText());
+
+                                            dummy_node->visCtrlAddKeyframe(i[0], f[0], f[1]);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_SETPOS:
+                                        {
+                                            f[0] = (float)std::atof(message_params[0].getText());
+                                            f[1] = (float)std::atof(message_params[1].getText());
+                                            f[2] = (float)std::atof(message_params[2].getText());
+
+                                            dummy_srp = dummy_xform->getXForm(true, false);
+                                            dummy_srp.pos = ePoint3(f[0], f[1], f[2]);
+                                            dummy_xform->setXForm(dummy_srp);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_SETROT:
+                                        {
+                                            f[0] = (float)std::atof(message_params[0].getText()) / 180.0f * (float)M_PI;
+                                            f[1] = (float)std::atof(message_params[1].getText()) / 180.0f * (float)M_PI;
+                                            f[2] = (float)std::atof(message_params[2].getText()) / 180.0f * (float)M_PI;
+
+                                            dummy_srp = dummy_xform->getXForm(true, false);
+                                            dummy_srp.rot.fromEulerAngles(true, f[0], f[1], f[2]);
+                                            dummy_xform->setXForm(dummy_srp);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_SETSCL:
+                                        {
+                                            f[0] = (float)std::atof(message_params[0].getText());
+
+                                            dummy_srp = dummy_xform->getXForm(true, false);
+                                            dummy_srp.scale = f[0];
+                                            dummy_xform->setXForm(dummy_srp);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_CTRLCLEARKEYFRAMES:
+                                        {
+                                            i[0] = std::atoi(message_params[0].getText());
+
+                                            dummy_xform->ctrlClearKeyframes(i[0]);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_CTRLSETSTATICSCALE:
+                                        {
+                                            f[0] = (float)std::atof(message_params[0].getText());
+
+                                            dummy_xform->ctrlSetStaticScale(f[0]);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_CTRLSETSTATICROTATION:
+                                        {
+                                            f[0] = (float)std::atof(message_params[0].getText()) / 180.0f * (float)M_PI;
+                                            f[1] = (float)std::atof(message_params[1].getText()) / 180.0f * (float)M_PI;
+                                            f[2] = (float)std::atof(message_params[2].getText()) / 180.0f * (float)M_PI;
+
+                                            dummy_srp.rot.fromEulerAngles(true, f[0], f[1], f[2]);
+
+                                            dummy_xform->ctrlSetStaticRotation(dummy_srp.rot);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_CTRLSETSTATICPOSITION:
+                                        {
+                                            f[0] = (float)std::atof(message_params[0].getText());
+                                            f[1] = (float)std::atof(message_params[1].getText());
+                                            f[2] = (float)std::atof(message_params[2].getText());
+
+                                            dummy_srp.pos = ePoint3(f[0], f[1], f[2]);
+
+                                            dummy_xform->ctrlSetStaticPosition(dummy_srp.pos);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_CTRLADDKEYFRAME:
+                                        {
+                                            i[0] = std::atoi(message_params[0].getText());
+                                            i[1] = std::atoi(message_params[9].getText());
+
+                                            f[0] = (float)std::atof(message_params[2].getText());
+                                            f[1] = (float)std::atof(message_params[3].getText());
+                                            f[2] = (float)std::atof(message_params[4].getText());
+
+                                            dummy_srp.pos = ePoint3(f[0], f[1], f[2]);
+
+                                            f[0] = (float)std::atof(message_params[5].getText()) / 180.0f * (float)M_PI;
+                                            f[1] = (float)std::atof(message_params[6].getText()) / 180.0f * (float)M_PI;
+                                            f[2] = (float)std::atof(message_params[7].getText()) / 180.0f * (float)M_PI;
+
+                                            dummy_srp.rot.fromEulerAngles(true, f[0], f[1], f[2]);
+
+                                            f[0] = (float)std::atof(message_params[8].getText());
+
+                                            dummy_srp.scale = f[0];
+
+                                            f[0] = (float)std::atof(message_params[1].getText());
+
+                                            dummy_xform->ctrlAddKeyframe(i[0], f[0], dummy_srp, i[1]);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_ANIMADDTRACK:
+                                        {
+                                            if ((message_params[0].getLength() > 2)
+                                                && message_params[0].compare("\"", 0, 1, true)
+                                                && message_params[0].compare("\"", (-1), 1, true))
+                                            {
+                                                message_params[0] = message_params[0].getSubstring(1, (-2));
+                                            }
+                                            else
+                                            {
+                                                throw ErrorMessage
+                                                (
+                                                    "Archive::changeNodesWithTxtFile():\n\n" \
+                                                    "`ePivot.animAddTrack()` message: expected the first parameter to be a string!\n\n" \
+                                                    "(line %d, position %d)",
+                                                    line_counter,
+                                                    (start_pos + 1)
+                                                );
+                                            }
+
+                                            f[0] = (float)std::atof(message_params[1].getText());
+                                            f[1] = (float)std::atof(message_params[2].getText());
+
+                                            dummy_pivot->animAddTrack(message_params[0], f[0], f[1]);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_ANIMREMOVETRACK:
+                                        {
+                                            if ((message_params[0].getLength() > 2)
+                                                && message_params[0].compare("\"", 0, 1, true)
+                                                && message_params[0].compare("\"", (-1), 1, true))
+                                            {
+                                                message_params[0] = message_params[0].getSubstring(1, (-2));
+                                            }
+                                            else
+                                            {
+                                                throw ErrorMessage
+                                                (
+                                                    "Archive::changeNodesWithTxtFile():\n\n" \
+                                                    "`ePivot.animRemoveTrack()` message: expected the first parameter to be a string!\n\n" \
+                                                    "(line %d, position %d)",
+                                                    line_counter,
+                                                    (start_pos + 1)
+                                                );
+                                            }
+
+                                            dummy_pivot->animRemoveTrack(message_params[0]);
+
+                                            break;
+                                        }
+
                                         case PARSER_MESSAGE_ID_SETFOGCOLOR:
                                         {
                                             f[0] = (float)std::atof(message_params[0].getText());
@@ -1548,6 +1878,19 @@ namespace ZookieWizard
                                             dummy_zone_action = eActionBase();
 
                                             break;
+                                        }
+
+                                        default:
+                                        {
+                                            throw ErrorMessage
+                                            (
+                                                "Archive::changeNodesWithTxtFile():\n\n" \
+                                                "message \"%d\" not implemented!\n\n" \
+                                                "(line %d, position %d)",
+                                                messages_strings[message_send_id],
+                                                line_counter,
+                                                (start_pos + 1)
+                                            );
                                         }
                                     }
 

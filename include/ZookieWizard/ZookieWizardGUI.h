@@ -20,6 +20,9 @@ namespace ZookieWizard
         #define TEST_CAMERA_NEAR_PLANE 1.0
         #define TEST_CAMERA_FAR_PLANE 30000.0
 
+        #define ANIMATION_FRAMERATE_DEFAULT 30
+        #define ANIMATION_FRAMERATE_DEFAULT_TEXT "30"
+
         #define TEST_CAMERA_FOV 45.0
 
         struct testCameraStruct

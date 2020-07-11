@@ -101,6 +101,32 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // Explicitly set the i-th object from the group
+    ////////////////////////////////////////////////////////////////
+    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    void Collection<Func>::setIthChild(int32_t i, eRefCounter* o)
+    {
+        if ((i >= 0) && (i < count))
+        {
+            if (children[i] != o)
+            {
+                if (nullptr != children[i])
+                {
+                    children[i]->decRef();
+                }
+
+                children[i] = o;
+
+                if (nullptr != children[i])
+                {
+                    children[i]->incRef();
+                }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Get i-th object from group
     ////////////////////////////////////////////////////////////////
     template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>

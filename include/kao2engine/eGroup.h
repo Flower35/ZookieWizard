@@ -44,6 +44,9 @@ namespace ZookieWizard
             void destroyNode() override;
             void findAndDereference(eNode* target) override;
 
+            void ctrlExpandAnimTracks(int32_t new_size) override;
+            void ctrlRemoveAnimTrack(int32_t deleted_id) override;
+
             eNode* findNode(eString &searched_name) const override;
             eMaterial* findMaterial(eString &searched_path) const override;
 

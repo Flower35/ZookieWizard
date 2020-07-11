@@ -37,7 +37,7 @@ namespace ZookieWizard
     {
         /*[0x58]*/ geo = nullptr;
 
-        /*[0x30]*/ flags02 = 0;
+        /*[0x30]*/ flagsCollisionResponse = 0;
     }
 
     eTriMesh::~eTriMesh()
@@ -118,11 +118,15 @@ namespace ZookieWizard
     {
         eGeometry::editingRebuildCollision();
 
+        flagsCollisionResponse = 0x00FF;
+
         if (nullptr != geo)
         {
             try
             {
                 geo->buildAabbTree(name);
+
+                flagsCollisionResponse = 0;
             }
             catch (ErrorMessage &err)
             {
@@ -142,7 +146,7 @@ namespace ZookieWizard
             geo->clearAabbTree();
         }
 
-        eNode::editingClearCollision();
+        eGeometry::editingClearCollision();
     }
 
 
@@ -293,16 +297,19 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eTriMesh::setGeoset(eGeoSet* new_geo)
     {
-        if (nullptr != geo)
+        if (geo != new_geo)
         {
-            geo->decRef();
-        }
+            if (nullptr != geo)
+            {
+                geo->decRef();
+            }
 
-        geo = new_geo;
+            geo = new_geo;
 
-        if (nullptr != geo)
-        {
-            geo->incRef();
+            if (nullptr != geo)
+            {
+                geo->incRef();
+            }
         }
     }
 

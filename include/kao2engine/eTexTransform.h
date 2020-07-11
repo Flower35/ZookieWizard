@@ -19,10 +19,10 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x08]*/ eLeafCtrl<float>* unknown_08;
-            /*[0x0C]*/ eLeafCtrl<float>* unknown_0C;
-            /*[0x10]*/ eLeafCtrl<float>* unknown_10;
-            /*[0x14]*/ eLeafCtrl<float>* unknown_14;
+            /*[0x08]*/ eLeafCtrl<float>* xScale;
+            /*[0x0C]*/ eLeafCtrl<float>* yScale;
+            /*[0x10]*/ eLeafCtrl<float>* uOffset;
+            /*[0x14]*/ eLeafCtrl<float>* vOffset;
 
         /*** Methods ***/
 

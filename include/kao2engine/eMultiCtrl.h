@@ -25,15 +25,23 @@ namespace ZookieWizard
 
         public:
 
+            eMultiCtrl<T>();
+            ~eMultiCtrl<T>();
+
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
 
             /*[[vptr]+0x24]*/ T ctrlGetTransform(T, eAnimate*) const override;
             /*[[vptr]+0x28]*/ void ctrlApplyTransform(T*, float) const override;
 
-        private:
+            void ctrlSetStaticKeyframe(T &new_value, int32_t param) override;
 
-            int getKeyframeId(float time);
+            void ctrlClearKeyframes(int anim_id) override;
+            void ctrlAddKeyframe(int anim_id, float new_time, T &new_data, int param) override;
+
+            void multiCtrl_SetSize(int32_t new_size);
+            void multiCtrl_SetTrack(int32_t id, void* new_controller);
+            void multiCtrl_DeleteTrack(int32_t deleted_id);
 
     };
 

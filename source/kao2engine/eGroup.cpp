@@ -271,6 +271,52 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eGroup: add empty animation track (if the node uses "eMultiCtrl")
+    ////////////////////////////////////////////////////////////////
+    void eGroup::ctrlExpandAnimTracks(int32_t new_size)
+    {
+        int32_t i;
+        eNode* child_node;
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            child_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != child_node)
+            {
+                child_node->ctrlExpandAnimTracks(new_size);
+            }
+        }
+
+        /* Checking the `visTrack` */
+        eNode::ctrlExpandAnimTracks(new_size);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: remove specific animation track (if the node uses "eMultiCtrl")
+    ////////////////////////////////////////////////////////////////
+    void eGroup::ctrlRemoveAnimTrack(int32_t deleted_id)
+    {
+        int32_t i;
+        eNode* child_node;
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            child_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != child_node)
+            {
+                child_node->ctrlRemoveAnimTrack(deleted_id);
+            }
+        }
+
+        /* Checking the `visTrack` */
+        eNode::ctrlRemoveAnimTrack(deleted_id);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eGroup: remove nodes with multiple references
     ////////////////////////////////////////////////////////////////
     void eGroup::deleteNodesWithMultiRefs(bool canBeInvalid)

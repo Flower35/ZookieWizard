@@ -32,13 +32,8 @@ namespace ZookieWizard
     ePathCamCtrl::ePathCamCtrl()
     : eCameraCtrl()
     {
-        /*[0x08]*/ cam = nullptr;
+        /*[0x08]*/ camera = nullptr;
         /*[0x0C]*/ bezier = nullptr;
-
-        /*[0x10-0x18]*/
-        pos[0] = 0;
-        pos[1] = 0;
-        pos[2] = 0;
 
         /*[0x1C]*/ unknown_1C = 0;
 
@@ -66,7 +61,7 @@ namespace ZookieWizard
         int32_t i;
 
         /* [0x08] eCamera link */
-        ar.serialize((eObject**)&cam, &E_CAMERA_TYPEINFO);
+        ar.serialize((eObject**)&camera, &E_CAMERA_TYPEINFO);
 
         /* Empty object link */
         i = 0x01;
@@ -98,10 +93,8 @@ namespace ZookieWizard
         /* [0x21] unknown */
         ar.readOrWrite(&(unknown_20[1]), 0x01);
 
-        /* [0x10] Assumed position */
-        ar.readOrWrite(&(pos[0]), 0x04);
-        ar.readOrWrite(&(pos[1]), 0x04);
-        ar.readOrWrite(&(pos[2]), 0x04);
+        /* [0x10] Assumed initial position */
+        position.serialize(ar);
 
         if (ar.getVersion() >= 0x7C)
         {
@@ -120,6 +113,36 @@ namespace ZookieWizard
             unknown_20[2] = 0x00;
             unknown_20[3] = 0x00;
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePathCamCtrl: get or set the camera link
+    ////////////////////////////////////////////////////////////////
+
+    eCamera* ePathCamCtrl::getCameraLink() const
+    {
+        return camera;
+    }
+
+    void ePathCamCtrl::setCameraLink(eCamera* new_camera)
+    {
+        camera = new_camera;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePathCamCtrl: get or set the initial position
+    ////////////////////////////////////////////////////////////////
+
+    ePoint3 ePathCamCtrl::getPosition() const
+    {
+        return position;
+    }
+
+    void ePathCamCtrl::setPosition(ePoint3 new_position)
+    {
+        position = new_position;
     }
 
 }

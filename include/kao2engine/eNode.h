@@ -8,6 +8,7 @@ namespace ZookieWizard
     class eALBox;
     class eTransform;
     class eMaterial;
+    template <typename> class eCtrl;
 
     extern const char* theNodeFlagNames[32];
 
@@ -29,8 +30,8 @@ namespace ZookieWizard
             /*[0x18]*/ eALBox* axisListBox;
             /*[0x1C]*/ uint32_t flags;
             /*[0x20-0x2C]*/ float sphBound[4];
-            /*[0x30]*/ uint16_t flags02;
-            /*[0x34]*/ eRefCounter* unknown_34; // "animated vis ctrl", "static vis ctrl".
+            /*[0x30]*/ uint16_t flagsCollisionResponse;
+            /*[0x34]*/ eCtrl<float>* visCtrl;
             /*[(kao3)0x34]*/ int32_t visGroup;
 
         /*** Methods ***/
@@ -59,6 +60,9 @@ namespace ZookieWizard
             virtual void updateSRP(bool update, eAnimate* anim, eSRP &parent_srp);
             virtual void findAndDereference(eNode* target);
 
+            virtual void ctrlExpandAnimTracks(int32_t new_size);
+            virtual void ctrlRemoveAnimTrack(int32_t deleted_id);
+
             void setName(eString new_name);
 
             eNode* getRootNode() const;
@@ -78,6 +82,11 @@ namespace ZookieWizard
             eALBox* getAxisListBox() const;
             void setAxisListBox(eALBox* box);
 
+            eCtrl<float>* getVisCtrl() const;
+            void setVisCtrl(eCtrl<float>* new_visctrl);
+            void visCtrlClear(int anim_id);
+            void visCtrlSetStatic(float opacity);
+            void visCtrlAddKeyframe(int anim_id, float time, float opacity);
     };
 
 

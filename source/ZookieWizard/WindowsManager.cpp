@@ -45,7 +45,7 @@ namespace ZookieWizard
                 /********************************/
                 /* Closing the Application */
 
-                case  WM_DESTROY:
+                case WM_DESTROY:
                 {
                     PostQuitMessage(0);
 

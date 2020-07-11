@@ -699,7 +699,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | ES_AUTOHSCROLL);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == theWindowsManager.addWindow("1", RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_Anim, (void*)1, 0x01))
+            if (0 == theWindowsManager.addWindow(ANIMATION_FRAMERATE_DEFAULT_TEXT, RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_Anim, (void*)1, 0x01))
             {
                 return false;
             }

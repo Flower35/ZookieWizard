@@ -103,4 +103,116 @@ namespace ZookieWizard
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&zCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eXYZPoint3Ctrl: set static keyframes for fun
+    ////////////////////////////////////////////////////////////////
+    void eXYZPoint3Ctrl::ctrlSetStaticKeyframe(ePoint3 &new_value, int32_t param)
+    {
+        eLeafCtrl<float>* dummy_ctrl;
+
+        if (0 != param)
+        {
+            if (nullptr != xCtrl)
+            {
+                xCtrl->decRef();
+            }
+
+            dummy_ctrl = new eLeafCtrl<float>;
+            dummy_ctrl->setDefaultValue(new_value.x);
+
+            xCtrl = dummy_ctrl;
+            xCtrl->incRef();
+
+            if (nullptr != yCtrl)
+            {
+                yCtrl->decRef();
+            }
+
+            dummy_ctrl = new eLeafCtrl<float>;
+            dummy_ctrl->setDefaultValue(new_value.y);
+
+            yCtrl = dummy_ctrl;
+            yCtrl->incRef();
+
+            if (nullptr != zCtrl)
+            {
+                zCtrl->decRef();
+            }
+
+            dummy_ctrl = new eLeafCtrl<float>;
+            dummy_ctrl->setDefaultValue(new_value.z);
+
+            zCtrl = dummy_ctrl;
+            zCtrl->incRef();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eXYZPoint3Ctrl: clear keyframes for specific animation
+    ////////////////////////////////////////////////////////////////
+    void eXYZPoint3Ctrl::ctrlClearKeyframes(int anim_id)
+    {
+        if (nullptr != xCtrl)
+        {
+            xCtrl->ctrlClearKeyframes(anim_id);
+        }
+
+        if (nullptr != yCtrl)
+        {
+            yCtrl->ctrlClearKeyframes(anim_id);
+        }
+
+        if (nullptr != zCtrl)
+        {
+            zCtrl->ctrlClearKeyframes(anim_id);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eXYZPoint3Ctrl: update specific animation
+    ////////////////////////////////////////////////////////////////
+    void eXYZPoint3Ctrl::ctrlAddKeyframe(int anim_id, float new_time, ePoint3 &new_data, int param)
+    {
+        eLeafCtrl<float>* dummy_ctrl;
+
+        if (0 != param)
+        {
+            if (nullptr == xCtrl)
+            {
+                dummy_ctrl = new eLeafCtrl<float>;
+                dummy_ctrl->setDefaultValue(new_data.x);
+
+                xCtrl = dummy_ctrl;
+                xCtrl->incRef();
+            }
+
+            xCtrl->ctrlAddKeyframe(anim_id, new_time, new_data.x, 0x01);
+
+            if (nullptr == yCtrl)
+            {
+                dummy_ctrl = new eLeafCtrl<float>;
+                dummy_ctrl->setDefaultValue(new_data.y);
+
+                yCtrl = dummy_ctrl;
+                yCtrl->incRef();
+            }
+
+            yCtrl->ctrlAddKeyframe(anim_id, new_time, new_data.y, 0x01);
+
+            if (nullptr == zCtrl)
+            {
+                dummy_ctrl = new eLeafCtrl<float>;
+                dummy_ctrl->setDefaultValue(new_data.z);
+
+                zCtrl = dummy_ctrl;
+                zCtrl->incRef();
+            }
+
+            zCtrl->ctrlAddKeyframe(anim_id, new_time, new_data.z, 0x01);
+        }
+    }
+
 }

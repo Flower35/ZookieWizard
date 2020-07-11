@@ -33,6 +33,11 @@ namespace ZookieWizard
         "GRASS", "WOOD", "METAL", "STONE", "SNOW", "SAND"
     };
 
+    const char* theMaterialFlags[4] =
+    {
+        "2-SIDED", "BLEND", "ADDITIVE", "ALPHA_TEST"
+    };
+
 
     ////////////////////////////////////////////////////////////////
     // eMaterial interface
@@ -360,6 +365,11 @@ namespace ZookieWizard
     // eMaterial: apply or erase flag bits
     ////////////////////////////////////////////////////////////////
 
+    uint8_t eMaterial::getMaterialFlags() const
+    {
+        return materialFlags;
+    }
+
     void eMaterial::setMaterialFlags(uint8_t bits_to_apply)
     {
         materialFlags |= bits_to_apply;
@@ -377,21 +387,19 @@ namespace ZookieWizard
 
     void eMaterial::setMaterialState(eMaterialState* new_mtl_state)
     {
-        if (state == new_mtl_state)
+        if (state != new_mtl_state)
         {
-            return;
-        }
+            if (nullptr != state)
+            {
+                state->decRef();
+            }
 
-        if (nullptr != state)
-        {
-            state->decRef();
-        }
+            state = new_mtl_state;
 
-        state = new_mtl_state;
-
-        if (nullptr != state)
-        {
-            state->incRef();
+            if (nullptr != state)
+            {
+                state->incRef();
+            }
         }
     }
 

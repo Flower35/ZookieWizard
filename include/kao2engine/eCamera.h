@@ -18,7 +18,7 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x01CC]*/ uint8_t unknown_01CC;
+            /*[0x01CC]*/ bool lookingAtCurrentFollowCamera;
             /*[0x01D0]*/ eTransform* camTarget;
             /*[0x01D8-0x01E4]*/ float unknown_01D8[4];
 
@@ -41,6 +41,8 @@ namespace ZookieWizard
 
             eTransform* getCameraTarget() const;
             void setCameraTarget(eTransform* new_target);
+
+            void setLookingAtFollowCamera(bool value);
     };
 
 

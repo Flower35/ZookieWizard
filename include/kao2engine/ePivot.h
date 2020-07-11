@@ -38,6 +38,9 @@ namespace ZookieWizard
             void updateSRP(bool update, eAnimate* anim, eSRP &parent_srp) override;
 
             void rebuildEmptyAnimState();
+
+            void animAddTrack(eString anim_name, float first_frame, float frames_count);
+            void animRemoveTrack(eString anim_name);
     };
 
 

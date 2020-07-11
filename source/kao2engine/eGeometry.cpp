@@ -140,16 +140,19 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGeometry::setMaterial(eMaterial* new_material)
     {
-        if (nullptr != material)
+        if (material != new_material)
         {
-            material->decRef();
-        }
+            if (nullptr != material)
+            {
+                material->decRef();
+            }
 
-        material = new_material;
+            material = new_material;
 
-        if (nullptr != material)
-        {
-            material->incRef();
+            if (nullptr != material)
+            {
+                material->incRef();
+            }
         }
     }
 

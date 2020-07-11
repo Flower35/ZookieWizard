@@ -19,7 +19,7 @@ namespace ZookieWizard
 
             /*[0x78]*/ Namespace* unknown_0078;
             /*[0x7C]*/ eString unknown_007C;
-            /*[0x80]*/ uint8_t unknown_0080;
+            /*[0x80]*/ bool isPersistent;
 
             /*[0x88]*/ int32_t unknown_0088;
             /*[0x8C]*/ int32_t unknown_008C;

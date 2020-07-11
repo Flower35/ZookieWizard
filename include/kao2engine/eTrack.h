@@ -20,7 +20,7 @@ namespace ZookieWizard
             /*[0x08]*/ eString name;
             /*[0x0C]*/ float startFrame;
             /*[0x10]*/ float endFrame;
-            /*[0x14]*/ int loopType;
+            /*[0x14]*/ int32_t loopType;
 
         /*** Methods ***/
 
@@ -35,8 +35,16 @@ namespace ZookieWizard
             eString getStringRepresentation() const override;
             eString getLogPrintMessage() const override;
 
+            void setName(eString new_name);
+
             float getStartFrame() const;
+            void setStartFrame(float new_value);
+
             float getEndFrame() const;
+            void setEndFrame(float new_value);
+
+            int32_t getLoopType() const;
+            void setLoopType(int32_t new_value);
 
     };
 

@@ -31,7 +31,7 @@ namespace ZookieWizard
     eObserver::eObserver()
     : eTransform()
     {
-        /*[0x014C]*/ path = nullptr;
+        /*[0x014C]*/ pathCtrl = nullptr;
 
         /*[0x0170-0x0190]*/
         look[0][0] = 0;
@@ -67,7 +67,7 @@ namespace ZookieWizard
 
     eObserver::~eObserver()
     {
-        path->decRef();
+        pathCtrl->decRef();
     }
 
 
@@ -81,8 +81,18 @@ namespace ZookieWizard
 
         eNode::serialize(ar);
 
+        if (ar.isInWriteMode())
+        {
+            deserializationCorrection();
+        }
+
         defaultTransform[0].serialize(ar);
         defaultTransform[1].serialize(ar);
+
+        if (ar.isInReadMode())
+        {
+            setXForm(defaultTransform[0]);
+        }
 
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
 
@@ -112,7 +122,8 @@ namespace ZookieWizard
         ar.readOrWrite(&unknown_0150, 0x01);
 
         /* Path Camera Controller */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&path, &E_PATHCAMCTRL_TYPEINFO);
+        /* ( Every camera MUST have this object set !!! ) */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&pathCtrl, &E_PATHCAMCTRL_TYPEINFO);
     }
 
 
@@ -148,6 +159,34 @@ namespace ZookieWizard
     void eObserver::setFarPlane(float new_value)
     {
         farPlane = new_value;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eObserver: get or set ePathCamCtrl
+    ////////////////////////////////////////////////////////////////
+
+    ePathCamCtrl* eObserver::getPathCamCtrl() const
+    {
+        return pathCtrl;
+    }
+
+    void eObserver::setPathCamCtrl(ePathCamCtrl* new_pathctrl)
+    {
+        if (pathCtrl != new_pathctrl)
+        {
+            if (nullptr != pathCtrl)
+            {
+                pathCtrl->decRef();
+            }
+
+            pathCtrl = new_pathctrl;
+
+            if (nullptr != pathCtrl)
+            {
+                pathCtrl->incRef();
+            }
+        }
     }
 
 }

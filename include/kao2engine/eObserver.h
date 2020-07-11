@@ -18,7 +18,7 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x014C]*/ ePathCamCtrl* path;
+            /*[0x014C]*/ ePathCamCtrl* pathCtrl;
             /*[0x0150]*/ uint8_t unknown_0150;
             /*[0x0151]*/ uint8_t unknown_0151;
             /*[0x0154-0x0160]*/ float unknown_0154[4];
@@ -46,6 +46,9 @@ namespace ZookieWizard
             void setFieldOfView(float new_fov);
             void setNearPlane(float new_value);
             void setFarPlane(float new_value);
+
+            ePathCamCtrl* getPathCamCtrl() const;
+            void setPathCamCtrl(ePathCamCtrl* new_pathctrl);
     };
 
 

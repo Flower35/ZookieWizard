@@ -113,4 +113,123 @@ namespace ZookieWizard
         ar.readOrWrite(&unknown_14, 0x04);
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eXYZEulerRotation: set static keyframes for fun
+    ////////////////////////////////////////////////////////////////
+    void eXYZEulerRotation::ctrlSetStaticKeyframe(eQuat &new_value, int32_t param)
+    {
+        eLeafCtrl<float>* dummy_ctrl;
+        float angles[3];
+
+        if (0x01 == param)
+        {
+            new_value.toEulerAngles(false, angles[0], angles[1], angles[2]);
+
+            if (nullptr != xCtrl)
+            {
+                xCtrl->decRef();
+            }
+
+            dummy_ctrl = new eLeafCtrl<float>;
+            dummy_ctrl->setDefaultValue(angles[0]);
+
+            xCtrl = dummy_ctrl;
+            xCtrl->incRef();
+
+            if (nullptr != yCtrl)
+            {
+                yCtrl->decRef();
+            }
+
+            dummy_ctrl = new eLeafCtrl<float>;
+            dummy_ctrl->setDefaultValue(angles[1]);
+
+            yCtrl = dummy_ctrl;
+            yCtrl->incRef();
+
+
+            if (nullptr != zCtrl)
+            {
+                zCtrl->decRef();
+            }
+
+            dummy_ctrl = new eLeafCtrl<float>;
+            dummy_ctrl->setDefaultValue(angles[2]);
+
+            zCtrl = dummy_ctrl;
+            zCtrl->incRef();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eXYZEulerRotation: clear keyframes for specific animation
+    ////////////////////////////////////////////////////////////////
+    void eXYZEulerRotation::ctrlClearKeyframes(int anim_id)
+    {
+        if (nullptr != xCtrl)
+        {
+            xCtrl->ctrlClearKeyframes(anim_id);
+        }
+
+        if (nullptr != yCtrl)
+        {
+            yCtrl->ctrlClearKeyframes(anim_id);
+        }
+
+        if (nullptr != zCtrl)
+        {
+            zCtrl->ctrlClearKeyframes(anim_id);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eXYZEulerRotation: update specific animation
+    ////////////////////////////////////////////////////////////////
+    void eXYZEulerRotation::ctrlAddKeyframe(int anim_id, float new_time, eQuat &new_data, int param)
+    {
+        eLeafCtrl<float>* dummy_ctrl;
+        float angles[3];
+
+        if (0 != param)
+        {
+            new_data.toEulerAngles(false, angles[0], angles[1], angles[2]);
+
+            if (nullptr == xCtrl)
+            {
+                dummy_ctrl = new eLeafCtrl<float>;
+                dummy_ctrl->setDefaultValue(angles[0]);
+
+                xCtrl = dummy_ctrl;
+                xCtrl->incRef();
+            }
+
+            xCtrl->ctrlAddKeyframe(anim_id, new_time, angles[0], 0x01);
+
+            if (nullptr == yCtrl)
+            {
+                dummy_ctrl = new eLeafCtrl<float>;
+                dummy_ctrl->setDefaultValue(angles[1]);
+
+                yCtrl = dummy_ctrl;
+                yCtrl->incRef();
+            }
+
+            yCtrl->ctrlAddKeyframe(anim_id, new_time, angles[1], 0x01);
+
+            if (nullptr == zCtrl)
+            {
+                dummy_ctrl = new eLeafCtrl<float>;
+                dummy_ctrl->setDefaultValue(angles[2]);
+
+                zCtrl = dummy_ctrl;
+                zCtrl->incRef();
+            }
+
+            zCtrl->ctrlAddKeyframe(anim_id, new_time, angles[2], 0x01);
+        }
+    }
+
 }

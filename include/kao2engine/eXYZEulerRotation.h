@@ -34,6 +34,11 @@ namespace ZookieWizard
             TypeInfo* getType() const override;
 
             /*[[vptr]+0x28]*/ void ctrlApplyTransform(eQuat*, float) const override;
+
+            void ctrlSetStaticKeyframe(eQuat &new_value, int32_t param) override;
+
+            void ctrlClearKeyframes(int anim_id) override;
+            void ctrlAddKeyframe(int anim_id, float new_time, eQuat &new_data, int param) override;
     };
 
 

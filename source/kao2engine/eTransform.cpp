@@ -1,6 +1,10 @@
 #include <kao2engine/eTransform.h>
 #include <kao2ar/Archive.h>
 
+#include <kao2engine/eLeafCtrl.h>
+#include <kao2engine/eSRPCombineCtrl.h>
+#include <kao2engine/eMultiCtrl.h>
+
 #include <kao2engine/eCamera.h>
 
 #include <utilities/ColladaExporter.h>
@@ -57,34 +61,7 @@ namespace ZookieWizard
 
         if (ar.isInWriteMode())
         {
-            const int SETTING_XFORM_MAX_PARENTS = 16;
-            eTransform* parents_list[SETTING_XFORM_MAX_PARENTS];
-            eTransform* test_parent;
-            int32_t parents_index = 0;
-
-            defaultTransform[1] = eSRP();
-
-            /* Finding the parents with "eTransform" type, to set the second version of `defaultTransform` */
-
-            test_parent = (eTransform*)parent;
-
-            while ((nullptr != test_parent) && (parents_index < SETTING_XFORM_MAX_PARENTS))
-            {
-                if (test_parent->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
-                {
-                    parents_list[parents_index] = test_parent;
-                    parents_index++;
-                }
-
-                test_parent = (eTransform*)(test_parent->parent);
-            }
-
-            for (int32_t i = parents_index - 1; i >= 0; i--)
-            {
-                defaultTransform[1] = defaultTransform[1].applyAnotherSRP(parents_list[i]->getXForm(true, false));
-            }
-
-            defaultTransform[1] = defaultTransform[0].applyAnotherSRP(defaultTransform[1]);
+            deserializationCorrection();
         }
 
         defaultTransform[0].serialize(ar);
@@ -96,6 +73,42 @@ namespace ZookieWizard
         }
 
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: setting the correct "global" transformation during deserialization
+    ////////////////////////////////////////////////////////////////
+    void eTransform::deserializationCorrection()
+    {
+        const int SETTING_XFORM_MAX_PARENTS = 16;
+        eTransform* parents_list[SETTING_XFORM_MAX_PARENTS];
+        eTransform* test_parent;
+        int32_t parents_index = 0;
+
+        defaultTransform[1] = eSRP();
+
+        /* Finding the parents with "eTransform" type, to set the second version of `defaultTransform` */
+
+        test_parent = (eTransform*)parent;
+
+        while ((nullptr != test_parent) && (parents_index < SETTING_XFORM_MAX_PARENTS))
+        {
+            if (test_parent->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+            {
+                parents_list[parents_index] = test_parent;
+                parents_index++;
+            }
+
+            test_parent = (eTransform*)(test_parent->parent);
+        }
+
+        for (int32_t i = parents_index - 1; i >= 0; i--)
+        {
+            defaultTransform[1] = defaultTransform[1].applyAnotherSRP(parents_list[i]->getXForm(true, false));
+        }
+
+        defaultTransform[1] = defaultTransform[0].applyAnotherSRP(defaultTransform[1]);
     }
 
 
@@ -296,6 +309,118 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eTransform: add empty animation track (if the node uses "eMultiCtrl")
+    ////////////////////////////////////////////////////////////////
+    void eTransform::ctrlExpandAnimTracks(int32_t new_size)
+    {
+        eMultiCtrl<eSRP>* multi_ctrl;
+
+        if (nullptr != ctrl)
+        {
+            /* We only want to modify the `ctrl` that already has multiple tracks */
+
+            if (ctrl->getType()->checkHierarchy(&E_MULTICTRL_ESRP_TYPEINFO))
+            {
+                multi_ctrl = (eMultiCtrl<eSRP>*)ctrl;
+
+                multi_ctrl->multiCtrl_SetSize(new_size);
+            }
+        }
+
+        eGroup::ctrlExpandAnimTracks(new_size);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: remove specific animation track (if the node uses "eMultiCtrl")
+    ////////////////////////////////////////////////////////////////
+    void eTransform::ctrlRemoveAnimTrack(int32_t deleted_id)
+    {
+        eMultiCtrl<eSRP>* multi_ctrl;
+
+        if (nullptr != ctrl)
+        {
+            if (ctrl->getType()->checkHierarchy(&E_MULTICTRL_ESRP_TYPEINFO))
+            {
+                multi_ctrl = (eMultiCtrl<eSRP>*)ctrl;
+
+                multi_ctrl->multiCtrl_DeleteTrack(deleted_id);
+            }
+        }
+
+        eGroup::ctrlRemoveAnimTrack(deleted_id);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eTransform::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
+    {
+        int32_t i;
+        eNode* test_node;
+
+        char bufor[128];
+
+        /* "eNode" parent class */
+
+        eNode::writeStructureToTextFile(file, indentation);
+
+        /* "eTransform" additional info */
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform pos: (%f, %f, %f)",
+            defaultTransform[0].pos.x,
+            defaultTransform[0].pos.y,
+            defaultTransform[0].pos.z
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform rot: (%f, %f, %f, %f)",
+            defaultTransform[0].rot.x,
+            defaultTransform[0].rot.y,
+            defaultTransform[0].rot.z,
+            defaultTransform[0].rot.w
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform scl: (%f)",
+            defaultTransform[0].scale
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        /* "eGroup" parent class */
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            test_node = (eNode*)nodes.getIthChild(i);
+
+            if (nullptr != test_node)
+            {
+                test_node->writeStructureToTextFile(file, (indentation + 1));
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eTransform: COLLADA exporting
     ////////////////////////////////////////////////////////////////
     void eTransform::writeNodeToXmlFile(ColladaExporter &exporter) const
@@ -406,6 +531,115 @@ namespace ZookieWizard
     bool eTransform::isJointNode() const
     {
         return jointType;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: editing animation tracks
+    ////////////////////////////////////////////////////////////////
+
+    void eTransform::ctrlSetStaticScale(float new_value)
+    {
+        eSRP dummy_srp;
+
+        dummy_srp.scale = new_value;
+
+        if (nullptr == ctrl)
+        {
+            ctrl = new eSRPCombineCtrl;
+            ctrl->incRef();
+        }
+
+        ctrl->ctrlSetStaticKeyframe(dummy_srp, (0x01 << 0));
+    }
+
+    void eTransform::ctrlSetStaticRotation(eQuat new_value)
+    {
+        eSRP dummy_srp;
+
+        dummy_srp.rot = new_value;
+
+        if (nullptr == ctrl)
+        {
+            ctrl = new eSRPCombineCtrl;
+            ctrl->incRef();
+        }
+
+        ctrl->ctrlSetStaticKeyframe(dummy_srp, (0x01 << 1));
+    }
+
+    void eTransform::ctrlSetStaticPosition(ePoint3 new_value)
+    {
+        eSRP dummy_srp;
+
+        dummy_srp.pos = new_value;
+
+        if (nullptr == ctrl)
+        {
+            ctrl = new eSRPCombineCtrl;
+            ctrl->incRef();
+        }
+
+        ctrl->ctrlSetStaticKeyframe(dummy_srp, (0x01 << 2));
+    }
+
+    void eTransform::ctrlClearKeyframes(int anim_id)
+    {
+        if (nullptr != ctrl)
+        {
+            if (anim_id < 0)
+            {
+                ctrl->decRef();
+                ctrl = nullptr;
+            }
+            else
+            {
+                ctrl->ctrlClearKeyframes(anim_id);
+            }
+        }
+    }
+
+    void eTransform::ctrlAddKeyframe(int anim_id, float new_time, eSRP new_data, int param)
+    {
+        eMultiCtrl<eSRP>* multi_ctrl;
+
+        if (anim_id < 0)
+        {
+            if (nullptr == ctrl)
+            {
+                ctrl = new eSRPCombineCtrl;
+                ctrl->incRef();
+            }
+
+            ctrl->ctrlAddKeyframe(0, new_time, new_data, param);
+        }
+        else
+        {
+            /* "anim_id" corresponds to a specific track in "eMultiCtrl" */
+
+            if (nullptr == ctrl)
+            {
+                multi_ctrl = new eMultiCtrl<eSRP>;
+
+                multi_ctrl->multiCtrl_SetSize(1 + anim_id);
+
+                ctrl = multi_ctrl;
+                ctrl->incRef();
+            }
+            else if (false == ctrl->getType()->checkHierarchy(&E_MULTICTRL_FLOAT_TYPEINFO))
+            {
+                multi_ctrl = new eMultiCtrl<eSRP>;
+
+                multi_ctrl->multiCtrl_SetSize(1 + anim_id);
+                multi_ctrl->multiCtrl_SetTrack(anim_id, ctrl);
+
+                ctrl->decRef();
+                ctrl = multi_ctrl;
+                ctrl->incRef();
+            }
+
+            ctrl->ctrlAddKeyframe(anim_id, new_time, new_data, param);
+        }
     }
 
 }

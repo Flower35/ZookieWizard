@@ -191,7 +191,7 @@ namespace ZookieWizard
         {
             if (0 == keysCount)
             {
-                (*e) = unknown_1C;
+                (*e) = defaultKeyframeValue;
 
                 return;
             }
@@ -356,7 +356,125 @@ namespace ZookieWizard
         /* "ePoint3Key": [0x1C] [0x20] [0x24] (12 bytes) */
         /* "eRotationKey": [0x1C] [0x20] [0x24] [0x28] (16 bytes) */
 
-        ar.readOrWrite(&unknown_1C, sizeof(T));
+        ar.readOrWrite(&defaultKeyframeValue, sizeof(T));
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: set static keyframes for fun
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::ctrlSetStaticKeyframe(T &new_value, int32_t param)
+    {
+        if (0x01 == param)
+        {
+            clearLeafKeys();
+
+            defaultKeyframeValue = new_value;
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: clear keyframes for specific animation
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::ctrlClearKeyframes(int anim_id)
+    {
+        clearLeafKeys();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: update specific animation
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::ctrlAddKeyframe(int anim_id, float new_time, T &new_data, int param)
+    {
+        addLeafKey(new_time, new_data);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: set default value (used when there are no keys)
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::setDefaultValue(T new_value)
+    {
+        defaultKeyframeValue = new_value;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: clear all leaf keys
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::clearLeafKeys()
+    {
+        keysCount = 0;
+        keysMaxLength = 0;
+
+        if (nullptr != keys)
+        {
+            delete[](keys);
+            keys = nullptr;
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: add a new leaf key
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::addLeafKey(float new_time, T new_data)
+    {
+        if ((keysCount + 1) >= keysMaxLength)
+        {
+            eKeyBase<T>* dummy_keys = new eKeyBase<T> [keysMaxLength + 1];
+
+            if (nullptr != keys)
+            {
+                for (int i = 0; i < keysCount; i++)
+                {
+                    dummy_keys[i] = keys[i];
+                }
+
+                delete[](keys);
+            }
+
+            keys = dummy_keys;
+
+            keysMaxLength++;
+        }
+
+        /* Find the right index based on the passed keyframe number */
+
+        int b = (-1);
+
+        for (int a = 0; (b < 0) && (a < keysCount); a++)
+        {
+            if (keys[a].time > new_time)
+            {
+                b = a;
+            }
+        }
+
+        if (b > 0)
+        {
+            for (int a = keysCount - 1; a >= b; a--)
+            {
+                keys[a + 1] = keys[a];
+            }
+        }
+        else
+        {
+            b = keysCount;
+        }
+
+        keys[b].time = new_time;
+        keys[b].data[0] = new_data;
+
+        keysCount++;
     }
 
 

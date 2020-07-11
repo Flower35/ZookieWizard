@@ -40,6 +40,8 @@ namespace ZookieWizard
 
             GLuint getTextureName() const;
             eBitmap* getBitmap() const;
+
+            void setTextureTransform(eTexTransform* new_form);
     };
 
 

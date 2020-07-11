@@ -33,7 +33,7 @@ namespace ZookieWizard
         float matMgr_mousePos[2];
         int matMgr_mouseMode;
 
-        HWND matMgr_Windows[4];
+        HWND matMgr_Windows[8];
 
         const int THUMBNAILS_IN_GRID = 10;
         const float THUMBNAIL_HW = 1.0f;
@@ -253,6 +253,21 @@ namespace ZookieWizard
 
                     SendMessage(matMgr_Windows[1], LB_SETCURSEL, (WPARAM)collision_type, 0);
 
+                    /* Update Flags Checkboxes */
+
+                    uint8_t material_flags = current_material->getMaterialFlags();
+
+                    for (int a = 0; a < 4; a++)
+                    {
+                        SendMessage
+                        (
+                            matMgr_Windows[4 + a],
+                            BM_SETCHECK,
+                            (WPARAM)(((0x01 << a) & material_flags) ? BST_CHECKED : BST_UNCHECKED),
+                            0
+                        );
+                    }
+
                     /* Update Sound Type ListBox */
 
                     uint16_t sound_type = current_material->getSoundType();
@@ -340,19 +355,27 @@ namespace ZookieWizard
             SendMessage(matMgr_Windows[1], LB_SETCURSEL, (WPARAM)(-1), 0);
             SendMessage(matMgr_Windows[2], LB_SETCURSEL, (WPARAM)(-1), 0);
 
+            for (int a = 0; a < 4; a++)
+            {
+                SendMessage(matMgr_Windows[4 + a], BM_SETCHECK, BST_UNCHECKED, 0);
+            }
+
             if (update_bitmap)
             {
                 SendMessage(matMgr_Windows[3], LB_SETCURSEL, (WPARAM)(-1), 0);
             }
         }
 
-        void materialsManager_UpdateCurrentMaterial(int32_t new_collision_type, int32_t new_sound_type)
+        void materialsManager_UpdateCurrentMaterial(int32_t new_collision_type, int32_t new_sound_type, uint16_t new_flags)
         {
             if ((matMgr_MatList_Current >= 0) && (matMgr_MatList_Current < matMgr_MatList_Count))
             {
                 eMaterial* current_material = matMgr_MatList[matMgr_MatList_Current];
 
                 uint32_t resulting_id;
+
+                uint8_t flags_to_apply = new_flags & 0x00FF;
+                uint8_t flags_to_remove = (new_flags >> 8) & 0x00FF;
 
                 if (nullptr != current_material)
                 {
@@ -404,6 +427,16 @@ namespace ZookieWizard
                         }
 
                         current_material->setSoundType(resulting_id);
+                    }
+
+                    if (0 != flags_to_apply)
+                    {
+                        current_material->setMaterialFlags(flags_to_apply);
+                    }
+
+                    if (0 != flags_to_remove)
+                    {
+                        current_material->unsetMaterialFlags(flags_to_remove);
                     }
                 }
             }
@@ -1031,7 +1064,7 @@ namespace ZookieWizard
             theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
         }
 
-        void materialsManager_ExportAllBitmaps(int start_id, eString working_directory, bool silent)
+        int materialsManager_ExportAllBitmaps(int start_id, eString working_directory, bool silent)
         {
             char bufor[256];
             int result = 0;
@@ -1074,9 +1107,11 @@ namespace ZookieWizard
 
                 theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
             }
+
+            return result;
         }
 
-        void materialsManager_ReimportAllBitmaps(int start_id, eString working_directory, bool silent)
+        int materialsManager_ReimportAllBitmaps(int start_id, eString working_directory, bool silent)
         {
             char bufor[256];
             int result = 0;
@@ -1119,11 +1154,13 @@ namespace ZookieWizard
 
                 theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
             }
+
+            return result;
         }
 
         void materialsManager_BulkTexturesExport()
         {
-            int result, engine_version, test_id;
+            int result_textures, result_archives, engine_version, test_id;
             char bufor[256];
 
             eString output_dir;
@@ -1218,7 +1255,8 @@ namespace ZookieWizard
 
                 /* Begin the conversion... */
 
-                result = 0;
+                result_textures = 0;
+                result_archives = 0;
 
                 while (!list.endOfFileReached())
                 {
@@ -1247,11 +1285,11 @@ namespace ZookieWizard
 
                             /* Export all bitmaps */
 
-                            materialsManager_ExportAllBitmaps(test_id, output_dir, true);
+                            result_textures += materialsManager_ExportAllBitmaps(test_id, output_dir, true);
 
                             dummy_ar.close(true);
 
-                            result++;
+                            result_archives++;
                         }
                     }
                 }
@@ -1269,8 +1307,9 @@ namespace ZookieWizard
                 sprintf_s
                 (
                     bufor, 256,
-                    "Successfully exported textures from %d KAO2 archives!",
-                    result
+                    "Successfully exported %d textures from %d KAO2 archives!",
+                    result_textures,
+                    result_archives
                 );
 
                 GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
@@ -1291,7 +1330,7 @@ namespace ZookieWizard
 
         void materialsManager_BulkTexturesReimport()
         {
-            int result, engine_version, archive_version, test_id;
+            int result_textures, result_archives, engine_version, archive_version, test_id;
             char bufor[256];
 
             eString input_dir;
@@ -1386,7 +1425,8 @@ namespace ZookieWizard
 
                 /* Begin the conversion... */
 
-                result = 0;
+                result_textures = 0;
+                result_archives = 0;
 
                 while (!list.endOfFileReached())
                 {
@@ -1413,9 +1453,9 @@ namespace ZookieWizard
 
                             archive_version = dummy_ar.getVersion();
 
-                            /* Export all bitmaps */
+                            /* Reimport all found bitmaps */
 
-                            materialsManager_ReimportAllBitmaps(test_id, input_dir, true);
+                            result_textures += materialsManager_ReimportAllBitmaps(test_id, input_dir, true);
 
                             /* Destination archive */
 
@@ -1430,7 +1470,7 @@ namespace ZookieWizard
 
                             dummy_ar.close(true);
 
-                            result++;
+                            result_archives++;
                         }
                     }
                 }
@@ -1448,8 +1488,9 @@ namespace ZookieWizard
                 sprintf_s
                 (
                     bufor, 256,
-                    "Successfully reimported textures to %d KAO2 archives!",
-                    result
+                    "Successfully reimported %d textures to %d KAO2 archives!",
+                    result_textures,
+                    result_archives
                 );
 
                 GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
@@ -1532,6 +1573,8 @@ namespace ZookieWizard
 
         void buttonFunc_MaterialsListBoxes(WPARAM wParam, LPARAM lParam, void* custom_param)
         {
+            int selection = (int)custom_param;
+
             switch (HIWORD(wParam))
             {
                 case LBN_SELCHANGE:
@@ -1539,22 +1582,22 @@ namespace ZookieWizard
                 {
                     int id_from_the_list = (int)SendMessage((HWND)lParam, LB_GETCURSEL, 0, 0);
 
-                    if (1 == (int)custom_param)
+                    if (1 == selection)
                     {
                         /* Simple list of Materials */
                         materialsManager_SetCurrentMaterial(id_from_the_list, false, true);
                     }
-                    else if (2 == (int)custom_param)
+                    else if (2 == selection)
                     {
                         /* List of Material Collision types */
-                        materialsManager_UpdateCurrentMaterial(id_from_the_list, (-1));
+                        materialsManager_UpdateCurrentMaterial(id_from_the_list, (-1), 0x0000);
                     }
-                    else if (3 == (int)custom_param)
+                    else if (3 == selection)
                     {
                         /* List of Material Sounds */
-                        materialsManager_UpdateCurrentMaterial((-1), id_from_the_list);
+                        materialsManager_UpdateCurrentMaterial((-1), id_from_the_list, 0x0000);
                     }
-                    else if (4 == (int)custom_param)
+                    else if (4 == selection)
                     {
                         /* Simple list of Bitmaps */
                         materialsManager_SetCurrentMaterial((-1), true, false);
@@ -1562,6 +1605,26 @@ namespace ZookieWizard
                     }
 
                     break;
+                }
+            }
+        }
+
+        void buttonFunc_MaterialsCheckBoxes(WPARAM wParam, LPARAM lParam, void* custom_param)
+        {
+            if (BN_CLICKED == HIWORD(wParam))
+            {
+                int selection = (int)custom_param;
+
+                if ((selection >= 0) && (selection < 4))
+                {
+                    selection = (0x01 << selection) & 0x00FF;
+
+                    if (BST_CHECKED != SendMessage((HWND)lParam, BM_GETCHECK, 0, 0))
+                    {
+                        selection = (selection << 8) & 0xFF00;
+                    }
+
+                    materialsManager_UpdateCurrentMaterial((-1), (-1), selection);
                 }
             }
         }
@@ -1652,12 +1715,24 @@ namespace ZookieWizard
                 return false;
             }
 
-            theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING_SMALL);
+            theWindowsManager.setCurrentPadding(0, 0);
 
             /********************************/
-            /* [MAT MGR PAGE] (9-12) Create listboxes */
+            /* Create line decoration */
 
-            theWindowsManager.setCurrentPadding(0, 0);
+            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), WINDOW_PADDING_SMALL);
+            theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+
+            if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
+
+            /********************************/
+            /* Create label */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
@@ -1666,6 +1741,9 @@ namespace ZookieWizard
             {
                 return false;
             }
+
+            /********************************/
+            /* Create listbox */
 
             theWindowsManager.setCurrentClassName("LISTBOX");
             theWindowsManager.setCurrentStyleFlags(LISTBOX_STYLES | WS_HSCROLL);
@@ -1678,14 +1756,28 @@ namespace ZookieWizard
 
             SendMessage(matMgr_Windows[0], LB_SETHORIZONTALEXTENT, (WPARAM)512, 0);
 
-            theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING_SMALL);
+            /********************************/
+            /* Create line decoration and label */
+
+            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), WINDOW_PADDING_SMALL);
             theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+
+            if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
             if (0 == theWindowsManager.addWindow("Selected material's Collision type:", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01))
             {
                 return false;
             }
+
+            /********************************/
+            /* Create listbox */
 
             theWindowsManager.setCurrentClassName("LISTBOX");
             theWindowsManager.setCurrentStyleFlags(LISTBOX_STYLES);
@@ -1702,14 +1794,28 @@ namespace ZookieWizard
                 SendMessage(matMgr_Windows[1], LB_ADDSTRING, 0, (LPARAM)bufor);
             }
 
-            theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING_SMALL);
+            /********************************/
+            /* Create line decoration and label */
+
+            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), WINDOW_PADDING_SMALL);
             theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+
+            if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
             if (0 == theWindowsManager.addWindow("Selected material's Sound:", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01))
             {
                 return false;
             }
+
+            /********************************/
+            /* Create listbox */
 
             theWindowsManager.setCurrentClassName("LISTBOX");
             theWindowsManager.setCurrentStyleFlags(LISTBOX_STYLES);
@@ -1726,14 +1832,64 @@ namespace ZookieWizard
                 SendMessage(matMgr_Windows[2], LB_ADDSTRING, 0, (LPARAM)bufor);
             }
 
-            theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING_SMALL);
+            /********************************/
+            /* Create line decoration and label */
+
+            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), WINDOW_PADDING_SMALL);
             theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+
+            if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD);
+
+            if (0 == theWindowsManager.addWindow("Selected material's Flags:\n(BLEND + ADDITIVE = OPAQUE)", RECT_TABS_X2, 2 * WINDOW_HEIGHT, nullptr, nullptr, 0x01))
+            {
+                return false;
+            }
+
+            /********************************/
+            /* Create checkboxes */
+
+            theWindowsManager.setCurrentClassName("BUTTON");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_AUTOCHECKBOX);
+
+            for (a = 0; a < 4; a++)
+            {
+                sprintf_s(bufor, 32, "0x%02X: \"%s\"", (0x01 << a), theMaterialFlags[a]);
+
+                if (0 == (matMgr_Windows[4 + a] = theWindowsManager.addWindow(bufor, RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_MaterialsCheckBoxes, (void*)(a), 0x01)))
+                {
+                    return false;
+                }
+            }
+
+            /********************************/
+            /* Create line decoration and label */
+
+            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), WINDOW_PADDING_SMALL);
+            theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+
+            if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
             if (0 == theWindowsManager.addWindow("List of Bitmaps:", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01))
             {
                 return false;
             }
+
+            /********************************/
+            /* Create listbox */
 
             theWindowsManager.setCurrentClassName("LISTBOX");
             theWindowsManager.setCurrentStyleFlags(LISTBOX_STYLES | WS_HSCROLL);

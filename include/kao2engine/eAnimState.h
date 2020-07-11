@@ -49,6 +49,16 @@ namespace ZookieWizard
 
             int getAnimId() const;
             void setAnimId(int32_t current_anim_id);
+
+            float getStartFrame() const;
+            void setStartFrame(float new_value);
+
+            float getEndFrame() const;
+            void setEndFrame(float new_value);
+
+            int32_t getLoopType() const;
+            void setLoopType(int32_t new_value);
+
     };
 
 
