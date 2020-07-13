@@ -49,7 +49,7 @@ namespace ZookieWizard
 
         if (nullptr != animStateB)
         {
-            if (nullptr != animStateB)
+            if (nullptr != (*animStateB))
             {
                 (*animStateB)->decRef();
             }
@@ -192,7 +192,7 @@ namespace ZookieWizard
             clearAnimStateContainers();
         }
 
-        if (ar.getVersion() >= 0x8B)
+        if (ar.getVersion() >= 0x8A)
         {
             /* Kao3, newer version */
 

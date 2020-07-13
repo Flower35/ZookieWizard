@@ -11,5 +11,4 @@ An advanced editor for **"Kao the Kangaroo: Round 2"**.
  * Creating a very simple custom level:
    * https://www.youtube.com/watch?v=OW0lsU3-vxM
  * Extracting and reimporting textures:
-   * https://www.youtube.com/watch?cQNVaNSZlg0
- 
+   * https://www.youtube.com/watch?v=cQNVaNSZlg0

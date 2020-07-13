@@ -13,6 +13,20 @@ namespace ZookieWizard
     // WAVEFRONT OBJ Importer structures
     ////////////////////////////////////////////////////////////////
 
+    struct WavefrontObjImporterVertex
+    {
+        float x;
+        float y;
+        float z;
+        float r;
+        float g;
+        float b;
+
+        WavefrontObjImporterVertex();
+
+        bool operator == (const WavefrontObjImporterVertex&) const;
+    };
+
     struct WavefrontObjImporterFace
     {
         int32_t material_id;
@@ -52,7 +66,7 @@ namespace ZookieWizard
 
             eGroup* parentGroup;
 
-            ePoint3* objVertices;
+            WavefrontObjImporterVertex* objVertices;
             int32_t objVerticesCount;
             int32_t objVerticesMaxLength;
 
@@ -92,7 +106,7 @@ namespace ZookieWizard
 
         protected:
 
-            void appendVertices(ePoint3* element, int32_t slots);
+            void appendVertices(WavefrontObjImporterVertex* element, int32_t slots);
             void appendMapping(ePoint2* element, int32_t slots);
             void appendNormals(ePoint3* element, int32_t slots);
             void appendFaces(WavefrontObjImporterFace* element, int32_t slots);

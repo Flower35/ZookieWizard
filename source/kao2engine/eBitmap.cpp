@@ -115,12 +115,14 @@ namespace ZookieWizard
         eString result;
         char* full_path;
 
-        int32_t a, b, i, x, y;
+        int32_t a, b, c, i, x, y;
 
         int32_t offset;
         int32_t bpp;
         int32_t new_width;
         int32_t new_height;
+        bool left_to_right;
+        bool top_to_bottom;
 
         /* Get path and open file */
 
@@ -231,7 +233,6 @@ namespace ZookieWizard
                     }
 
                     b = (bpp / 8);
-
                     pixels = new uint8_t [new_width * new_height * b];
 
                     for (y = (new_height - 1); y >= 0; y--)
@@ -240,11 +241,13 @@ namespace ZookieWizard
                         {
                             file.read(&a, b);
 
-                            /* When there are 3 bytes per pixel, read in reverser order */
+                            /* When there are 3 bytes per pixel, read in reversed order */
+
+                            c = (y * new_width * b) + (x * b);
 
                             for (i = 0; i < b; i++)
                             {
-                                pixels[(y * new_width * b) + (x * b) + (b - i - 1)] = ((a >> (8 * i)) & 0x000000FF);
+                                pixels[c + (b - i - 1)] = ((a >> (8 * i)) & 0x000000FF);
                             }
                         }
                     }
@@ -348,7 +351,7 @@ namespace ZookieWizard
 
             bpp &= 0x000000FF;
 
-            if (32 != bpp)
+            if ((32 != bpp) && (24 != bpp))
             {
                 return false;
             }
@@ -356,10 +359,15 @@ namespace ZookieWizard
             /* [0x11] "Image Descriptor" */
             file.read(&a, 0x01);
 
-            if (8 != (0x000000FF & a))
+            b = (32 == bpp) ? 0x08 : 0x00;
+
+            if (b != (0x0F & a))
             {
                 return false;
             }
+
+            top_to_bottom = (0 != (0x20 & a));
+            left_to_right = (0 == (0x10 & a));
 
             /* [0x12] "Image data" */
 
@@ -369,20 +377,28 @@ namespace ZookieWizard
                 pixels = nullptr;
             }
 
-            pixels = new uint8_t [new_width * new_height * 4];
+            b = (bpp / 8);
+            pixels = new uint8_t [new_width * new_height * b];
 
-            for (y = (new_height - 1); y >= 0; y--)
+            for (y = 0; y < new_height; y++)
             {
                 for (x = 0; x < new_width; x++)
                 {
-                    file.read(&a, 4);
+                    file.read(&a, b);
 
-                    /* RGBA -> BGRA format */
+                    c = top_to_bottom ? (y * new_width * b) : ((new_height - 1 - y) * new_width * b);
+                    c += left_to_right ? (x * b) : ((new_width - 1 - x) * b);
 
-                    pixels[(y * new_width * 4) + (x * 4) + 0] = ((a >> 16) & 0x000000FF);
-                    pixels[(y * new_width * 4) + (x * 4) + 1] = ((a >> 8) & 0x000000FF);
-                    pixels[(y * new_width * 4) + (x * 4) + 2] = ((a >> 0) & 0x000000FF);
-                    pixels[(y * new_width * 4) + (x * 4) + 3] = ((a >> 24) & 0x000000FF);
+                    /* RGB(A) -> BGR(A) */
+
+                    pixels[c + 0] = ((a >> 16) & 0x000000FF);
+                    pixels[c + 1] = ((a >> 8) & 0x000000FF);
+                    pixels[c + 2] = ((a >> 0) & 0x000000FF);
+
+                    if (32 == bpp)
+                    {
+                        pixels[c + 3] = ((a >> 24) & 0x000000FF);
+                    }
                 }
             }
 
@@ -391,7 +407,20 @@ namespace ZookieWizard
             width = virtualWidth = new_width;
             height = virtualHeight = new_height;
 
-            type = bitmapType::RGBA8;
+            switch (bpp)
+            {
+                case 32:
+                {
+                    type = bitmapType::RGBA8;
+                    break;
+                }
+
+                case 24:
+                {
+                    type = bitmapType::RGB8;
+                    break;
+                }
+            }
         }
         else
         {

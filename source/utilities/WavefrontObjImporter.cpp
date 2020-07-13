@@ -18,6 +18,20 @@ namespace ZookieWizard
     // WavefrontObjImporter structures
     ////////////////////////////////////////////////////////////////
 
+    WavefrontObjImporterVertex::WavefrontObjImporterVertex()
+    {
+        x = 0; y = 0; z = 0;
+
+        /* Default color: Black (object is not "glowing" / is affected by lighting) */
+        r = 0; g = 0; b = 0;
+    }
+
+    bool WavefrontObjImporterVertex::operator == (const WavefrontObjImporterVertex &vertex) const
+    {
+        return (vertex.x == x) && (vertex.y == y) && (vertex.z == z)
+            && (vertex.r == r) && (vertex.g == g) && (vertex.b == b);
+    }
+
     WavefrontObjImporterFace::WavefrontObjImporterFace()
     {
         material_id = (-1);
@@ -230,14 +244,14 @@ namespace ZookieWizard
     // WavefrontObjImporter: expand arrays
     ////////////////////////////////////////////////////////////////
 
-    void WavefrontObjImporter::appendVertices(ePoint3* element, int32_t slots)
+    void WavefrontObjImporter::appendVertices(WavefrontObjImporterVertex* element, int32_t slots)
     {
         int32_t i;
-        ePoint3* temp;
+        WavefrontObjImporterVertex* temp;
 
         if ((objVerticesCount + slots) > objVerticesMaxLength)
         {
-            temp = new ePoint3 [objVerticesCount + slots];
+            temp = new WavefrontObjImporterVertex [objVerticesCount + slots];
 
             if (nullptr != objVertices)
             {
@@ -438,9 +452,10 @@ namespace ZookieWizard
         int32_t current_group = (-1);
 
         eString line;
-        eString keywords[5];
+        eString keywords[8];
         eString v_details[3];
 
+        WavefrontObjImporterVertex dummy_vertex;
         ePoint3 dummy_point3;
         ePoint2 dummy_point2;
         WavefrontObjImporterFace dummy_face;
@@ -462,12 +477,14 @@ namespace ZookieWizard
 
             line << myFiles[0];
 
-            valid_keywords = ArFunctions::splitString(line, keywords, 5);
+            line = ArFunctions::removeComment(line, true);
+
+            valid_keywords = ArFunctions::splitString(line, keywords, 8);
 
             /********************************/
             /* Check the first word */
 
-            if ((valid_keywords > 1) && ('#' != keywords[0].getText()[0]))
+            if (valid_keywords > 1)
             {
                 if (keywords[0].compareExact("mtllib", true))
                 {
@@ -484,20 +501,33 @@ namespace ZookieWizard
                 }
                 else if (keywords[0].compareExact("v", true))
                 {
+                    dummy_vertex = WavefrontObjImporterVertex();
+
                     if (valid_keywords >= 4)
                     {
-                        dummy_point3.x = (float)std::atof(keywords[1].getText());
-                        dummy_point3.y = (float)std::atof(keywords[2].getText());
-                        dummy_point3.z = (float)std::atof(keywords[3].getText());
-                    }
-                    else
-                    {
-                        dummy_point3.x = 0;
-                        dummy_point3.y = 0;
-                        dummy_point3.z = 0;
+                        dummy_vertex.x = (float)std::atof(keywords[1].getText());
+                        dummy_vertex.y = (float)std::atof(keywords[2].getText());
+                        dummy_vertex.z = (float)std::atof(keywords[3].getText());
+
+                        /* Extended OBJ format: color components */
+
+                        if (valid_keywords >= 5)
+                        {
+                            dummy_vertex.r = (float)std::atof(keywords[4].getText());
+                        }
+
+                        if (valid_keywords >= 6)
+                        {
+                            dummy_vertex.g = (float)std::atof(keywords[5].getText());
+                        }
+
+                        if (valid_keywords >= 7)
+                        {
+                            dummy_vertex.b = (float)std::atof(keywords[6].getText());
+                        }
                     }
 
-                    appendVertices(&dummy_point3, 1);
+                    appendVertices(&dummy_vertex, 1);
                 }
                 else if (keywords[0].compareExact("vt", true))
                 {
@@ -1021,7 +1051,7 @@ namespace ZookieWizard
 
                 test_group->setName(trimesh_name);
 
-                test_group->setFlags(0x70000009);
+                test_group->setFlags(0x30000009);
             }
 
             /********************************/
@@ -1188,7 +1218,7 @@ namespace ZookieWizard
 
                     test_trimesh->setName(trimesh_name);
 
-                    test_trimesh->setFlags(0x70000009);
+                    test_trimesh->setFlags(0x30000009);
 
                     test_geoset = new eGeoSet();
                     test_geoset->incRef();
@@ -1240,7 +1270,7 @@ namespace ZookieWizard
                     }
 
                     /********************************/
-                    /* Fill arrays: indices, vertices, UV mapping, normals */
+                    /* Fill arrays: indices, vertices, colors, UV mapping, normals */
 
                     for (j = 0; j < total_indices; j++)
                     {
@@ -1252,6 +1282,8 @@ namespace ZookieWizard
                         k = referencedVertices[4 * j + 0];
 
                         test_vertices_data[j] = {objVertices[k].x, objVertices[k].y, objVertices[k].z, 1.0f};
+
+                        test_colors_data[j] = {objVertices[k].r, objVertices[k].g, objVertices[k].b, 1.0f};
 
                         if (total_mappings > 0)
                         {
@@ -1266,32 +1298,6 @@ namespace ZookieWizard
 
                             test_normals_data[j] = {objNormals[k].x, objNormals[k].y, objNormals[k].z, 0};
                         }
-                    }
-
-                    /********************************/
-                    /* Tested colors */
-
-                    for (j = 0; j < total_vertices; j++)
-                    {
-                        /* Objects are no longer shiny, but some `eLight` source must exist in the scene */
-                        test_colors_data[j] = {0, 0, 0, 1.0f};
-
-                        //// if (mat_id >= 0)
-                        //// {
-                        ////     if (nullptr != objMaterials[mat_id].material)
-                        ////     {
-                        ////         dummy_mtl_state = objMaterials[mat_id].material->getMaterialState();
-                        ////
-                        ////         if (nullptr != dummy_mtl_state)
-                        ////         {
-                        ////             dummy_mtl_state->getDiffuseColor(dummy_floats);
-                        ////
-                        ////             test_colors_data[j].x = dummy_floats[0];
-                        ////             test_colors_data[j].y = dummy_floats[1];
-                        ////             test_colors_data[j].z = dummy_floats[2];
-                        ////         }
-                        ////     }
-                        //// }
                     }
 
                     /********************************/

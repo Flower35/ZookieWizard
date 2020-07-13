@@ -89,7 +89,7 @@ namespace ZookieWizard
 
             /* Euler rotation to Quaternion conversion */
 
-            e->fromEulerAngles(false, x, y, z);
+            e->fromEulerAngles(true, x, y, z);
         }
     }
 
