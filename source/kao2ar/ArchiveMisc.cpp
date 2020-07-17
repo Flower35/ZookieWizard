@@ -108,7 +108,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void Archive::changeSelectedObject(int32_t child_id, void* param)
     {
-        int32_t i;
+        int32_t a, b, c;
         bool update_name = true;
         bool update_label = false;
         bool update_list = false;
@@ -315,7 +315,23 @@ namespace ZookieWizard
 
                     if (nullptr != test_group)
                     {
-                        if (NODES_LISTBOX_DELETE_CURRENT == child_id)
+                        c = child_id;
+
+                        /* Find current child ID to set selection in listbox */
+
+                        child_id = (-1);
+
+                        b = test_group->getNodesCount();
+
+                        for (a = 0; (child_id < 0) && (a < b); a++)
+                        {
+                            if (test_group->getIthChild(a) == test_node)
+                            {
+                                child_id = a;
+                            }
+                        }
+
+                        if (NODES_LISTBOX_DELETE_CURRENT == c)
                         {
                             theLog.print
                             (
@@ -354,18 +370,9 @@ namespace ZookieWizard
                                 "================================\n"
                             );
                         }
-                        else
-                        {
-                            /* Find current child ID to set selection in listbox */
 
-                            for (i = 0; (child_id < 0) && (i < test_group->getNodesCount()); i++)
-                            {
-                                if (test_group->getIthChild(i) == test_node)
-                                {
-                                    child_id = i;
-                                }
-                            }
-                        }
+                        b = test_group->getNodesCount() - 1;
+                        child_id = (child_id > b) ? b : child_id;
 
                         parent_xform = (eTransform*)test_group;
                         change_camera = 0x02; // backwards
@@ -414,6 +421,7 @@ namespace ZookieWizard
                             test_group->deleteIthChild(0);
                         }
 
+                        child_id = (-1);
                     }
                     else if (nullptr != (test_node = test_group->getIthChild(markedChildId)))
                     {
@@ -430,6 +438,11 @@ namespace ZookieWizard
                         }
 
                         test_group->deleteIthChild(markedChildId);
+
+                        /* Select the next child on the list */
+
+                        b = test_group->getNodesCount() - 1;
+                        child_id = (markedChildId > b) ? b : markedChildId;
                     }
 
                     theLog.print
@@ -440,8 +453,112 @@ namespace ZookieWizard
                         "================================\n"
                     );
 
-                    child_id = (-1);
                     update_list = true;
+                }
+
+                break;
+            }
+
+            case NODES_LISTBOX_MOVE_UP:
+            {
+                if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                {
+                    if (markedChildId >= 0)
+                    {
+                        test_group = (eGroup*)selectedObject;
+
+                        test_group->swapBackward(markedChildId);
+                        child_id = markedChildId - 1;
+
+                        if (child_id < 0)
+                        {
+                            child_id = 0;
+                        }
+
+                        update_list = true;
+                    }
+                }
+
+                break;
+            }
+
+            case NODES_LISTBOX_MOVE_DOWN:
+            {
+                if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                {
+                    if (markedChildId >= 0)
+                    {
+                        test_group = (eGroup*)selectedObject;
+
+                        test_group->swapForward(markedChildId);
+                        child_id = markedChildId + 1;
+
+                        b = test_group->getNodesCount() - 1;
+
+                        if (child_id > b)
+                        {
+                            child_id = b;
+                        }
+
+                        update_list = true;
+                    }
+                }
+
+                break;
+            }
+
+            case NODES_LISTBOX_MOVE_OUT:
+            {
+                if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                {
+                    if (markedChildId >= 0)
+                    {
+                        test_group = (eGroup*)selectedObject;
+                        test_node = test_group->getIthChild(markedChildId);
+
+                        if (nullptr != test_node)
+                        {
+                            b = test_group->getNodesCount() - 2;
+
+                            test_group = (eGroup*)test_group->getParentNode();
+
+                            if (nullptr != test_group)
+                            {
+                                test_group->appendChild(test_node);
+
+                                child_id = (markedChildId > b) ? b : markedChildId;
+
+                                update_list = true;
+                            }
+                        }
+                    }
+                }
+
+                break;
+            }
+
+            case NODES_LISTBOX_MOVE_IN:
+            {
+                if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                {
+                    if (markedChildId >= 1)
+                    {
+                        test_group = (eGroup*)selectedObject;
+                        test_node = test_group->getIthChild(markedChildId);
+                        test_group = (eGroup*)test_group->getIthChild(markedChildId - 1);
+
+                        if ((nullptr != test_node) && (nullptr != test_group))
+                        {
+                            if (test_group->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                            {
+                                test_group->appendChild(test_node);
+
+                                child_id = (markedChildId - 1);
+
+                                update_list = true;
+                            }
+                        }
+                    }
                 }
 
                 break;
@@ -661,12 +778,12 @@ namespace ZookieWizard
 
             if (nullptr != test_node)
             {
-                i = test_node->getFlags();
+                a = test_node->getFlags();
 
-                sprintf_s(bufor, 128, "\n0x%08X [", i);
+                sprintf_s(bufor, 128, "\n0x%08X [", a);
                 test_string += bufor;
 
-                if (0x01 & i)
+                if (0x01 & a)
                 {
                     test_string += "Enabled]";
                 }
@@ -687,13 +804,14 @@ namespace ZookieWizard
             if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
             {
                 test_group = (eGroup*)selectedObject;
+                b = test_group->getNodesCount();
 
-                for (i = 0; i < test_group->getNodesCount(); i++)
+                for (a = 0; a < b; a++)
                 {
-                    sprintf_s(bufor, 128, "[%d] ", i);
+                    sprintf_s(bufor, 128, "[%d] ", a);
                     test_string = bufor;
 
-                    test_node = test_group->getIthChild(i);
+                    test_node = test_group->getIthChild(a);
 
                     if (nullptr != test_node)
                     {
@@ -714,6 +832,7 @@ namespace ZookieWizard
                 if (child_id >= 0)
                 {
                     GUI::updateNodesList((-1), (void*)child_id);
+                    markedChildId = child_id;
                 }
             }
         }

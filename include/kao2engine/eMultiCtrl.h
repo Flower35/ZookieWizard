@@ -36,8 +36,9 @@ namespace ZookieWizard
 
             void ctrlSetStaticKeyframe(T &new_value, int32_t param) override;
 
-            void ctrlClearKeyframes(int anim_id) override;
-            void ctrlAddKeyframe(int anim_id, float new_time, T &new_data, int param) override;
+            void ctrlClearKeyframes(int32_t anim_id) override;
+            void ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param) override;
+            void ctrlAddKeyframe(int32_t anim_id, float new_time, T &new_data, int32_t param) override;
 
             void multiCtrl_SetSize(int32_t new_size);
             void multiCtrl_SetTrack(int32_t id, void* new_controller);

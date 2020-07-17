@@ -56,6 +56,8 @@ namespace ZookieWizard
             void deleteIthChild(int32_t i);
             void findAndDeleteChild(eNode* o);
             void findAndDetachChild(eNode* o);
+            void swapForward(int32_t i);
+            void swapBackward(int32_t i);
 
             void deleteNodesWithMultiRefs(bool canBeInvalid);
     };

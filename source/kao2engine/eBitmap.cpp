@@ -359,11 +359,23 @@ namespace ZookieWizard
             /* [0x11] "Image Descriptor" */
             file.read(&a, 0x01);
 
-            b = (32 == bpp) ? 0x08 : 0x00;
+            b = (0x0F & a);
 
-            if (b != (0x0F & a))
+            if (32 == bpp)
             {
-                return false;
+                /* Some converters don't set the "attribute bits" correctly (zero instead of 8) */
+
+                if ((0x08 != b) && (0x00 != b))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (0x00 != b)
+                {
+                    return false;
+                }
             }
 
             top_to_bottom = (0 != (0x20 & a));

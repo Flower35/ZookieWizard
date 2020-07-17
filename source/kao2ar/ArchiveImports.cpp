@@ -892,12 +892,13 @@ namespace ZookieWizard
         const int PARSER_KEYWORD_ID_NODE = 0;
         const int PARSER_KEYWORD_ID_SEND = 1;
 
-        const int NUMBER_OF_MESSAGES = 21;
+        const int NUMBER_OF_MESSAGES = 25;
 
         const char* messages_strings[NUMBER_OF_MESSAGES] =
         {
             "visCtrlClear",
             "visCtrlSetStatic",
+            "visCtrlSetLoopType",
             "visCtrlAddKeyframe",
             "setPos",
             "setRot",
@@ -906,9 +907,12 @@ namespace ZookieWizard
             "ctrlSetStaticScale",
             "ctrlSetStaticRotation",
             "ctrlSetStaticPosition",
+            "ctrlSetLoopType",
             "ctrlAddKeyframe",
             "animAddTrack",
             "animRemoveTrack",
+            "addLighting",
+            "removeLighting",
             "setFogColor",
             "setFogStart",
             "setFogEnd",
@@ -921,30 +925,35 @@ namespace ZookieWizard
 
         const int PARSER_MESSAGE_ID_VISCTRLCLEAR = 0;
         const int PARSER_MESSAGE_ID_VISCTRLSETSTATIC = 1;
-        const int PARSER_MESSAGE_ID_VISCTRLADDKEYFRAME = 2;
-        const int PARSER_MESSAGE_ID_SETPOS = 3;
-        const int PARSER_MESSAGE_ID_SETROT = 4;
-        const int PARSER_MESSAGE_ID_SETSCL = 5;
-        const int PARSER_MESSAGE_ID_CTRLCLEARKEYFRAMES = 6;
-        const int PARSER_MESSAGE_ID_CTRLSETSTATICSCALE = 7;
-        const int PARSER_MESSAGE_ID_CTRLSETSTATICROTATION = 8;
-        const int PARSER_MESSAGE_ID_CTRLSETSTATICPOSITION = 9;
-        const int PARSER_MESSAGE_ID_CTRLADDKEYFRAME = 10;
-        const int PARSER_MESSAGE_ID_ANIMADDTRACK = 11;
-        const int PARSER_MESSAGE_ID_ANIMREMOVETRACK = 12;
-        const int PARSER_MESSAGE_ID_SETFOGCOLOR = 13;
-        const int PARSER_MESSAGE_ID_SETFOGCSTART = 14;
-        const int PARSER_MESSAGE_ID_SETFOGEND = 15;
-        const int PARSER_MESSAGE_ID_SETFOGMAX = 16;
-        const int PARSER_MESSAGE_ID_CLEARENTERACTIONS = 17;
-        const int PARSER_MESSAGE_ID_CLEARLEAVEACTIONS = 18;
-        const int PARSER_MESSAGE_ID_ADDENTERACTION = 19;
-        const int PARSER_MESSAGE_ID_ADDLEAVEACTION = 20;
+        const int PARSER_MESSAGE_ID_VISCTRLSETLOOPTYPE = 2;
+        const int PARSER_MESSAGE_ID_VISCTRLADDKEYFRAME = 3;
+        const int PARSER_MESSAGE_ID_SETPOS = 4;
+        const int PARSER_MESSAGE_ID_SETROT = 5;
+        const int PARSER_MESSAGE_ID_SETSCL = 6;
+        const int PARSER_MESSAGE_ID_CTRLCLEARKEYFRAMES = 7;
+        const int PARSER_MESSAGE_ID_CTRLSETSTATICSCALE = 8;
+        const int PARSER_MESSAGE_ID_CTRLSETSTATICROTATION = 9;
+        const int PARSER_MESSAGE_ID_CTRLSETSTATICPOSITION = 10;
+        const int PARSER_MESSAGE_ID_CTRLSETLOOPTYPE = 11;
+        const int PARSER_MESSAGE_ID_CTRLADDKEYFRAME = 12;
+        const int PARSER_MESSAGE_ID_ANIMADDTRACK = 13;
+        const int PARSER_MESSAGE_ID_ANIMREMOVETRACK = 14;
+        const int PARSER_MESSAGE_ID_ADDLIGHTING = 15;
+        const int PARSER_MESSAGE_ID_REMOVELIGHTING = 16;
+        const int PARSER_MESSAGE_ID_SETFOGCOLOR = 17;
+        const int PARSER_MESSAGE_ID_SETFOGCSTART = 18;
+        const int PARSER_MESSAGE_ID_SETFOGEND = 19;
+        const int PARSER_MESSAGE_ID_SETFOGMAX = 20;
+        const int PARSER_MESSAGE_ID_CLEARENTERACTIONS = 21;
+        const int PARSER_MESSAGE_ID_CLEARLEAVEACTIONS = 22;
+        const int PARSER_MESSAGE_ID_ADDENTERACTION = 23;
+        const int PARSER_MESSAGE_ID_ADDLEAVEACTION = 24;
 
         TypeInfo* messages_object_types[NUMBER_OF_MESSAGES] =
         {
             &E_NODE_TYPEINFO, // `visCtrlClear()`
             &E_NODE_TYPEINFO, // `visCtrlSetStatic()`
+            &E_NODE_TYPEINFO, // `visCtrlSetLoopType()`
             &E_NODE_TYPEINFO, // `visCtrlAddKeyframe()`
             &E_TRANSFORM_TYPEINFO, // `setPos()`
             &E_TRANSFORM_TYPEINFO, // `setRot()`
@@ -953,9 +962,12 @@ namespace ZookieWizard
             &E_TRANSFORM_TYPEINFO, // `ctrlSetStaticScale()`
             &E_TRANSFORM_TYPEINFO, // `ctrlSetStaticRotation()`
             &E_TRANSFORM_TYPEINFO, // `ctrlSetStaticPosition()`
+            &E_TRANSFORM_TYPEINFO, // `ctrlSetLoopType()`
             &E_TRANSFORM_TYPEINFO, // `ctrlAddKeyframe()`
             &E_PIVOT_TYPEINFO, // `animAddTrack()`
             &E_PIVOT_TYPEINFO, // `animRemoveTrack()`
+            &E_ENVIRONMENT_TYPEINFO, // `addLighting()`
+            &E_ENVIRONMENT_TYPEINFO, // `removeLighting()`
             &E_ENVIRONMENT_TYPEINFO, // `setFogColor()`
             &E_ENVIRONMENT_TYPEINFO, // `setFogStart()`
             &E_ENVIRONMENT_TYPEINFO, // `setFogEnd()`
@@ -970,6 +982,7 @@ namespace ZookieWizard
         {
             1,  // `visCtrlClear()`
             1,  // `visCtrlSetStatic()`
+            2,  // `visCtrlSetLoopType()`
             3,  // `visCtrlAddKeyframe()`
             3,  // `setPos()`
             3,  // `setRot()`
@@ -978,9 +991,12 @@ namespace ZookieWizard
             1,  // `ctrlSetStaticScale()`
             3,  // `ctrlSetStaticRotation()`
             3,  // `ctrlSetStaticPosition()`
+            3,  // `ctrlSetLoopType()`
             10, // `ctrlAddKeyframe()`
             3,  // `animAddTrack()`
             1,  // `animRemoveTrack()`
+            1,  // `addLighting()`
+            1,  // `removeLighting()`
             3,  // `setFogColor()`
             1,  // `setFogStart()`
             1,  // `setFogEnd()`
@@ -1512,6 +1528,7 @@ namespace ZookieWizard
                                     {
                                         case PARSER_MESSAGE_ID_VISCTRLCLEAR:
                                         case PARSER_MESSAGE_ID_VISCTRLSETSTATIC:
+                                        case PARSER_MESSAGE_ID_VISCTRLSETLOOPTYPE:
                                         case PARSER_MESSAGE_ID_VISCTRLADDKEYFRAME:
                                         {
                                             dummy_node = (eNode*)noderefs_pointers[noderef_send_id];
@@ -1526,6 +1543,7 @@ namespace ZookieWizard
                                         case PARSER_MESSAGE_ID_CTRLSETSTATICSCALE:
                                         case PARSER_MESSAGE_ID_CTRLSETSTATICROTATION:
                                         case PARSER_MESSAGE_ID_CTRLSETSTATICPOSITION:
+                                        case PARSER_MESSAGE_ID_CTRLSETLOOPTYPE:
                                         case PARSER_MESSAGE_ID_CTRLADDKEYFRAME:
                                         {
                                             dummy_xform = (eTransform*)noderefs_pointers[noderef_send_id];
@@ -1541,6 +1559,8 @@ namespace ZookieWizard
                                             break;
                                         }
 
+                                        case PARSER_MESSAGE_ID_ADDLIGHTING:
+                                        case PARSER_MESSAGE_ID_REMOVELIGHTING:
                                         case PARSER_MESSAGE_ID_SETFOGCOLOR:
                                         case PARSER_MESSAGE_ID_SETFOGCSTART:
                                         case PARSER_MESSAGE_ID_SETFOGEND:
@@ -1581,6 +1601,16 @@ namespace ZookieWizard
                                             f[0] = (float)std::atof(message_params[0].getText());
 
                                             dummy_node->visCtrlSetStatic(f[0]);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_VISCTRLSETLOOPTYPE:
+                                        {
+                                            i[0] = std::atoi(message_params[0].getText());
+                                            i[1] = std::atoi(message_params[1].getText());
+
+                                            dummy_node->visCtrlSetLoopType(i[0], i[1]);
 
                                             break;
                                         }
@@ -1677,6 +1707,17 @@ namespace ZookieWizard
                                             break;
                                         }
 
+                                        case PARSER_MESSAGE_ID_CTRLSETLOOPTYPE:
+                                        {
+                                            i[0] = std::atoi(message_params[0].getText());
+                                            i[1] = std::atoi(message_params[1].getText());
+                                            i[2] = std::atoi(message_params[2].getText());
+
+                                            dummy_xform->ctrlSetLoopType(i[0], i[1], i[2]);
+
+                                            break;
+                                        }
+
                                         case PARSER_MESSAGE_ID_CTRLADDKEYFRAME:
                                         {
                                             i[0] = std::atoi(message_params[0].getText());
@@ -1754,6 +1795,79 @@ namespace ZookieWizard
                                             }
 
                                             dummy_pivot->animRemoveTrack(message_params[0]);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_ADDLIGHTING:
+                                        {
+                                            c = (-1);
+
+                                            for (b = 0; (c < 0) && (b < noderefs_count); b++)
+                                            {
+                                                if (message_params[0].compareExact(noderefs_names[b], true))
+                                                {
+                                                    c = b;
+                                                }
+                                            }
+
+                                            if (c < 0)
+                                            {
+                                                throw ErrorMessage
+                                                (
+                                                    "Archive::changeNodesWithTxtFile():\n\n" \
+                                                    "`eEnvironment.addLighting()` message: nodeRef \"%s\" not found!\n\n" \
+                                                    "(line %d, position %d)",
+                                                    message_params[0].getText(),
+                                                    line_counter,
+                                                    (start_pos + 1)
+                                                );
+                                            }
+
+                                            if (false == noderefs_pointers[c]->getType()->checkHierarchy(&E_LIGHT_TYPEINFO))
+                                            {
+                                                throw ErrorMessage
+                                                (
+                                                    "Archive::changeNodesWithTxtFile():\n\n" \
+                                                    "`eEnvironment.addLighting()` message: nodeRef \"%s\" is not a child of `eLight`!\n\n" \
+                                                    "(line %d, position %d)",
+                                                    message_params[0].getText(),
+                                                    line_counter,
+                                                    (start_pos + 1)
+                                                );
+                                            }
+
+                                            dummy_env->addLighting((eLight*)noderefs_pointers[c]);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_REMOVELIGHTING:
+                                        {
+                                            c = (-1);
+
+                                            for (b = 0; (c < 0) && (b < noderefs_count); b++)
+                                            {
+                                                if (message_params[0].compareExact(noderefs_names[b], true))
+                                                {
+                                                    c = b;
+                                                }
+                                            }
+
+                                            if (c < 0)
+                                            {
+                                                throw ErrorMessage
+                                                (
+                                                    "Archive::changeNodesWithTxtFile():\n\n" \
+                                                    "`eEnvironment.removeLighting()` message: nodeRef \"%s\" not found!\n\n" \
+                                                    "(line %d, position %d)",
+                                                    message_params[0].getText(),
+                                                    line_counter,
+                                                    (start_pos + 1)
+                                                );
+                                            }
+
+                                            dummy_env->removeLighting((eLight*)noderefs_pointers[c]);
 
                                             break;
                                         }

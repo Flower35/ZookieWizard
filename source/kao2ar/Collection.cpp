@@ -226,6 +226,41 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // Swap objects by one place backwards of forwards
+    ////////////////////////////////////////////////////////////////
+
+    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    void Collection<Func>::swapForward(int32_t i)
+    {
+        eRefCounter* temp_o;
+
+        if ((i < 0) || (i >= (count - 1)))
+        {
+            return;
+        }
+
+        temp_o = children[i];
+        children[i] = children[i + 1];
+        children[i + 1] = temp_o;
+    }
+
+    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    void Collection<Func>::swapBackward(int32_t i)
+    {
+        eRefCounter* temp_o;
+
+        if ((i <= 0) || (i > (count - 1)))
+        {
+            return;
+        }
+
+        temp_o = children[i];
+        children[i] = children[i - 1];
+        children[i - 1] = temp_o;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Explicit templates
     ////////////////////////////////////////////////////////////////
 

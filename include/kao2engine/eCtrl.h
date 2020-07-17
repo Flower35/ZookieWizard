@@ -25,8 +25,9 @@ namespace ZookieWizard
 
             virtual void ctrlSetStaticKeyframe(T &new_value, int32_t param) = 0;
 
-            virtual void ctrlClearKeyframes(int anim_id) = 0;
-            virtual void ctrlAddKeyframe(int anim_id, float new_time, T &new_data, int param) = 0;
+            virtual void ctrlClearKeyframes(int32_t anim_id) = 0;
+            virtual void ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param) = 0;
+            virtual void ctrlAddKeyframe(int32_t anim_id, float new_time, T &new_data, int32_t param) = 0;
 
     };
 

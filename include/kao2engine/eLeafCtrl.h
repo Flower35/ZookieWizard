@@ -31,8 +31,8 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x08]*/ int32_t unknown_08;
-            /*[0x0C]*/ int32_t unknown_0C;
+            /*[0x08]*/ int32_t outOfRangeTypeA;
+            /*[0x0C]*/ int32_t outOfRangeTypeB;
 
             /*[0x10]*/ int32_t keysCount;
             /*[0x14]*/ int32_t keysMaxLength;
@@ -54,8 +54,9 @@ namespace ZookieWizard
 
             void ctrlSetStaticKeyframe(T &new_value, int param) override;
 
-            void ctrlClearKeyframes(int anim_id) override;
-            void ctrlAddKeyframe(int anim_id, float new_time, T &new_data, int param) override;
+            void ctrlClearKeyframes(int32_t anim_id) override;
+            void ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param) override;
+            void ctrlAddKeyframe(int32_t anim_id, float new_time, T &new_data, int32_t param) override;
 
             void setDefaultValue(T new_value);
 
@@ -63,6 +64,8 @@ namespace ZookieWizard
 
             int getKeyframeId(float time) const;
             T interpolate(float ratio, T &first, T &second, T &other) const;
+
+            void recalculateInterpolationData();
 
             void clearLeafKeys();
             void addLeafKey(float new_time, T new_data);

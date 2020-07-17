@@ -67,8 +67,8 @@ namespace ZookieWizard
         /*[0x14]*/ keysMaxLength = 0;
         /*[0x18]*/ keys = nullptr;
 
-        /*[0x08]*/ unknown_08 = 0;
-        /*[0x0C]*/ unknown_0C = 0;
+        /*[0x08]*/ outOfRangeTypeA = 0;
+        /*[0x0C]*/ outOfRangeTypeB = 0;
     }
 
     template <typename T>
@@ -177,6 +177,75 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eLeafCtrl: animation function
+    // Prepare data for cubic interpolations
+    ////////////////////////////////////////////////////////////////
+
+    void eLeafCtrl<float>::recalculateInterpolationData()
+    {
+        if (keysCount >= 1)
+        {
+            /* No keyframe before the first key */
+            keys[0].data[1] = {0};
+
+            /* No keyframe after the last key */
+            keys[keysCount - 1].data[2] = {0};
+
+            for (int32_t a = 0; a < (keysCount - 1); a++)
+            {
+                float control_point = keys[a + 1].data[0] - keys[a].data[0];
+
+                keys[a].data[2] = control_point;
+                keys[a + 1].data[1] = control_point;
+            }
+        }
+    }
+
+    void eLeafCtrl<ePoint3>::recalculateInterpolationData()
+    {
+        if (keysCount >= 1)
+        {
+            /* No keyframe before the first key */
+            keys[0].data[1] = {0};
+
+            /* No keyframe after the last key */
+            keys[keysCount - 1].data[2] = {0};
+
+            for (int32_t a = 0; a < (keysCount - 1); a++)
+            {
+                ePoint3 control_point = keys[a + 1].data[0] - keys[a].data[0];
+
+                keys[a].data[2] = control_point;
+                keys[a + 1].data[1] = control_point;
+            }
+        }
+    }
+
+    void eLeafCtrl<eQuat>::recalculateInterpolationData()
+    {
+        if (keysCount >= 1)
+        {
+            /* No keyframe before the first key */
+            keys[0].data[1] = {0};
+
+            /* No keyframe after the last key */
+            keys[keysCount - 1].data[2] = {0};
+
+            for (int32_t a = 0; a < (keysCount - 1); a++)
+            {
+                eQuat control_point_A = keys[a].data[0];
+                eQuat control_point_B = keys[a + 1].data[0];
+                eQuat control_point_C = ((control_point_A * 2.0f) + control_point_B) * (1.0f / 3);
+                eQuat control_point_D = (control_point_B + control_point_C) * 0.5f;
+
+                keys[a].data[2] = control_point_C;
+                keys[a + 1].data[1] = control_point_D;
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: animation function
     // [[vptr]+0x28] Modify [scale/rotation/position] based on current time
     // <kao2.004A2ED0>: "eFloatKey"
     // <kao2.004A3770>: "ePoint3Key"
@@ -203,9 +272,9 @@ namespace ZookieWizard
             }
             else
             {
-                switch ((time > keys[0].time) ? unknown_0C : unknown_08)
+                switch ((time > keys[0].time) ? outOfRangeTypeB : outOfRangeTypeA)
                 {
-                    case 0:
+                    case 0: // "Constant"
                     {
                         if (time <= keys[0].time)
                         {
@@ -223,8 +292,8 @@ namespace ZookieWizard
                         break;
                     }
 
-                    case 1:
-                    case 2:
+                    case 1: // "Cycle"
+                    case 2: // "Loop"
                     {
                         float x = keys[keysCount - 1].time - keys[0].time;
                         float y = time - keys[0].time;
@@ -241,7 +310,7 @@ namespace ZookieWizard
                         break;
                     }
 
-                    case 3:
+                    case 3: // "Ping Pong"
                     {
                         if (time >= keys[keysCount - 1].time)
                         {
@@ -271,14 +340,14 @@ namespace ZookieWizard
                         break;
                     }
 
-                    case 4:
+                    case 4: // "Linear"
                     {
                         /* (--dsp--) <kao2.004A303E> */
 
                         break;
                     }
 
-                    case 5:
+                    case 5: // "Relative Repeat"
                     {
                         float x = keys[keysCount - 1].time - keys[0].time;
                         float y = time - keys[0].time;
@@ -320,11 +389,11 @@ namespace ZookieWizard
     {
         int32_t i;
 
-        /* Unknown identifiers */
+        /* "Parameter Curve Out-of-Range Types" */
 
-        ar.readOrWrite(&unknown_08, 0x04);
+        ar.readOrWrite(&outOfRangeTypeA, 0x04);
 
-        ar.readOrWrite(&unknown_0C, 0x04);
+        ar.readOrWrite(&outOfRangeTypeB, 0x04);
 
         /* Keys group */
 
@@ -379,9 +448,31 @@ namespace ZookieWizard
     // eLeafCtrl: clear keyframes for specific animation
     ////////////////////////////////////////////////////////////////
     template <typename T>
-    void eLeafCtrl<T>::ctrlClearKeyframes(int anim_id)
+    void eLeafCtrl<T>::ctrlClearKeyframes(int32_t anim_id)
     {
         clearLeafKeys();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: set loop type
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
+    {
+        if (0x01 == param)
+        {
+            if (loop_type < 0)
+            {
+                loop_type = 0;
+            }
+            else if (loop_type > 5)
+            {
+                loop_type = 5;
+            }
+
+            outOfRangeTypeB = outOfRangeTypeA = loop_type;
+        }
     }
 
 
@@ -475,6 +566,8 @@ namespace ZookieWizard
         keys[b].data[0] = new_data;
 
         keysCount++;
+
+        recalculateInterpolationData();
     }
 
 

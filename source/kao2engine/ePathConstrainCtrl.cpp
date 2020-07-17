@@ -84,6 +84,16 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // ePathConstrainCtrl: set loop type
+    ////////////////////////////////////////////////////////////////
+    void ePathConstrainCtrl::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
+    {
+        /* (...) don't know what to do... */
+        return;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // ePathConstrainCtrl: clear keyframes for specific animation
     ////////////////////////////////////////////////////////////////
     void ePathConstrainCtrl::ctrlClearKeyframes(int anim_id)
@@ -103,8 +113,13 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void ePathConstrainCtrl::ctrlAddKeyframe(int anim_id, float new_time, ePoint3 &new_data, int param)
     {
-        /* (...) don't know what to do... */
-        return;
+        if (0x01 == param)
+        {
+            if (nullptr != unknown_0C)
+            {
+                /* (...) don't know what to do... */
+            }
+        }
     }
 
 }

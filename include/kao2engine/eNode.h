@@ -84,9 +84,10 @@ namespace ZookieWizard
 
             eCtrl<float>* getVisCtrl() const;
             void setVisCtrl(eCtrl<float>* new_visctrl);
-            void visCtrlClear(int anim_id);
+            void visCtrlClear(int32_t anim_id);
             void visCtrlSetStatic(float opacity);
-            void visCtrlAddKeyframe(int anim_id, float time, float opacity);
+            void visCtrlSetLoopType(int32_t anim_id, int32_t loop_type);
+            void visCtrlAddKeyframe(int32_t anim_id, float time, float opacity);
     };
 
 

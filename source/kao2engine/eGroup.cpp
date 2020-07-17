@@ -245,6 +245,21 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eGroup: swap nodes by one place backwards of forwards
+    ////////////////////////////////////////////////////////////////
+
+    void eGroup::swapForward(int32_t i)
+    {
+        nodes.swapForward(i);
+    }
+
+    void eGroup::swapBackward(int32_t i)
+    {
+        nodes.swapBackward(i);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eGroup: find reference to some node when deleting it
     ////////////////////////////////////////////////////////////////
     void eGroup::findAndDereference(eNode* target)

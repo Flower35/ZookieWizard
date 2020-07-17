@@ -158,9 +158,40 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eSRPCombineCtrl: set loop type
+    ////////////////////////////////////////////////////////////////
+    void eSRPCombineCtrl::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
+    {
+        if ((0x01 << 0) & param)
+        {
+            if (nullptr != sclCtrl)
+            {
+                sclCtrl->ctrlSetLoopType(anim_id, loop_type, 0x01);
+            }
+        }
+
+        if ((0x01 << 1) & param)
+        {
+            if (nullptr != rotCtrl)
+            {
+                rotCtrl->ctrlSetLoopType(anim_id, loop_type, 0x01);
+            }
+        }
+
+        if ((0x01 << 2) & param)
+        {
+            if (nullptr != posCtrl)
+            {
+                posCtrl->ctrlSetLoopType(anim_id, loop_type, 0x01);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eSRPCombineCtrl: clear keyframes for specific animation
     ////////////////////////////////////////////////////////////////
-    void eSRPCombineCtrl::ctrlClearKeyframes(int anim_id)
+    void eSRPCombineCtrl::ctrlClearKeyframes(int32_t anim_id)
     {
         if (nullptr != sclCtrl)
         {
@@ -182,7 +213,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eSRPCombineCtrl: update specific animation
     ////////////////////////////////////////////////////////////////
-    void eSRPCombineCtrl::ctrlAddKeyframe(int anim_id, float new_time, eSRP &new_data, int param)
+    void eSRPCombineCtrl::ctrlAddKeyframe(int32_t anim_id, float new_time, eSRP &new_data, int32_t param)
     {
         eLeafCtrl<float>* dummy_scl_ctrl;
         eLeafCtrl<eQuat>* dummy_rot_ctrl;

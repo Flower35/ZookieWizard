@@ -43,6 +43,8 @@ namespace ZookieWizard
             void appendChild(eRefCounter* o);
             void deleteIthChild(int32_t i);
             void findAndDeleteChild(eRefCounter* o);
+            void swapForward(int32_t i);
+            void swapBackward(int32_t i);
     };
 
 }

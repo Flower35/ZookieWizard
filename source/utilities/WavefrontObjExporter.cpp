@@ -450,10 +450,11 @@ namespace ZookieWizard
 
         int32_t total_indices = 0;
         int32_t array_length[3];
-        ePoint4* array_data4 = nullptr;
+        ePoint4* array_data4[2] = {nullptr, nullptr};
         ePoint2* array_data2 = nullptr;
 
         eGeoArray<ePoint4>* vertices = nullptr;
+        eGeoArray<ePoint4>* colors = nullptr;
         eGeoArray<ePoint4>* normals = nullptr;
         eGeoArray<ePoint2>* mapping = nullptr;
         eGeoArray<ushort>* indices_offsets = nullptr;
@@ -480,6 +481,7 @@ namespace ZookieWizard
             /* Get required data */
 
             vertices = geo->getVerticesArray();
+            colors = geo->getColorsArray();
             normals = geo->getNormalsArray();
             mapping = geo->getTextureCoordsArray();
             indices_offsets = geo->getIndicesOffsets();
@@ -492,19 +494,43 @@ namespace ZookieWizard
             if (nullptr != vertices)
             {
                 array_length[0] = vertices->getLength();
-                array_data4 = vertices->getData();
+                array_data4[0] = vertices->getData();
+
+                if (nullptr != colors)
+                {
+                    if (colors->getLength() == array_length[0])
+                    {
+                        array_data4[1] = colors->getData();
+                    }
+                }
 
                 for (a = 0; a < array_length[0]; a++)
                 {
-                    dummy_vertex = parent_matrix * array_data4[a];
+                    dummy_vertex = parent_matrix * array_data4[0][a];
 
-                    sprintf_s
-                    (
-                        bufor, 128, "v %f %f %f",
-                        dummy_vertex.x,
-                        dummy_vertex.z,
-                        (- dummy_vertex.y)
-                    );
+                    if (nullptr != array_data4[1])
+                    {
+                        sprintf_s
+                        (
+                            bufor, 128, "v %f %f %f %f %f %f",
+                            dummy_vertex.x,
+                            dummy_vertex.z,
+                            (- dummy_vertex.y),
+                            array_data4[1][a].x,
+                            array_data4[1][a].y,
+                            array_data4[1][a].z
+                        );
+                    }
+                    else
+                    {
+                        sprintf_s
+                        (
+                            bufor, 128, "v %f %f %f",
+                            dummy_vertex.x,
+                            dummy_vertex.z,
+                            (- dummy_vertex.y)
+                        );
+                    }
 
                     myFiles[0] << bufor;
                     writeNewLine(0);
@@ -523,16 +549,16 @@ namespace ZookieWizard
             if (nullptr != normals)
             {
                 array_length[1] = normals->getLength();
-                array_data4 = normals->getData();
+                array_data4[0] = normals->getData();
 
                 for (a = 0; a < array_length[1]; a++)
                 {
                     sprintf_s
                     (
                         bufor, 128, "vn %f %f %f",
-                        array_data4[a].x,
-                        array_data4[a].z,
-                        (- array_data4[a].y)
+                        array_data4[0][a].x,
+                        array_data4[0][a].z,
+                        (- array_data4[0][a].y)
                     );
 
                     myFiles[0] << bufor;

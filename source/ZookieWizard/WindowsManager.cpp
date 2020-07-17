@@ -24,14 +24,12 @@ namespace ZookieWizard
         // STATIC FUNCTION: Switch pages
         ////////////////////////////////////////////////////////////////
 
-        void staticFuncSwitchPagesLeft(WPARAM wParam, LPARAM lParam, void* custom_param)
+        void staticFuncSwitchPages(WPARAM wParam, LPARAM lParam, void* custom_param)
         {
-            theWindowsManager.switchPage(-2);
-        }
-
-        void staticFuncSwitchPagesRight(WPARAM wParam, LPARAM lParam, void* custom_param)
-        {
-            theWindowsManager.switchPage(-1);
+            if (BN_CLICKED == HIWORD(wParam))
+            {
+                theWindowsManager.switchPage((int32_t)custom_param);
+            }
         }
 
 
@@ -803,6 +801,19 @@ namespace ZookieWizard
             returningPosX = currentPosX;
         }
 
+        void WindowsManager::getCurrentPosition(int32_t* x, int32_t* y)
+        {
+            if (nullptr != x)
+            {
+                (*x) = currentPosX;
+            }
+
+            if (nullptr != y)
+            {
+                (*y) = currentPosY;
+            }
+        }
+
         void WindowsManager::setCurrentPosition(int32_t x, int32_t y)
         {
             currentPosX = x;
@@ -1154,12 +1165,12 @@ namespace ZookieWizard
             setCurrentPosition(RECT_TABS_X1, RECT_TABS_Y1 - 8);
             setCurrentPadding(8, 0);
 
-            if (0 == addWindow("<<", 24, 20, staticFuncSwitchPagesLeft, 0, 0))
+            if (0 == addWindow("<<", 24, 20, staticFuncSwitchPages, (void*)(-2), 0))
             {
                 return false;
             }
 
-            if (0 == addWindow(">>", 24, 20, staticFuncSwitchPagesRight, 0, 0))
+            if (0 == addWindow(">>", 24, 20, staticFuncSwitchPages, (void*)(-1), 0))
             {
                 return false;
             }
@@ -1226,7 +1237,7 @@ namespace ZookieWizard
 
             const char* description[3] =
             {
-                "<< BUTTONS >\n" \
+                "<< BUTTONS >>\n" \
                   "(option 1): [RMB] or [A][D][S][W]\n" \
                   "(option 2): [LMB] or [A][D][Q][E]",
                 "<< MOVEMENT >>\n" \

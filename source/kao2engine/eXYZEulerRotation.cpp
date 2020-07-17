@@ -164,9 +164,34 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eXYZEulerRotation: set loop type
+    ////////////////////////////////////////////////////////////////
+    void eXYZEulerRotation::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
+    {
+        if (0 != param)
+        {
+            if (nullptr != xCtrl)
+            {
+                xCtrl->ctrlSetLoopType(anim_id, loop_type, 0x01);
+            }
+
+            if (nullptr != yCtrl)
+            {
+                yCtrl->ctrlSetLoopType(anim_id, loop_type, 0x01);
+            }
+
+            if (nullptr != zCtrl)
+            {
+                zCtrl->ctrlSetLoopType(anim_id, loop_type, 0x01);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eXYZEulerRotation: clear keyframes for specific animation
     ////////////////////////////////////////////////////////////////
-    void eXYZEulerRotation::ctrlClearKeyframes(int anim_id)
+    void eXYZEulerRotation::ctrlClearKeyframes(int32_t anim_id)
     {
         if (nullptr != xCtrl)
         {
@@ -188,7 +213,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXYZEulerRotation: update specific animation
     ////////////////////////////////////////////////////////////////
-    void eXYZEulerRotation::ctrlAddKeyframe(int anim_id, float new_time, eQuat &new_data, int param)
+    void eXYZEulerRotation::ctrlAddKeyframe(int32_t anim_id, float new_time, eQuat &new_data, int32_t param)
     {
         eLeafCtrl<float>* dummy_ctrl;
         float angles[3];

@@ -57,7 +57,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eMultiCtrl: animation function
-    // [[vptr]+0x28] Modify [scale/rotation/position] based on given "eAnimate"
+    // [[vptr]+0x24] Modify [scale/rotation/position] based on given "eAnimate"
     // <kao2.004A19C0>: "eMultiCtrl<eSRPCtrl>"
     // <kao2.004A1FC0>: "eMultiCtrl<eFloatCtrl>"
     ////////////////////////////////////////////////////////////////
@@ -156,7 +156,7 @@ namespace ZookieWizard
     // eMultiCtrl: clear keyframes for specific animation
     ////////////////////////////////////////////////////////////////
     template <typename T>
-    void eMultiCtrl<T>::ctrlClearKeyframes(int anim_id)
+    void eMultiCtrl<T>::ctrlClearKeyframes(int32_t anim_id)
     {
         eCtrl<T>* controller = (eCtrl<T>*)controllers.getIthChild(anim_id);
 
@@ -168,10 +168,25 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eMultiCtrl: set loop type
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eMultiCtrl<T>::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
+    {
+        eCtrl<T>* controller = (eCtrl<T>*)controllers.getIthChild(anim_id);
+
+        if (nullptr != controller)
+        {
+            controller->ctrlSetLoopType(anim_id, loop_type, param);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eMultiCtrl: update specific animation
     ////////////////////////////////////////////////////////////////
     template <typename T>
-    void eMultiCtrl<T>::ctrlAddKeyframe(int anim_id, float new_time, T &new_data, int param)
+    void eMultiCtrl<T>::ctrlAddKeyframe(int32_t anim_id, float new_time, T &new_data, int32_t param)
     {
         if (0 != param)
         {

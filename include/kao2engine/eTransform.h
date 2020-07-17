@@ -59,8 +59,9 @@ namespace ZookieWizard
             void ctrlSetStaticRotation(eQuat new_value);
             void ctrlSetStaticPosition(ePoint3 new_value);
 
-            void ctrlClearKeyframes(int anim_id);
-            void ctrlAddKeyframe(int anim_id, float new_time, eSRP new_data, int param);
+            void ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param);
+            void ctrlClearKeyframes(int32_t anim_id);
+            void ctrlAddKeyframe(int32_t anim_id, float new_time, eSRP new_data, int32_t param);
 
         protected:
 

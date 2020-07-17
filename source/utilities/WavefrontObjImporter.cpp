@@ -809,8 +809,15 @@ namespace ZookieWizard
                             keywords[1] += keywords[i];
                         }
 
-                        dummy_bitmap->setPath(keywords[1]);
-                        dummy_bitmap->loadFromFile(workingDirectory, false);
+                        try
+                        {
+                            dummy_bitmap->setPath(keywords[1]);
+                            dummy_bitmap->loadFromFile(workingDirectory, false);
+                        }
+                        catch (ErrorMessage &err)
+                        {
+                            err.display();
+                        }
 
                         dummy_obj_mtl.material->appendTexture(dummy_texture);
 

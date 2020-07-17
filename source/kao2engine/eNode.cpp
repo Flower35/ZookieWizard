@@ -490,7 +490,7 @@ namespace ZookieWizard
     // eNode: editing the Alpha channel Controller
     ////////////////////////////////////////////////////////////////
 
-    void eNode::visCtrlClear(int anim_id)
+    void eNode::visCtrlClear(int32_t anim_id)
     {
         if (nullptr != visCtrl)
         {
@@ -517,7 +517,15 @@ namespace ZookieWizard
         visCtrl->ctrlSetStaticKeyframe(opacity, 0x01);
     }
 
-    void eNode::visCtrlAddKeyframe(int anim_id, float time, float opacity)
+    void eNode::visCtrlSetLoopType(int32_t anim_id, int32_t loop_type)
+    {
+        if (nullptr != visCtrl)
+        {
+            visCtrl->ctrlSetLoopType(anim_id, loop_type, 0x01);
+        }
+    }
+
+    void eNode::visCtrlAddKeyframe(int32_t anim_id, float time, float opacity)
     {
         eMultiCtrl<float>* multi_ctrl;
 

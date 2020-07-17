@@ -583,7 +583,15 @@ namespace ZookieWizard
         ctrl->ctrlSetStaticKeyframe(dummy_srp, (0x01 << 2));
     }
 
-    void eTransform::ctrlClearKeyframes(int anim_id)
+    void eTransform::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
+    {
+        if (nullptr != ctrl)
+        {
+            ctrl->ctrlSetLoopType(anim_id, loop_type, param);
+        }
+    }
+
+    void eTransform::ctrlClearKeyframes(int32_t anim_id)
     {
         if (nullptr != ctrl)
         {
@@ -599,7 +607,7 @@ namespace ZookieWizard
         }
     }
 
-    void eTransform::ctrlAddKeyframe(int anim_id, float new_time, eSRP new_data, int param)
+    void eTransform::ctrlAddKeyframe(int32_t anim_id, float new_time, eSRP new_data, int32_t param)
     {
         eMultiCtrl<eSRP>* multi_ctrl;
 

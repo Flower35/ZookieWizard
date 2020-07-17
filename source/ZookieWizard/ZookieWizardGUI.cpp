@@ -17,6 +17,17 @@ namespace ZookieWizard
 
         static bool updatingNodeName = false;
 
+        static const int32_t nodesList_ButtonsCount = 16;
+        static const int32_t nodesList_ActionsCount = 5;
+        int32_t nodesList_CurrentAction;
+        static HWND nodesList_Windows[1 + nodesList_ButtonsCount];
+        static uint8_t nodesList_ActionIds[nodesList_ButtonsCount];
+
+        static const char* nodesList_ActionNames[nodesList_ActionsCount] =
+        {
+            "Browsing the Archive", "Moving Nodes", "Deleting Nodes", "Modifying 3D meshes", "Parsing instructions"
+        };
+
 
         ////////////////////////////////////////////////////////////////
         // List of static functions
@@ -143,6 +154,53 @@ namespace ZookieWizard
                 }
 
                 myARs[0].changeSelectedObject(a, (void*)b);
+            }
+        }
+
+        void func_NodesListSwitchPage(int32_t direction)
+        {
+            char bufor[32];
+
+            if (direction < 0)
+            {
+                nodesList_CurrentAction--;
+            }
+            else if (direction > 0)
+            {
+                nodesList_CurrentAction++;
+            }
+
+            if (nodesList_CurrentAction < 0)
+            {
+                nodesList_CurrentAction = 0;
+            }
+            else if (nodesList_CurrentAction >= nodesList_ActionsCount)
+            {
+                nodesList_CurrentAction = nodesList_ActionsCount - 1;
+            }
+
+            for (int32_t i = 0; i < nodesList_ButtonsCount; i++)
+            {
+                bool show_button = (nodesList_CurrentAction == nodesList_ActionIds[i]);
+
+                ShowWindow(nodesList_Windows[1 + i], show_button ? SW_SHOW : SW_HIDE);
+            }
+
+            sprintf_s(bufor, 32, "Actions: %s", nodesList_ActionNames[nodesList_CurrentAction]);
+
+            SetWindowText(nodesList_Windows[0], bufor);
+        }
+
+        void menuFunc_NodesListEnter()
+        {
+            func_NodesListSwitchPage(0);
+        }
+
+        void buttonFunc_NodesListSwitchPage(WPARAM wParam, LPARAM lParam, void* custom_param)
+        {
+            if (BN_CLICKED == HIWORD(wParam))
+            {
+                func_NodesListSwitchPage((int32_t)custom_param);
             }
         }
 
@@ -442,7 +500,7 @@ namespace ZookieWizard
         ////////////////////////////////////////////////////////////////
         bool createWindows(HINSTANCE hInstance)
         {
-            int32_t a, b;
+            int32_t a, b, x, y;
             char bufor[64];
             HMENU menu_bar, test_menu;
             HWND main_window, scroll_window, listbox_window;
@@ -589,7 +647,7 @@ namespace ZookieWizard
                 return false;
             }
 
-            theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
+            theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
 
             /********************************/
             /* [PAGE 0] (8) Create button */
@@ -641,7 +699,7 @@ namespace ZookieWizard
                 return false;
             }
 
-            theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
+            theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
 
             /********************************/
             /* [PAGE 0] (12) Create dummy label */
@@ -718,7 +776,7 @@ namespace ZookieWizard
                 return false;
             }
 
-            theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
+            theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
 
             /********************************/
             /* [PAGE 0] (18) Create dummy label */
@@ -814,7 +872,7 @@ namespace ZookieWizard
             /********************************/
             /* [PAGE 2] */
 
-            theWindowsManager.addPage("Nodes list", nullptr, nullptr);
+            theWindowsManager.addPage("Nodes list", menuFunc_NodesListEnter, nullptr);
 
             theWindowsManager.setCurrentPosition(RECT_TABS_X1, TOP_OFFSET);
 
@@ -824,86 +882,174 @@ namespace ZookieWizard
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
-            if (0 == theWindowsManager.addWindow("(no archive loaded yet)", RECT_TABS_X2, (3 * WINDOW_HEIGHT), nullptr, nullptr, 0x01))
+            if (0 == theWindowsManager.addWindow("( no archive loaded yet\n or the parent item is not a node )", RECT_TABS_X2, (4 * WINDOW_HEIGHT), nullptr, nullptr, 0x01))
             {
                 return false;
             }
 
             /********************************/
-            /* [PAGE 2] (1 – 12) Create buttons */
+            /* [PAGE 2] (1) Create line decoration */
+
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), 0);
+
+            if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
+
+            /********************************/
+            /* [PAGE 2] (2 – 4) Create action switching buttons */
+
+            nodesList_CurrentAction = 0;
+
+            theWindowsManager.setCurrentClassName("BUTTON");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON);
+
+            theWindowsManager.setCurrentPadding(WINDOW_PADDING_SMALL, WINDOW_PADDING_SMALL);
+
+            if (0 == theWindowsManager.addWindow("<<", 24, 20, buttonFunc_NodesListSwitchPage, (void*)(-1), 0))
+            {
+                return false;
+            }
+
+            if (0 == theWindowsManager.addWindow(">>", 24, 20, buttonFunc_NodesListSwitchPage, (void*)(1), 0))
+            {
+                return false;
+            }
+
+            theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD);
+
+            if (0 == (nodesList_Windows[0] = theWindowsManager.addWindow("", (RECT_TABS_X2 - 2 * (24 + WINDOW_PADDING_SMALL)), WINDOW_HEIGHT, nullptr, nullptr, 0x01)))
+            {
+                return false;
+            }
+
+            theWindowsManager.getCurrentPosition(&x, &y);
+
+            /********************************/
+            /* [PAGE 2] (5 – 20) Create buttons */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON | BS_MULTILINE);
 
-            theWindowsManager.setCurrentPadding(WINDOW_PADDING_SMALL, WINDOW_PADDING_SMALL);
-
             a = (RECT_TABS_X2 / 2) - (WINDOW_PADDING / 2);
 
-            if (0 == theWindowsManager.addWindow("^ Back to the\nArchive Root", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_ROOT, 0))
+            theWindowsManager.setCurrentPosition(x, y);
+            nodesList_ActionIds[0] = 0;
+            nodesList_ActionIds[1] = 0;
+            nodesList_ActionIds[2] = 0;
+
+            if (0 == (nodesList_Windows[1 + 0] = theWindowsManager.addWindow("^ Back to the\nArchive Root", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_ROOT, 0)))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("^ Back to the\nParent Node", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_PARENT, 0x01))
+            if (0 == (nodesList_Windows[1 + 1] = theWindowsManager.addWindow("^ Back to the\nParent Node", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_PARENT, 0x01)))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Center the Camera on the Current Node", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_CENTER_CAMERA, 0))
+            if (0 == (nodesList_Windows[1 + 2] = theWindowsManager.addWindow("Center the Camera on the Current Node", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_CENTER_CAMERA, 0)))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Delete Current Node", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE_CURRENT, 0x01))
+            theWindowsManager.setCurrentPosition(x, y);
+            nodesList_ActionIds[3] = 1;
+            nodesList_ActionIds[4] = 1;
+            nodesList_ActionIds[5] = 1;
+            nodesList_ActionIds[6] = 1;
+
+            if (0 == (nodesList_Windows[1 + 3] = theWindowsManager.addWindow("Move Higlighted Node UP", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_UP, 0)))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Delete All Children from the Current Group", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE_CHILDREN, 0))
+            if (0 == (nodesList_Windows[1 + 4] = theWindowsManager.addWindow("Move Higlighted Node DOWN", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_DOWN, 0x01)))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Delete\nSelected Node\n(from the list)", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE_SELECTED, 0x01))
+            if (0 == (nodesList_Windows[1 + 5] = theWindowsManager.addWindow("Highlighted Node\nOUTSIDE the Current Group", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_OUT, 0)))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Export 3D Meshes to Wavefront OBJ", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)0, 0))
+            if (0 == (nodesList_Windows[1 + 6] = theWindowsManager.addWindow("Highlighted Node\nINTO the Group entry ontop", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_IN, 0x01)))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Import 3D Meshes from Wavefront OBJ", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)1, 0x01))
+            theWindowsManager.setCurrentPosition(x, y);
+            nodesList_ActionIds[7] = 2;
+            nodesList_ActionIds[8] = 2;
+            nodesList_ActionIds[9] = 2;
+
+            if (0 == (nodesList_Windows[1 + 7] = theWindowsManager.addWindow("Delete Current Node", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE_CURRENT, 0x01)))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Rebuild Collision Data", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0))
+            if (0 == (nodesList_Windows[1 + 8] = theWindowsManager.addWindow("Delete All Children from the Current Group", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE_CHILDREN, 0)))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Clear Collision Data", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01))
+            if (0 == (nodesList_Windows[1 + 9] = theWindowsManager.addWindow("Delete\nHighlighted Node\n(from the list)", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE_SELECTED, 0x01)))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Import Nodes from a TXT file", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)2, 0))
+            theWindowsManager.setCurrentPosition(x, y);
+            nodesList_ActionIds[10] = 3;
+            nodesList_ActionIds[11] = 3;
+            nodesList_ActionIds[12] = 3;
+            nodesList_ActionIds[13] = 3;
+
+            if (0 == (nodesList_Windows[1 + 10] = theWindowsManager.addWindow("Export 3D Meshes to Wavefront OBJ", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)0, 0)))
             {
                 return false;
             }
 
-            if (0 == theWindowsManager.addWindow("Change Nodes with a TXT file", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)3, 0x01))
+            if (0 == (nodesList_Windows[1 + 11] = theWindowsManager.addWindow("Import 3D Meshes from Wavefront OBJ", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)1, 0x01)))
             {
                 return false;
             }
 
+            if (0 == (nodesList_Windows[1 + 12] = theWindowsManager.addWindow("Rebuild Collision Data", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0)))
+            {
+                return false;
+            }
+
+            if (0 == (nodesList_Windows[1 + 13] = theWindowsManager.addWindow("Clear Collision Data", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01)))
+            {
+                return false;
+            }
+
+            theWindowsManager.setCurrentPosition(x, y);
+            nodesList_ActionIds[14] = 4;
+            nodesList_ActionIds[15] = 4;
+
+            if (0 == (nodesList_Windows[1 + 14] = theWindowsManager.addWindow("Import Nodes from a TXT file", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)2, 0)))
+            {
+                return false;
+            }
+
+            if (0 == (nodesList_Windows[1 + 15] = theWindowsManager.addWindow("Change Nodes with a TXT file", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)3, 0x01)))
+            {
+                return false;
+            }
+
+            theWindowsManager.setCurrentPosition(x, (y + 2 * (NODES_BUTTON_HEIGHT + WINDOW_PADDING_SMALL)));
             theWindowsManager.setCurrentPadding(0, 0);
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING_SMALL);
 
             /********************************/
-            /* [PAGE 2] (13) Create listbox */
+            /* [PAGE 2] (21) Create listbox */
 
             theWindowsManager.setCurrentClassName("LISTBOX");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_HSCROLL | WS_VSCROLL | LBS_DISABLENOSCROLL | LBS_HASSTRINGS | LBS_NOTIFY);

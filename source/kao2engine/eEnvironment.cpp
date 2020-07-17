@@ -100,11 +100,17 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eEnvironment: add lighting source
+    // eEnvironment: add or remove a lighting source
     ////////////////////////////////////////////////////////////////
+
     void eEnvironment::addLighting(eLight* new_light)
     {
         lights.appendChild(new_light);
+    }
+
+    void eEnvironment::removeLighting(eLight* selected_light)
+    {
+        lights.findAndDeleteChild(selected_light);
     }
 
 

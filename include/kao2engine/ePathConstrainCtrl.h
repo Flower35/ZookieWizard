@@ -37,8 +37,9 @@ namespace ZookieWizard
 
             void ctrlSetStaticKeyframe(ePoint3 &new_value, int32_t param) override;
 
-            void ctrlClearKeyframes(int anim_id) override;
-            void ctrlAddKeyframe(int anim_id, float new_time, ePoint3 &new_data, int param) override;
+            void ctrlClearKeyframes(int32_t anim_id) override;
+            void ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param) override;
+            void ctrlAddKeyframe(int32_t anim_id, float new_time, ePoint3 &new_data, int32_t param) override;
     };
 
 

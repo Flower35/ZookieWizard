@@ -490,8 +490,6 @@ namespace ZookieWizard
             w + quaternion.w
         );
 
-        result.normalize();
-
         return result;
     }
 
@@ -504,8 +502,6 @@ namespace ZookieWizard
             z - quaternion.z,
             w - quaternion.w
         );
-
-        result.normalize();
 
         return result;
     }

@@ -96,6 +96,7 @@ namespace ZookieWizard
                 void setCurrentStyleFlags(DWORD style);
                 void setCurrentPadding(int32_t x, int32_t y);
                 void updateReturningPosition();
+                void getCurrentPosition(int32_t* x, int32_t* y);
                 void setCurrentPosition(int32_t x, int32_t y);
                 void offsetCurrentPosition(int32_t x, int32_t y);
 

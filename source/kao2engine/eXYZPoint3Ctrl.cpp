@@ -150,9 +150,34 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eXYZPoint3Ctrl: set loop type
+    ////////////////////////////////////////////////////////////////
+    void eXYZPoint3Ctrl::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
+    {
+        if (0 != param)
+        {
+            if (nullptr != xCtrl)
+            {
+                xCtrl->ctrlSetLoopType(anim_id, loop_type, 0x01);
+            }
+
+            if (nullptr != yCtrl)
+            {
+                yCtrl->ctrlSetLoopType(anim_id, loop_type, 0x01);
+            }
+
+            if (nullptr != zCtrl)
+            {
+                zCtrl->ctrlSetLoopType(anim_id, loop_type, 0x01);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eXYZPoint3Ctrl: clear keyframes for specific animation
     ////////////////////////////////////////////////////////////////
-    void eXYZPoint3Ctrl::ctrlClearKeyframes(int anim_id)
+    void eXYZPoint3Ctrl::ctrlClearKeyframes(int32_t anim_id)
     {
         if (nullptr != xCtrl)
         {
@@ -174,7 +199,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXYZPoint3Ctrl: update specific animation
     ////////////////////////////////////////////////////////////////
-    void eXYZPoint3Ctrl::ctrlAddKeyframe(int anim_id, float new_time, ePoint3 &new_data, int param)
+    void eXYZPoint3Ctrl::ctrlAddKeyframe(int32_t anim_id, float new_time, ePoint3 &new_data, int32_t param)
     {
         eLeafCtrl<float>* dummy_ctrl;
 
