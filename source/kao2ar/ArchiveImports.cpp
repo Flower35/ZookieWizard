@@ -124,8 +124,7 @@ namespace ZookieWizard
         bool file_is_valid;
         bool line_is_valid;
         FileOperator text_file;
-        eGroup* dummy_group[2];
-        eEnvironment* dummy_env;
+        eGroup* current_group[2];
         eSRP dummy_srp;
         int32_t dummy_count;
 
@@ -137,11 +136,13 @@ namespace ZookieWizard
         /********************************/
         /* Prepare some definitions */
 
-        const int NUMBER_OF_CLASSES = 9;
+        const int NUMBER_OF_CLASSES = 11;
 
         int current_object = (-1);
 
+        eGroup* dummy_group = nullptr;
         eTransform* dummy_xform = nullptr;
+        eEnvironment* dummy_env = nullptr;
         eBoxZone* dummy_boxzone = nullptr;
         eBillboard* dummy_billboard = nullptr;
         eNaviPoint* dummy_navi = nullptr;
@@ -155,7 +156,9 @@ namespace ZookieWizard
 
         const char* class_names[NUMBER_OF_CLASSES] =
         {
+            "<eGroup>",
             "<eTransform>",
+            "<eEnvironment>",
             "<eBoxZone>",
             "<eBillboard>",
             "<eNaviPoint>",
@@ -166,19 +169,23 @@ namespace ZookieWizard
             "<eNPCMap>"
         };
 
-        const int PARSER_OBJECT_ID_TRANSFORM = 0;
-        const int PARSER_OBJECT_ID_BOXZONE = 1;
-        const int PARSER_OBJECT_ID_BILLBOARD = 2;
-        const int PARSER_OBJECT_ID_NAVIPOINT = 3;
-        const int PARSER_OBJECT_ID_PROXY = 4;
-        const int PARSER_OBJECT_ID_CAMERA = 5;
-        const int PARSER_OBJECT_ID_DIRLIGHT = 6;
-        const int PARSER_OBJECT_ID_OMNILIGHT = 7;
-        const int PARSER_OBJECT_ID_NPCMAP = 8;
+        const int PARSER_OBJECT_ID_GROUP = 0;
+        const int PARSER_OBJECT_ID_TRANSFORM = 1;
+        const int PARSER_OBJECT_ID_ENVIRONMENT = 2;
+        const int PARSER_OBJECT_ID_BOXZONE = 3;
+        const int PARSER_OBJECT_ID_BILLBOARD = 4;
+        const int PARSER_OBJECT_ID_NAVIPOINT = 5;
+        const int PARSER_OBJECT_ID_PROXY = 6;
+        const int PARSER_OBJECT_ID_CAMERA = 7;
+        const int PARSER_OBJECT_ID_DIRLIGHT = 8;
+        const int PARSER_OBJECT_ID_OMNILIGHT = 9;
+        const int PARSER_OBJECT_ID_NPCMAP = 10;
 
         eNode** class_pointers[NUMBER_OF_CLASSES] =
         {
+            (eNode**)&dummy_group,
             (eNode**)&dummy_xform,
+            (eNode**)&dummy_env,
             (eNode**)&dummy_boxzone,
             (eNode**)&dummy_billboard,
             (eNode**)&dummy_navi,
@@ -229,7 +236,9 @@ namespace ZookieWizard
 
         const bool properties_of_classes[NUMBER_OF_CLASSES][NUMBER_OF_PROPERTIES] =
         {
+            {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // eGroup
             {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // eTransform
+            {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // eEnvironment
             {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0}, // eBoxZone
             {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // eBillbord
             {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // eNaviPoint
@@ -264,7 +273,7 @@ namespace ZookieWizard
                 );
             }
 
-            dummy_group[0] = (eGroup*)selectedObject;
+            current_group[0] = (eGroup*)selectedObject;
 
             if (!text_file.open(filename, FILE_OPERATOR_MODE_READ))
             {
@@ -332,8 +341,6 @@ namespace ZookieWizard
                 {
                     if (found_any_property)
                     {
-
-
                         switch (current_object)
                         {
                             case PARSER_OBJECT_ID_TRANSFORM:
@@ -397,7 +404,7 @@ namespace ZookieWizard
 
                                 if (dummy_light != nullptr)
                                 {
-                                    dummy_env = (eEnvironment*)dummy_group[1];
+                                    dummy_env = (eEnvironment*)current_group[1];
 
                                     while ((nullptr != dummy_env) && (dummy_env->getType() != &E_ENVIRONMENT_TYPEINFO))
                                     {
@@ -421,7 +428,7 @@ namespace ZookieWizard
                             }
                         }
 
-                        dummy_group[1]->appendChild(*(class_pointers[current_object]));
+                        current_group[1]->appendChild(*(class_pointers[current_object]));
 
                         result++;
                     }
@@ -438,7 +445,7 @@ namespace ZookieWizard
                 {
                     /* Rest parser settings */
 
-                    dummy_group[1] = dummy_group[0];
+                    current_group[1] = current_group[0];
 
                     found_any_property = false;
 
@@ -459,9 +466,23 @@ namespace ZookieWizard
 
                     switch (parser_state)
                     {
+                        case PARSER_OBJECT_ID_GROUP:
+                        {
+                            dummy_group = new eGroup();
+
+                            break;
+                        }
+
                         case PARSER_OBJECT_ID_TRANSFORM:
                         {
                             dummy_xform = new eTransform();
+
+                            break;
+                        }
+
+                        case PARSER_OBJECT_ID_ENVIRONMENT:
+                        {
+                            dummy_env = new eEnvironment("#dummy_env");
 
                             break;
                         }
@@ -620,10 +641,10 @@ namespace ZookieWizard
                     {
                         case PARSER_PROPERTY_ID_PARENT:
                         {
-                            dummy_group[1] = (eGroup*)noderef_linker.findLink
+                            current_group[1] = (eGroup*)noderef_linker.findLink
                             (
                                 ArFunctions::getCurrentScene(),
-                                dummy_group[0],
+                                current_group[0],
                                 "Parent",
                                 keywords[2],
                                 &E_GROUP_TYPEINFO
@@ -681,7 +702,7 @@ namespace ZookieWizard
                                     dummy_xform = (eTransform*)noderef_linker.findLink
                                     (
                                         ArFunctions::getCurrentScene(),
-                                        dummy_group[1],
+                                        current_group[1],
                                         "Target",
                                         keywords[2],
                                         &E_TRANSFORM_TYPEINFO
@@ -860,12 +881,13 @@ namespace ZookieWizard
         const int MESSAGES_MAX_PARAMS = 10;
         eString message_params[MESSAGES_MAX_PARAMS];
 
-        eGroup* dummy_group;
+        eGroup* current_group;
         eSRP dummy_srp;
 
         eNode* dummy_node = nullptr;
         eTransform* dummy_xform = nullptr;
         ePivot* dummy_pivot = nullptr;
+        eLight* dummy_light = nullptr;
         eEnvironment* dummy_env = nullptr;
         eZone* dummy_zone = nullptr;
         eActionBase dummy_zone_action;
@@ -892,7 +914,7 @@ namespace ZookieWizard
         const int PARSER_KEYWORD_ID_NODE = 0;
         const int PARSER_KEYWORD_ID_SEND = 1;
 
-        const int NUMBER_OF_MESSAGES = 25;
+        const int NUMBER_OF_MESSAGES = 29;
 
         const char* messages_strings[NUMBER_OF_MESSAGES] =
         {
@@ -911,6 +933,10 @@ namespace ZookieWizard
             "ctrlAddKeyframe",
             "animAddTrack",
             "animRemoveTrack",
+            "setDiffuseColor",
+            "setAmbientColor",
+            "setSpecularColor",
+            "clearLighting",
             "addLighting",
             "removeLighting",
             "setFogColor",
@@ -938,16 +964,20 @@ namespace ZookieWizard
         const int PARSER_MESSAGE_ID_CTRLADDKEYFRAME = 12;
         const int PARSER_MESSAGE_ID_ANIMADDTRACK = 13;
         const int PARSER_MESSAGE_ID_ANIMREMOVETRACK = 14;
-        const int PARSER_MESSAGE_ID_ADDLIGHTING = 15;
-        const int PARSER_MESSAGE_ID_REMOVELIGHTING = 16;
-        const int PARSER_MESSAGE_ID_SETFOGCOLOR = 17;
-        const int PARSER_MESSAGE_ID_SETFOGCSTART = 18;
-        const int PARSER_MESSAGE_ID_SETFOGEND = 19;
-        const int PARSER_MESSAGE_ID_SETFOGMAX = 20;
-        const int PARSER_MESSAGE_ID_CLEARENTERACTIONS = 21;
-        const int PARSER_MESSAGE_ID_CLEARLEAVEACTIONS = 22;
-        const int PARSER_MESSAGE_ID_ADDENTERACTION = 23;
-        const int PARSER_MESSAGE_ID_ADDLEAVEACTION = 24;
+        const int PARSER_MESSAGE_ID_SETAMBIENTCOLOR = 15;
+        const int PARSER_MESSAGE_ID_SETDIFFUSECOLOR = 16;
+        const int PARSER_MESSAGE_ID_SETSPECULARCOLOR = 17;
+        const int PARSER_MESSAGE_ID_CLEARLIGHTING = 18;
+        const int PARSER_MESSAGE_ID_ADDLIGHTING = 19;
+        const int PARSER_MESSAGE_ID_REMOVELIGHTING = 20;
+        const int PARSER_MESSAGE_ID_SETFOGCOLOR = 21;
+        const int PARSER_MESSAGE_ID_SETFOGCSTART = 22;
+        const int PARSER_MESSAGE_ID_SETFOGEND = 23;
+        const int PARSER_MESSAGE_ID_SETFOGMAX = 24;
+        const int PARSER_MESSAGE_ID_CLEARENTERACTIONS = 25;
+        const int PARSER_MESSAGE_ID_CLEARLEAVEACTIONS = 26;
+        const int PARSER_MESSAGE_ID_ADDENTERACTION = 27;
+        const int PARSER_MESSAGE_ID_ADDLEAVEACTION = 28;
 
         TypeInfo* messages_object_types[NUMBER_OF_MESSAGES] =
         {
@@ -966,6 +996,10 @@ namespace ZookieWizard
             &E_TRANSFORM_TYPEINFO, // `ctrlAddKeyframe()`
             &E_PIVOT_TYPEINFO, // `animAddTrack()`
             &E_PIVOT_TYPEINFO, // `animRemoveTrack()`
+            &E_LIGHT_TYPEINFO, // `setAmbientColor()`
+            &E_LIGHT_TYPEINFO, // `setDiffuseColor()`
+            &E_LIGHT_TYPEINFO, // `setSpecularColor()`
+            &E_ENVIRONMENT_TYPEINFO, // `clearLighting()`
             &E_ENVIRONMENT_TYPEINFO, // `addLighting()`
             &E_ENVIRONMENT_TYPEINFO, // `removeLighting()`
             &E_ENVIRONMENT_TYPEINFO, // `setFogColor()`
@@ -995,6 +1029,10 @@ namespace ZookieWizard
             10, // `ctrlAddKeyframe()`
             3,  // `animAddTrack()`
             1,  // `animRemoveTrack()`
+            3,  // `setAmbientColor()`
+            3,  // `setDiffuseColor()`
+            3,  // `setSpecularColor()`
+            0,  // `clearLighting()`
             1,  // `addLighting()`
             1,  // `removeLighting()`
             3,  // `setFogColor()`
@@ -1021,7 +1059,7 @@ namespace ZookieWizard
                 );
             }
 
-            dummy_group = (eGroup*)selectedObject;
+            current_group = (eGroup*)selectedObject;
 
             if (false == text_file.open(filename, FILE_OPERATOR_MODE_READ))
             {
@@ -1297,7 +1335,7 @@ namespace ZookieWizard
                                         noderefs_pointers[noderefs_count] = noderef_linker.findLink
                                         (
                                             ArFunctions::getCurrentScene(),
-                                            dummy_group,
+                                            current_group,
                                             noderefs_names[noderefs_count],
                                             strings[1],
                                             noderefs_types[noderefs_count]
@@ -1559,6 +1597,16 @@ namespace ZookieWizard
                                             break;
                                         }
 
+                                        case PARSER_MESSAGE_ID_SETAMBIENTCOLOR:
+                                        case PARSER_MESSAGE_ID_SETDIFFUSECOLOR:
+                                        case PARSER_MESSAGE_ID_SETSPECULARCOLOR:
+                                        {
+                                            dummy_light = (eLight*)noderefs_pointers[noderef_send_id];
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_CLEARLIGHTING:
                                         case PARSER_MESSAGE_ID_ADDLIGHTING:
                                         case PARSER_MESSAGE_ID_REMOVELIGHTING:
                                         case PARSER_MESSAGE_ID_SETFOGCOLOR:
@@ -1632,7 +1680,7 @@ namespace ZookieWizard
                                             f[1] = (float)std::atof(message_params[1].getText());
                                             f[2] = (float)std::atof(message_params[2].getText());
 
-                                            dummy_srp = dummy_xform->getXForm(true, false);
+                                            dummy_srp = dummy_xform->getXForm(false);
                                             dummy_srp.pos = ePoint3(f[0], f[1], f[2]);
                                             dummy_xform->setXForm(dummy_srp);
 
@@ -1645,7 +1693,7 @@ namespace ZookieWizard
                                             f[1] = (float)std::atof(message_params[1].getText()) / 180.0f * (float)M_PI;
                                             f[2] = (float)std::atof(message_params[2].getText()) / 180.0f * (float)M_PI;
 
-                                            dummy_srp = dummy_xform->getXForm(true, false);
+                                            dummy_srp = dummy_xform->getXForm(false);
                                             dummy_srp.rot.fromEulerAngles(true, f[0], f[1], f[2]);
                                             dummy_xform->setXForm(dummy_srp);
 
@@ -1656,7 +1704,7 @@ namespace ZookieWizard
                                         {
                                             f[0] = (float)std::atof(message_params[0].getText());
 
-                                            dummy_srp = dummy_xform->getXForm(true, false);
+                                            dummy_srp = dummy_xform->getXForm(false);
                                             dummy_srp.scale = f[0];
                                             dummy_xform->setXForm(dummy_srp);
 
@@ -1795,6 +1843,46 @@ namespace ZookieWizard
                                             }
 
                                             dummy_pivot->animRemoveTrack(message_params[0]);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_SETAMBIENTCOLOR:
+                                        {
+                                            f[0] = (float)std::atof(message_params[0].getText());
+                                            f[1] = (float)std::atof(message_params[1].getText());
+                                            f[2] = (float)std::atof(message_params[2].getText());
+
+                                            dummy_light->setAmbientColor(f);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_SETDIFFUSECOLOR:
+                                        {
+                                            f[0] = (float)std::atof(message_params[0].getText());
+                                            f[1] = (float)std::atof(message_params[1].getText());
+                                            f[2] = (float)std::atof(message_params[2].getText());
+
+                                            dummy_light->setDiffuseColor(f);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_SETSPECULARCOLOR:
+                                        {
+                                            f[0] = (float)std::atof(message_params[0].getText());
+                                            f[1] = (float)std::atof(message_params[1].getText());
+                                            f[2] = (float)std::atof(message_params[2].getText());
+
+                                            dummy_light->setSpecularColor(f);
+
+                                            break;
+                                        }
+
+                                        case PARSER_MESSAGE_ID_CLEARLIGHTING:
+                                        {
+                                            dummy_env->clearLighting();
 
                                             break;
                                         }

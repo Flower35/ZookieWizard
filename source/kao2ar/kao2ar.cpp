@@ -624,7 +624,7 @@ namespace ZookieWizard
         gamma = (float)std::atan2(a, b);
     }
 
-    /* <kao2.004AB070> */
+    /* <kao2.00468090> */
     ePoint3 operator * (const ePoint3 &pos, const eQuat &rot)
     {
         ePoint3 result;

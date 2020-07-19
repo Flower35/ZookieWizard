@@ -5,6 +5,7 @@
 
 namespace ZookieWizard
 {
+    class eXRefProxy;
 
     ////////////////////////////////////////////////////////////////
     // eProxy interface
@@ -28,7 +29,7 @@ namespace ZookieWizard
             // 5 = "(geoproxy) [ar]"
             // 6 = "(object) [def]"
 
-            bool externalContent;
+            eXRefProxy* externalContentLink;
 
         /*** Methods ***/
 
@@ -39,6 +40,8 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            void findAndDereference(eNode* target) override;
 
             void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
 

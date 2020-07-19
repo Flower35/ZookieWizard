@@ -275,15 +275,21 @@ namespace ZookieWizard
 
                     test_trimesh->setVisCtrl(test_visctrl);
                     test_visctrl->decRef();
+
+                    /* ("DrawPass #2" + "???" + "Enabled" + "Visible") node flags */
+
+                    test_trimesh->setFlags(0x20000089);
+                }
+                else
+                {
+                    /* ("DrawPass #1" + "???" + "Enabled" + "Visible") node flags */
+
+                    test_trimesh->setFlags(0x10000089);
                 }
 
                 trimesh_name += materials_list[j]->getStringRepresentation();
 
                 test_trimesh->setMaterial(materials_list[j]);
-
-                /* Trying out different "eNode" flags combinations */
-
-                test_trimesh->setFlags(0x70000009); // 0x10000009
             }
             else
             {

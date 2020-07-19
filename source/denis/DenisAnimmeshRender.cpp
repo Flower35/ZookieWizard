@@ -319,8 +319,9 @@ namespace ZookieWizard
         test_geoset->incRef();
         test_trimesh->setGeoset(test_geoset);
 
-        /* Trying out different "eNode" flags combinations */
-        test_trimesh->setFlags(0x70000009); // 0x10000009
+        /* ("DrawPass #1" + "???" + "Enabled" + "Visible") node flags */
+
+        test_trimesh->setFlags(0x10000089);
 
         /********************************/
         /* Calculate total number of indices */

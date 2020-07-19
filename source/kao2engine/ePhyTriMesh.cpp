@@ -307,7 +307,7 @@ namespace ZookieWizard
 
             if (nullptr != test_transform)
             {
-                parent_matrix = test_transform->getXForm(true, true).getMatrix();
+                parent_matrix = test_transform->getXForm(true).getMatrix();
 
                 exporter.openTag("bind_shape_matrix");
 
@@ -648,7 +648,7 @@ namespace ZookieWizard
 
             if (nullptr != test_transform)
             {
-                parent_matrix = test_transform->getXForm(true, true).getInverseMatrix();
+                parent_matrix = test_transform->getXForm(true).getInverseMatrix();
             }
         }
 
@@ -658,7 +658,7 @@ namespace ZookieWizard
         {
             if (update)
             {
-                xform_matrix = bones[i].xform->getXForm(true, true).getMatrix();
+                xform_matrix = bones[i].xform->getXForm(true).getMatrix();
 
                 theBonesMatrices[i] = parent_matrix * (xform_matrix * bones[i].matrix);
             }

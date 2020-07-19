@@ -34,10 +34,13 @@ namespace ZookieWizard
     {
         category = 0;
 
-        externalContent = false;
+        externalContentLink = nullptr;
     }
 
-    eProxy::~eProxy() {}
+    eProxy::~eProxy()
+    {
+        externalContentLink = nullptr;
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -49,30 +52,50 @@ namespace ZookieWizard
         int32_t a, b;
         eNode* test_node;
 
-        if (externalContent && (false == ar.isInReadMode()))
+        if ((nullptr != externalContentLink) && (false == ar.isInReadMode()))
         {
-            /* Serialize "eNode" part, skip the last element in "eGroup", */
-            /* and then serialize "eTransform" part. */
+            /* Serialize the "eNode" part, skip a specific element in the "eGroup" */
+            /* that has the "eXRefProxy" type, and then serialize the "eTransform" part. */
 
             eNode::serialize(ar);
 
-            b = nodes.getSize() - 1;
+            /****************/
+
+            b = nodes.getSize();
+
+            for (a = 0; a < b; a++)
+            {
+                if (nodes.getIthChild(a) == externalContentLink)
+                {
+                    b--;
+                }
+            }
+
             ar.readOrWrite(&b, 0x04);
+
+            /****************/
+
+            b = nodes.getSize();
 
             for (a = 0; a < b; a++)
             {
                 test_node = (eNode*)nodes.getIthChild(a);
 
-                ar.serialize((eObject**)&test_node, &E_NODE_TYPEINFO);
+                if (test_node != externalContentLink)
+                {
+                    ar.serialize((eObject**)&test_node, &E_NODE_TYPEINFO);
+                }
             }
+
+            /****************/
 
             if (ar.isInWriteMode())
             {
                 deserializationCorrection();
             }
 
-            defaultTransform[0].serialize(ar);
-            defaultTransform[1].serialize(ar);
+            defaultTransform.serialize(ar);
+            worldTransform.serialize(ar);
 
             ar.serialize((eObject**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
         }
@@ -98,7 +121,7 @@ namespace ZookieWizard
         /********************************/
         /* Saving external models... */
 
-        if (externalContent && ar.isInExportProxiesMode())
+        if (ar.isInExportProxiesMode())
         {
             exportXRef(ar);
         }
@@ -110,17 +133,15 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eProxy::destroyNode()
     {
+        int32_t a, b = nodes.getSize();
         eXRefTarget* test_xref_taget;
-        eXRefProxy* test_xref_proxy;
         eNode* nested_scene;
 
-        test_xref_proxy = (eXRefProxy*)nodes.getIthChild(nodes.getSize() - 1);
-
-        if (nullptr != test_xref_proxy)
+        for (a = 0; a < b; a++)
         {
-            if (test_xref_proxy->getType()->checkHierarchy(&E_XREFPROXY_TYPEINFO))
+            if (nodes.getIthChild(a) == externalContentLink)
             {
-                test_xref_taget = test_xref_proxy->getXRefTarget();
+                test_xref_taget = externalContentLink->getXRefTarget();
 
                 if (nullptr != test_xref_taget)
                 {
@@ -131,10 +152,26 @@ namespace ZookieWizard
                         nested_scene->destroyNode();
                     }
                 }
+
+                a = b;
             }
         }
 
         eTransform::destroyNode();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eProxy: find reference to some node when deleting it
+    ////////////////////////////////////////////////////////////////
+    void eProxy::findAndDereference(eNode* target)
+    {
+        if (target == externalContentLink)
+        {
+            externalContentLink = nullptr;
+        }
+
+        eGroup::findAndDereference(target);
     }
 
 
@@ -165,7 +202,7 @@ namespace ZookieWizard
 
         /* Is this "eProxy" NOT already loaded? */
 
-        if ((0 == (0x00010000 & flags)) && (nodes.getSize() <= 0))
+        if ((0 == (0x00010000 & flags)) && (nullptr == externalContentLink))
         {
             test_xref_taget = new eXRefTarget;
             test_xref_taget->incRef();
@@ -176,10 +213,9 @@ namespace ZookieWizard
                 test_xref_proxy->incRef();
 
                 nodes.appendChild(test_xref_proxy);
+                externalContentLink = test_xref_proxy;
 
                 test_xref_proxy->decRef();
-
-                externalContent = true;
             }
 
             test_xref_taget->decRef();
@@ -192,7 +228,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eProxy::exportXRef(Archive &ar)
     {
-        int32_t ar_flags;
+        int32_t ar_flags, a, b = nodes.getSize();
 
         eXRefTarget* test_xref_taget;
         eXRefProxy* test_xref_proxy;
@@ -212,19 +248,22 @@ namespace ZookieWizard
             return;
         }
 
-        test_xref_proxy = (eXRefProxy*)nodes.getIthChild(nodes.getSize() - 1);
-
-        if (nullptr != test_xref_proxy)
+        for (a = 0; a < b; a++)
         {
-            /* Child node could be "eTriMesh" */
+            test_xref_proxy = (eXRefProxy*)nodes.getIthChild(a);
 
-            if (test_xref_proxy->getType()->checkHierarchy(&E_XREFPROXY_TYPEINFO))
+            if (nullptr != test_xref_proxy)
             {
-                test_xref_taget = test_xref_proxy->getXRefTarget();
+                /* Child node could be "eTriMesh" */
 
-                if (nullptr != test_xref_taget)
+                if (test_xref_proxy->getType()->checkHierarchy(&E_XREFPROXY_TYPEINFO))
                 {
-                    test_xref_taget->exportTarget(ar, ar_flags);
+                    test_xref_taget = test_xref_proxy->getXRefTarget();
+
+                    if (nullptr != test_xref_taget)
+                    {
+                        test_xref_taget->exportTarget(ar, ar_flags);
+                    }
                 }
             }
         }
@@ -294,9 +333,9 @@ namespace ZookieWizard
         (
             bufor, 128,
             " - xform pos: (%f, %f, %f)",
-            defaultTransform[0].pos.x,
-            defaultTransform[0].pos.y,
-            defaultTransform[0].pos.z
+            defaultTransform.pos.x,
+            defaultTransform.pos.y,
+            defaultTransform.pos.z
         );
 
         ArFunctions::writeIndentation(file, indentation);
@@ -307,10 +346,10 @@ namespace ZookieWizard
         (
             bufor, 128,
             " - xform rot: (%f, %f, %f, %f)",
-            defaultTransform[0].rot.x,
-            defaultTransform[0].rot.y,
-            defaultTransform[0].rot.z,
-            defaultTransform[0].rot.w
+            defaultTransform.rot.x,
+            defaultTransform.rot.y,
+            defaultTransform.rot.z,
+            defaultTransform.rot.w
         );
 
         ArFunctions::writeIndentation(file, indentation);
@@ -321,7 +360,7 @@ namespace ZookieWizard
         (
             bufor, 128,
             " - xform scl: (%f)",
-            defaultTransform[0].scale
+            defaultTransform.scale
         );
 
         ArFunctions::writeIndentation(file, indentation);

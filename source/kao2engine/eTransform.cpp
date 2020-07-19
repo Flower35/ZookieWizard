@@ -39,7 +39,6 @@ namespace ZookieWizard
     {
         /*[0xA8]*/ ctrl = nullptr;
 
-        currentMatrix = defaultTransform[0].getMatrix();
         currentMatrix.transpose(transposedMatrix);
 
         jointType = false;
@@ -64,15 +63,15 @@ namespace ZookieWizard
             deserializationCorrection();
         }
 
-        defaultTransform[0].serialize(ar);
-        defaultTransform[1].serialize(ar);
+        defaultTransform.serialize(ar);
+        worldTransform.serialize(ar);
+
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
 
         if (ar.isInReadMode())
         {
-            setXForm(defaultTransform[0]);
+            setXForm(defaultTransform);
         }
-
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
     }
 
 
@@ -81,12 +80,12 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eTransform::deserializationCorrection()
     {
-        const int SETTING_XFORM_MAX_PARENTS = 16;
+        const int SETTING_XFORM_MAX_PARENTS = 64;
         eTransform* parents_list[SETTING_XFORM_MAX_PARENTS];
         eTransform* test_parent;
         int32_t parents_index = 0;
 
-        defaultTransform[1] = eSRP();
+        worldTransform = eSRP();
 
         /* Finding the parents with "eTransform" type, to set the second version of `defaultTransform` */
 
@@ -105,10 +104,15 @@ namespace ZookieWizard
 
         for (int32_t i = parents_index - 1; i >= 0; i--)
         {
-            defaultTransform[1] = defaultTransform[1].applyAnotherSRP(parents_list[i]->getXForm(true, false));
+            worldTransform = worldTransform.applyAnotherSRP(parents_list[i]->getXForm(false));
         }
 
-        defaultTransform[1] = defaultTransform[0].applyAnotherSRP(defaultTransform[1]);
+        if ((0 == (flags & 0x00001000)) && (nullptr != ctrl))
+        {
+            ctrl->ctrlApplyTransform(&defaultTransform, 0);
+        }
+
+        worldTransform = defaultTransform.applyAnotherSRP(worldTransform);
     }
 
 
@@ -117,43 +121,48 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eTransform::setXForm(eSRP &new_xform)
     {
-        defaultTransform[0] = new_xform;
-        defaultTransform[1] = defaultTransform[0];
+        if ((0 == (flags & 0x00001000)) && (nullptr != ctrl))
+        {
+            /* If "eTransform" has an animation controller attached, */
+            /* then any changes to the default "SRP" are discarded. */
 
-        /* Updating modified transforms and creating a matrix */
+            ctrl->ctrlApplyTransform(&defaultTransform, 0);
+        }
+        else
+        {
+            defaultTransform = new_xform;
+        }
 
-        modifiedTransform[0] = defaultTransform[0];
-        modifiedTransform[1] = defaultTransform[1];
+        /* Create a matrix that represents current transformation */
 
-        currentMatrix = modifiedTransform[0].getMatrix();
+        currentMatrix = defaultTransform.getMatrix();
         currentMatrix.transpose(transposedMatrix);
     }
-
 
 
     ////////////////////////////////////////////////////////////////
     // eTransform: get current xform
     ////////////////////////////////////////////////////////////////
-    eSRP eTransform::getXForm(bool modified, bool animated) const
+    eSRP eTransform::getXForm(bool animated) const
     {
         /* animated: [0] = current transformation,
             [1] = all transformations applied (world transform). */
 
-        if (modified)
+        if (animated)
         {
-            if (animated)
-            {
-                return modifiedTransform[1];
-            }
-
-            return modifiedTransform[0];
-        }
-        else if (animated)
-        {
-            return defaultTransform[1];
+            return worldTransform;
         }
 
-        return defaultTransform[0];
+        if ((0 == (flags & 0x00001000)) && (nullptr != ctrl))
+        {
+            eSRP dummy_srp;
+
+            ctrl->ctrlApplyTransform(&dummy_srp, 0);
+
+            return dummy_srp;
+        }
+
+        return defaultTransform;
     }
 
 
@@ -217,7 +226,7 @@ namespace ZookieWizard
 
         /* Draw children nodes */
 
-        eGroup::renderObject(draw_flags, anim, modifiedTransform[1], render_matrix, marked_id);
+        eGroup::renderObject(draw_flags, anim, worldTransform, render_matrix, marked_id);
 
         /* Restore parent matrix */
 
@@ -237,32 +246,28 @@ namespace ZookieWizard
 
         if (update)
         {
-            if (nullptr != ctrl)
+            if ((0 == (flags & 0x00001000)) && (nullptr != ctrl))
             {
                 if (nullptr != anim)
                 {
-                    modifiedTransform[0] = ctrl->ctrlGetTransform(test_srp, anim);
-                }
-                else
-                {
-                    modifiedTransform[0] = defaultTransform[0];
-                }
+                    defaultTransform = ctrl->ctrlGetTransform(test_srp, anim);
 
-                /* Update render matrix */
+                    /* Update render matrix */
 
-                currentMatrix = modifiedTransform[0].getMatrix();
-                currentMatrix.transpose(transposedMatrix);
+                    currentMatrix = defaultTransform.getMatrix();
+                    currentMatrix.transpose(transposedMatrix);
+                }
             }
 
             /* Update world transformation matrix */
 
-            modifiedTransform[1] = modifiedTransform[0].applyAnotherSRP(parent_srp);
+            worldTransform = defaultTransform.applyAnotherSRP(parent_srp);
 
             /* (--dsp--) <kao2.0047BD9A> (update "eALBox" if exists) */
         }
         else
         {
-            modifiedTransform[1] = test_srp;
+            worldTransform = test_srp;
         }
     }
 
@@ -288,7 +293,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     ePoint3 eTransform::editingGetCenterPoint() const
     {
-        return modifiedTransform[0].pos;
+        return defaultTransform.pos;
     }
 
 
@@ -372,9 +377,9 @@ namespace ZookieWizard
         (
             bufor, 128,
             " - xform pos: (%f, %f, %f)",
-            defaultTransform[0].pos.x,
-            defaultTransform[0].pos.y,
-            defaultTransform[0].pos.z
+            defaultTransform.pos.x,
+            defaultTransform.pos.y,
+            defaultTransform.pos.z
         );
 
         ArFunctions::writeIndentation(file, indentation);
@@ -385,10 +390,10 @@ namespace ZookieWizard
         (
             bufor, 128,
             " - xform rot: (%f, %f, %f, %f)",
-            defaultTransform[0].rot.x,
-            defaultTransform[0].rot.y,
-            defaultTransform[0].rot.z,
-            defaultTransform[0].rot.w
+            defaultTransform.rot.x,
+            defaultTransform.rot.y,
+            defaultTransform.rot.z,
+            defaultTransform.rot.w
         );
 
         ArFunctions::writeIndentation(file, indentation);
@@ -399,7 +404,7 @@ namespace ZookieWizard
         (
             bufor, 128,
             " - xform scl: (%f)",
-            defaultTransform[0].scale
+            defaultTransform.scale
         );
 
         ArFunctions::writeIndentation(file, indentation);
@@ -467,13 +472,13 @@ namespace ZookieWizard
                     exporter.insertTagAttrib("type", "NODE");
                 }
 
-                alpha = modifiedTransform[0].scale;
+                alpha = defaultTransform.scale;
                 sprintf_s(bufor, 64, "%f %f %f", alpha, alpha, alpha);
                 exporter.openTag("scale");
                 exporter.writeInsideTag(bufor);
                 exporter.closeTag();
 
-                modifiedTransform[0].rot.toEulerAngles(true, alpha, beta, gamma);
+                defaultTransform.rot.toEulerAngles(true, alpha, beta, gamma);
 
                 sprintf_s(bufor, 64, "0 0 1 %f", (gamma / 180.0 * M_PI));
                 exporter.openTag("rotate");
@@ -490,9 +495,9 @@ namespace ZookieWizard
                 exporter.writeInsideTag(bufor);
                 exporter.closeTag();
 
-                alpha = defaultTransform[0].pos.x;
-                beta = defaultTransform[0].pos.y;
-                gamma = defaultTransform[0].pos.z;
+                alpha = defaultTransform.pos.x;
+                beta = defaultTransform.pos.y;
+                gamma = defaultTransform.pos.z;
                 sprintf_s(bufor, 64, "%f %f %f", alpha, beta, gamma);
                 exporter.openTag("translate");
                 exporter.writeInsideTag(bufor);

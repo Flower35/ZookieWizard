@@ -228,12 +228,7 @@ namespace ZookieWizard
 
         ar.readOrWrite(&flagsCollisionResponse, 0x02);
 
-        if (ar.isInReadMode())
-        {
-            flags |= 0x00002000;
-        }
-
-        /* From "Kao Challengers" */
+        /* Visibility groups from "Kao Challengers" */
 
         if (ar.getVersion() < 0x8D)
         {
@@ -252,6 +247,8 @@ namespace ZookieWizard
 
         if (ar.isInReadMode())
         {
+            flags |= 0x00002000;
+
             /* Setup for animations */
             setPreviousTransform();
         }
@@ -302,13 +299,6 @@ namespace ZookieWizard
     // eNode: empty function (for "eBoxZone" / "eTransform" / "eTriMesh")
     ////////////////////////////////////////////////////////////////
     void eNode::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
-    {}
-
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: empty function (for "eGroup" / "eTransform")
-    ////////////////////////////////////////////////////////////////
-    void eNode::updateSRP(bool update, eAnimate* anim, eSRP &parent_srp)
     {}
 
 

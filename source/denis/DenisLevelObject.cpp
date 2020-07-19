@@ -221,7 +221,7 @@ namespace ZookieWizard
         /********************************/
         /* Make a group of meshes */
 
-        sprintf_s(bufor, 32, "#group of %d:%d:", object_type, object_id);
+        sprintf_s(bufor, 32, "%d:%d:", object_type, object_id);
 
         group_name = bufor;
         group_name += name;
@@ -231,10 +231,9 @@ namespace ZookieWizard
 
         test_group->setName(group_name);
 
-        /********************************/
-        /* Trying to figure out "eNode" flags... */
+        /* ("DrawPass #1 and #2" + "???" + "Enabled" + "Visible") node flags */
 
-        test_group->setFlags(0x70000009); // 0x20000009
+        test_group->setFlags(0x30000089);
 
         /********************************/
         /* Convert collision surfaces */
@@ -361,7 +360,7 @@ namespace ZookieWizard
 
                 test_trimesh->setMaterial(collision_materials[i]);
 
-                test_trimesh->setFlags(0x7001208C);
+                test_trimesh->setFlags(0x0001208C);
                 test_trimesh->unsetFlags(0x01);
 
                 test_geoset = new eGeoSet();

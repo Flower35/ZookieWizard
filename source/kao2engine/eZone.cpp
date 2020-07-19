@@ -156,16 +156,11 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eZone::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
     {
-        ePoint4 test_point;
         eMatrix4x4 matrix = new_transform.getMatrix();
 
-        test_point = {boxBoundMin.x, boxBoundMin.y, boxBoundMin.z, 1.0f};
-        test_point = matrix * test_point;
-        boxBoundMin = {test_point.x, test_point.y, test_point.z};
+        boxBoundMin = (matrix * ePoint4(boxBoundMin.x, boxBoundMin.y, boxBoundMin.z, 1.0f));
 
-        test_point = {boxBoundMax.x, boxBoundMax.y, boxBoundMax.z, 1.0f};
-        test_point = matrix * test_point;
-        boxBoundMax = {test_point.x, test_point.y, test_point.z};
+        boxBoundMax = (matrix * ePoint4(boxBoundMax.x, boxBoundMax.y, boxBoundMax.z, 1.0f));
 
         createCollisionEntry();
     }

@@ -115,9 +115,9 @@ namespace ZookieWizard
         (
             bufor, 128,
             " - xform pos: (%f, %f, %f)",
-            defaultTransform[0].pos.x,
-            defaultTransform[0].pos.y,
-            defaultTransform[0].pos.z
+            defaultTransform.pos.x,
+            defaultTransform.pos.y,
+            defaultTransform.pos.z
         );
 
         ArFunctions::writeIndentation(file, indentation);
@@ -128,10 +128,10 @@ namespace ZookieWizard
         (
             bufor, 128,
             " - xform rot: (%f, %f, %f, %f)",
-            defaultTransform[0].rot.x,
-            defaultTransform[0].rot.y,
-            defaultTransform[0].rot.z,
-            defaultTransform[0].rot.w
+            defaultTransform.rot.x,
+            defaultTransform.rot.y,
+            defaultTransform.rot.z,
+            defaultTransform.rot.w
         );
 
         ArFunctions::writeIndentation(file, indentation);
@@ -142,7 +142,7 @@ namespace ZookieWizard
         (
             bufor, 128,
             " - xform scl: (%f)",
-            defaultTransform[0].scale
+            defaultTransform.scale
         );
 
         ArFunctions::writeIndentation(file, indentation);
@@ -174,19 +174,6 @@ namespace ZookieWizard
         }
 
         return eTransform::renderObject(draw_flags, &animations, parent_srp, parent_matrix, marked_id);
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // ePivot: skip eSRP updating (if called from "eGroup")
-    ////////////////////////////////////////////////////////////////
-    void ePivot::updateSRP(bool update, eAnimate* anim, eSRP &parent_srp)
-    {
-        /* Do NOT animate SRP directly for Actors, as they have weird tracks attached */
-
-        modifiedTransform[1] = modifiedTransform[0].applyAnotherSRP(parent_srp);
-
-        return;
     }
 
 

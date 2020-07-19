@@ -86,15 +86,15 @@ namespace ZookieWizard
             deserializationCorrection();
         }
 
-        defaultTransform[0].serialize(ar);
-        defaultTransform[1].serialize(ar);
+        defaultTransform.serialize(ar);
+        worldTransform.serialize(ar);
+
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
 
         if (ar.isInReadMode())
         {
-            setXForm(defaultTransform[0]);
+            setXForm(defaultTransform);
         }
-
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
 
         /* [0x0151] unknown */
         ar.readOrWrite(&unknown_0151, 0x01);

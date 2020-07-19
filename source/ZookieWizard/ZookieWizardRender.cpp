@@ -111,6 +111,8 @@ namespace ZookieWizard
                     testCamera.pos_y += test_srp->pos.y;
                     testCamera.pos_z += test_srp->pos.z;
                 }
+
+                testCamera.calculateFrustum();
             }
         }
 

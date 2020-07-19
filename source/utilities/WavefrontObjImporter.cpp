@@ -1058,7 +1058,7 @@ namespace ZookieWizard
 
                 test_group->setName(trimesh_name);
 
-                test_group->setFlags(0x30000009);
+                test_group->setFlags(0x10000089);
             }
 
             /********************************/
@@ -1225,7 +1225,7 @@ namespace ZookieWizard
 
                     test_trimesh->setName(trimesh_name);
 
-                    test_trimesh->setFlags(0x30000009);
+                    test_trimesh->setFlags(0x10000089);
 
                     test_geoset = new eGeoSet();
                     test_geoset->incRef();

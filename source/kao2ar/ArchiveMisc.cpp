@@ -374,6 +374,9 @@ namespace ZookieWizard
                         b = test_group->getNodesCount() - 1;
                         child_id = (child_id > b) ? b : child_id;
 
+                        /* updating editable transform (before updating the list) */
+                        markedChildId = child_id;
+
                         parent_xform = (eTransform*)test_group;
                         change_camera = 0x02; // backwards
 
@@ -453,6 +456,9 @@ namespace ZookieWizard
                         "================================\n"
                     );
 
+                    /* updating editable transform (before updating the list) */
+                    markedChildId = child_id;
+
                     update_list = true;
                 }
 
@@ -474,6 +480,9 @@ namespace ZookieWizard
                         {
                             child_id = 0;
                         }
+
+                        /* updating editable transform (before updating the list) */
+                        markedChildId = child_id;
 
                         update_list = true;
                     }
@@ -499,6 +508,9 @@ namespace ZookieWizard
                         {
                             child_id = b;
                         }
+
+                        /* updating editable transform (before updating the list) */
+                        markedChildId = child_id;
 
                         update_list = true;
                     }
@@ -577,6 +589,8 @@ namespace ZookieWizard
 
             case NODES_LISTBOX_ROOT:
             {
+                markedChildId = (-1);
+
                 if (nullptr != test_node)
                 {
                     parent_xform = (eTransform*)test_node->getParentNode();
@@ -641,7 +655,7 @@ namespace ZookieWizard
 
                 if (parent_xform->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
                 {
-                    test_srp = parent_xform->getXForm(true, false);
+                    test_srp = parent_xform->getXForm(false);
                     GUI::repositionCamera(true, &test_srp);
                 }
 
@@ -654,7 +668,7 @@ namespace ZookieWizard
 
                 if (parent_xform->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
                 {
-                    test_srp = parent_xform->getXForm(true, false);
+                    test_srp = parent_xform->getXForm(false);
                     GUI::repositionCamera(false, &test_srp);
                 }
 
@@ -667,7 +681,7 @@ namespace ZookieWizard
                 {
                     if (parent_xform->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
                     {
-                        test_srp = parent_xform->getXForm(true, false);
+                        test_srp = parent_xform->getXForm(false);
                         GUI::repositionCamera(false, &test_srp);
                     }
 
@@ -698,15 +712,16 @@ namespace ZookieWizard
                 test_node = (eNode*)selectedObject;
             }
 
-            if ((nullptr != test_node) && (test_node->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO)))
-            {
-                parent_xform = (eTransform*)test_node;
+            test_srp = eSRP();
 
-                test_srp = parent_xform->getXForm(true, false);
-            }
-            else
+            if (nullptr != test_node)
             {
-                test_srp = eSRP();
+                if (test_node->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+                {
+                    parent_xform = (eTransform*)test_node;
+
+                    test_srp = parent_xform->getXForm(false);
+                }
             }
 
             GUI::setMovedSeletedTransform((void*)&test_srp);

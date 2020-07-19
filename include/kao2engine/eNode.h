@@ -57,7 +57,6 @@ namespace ZookieWizard
             virtual void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id);
 
             virtual void destroyNode();
-            virtual void updateSRP(bool update, eAnimate* anim, eSRP &parent_srp);
             virtual void findAndDereference(eNode* target);
 
             virtual void ctrlExpandAnimTracks(int32_t new_size);

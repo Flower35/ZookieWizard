@@ -132,7 +132,7 @@ namespace ZookieWizard
         /********************************/
         /* "eNode" flags: visibility + (0x00010000) model already loaded */
 
-        test_proxy->setFlags(0x70010009);
+        test_proxy->setFlags(0x30010009);
 
         /********************************/
         /* Create "eTriMesh" with prepared colors */

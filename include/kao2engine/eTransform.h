@@ -18,10 +18,10 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x48-0x84]*/ eSRP defaultTransform[2];
+            /*[0x48-0x64]*/ eSRP defaultTransform;
+            /*[0x68-0x84]*/ eSRP worldTransform;
             /*[0xA8]*/ eCtrl<eSRP>* ctrl;
 
-            eSRP modifiedTransform[2];
             eMatrix4x4 currentMatrix;
             float transposedMatrix[16];
             bool jointType;
@@ -40,7 +40,6 @@ namespace ZookieWizard
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id) override;
-            void updateSRP(bool update, eAnimate* anim, eSRP &parent_srp) override;
 
             ePoint3 editingGetCenterPoint() const override;
             void editingRebuildCollision() override;
@@ -49,7 +48,7 @@ namespace ZookieWizard
             void ctrlExpandAnimTracks(int32_t new_size) override;
             void ctrlRemoveAnimTrack(int32_t deleted_id) override;
 
-            eSRP getXForm(bool modified, bool animated) const;
+            eSRP getXForm(bool animated) const;
             void setXForm(eSRP &new_xform);
 
             void setTypeToJoint(bool is_joint);
@@ -64,6 +63,8 @@ namespace ZookieWizard
             void ctrlAddKeyframe(int32_t anim_id, float new_time, eSRP new_data, int32_t param);
 
         protected:
+
+            void updateSRP(bool update, eAnimate* anim, eSRP &parent_srp);
 
             void deserializationCorrection();
     };

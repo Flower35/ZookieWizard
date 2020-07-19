@@ -418,7 +418,7 @@ namespace ZookieWizard
         {
             dummy_xform = (eTransform*)current_group;
 
-            current_matrix = current_matrix * dummy_xform->getXForm(true, false).getMatrix();
+            current_matrix = current_matrix * dummy_xform->getXForm(false).getMatrix();
         }
 
         for (i = 0; i < current_group->getNodesCount(); i++)
