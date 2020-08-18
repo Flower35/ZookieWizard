@@ -46,7 +46,8 @@ namespace ZookieWizard
             keyboard_z = 0;
             object_mode = 0;
 
-            speed = TEST_CAMERA_DEFAULT_SPEED;
+            speed[0] = TEST_CAMERA_DEFAULT_SPEED;
+            speed[1] = TEST_CAMERA_DEFAULT_SPEED;
             reset(0, 0, 0);
         }
 
@@ -69,7 +70,7 @@ namespace ZookieWizard
         }
 
         static eSRP selectedObjectNewTransform;
-        static float selectedObjectTransposedMatrix[16];
+        static float selectedObjectTransposedMatrix[2][16];
 
 
         ////////////////////////////////////////////////////////////////
@@ -361,7 +362,10 @@ namespace ZookieWizard
             usePerformanceCounter = (QueryPerformanceFrequency(&performanceCounterFrequency));
 
             /* Reset selected object transform matrix */
-            selectedObjectNewTransform.getMatrix().transpose(selectedObjectTransposedMatrix);
+            for (int32_t a = 0; a < 2; a++)
+            {
+                selectedObjectNewTransform.getMatrix().transpose(selectedObjectTransposedMatrix[a]);
+            }
 
             openGL_DeviceContext = GetDC(theWindowsManager.getRenderWindow());
 
@@ -391,20 +395,12 @@ namespace ZookieWizard
             }
 
             /* Triangles cropping */
-            glCullFace(GL_FRONT);
-
-            /* Wireframe */
-            glPolygonMode(GL_BACK, GL_LINE);
+            glCullFace(GL_BACK);
 
             /* Depth testing */
             glClearDepth(1.0f);
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LEQUAL);
-
-            /* Transparent textures */
-            //// glEnable(GL_BLEND);
-            //// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            //// glBlendEquation(GL_FUNC_ADD);
 
             /* Default perspective */
             setPerspective(RECT_RENDER_X2, RECT_RENDER_Y2);
@@ -519,6 +515,48 @@ namespace ZookieWizard
         // Get or Set selected object's new transformation
         ////////////////////////////////////////////////////////////////
 
+        void updateMovedSelectedTransformEditboxes()
+        {
+            char bufor[64];
+
+            const int EDITBOXES_COUNT = 7;
+            const int PAGE_ID = 5;
+
+            float output[EDITBOXES_COUNT];
+            HWND dummy_editbox;
+            const int places[EDITBOXES_COUNT] = {(-10), (-8), (-6), (-9), (-7), (-5), (-4)};
+
+            output[0] = selectedObjectNewTransform.pos.x;
+            output[1] = selectedObjectNewTransform.pos.y;
+            output[2] = selectedObjectNewTransform.pos.z;
+
+            selectedObjectNewTransform.rot.toEulerAngles(true, output[3], output[4], output[5]);
+
+            for (int a = 0; a < 3; a++)
+            {
+                output[3 + a] *= 180.0f / (float)M_PI;
+            }
+
+            output[6] = selectedObjectNewTransform.scale;
+
+            for (int a = 0; a < EDITBOXES_COUNT; a++)
+            {
+                if (NULL != (dummy_editbox =theWindowsManager.getSpecificWindow(PAGE_ID, places[a])))
+                {
+                    sprintf_s(bufor, 64, "%f", output[a]);
+                    SetWindowText(dummy_editbox, bufor);
+                }
+            }
+
+            selectedObjectNewTransform.getMatrix().transpose(selectedObjectTransposedMatrix[0]);
+
+            selectedObjectNewTransform.scale = 1.0f;
+
+            selectedObjectNewTransform.getMatrix().transpose(selectedObjectTransposedMatrix[1]);
+
+            selectedObjectNewTransform.scale = output[6];
+        }
+
         void getMovedSeletedTransform(void* transform)
         {
             eSRP* test_srp_ptr = (eSRP*)transform;
@@ -539,12 +577,14 @@ namespace ZookieWizard
                 selectedObjectNewTransform = eSRP();
             }
 
-            selectedObjectNewTransform.getMatrix().transpose(selectedObjectTransposedMatrix);
+            updateMovedSelectedTransformEditboxes();
         }
 
-        void multiplyBySelectedObjectTransform()
+        void multiplyBySelectedObjectTransform(bool ignore_scale)
         {
-            glMultMatrixf(selectedObjectTransposedMatrix);
+            int32_t index = ignore_scale ? 1 : 0;
+
+            glMultMatrixf(selectedObjectTransposedMatrix[index]);
         }
 
 
@@ -559,7 +599,7 @@ namespace ZookieWizard
             eQuat test_quaternion;
             ePoint3 test_direction;
 
-            const double ROTATING_SPEED = (0.05 / (TEST_CAMERA_DEFAULT_SPEED / 2.0));
+            const double ROTATING_SPEED = (M_PI / 125.0 / TEST_CAMERA_DEFAULT_SPEED);
             const double STRAFING_SPEED = (100.0 / TEST_CAMERA_DEFAULT_SPEED);
 
             if ((0 != x) || (0 != y) || (0 != z))
@@ -580,13 +620,13 @@ namespace ZookieWizard
                         /* (x > 0) look to the right (ADD) */
                         /* (x < 0) look to the left (SUBTRACT) */
 
-                        testCamera.yaw += (dir_x * ROTATING_SPEED * (TEST_CAMERA_DEFAULT_SPEED / 2.0));
+                        testCamera.yaw += (dir_x * ROTATING_SPEED * testCamera.speed[1]);
 
                         /* Modify "rot_X" from "z" (vertical) parameter */
                         /* (z > 0) look up (ADD) */
                         /* (z < 0) look down (SUBTRACT) */
 
-                        testCamera.pitch += (dir_z * ROTATING_SPEED * (TEST_CAMERA_DEFAULT_SPEED / 2.0));
+                        testCamera.pitch += (dir_z * ROTATING_SPEED * testCamera.speed[1]);
 
                         angle_calculations = true;
                         frustum_calculations = true;
@@ -598,8 +638,8 @@ namespace ZookieWizard
 
                         if (0 != x)
                         {
-                            testCamera.pos_x += (dir_x * testCamera.look_y * STRAFING_SPEED * testCamera.speed);
-                            testCamera.pos_y -= (dir_x * testCamera.look_x * STRAFING_SPEED * testCamera.speed);
+                            testCamera.pos_x += (dir_x * testCamera.look_y * STRAFING_SPEED * testCamera.speed[0]);
+                            testCamera.pos_y -= (dir_x * testCamera.look_x * STRAFING_SPEED * testCamera.speed[0]);
 
                             frustum_calculations = true;
                         }
@@ -609,9 +649,9 @@ namespace ZookieWizard
 
                         if (0 != y)
                         {
-                            testCamera.pos_x += (dir_y * testCamera.look_x * STRAFING_SPEED * testCamera.speed);
-                            testCamera.pos_y += (dir_y * testCamera.look_y * STRAFING_SPEED * testCamera.speed);
-                            testCamera.pos_z += (dir_y * testCamera.look_z * STRAFING_SPEED * testCamera.speed);
+                            testCamera.pos_x += (dir_y * testCamera.look_x * STRAFING_SPEED * testCamera.speed[0]);
+                            testCamera.pos_y += (dir_y * testCamera.look_y * STRAFING_SPEED * testCamera.speed[0]);
+                            testCamera.pos_z += (dir_y * testCamera.look_z * STRAFING_SPEED * testCamera.speed[0]);
 
                             frustum_calculations = true;
                         }
@@ -621,7 +661,7 @@ namespace ZookieWizard
 
                         if (0 != z)
                         {
-                            testCamera.pos_z += (dir_z * STRAFING_SPEED * testCamera.speed);
+                            testCamera.pos_z += (dir_z * STRAFING_SPEED * testCamera.speed[0]);
 
                             frustum_calculations = true;
                         }
@@ -633,22 +673,22 @@ namespace ZookieWizard
 
                     if (0 != x)
                     {
-                        selectedObjectNewTransform.pos.x += float(dir_x * testCamera.look_y * STRAFING_SPEED * testCamera.speed);
-                        selectedObjectNewTransform.pos.y -= float(dir_x * testCamera.look_x * STRAFING_SPEED * testCamera.speed);
+                        selectedObjectNewTransform.pos.x += float(dir_x * testCamera.look_y * STRAFING_SPEED * testCamera.speed[0]);
+                        selectedObjectNewTransform.pos.y -= float(dir_x * testCamera.look_x * STRAFING_SPEED * testCamera.speed[0]);
                     }
 
                     if (0 != y)
                     {
-                        selectedObjectNewTransform.pos.x += float(dir_y * testCamera.look_x * STRAFING_SPEED * testCamera.speed);
-                        selectedObjectNewTransform.pos.y += float(dir_y * testCamera.look_y * STRAFING_SPEED * testCamera.speed);
+                        selectedObjectNewTransform.pos.x += float(dir_y * testCamera.look_x * STRAFING_SPEED * testCamera.speed[0]);
+                        selectedObjectNewTransform.pos.y += float(dir_y * testCamera.look_y * STRAFING_SPEED * testCamera.speed[0]);
                     }
 
                     if (0 != z)
                     {
-                        selectedObjectNewTransform.pos.z += float(dir_z * STRAFING_SPEED * testCamera.speed);
+                        selectedObjectNewTransform.pos.z += float(dir_z * STRAFING_SPEED * testCamera.speed[0]);
                     }
 
-                    selectedObjectNewTransform.getMatrix().transpose(selectedObjectTransposedMatrix);
+                    updateMovedSelectedTransformEditboxes();
                 }
                 else if (2 == testCamera.object_mode)
                 {
@@ -657,8 +697,8 @@ namespace ZookieWizard
                     if (0 != x)
                     {
                         /* Rotate countner-clockwise around "Z-axis" (the user drags the object) */
-                        dummy_angle = (float)((-dir_x) * ROTATING_SPEED * testCamera.speed * 10.0);
-                        test_quaternion.fromEulerAngles(false, 0, 0, (float)(M_PI * dummy_angle / 180.0f));
+                        dummy_angle = (float)((-dir_x) * ROTATING_SPEED * testCamera.speed[1]);
+                        test_quaternion.fromEulerAngles(false, 0, 0, dummy_angle);
 
                         selectedObjectNewTransform.rot = selectedObjectNewTransform.rot * test_quaternion;
                     }
@@ -669,8 +709,8 @@ namespace ZookieWizard
                         test_direction = {(float)testCamera.look_y, (float)(- testCamera.look_x), 0};
 
                         /* If camera is pointing "Y-forwards", the rotation will occur around "X-axis" */
-                        dummy_angle = (float)(dir_y * ROTATING_SPEED * testCamera.speed * 10.0);
-                        test_quaternion.fromAxisAngle(test_direction, (float)(M_PI * dummy_angle / 180.0f));
+                        dummy_angle = (float)(dir_y * ROTATING_SPEED * testCamera.speed[1]);
+                        test_quaternion.fromAxisAngle(test_direction, dummy_angle);
 
                         selectedObjectNewTransform.rot = selectedObjectNewTransform.rot * test_quaternion;
                     }
@@ -681,13 +721,13 @@ namespace ZookieWizard
                         test_direction = {(float)testCamera.look_x, (float)testCamera.look_y, (float)testCamera.look_z};
 
                         /* If camera is pointing "Y-forwards", the rotation will occur around "Y-axis" */
-                        dummy_angle = (float)(dir_z * ROTATING_SPEED * testCamera.speed * 10.0);
-                        test_quaternion.fromAxisAngle(test_direction, (float)(M_PI * dummy_angle / 180.0f));
+                        dummy_angle = (float)(dir_z * ROTATING_SPEED * testCamera.speed[1]);
+                        test_quaternion.fromAxisAngle(test_direction, dummy_angle);
 
                         selectedObjectNewTransform.rot = selectedObjectNewTransform.rot * test_quaternion;
                     }
 
-                    selectedObjectNewTransform.getMatrix().transpose(selectedObjectTransposedMatrix);
+                    updateMovedSelectedTransformEditboxes();
                 }
             }
 
@@ -734,7 +774,10 @@ namespace ZookieWizard
             float max_x, float max_y, float max_z
         )
         {
-            glBindTexture(GL_TEXTURE_2D, 0);
+            bool was_texturing_enabled = glIsEnabled(GL_TEXTURE_2D);
+            glDisable(GL_TEXTURE_2D);
+            bool was_blending_enabled = glIsEnabled(GL_BLEND);
+            glDisable(GL_BLEND);
 
             glColor3f(color_r, color_g, color_b);
             glLineWidth(thickness);
@@ -789,6 +832,16 @@ namespace ZookieWizard
             glEnd();
             glColor3f(1.0f, 1.0f, 1.0f);
             glLineWidth(1.0f);
+
+            if (was_texturing_enabled)
+            {
+                glEnable(GL_TEXTURE_2D);
+            }
+
+            if (was_blending_enabled)
+            {
+                glEnable(GL_BLEND);
+            }
         }
 
 

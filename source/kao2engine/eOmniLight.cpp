@@ -1,5 +1,8 @@
 #include <kao2engine/eOmniLight.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
+
+#include <kao2engine/eTransform.h>
 
 namespace ZookieWizard
 {
@@ -54,22 +57,14 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eOmniLight: render light (source position)
+    // eOmniLight: render this node (light source position)
     ////////////////////////////////////////////////////////////////
-    bool eOmniLight::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
+    void eOmniLight::renderNode(eDrawContext &draw_context) const
     {
-        bool is_selected_or_marked;
-        bool use_outline;
-
-        if (GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_flags)
+        if (GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_context.getDrawFlags())
         {
-            if (false == eNode::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
-            {
-                return false;
-            }
-
-            is_selected_or_marked = (((-2) == marked_id) || ((-1) == marked_id));
-            use_outline = ((GUI::drawFlags::DRAW_FLAG_OUTLINE & draw_flags) && (((-2) == marked_id) || ((-3) == marked_id)));
+            bool is_selected_or_marked = draw_context.isNodeSelectedOrMarked();
+            bool use_outline = draw_context.isNodeOutlined();
 
             /****************/
 
@@ -77,8 +72,7 @@ namespace ZookieWizard
 
             if (is_selected_or_marked)
             {
-                /* This object is selected (-1) or marked (-2) and can be moved around */
-                GUI::multiplyBySelectedObjectTransform();
+                GUI::multiplyBySelectedObjectTransform(true);
             }
 
             glTranslatef(position.x, position.y, position.z);
@@ -94,14 +88,47 @@ namespace ZookieWizard
                 glColor3f(diffuse[0], diffuse[1], diffuse[2]);
             }
 
+            draw_context.useMaterial(nullptr, 0);
             GUI::renderSpecialModel((!use_outline), ZOOKIEWIZARD_SPECIALMODEL_LIGHT);
 
             glColor3f(1.0f, 1.0f, 1.0f);
 
             glPopMatrix();
         }
+    }
 
-        return true;
+
+    ////////////////////////////////////////////////////////////////
+    // eOmniLight: binding function
+    // [[vptr]+0x74] <kao2.0047F2C0>
+    ////////////////////////////////////////////////////////////////
+    void eOmniLight::bindLight(int32_t light_id) const
+    {
+        GLenum light_enum = GL_LIGHT0 + light_id;
+
+        float dummy_floats[16];
+
+        if (nullptr != previousTransform)
+        {
+            glPushMatrix();
+
+            previousTransform->getXForm(true).getMatrix().transpose(dummy_floats);
+
+            glLoadMatrixf(dummy_floats);
+
+            dummy_floats[0] = position.x;
+            dummy_floats[1] = position.y;
+            dummy_floats[2] = position.z;
+            dummy_floats[3] = 0;
+
+            glLightfv(light_enum, GL_POSITION, dummy_floats);
+
+            glLightf(light_enum, GL_CONSTANT_ATTENUATION, attenuationConstant);
+            glLightf(light_enum, GL_LINEAR_ATTENUATION, attenuationLinear);
+            glLightf(light_enum, GL_QUADRATIC_ATTENUATION, attenuationQuadratic);
+
+            glPopMatrix();
+        }
     }
 
 

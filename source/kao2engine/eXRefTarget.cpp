@@ -1,5 +1,6 @@
 #include <kao2engine/eXRefTarget.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 #include <kao2engine/eScene.h>
 
@@ -70,14 +71,12 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefTarget: render child scene in parent scene
     ////////////////////////////////////////////////////////////////
-    bool eXRefTarget::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
+    void eXRefTarget::renderXRefScene(eDrawContext &draw_context) const
     {
         if (nullptr != scene)
         {
-            scene->renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id);
+            scene->renderNode(draw_context);
         }
-
-        return true;
     }
 
 

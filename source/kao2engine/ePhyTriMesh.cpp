@@ -732,7 +732,7 @@ namespace ZookieWizard
             {
                 bone_index = phyVertices[i].index[j];
 
-                if (0xFF != bone_index)
+                if (!(0x80 & bone_index))
                 {
                     bone_weight = phyVertices[i].weight[j];
 

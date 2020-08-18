@@ -63,4 +63,64 @@ namespace ZookieWizard
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&vOffset, &E_LEAFCTRL_FLOAT_TYPEINFO);
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eTexTransform: update texture matrix
+    ////////////////////////////////////////////////////////////////
+
+    void eTexTransform::updateTextureMatrix(eAnimate* anim) const
+    {
+        /* Reset the Texture Mapping matrix and update it */
+
+        glMatrixMode(GL_TEXTURE);
+
+        glLoadIdentity();
+
+        if (nullptr != anim)
+        {
+            float move_u = 0;
+            float move_v = 0;
+            float scale_x = 1.0f;
+            float scale_y = 1.0f;
+
+            if (nullptr != xScale)
+            {
+                scale_x = xScale->ctrlGetTransform(scale_x, anim);
+            }
+
+            if (nullptr != yScale)
+            {
+                scale_y = yScale->ctrlGetTransform(scale_y, anim);
+            }
+
+            if (nullptr != uOffset)
+            {
+                move_u = uOffset->ctrlGetTransform(move_u, anim);
+            }
+
+            if (nullptr != vOffset)
+            {
+                move_v = vOffset->ctrlGetTransform(move_v, anim);
+            }
+
+            if ((1.0f != scale_x) || (1.0f != scale_y))
+            {
+                glTranslatef(1.0f, 1.0f, 1.0f);
+
+                glScalef(scale_x, scale_y, 1.0f);
+
+                glTranslatef((-1.0f), (-1.0f), (-1.0f));
+            }
+
+            if ((0 != move_u) || (0 != move_v))
+            {
+                glTranslatef(move_u, move_v, 0);
+            }
+        }
+
+        /* Back to the model view matrix */
+
+        glMatrixMode(GL_MODELVIEW);
+    }
+
 }

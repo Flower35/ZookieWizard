@@ -110,23 +110,6 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eGeometry: find material by path
-    ////////////////////////////////////////////////////////////////
-    eMaterial* eGeometry::findMaterial(eString &searched_path) const
-    {
-        if (nullptr != material)
-        {
-            if (material->matchesPath(searched_path))
-            {
-                return material;
-            }
-        }
-
-        return nullptr;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // eGeometry: get Material pointer
     ////////////////////////////////////////////////////////////////
     eMaterial* eGeometry::getMaterial() const

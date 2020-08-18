@@ -98,6 +98,7 @@
     <ClCompile Include="..\source\kao2ar\AxisList.cpp" />
     <ClCompile Include="..\source\kao2ar\Collection.cpp" />
     <ClCompile Include="..\source\kao2ar\eAnimate.cpp" />
+    <ClCompile Include="..\source\kao2ar\eDrawContext.cpp" />
     <ClCompile Include="..\source\kao2ar\eObject.cpp" />
     <ClCompile Include="..\source\kao2ar\eString.cpp" />
     <ClCompile Include="..\source\kao2ar\kao2ar.cpp" />

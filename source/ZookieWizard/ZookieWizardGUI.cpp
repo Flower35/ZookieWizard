@@ -78,7 +78,7 @@ namespace ZookieWizard
         {
             if (EN_CHANGE == HIWORD(wParam))
             {
-                GetWindowText((HWND)lParam, (LPSTR)custom_param, 256);
+                GetWindowText((HWND)lParam, (LPSTR)custom_param, LARGE_BUFFER_SIZE);
             }
         }
 
@@ -253,18 +253,23 @@ namespace ZookieWizard
 
         void buttonFunc_CameraSpeed(WPARAM wParam, LPARAM lParam, void* custom_param)
         {
-            double i;
+            int32_t id = (int32_t)custom_param;
+            double new_speed;
             char bufor[8];
 
-            if (EN_CHANGE == HIWORD(wParam))
+            if ((EN_CHANGE == HIWORD(wParam)) && (id >= 0) && (id < 2))
             {
                 GetWindowText((HWND)lParam, bufor, 8);
 
-                i = std::atof(bufor);
+                new_speed = std::atof(bufor);
 
-                if (i > 0)
+                if (new_speed > 0)
                 {
-                    testCamera.speed = i;
+                    testCamera.speed[id] = new_speed;
+                }
+                else
+                {
+                    testCamera.speed[id] = TEST_CAMERA_DEFAULT_SPEED;
                 }
             }
         }
@@ -273,82 +278,36 @@ namespace ZookieWizard
         {
             if (BN_CLICKED == HIWORD(wParam))
             {
+                int32_t index = (int32_t)custom_param;
+
                 if (BST_CHECKED == SendMessage((HWND)lParam, BM_GETCHECK, 0, 0))
                 {
-                    if (0 == (int32_t)custom_param)
+                    if (0 == index)
                     {
                         renderingLimitFramerate = true;
                     }
-                    else if (1 == (int32_t)custom_param)
+                    else if (1 == index)
                     {
                         glPolygonMode(GL_FRONT, GL_LINE);
                     }
-                    else if (2 == (int32_t)custom_param)
+                    else if ((index >= (2 + 0)) && (index < (2 + drawFlags::DRAW_FLAG_COUNT)))
                     {
-                        myDrawFlags |= drawFlags::DRAW_FLAG_OUTLINE;
-                    }
-                    else if (3 == (int32_t)custom_param)
-                    {
-                        myDrawFlags |= drawFlags::DRAW_FLAG_INVISIBLE;
-                    }
-                    else if (4 == (int32_t)custom_param)
-                    {
-                        myDrawFlags |= drawFlags::DRAW_FLAG_BOXZONES;
-                    }
-                    else if (5 == (int32_t)custom_param)
-                    {
-                        myDrawFlags |= drawFlags::DRAW_FLAG_PROXIES;
-                    }
-                    else if (6 == (int32_t)custom_param)
-                    {
-                        myDrawFlags |= drawFlags::DRAW_FLAG_ANIMS;
-                    }
-                    else if (7 == (int32_t)custom_param)
-                    {
-                        myDrawFlags |= drawFlags::DRAW_FLAG_COLORS;
-                    }
-                    else if (8 == (int32_t)custom_param)
-                    {
-                        myDrawFlags |= drawFlags::DRAW_FLAG_SPECIAL;
+                        myDrawFlags |= (1 << (index - 2));
                     }
                 }
                 else
                 {
-                    if (0 == (int32_t)custom_param)
+                    if (0 == index)
                     {
                         renderingLimitFramerate = false;
                     }
-                    else if (1 == (int32_t)custom_param)
+                    else if (1 == index)
                     {
                         glPolygonMode(GL_FRONT, GL_FILL);
                     }
-                    else if (2 == (int32_t)custom_param)
+                    else if ((index >= (2 + 0)) && (index < (2 + drawFlags::DRAW_FLAG_COUNT)))
                     {
-                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_OUTLINE);
-                    }
-                    else if (3 == (int32_t)custom_param)
-                    {
-                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_INVISIBLE);
-                    }
-                    else if (4 == (int32_t)custom_param)
-                    {
-                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_BOXZONES);
-                    }
-                    else if (5 == (int32_t)custom_param)
-                    {
-                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_PROXIES);
-                    }
-                    else if (6 == (int32_t)custom_param)
-                    {
-                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_ANIMS);
-                    }
-                    else if (7 == (int32_t)custom_param)
-                    {
-                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_COLORS);
-                    }
-                    else if (8 == (int32_t)custom_param)
-                    {
-                        myDrawFlags &= (~ drawFlags::DRAW_FLAG_SPECIAL);
+                        myDrawFlags &= (~ (1 << (index - 2)));
                     }
                 }
             }
@@ -385,11 +344,11 @@ namespace ZookieWizard
 
         void buttonFunc_NodeName(WPARAM wParam, LPARAM lParam, void* custom_param)
         {
-            char bufor[256];
+            char bufor[LARGE_BUFFER_SIZE];
 
             if ((false == updatingNodeName) && (EN_CHANGE == HIWORD(wParam)))
             {
-                GetWindowText((HWND)lParam, bufor, 256);
+                GetWindowText((HWND)lParam, bufor, LARGE_BUFFER_SIZE);
 
                 myARs[0].changeSelectedObject(NODES_EDITING_CHANGE_NAME, bufor);
             }
@@ -408,6 +367,42 @@ namespace ZookieWizard
                     myARs[0].changeSelectedObject(NODES_EDITING_UNSET_FLAG, custom_param);
                 }
             }
+        }
+
+
+        ////////////////////////////////////////////////////////////////
+        // WindowsManager: overriden ListBox key dispatch
+        ////////////////////////////////////////////////////////////////
+        LRESULT WindowsManager::overriddenListboxKeyDispatch(HWND listbox_window, uint16_t keycode) const
+        {
+            int32_t a;
+
+            if (getSpecificWindow(2, (-1)) == listbox_window)
+            {
+                switch (keycode)
+                {
+                    case VK_RETURN:
+                    {
+                        a = SendMessage(listbox_window, LB_GETCURSEL, 0, 0);
+
+                        a = (LB_ERR == a) ? NODES_LISTBOX_UPDATE_CURRENT : a;
+
+                        myARs[0].changeSelectedObject(a, nullptr);
+
+                        return (-2);
+                    }
+
+                    case VK_BACK:
+                    {
+                        myARs[0].changeSelectedObject(NODES_LISTBOX_PARENT, nullptr);
+
+                        return (-2);
+                    }
+                }
+            }
+
+            /* Default action */
+            return (-1);
         }
 
 
@@ -496,6 +491,71 @@ namespace ZookieWizard
 
 
         ////////////////////////////////////////////////////////////////
+        // Update EditBoxes with specific text
+        // (0) "MediaDir"
+        // (1) "DenisDir"
+        // (2) "LevelName"
+        // (3) "CameraMovementSpeed"
+        // (4) "CameraRotationSpeed"
+        ////////////////////////////////////////////////////////////////
+        void updateArSettingsText(int32_t id, const char* new_text)
+        {
+            HWND dummy_window;
+            int32_t page_id, window_id;
+
+            switch (id)
+            {
+                case 0: // "MediaDir"
+                {
+                    page_id = 1;
+                    window_id = 1;
+                    break;
+                }
+
+                case 1: // "DenisDir"
+                {
+                    page_id = 1;
+                    window_id = 3;
+                    break;
+                }
+
+                case 2: // "LevelName"
+                {
+                    page_id = 1;
+                    window_id = 5;
+                    break;
+                }
+
+                case 3: // "CameraMovementSpeed"
+                {
+                    page_id = 0;
+                    window_id = 20;
+                    break;
+                }
+
+                case 4: // "CameraRotationSpeed"
+                {
+                    page_id = 0;
+                    window_id = 21;
+                    break;
+                }
+
+                default:
+                {
+                    return;
+                }
+            }
+
+            dummy_window = theWindowsManager.getSpecificWindow(page_id, window_id);
+
+            if (NULL != dummy_window)
+            {
+                SetWindowText(dummy_window, new_text);
+            }
+        }
+
+
+        ////////////////////////////////////////////////////////////////
         // Create windows
         ////////////////////////////////////////////////////////////////
         bool createWindows(HINSTANCE hInstance)
@@ -503,7 +563,7 @@ namespace ZookieWizard
             int32_t a, b, x, y;
             char bufor[64];
             HMENU menu_bar, test_menu;
-            HWND main_window, scroll_window, listbox_window;
+            HWND main_window, scroll_window, dummy_window;
 
             const int WINDOW_HEIGHT = 24;
             const int NODES_BUTTON_HEIGHT = (int)(2.25 * WINDOW_HEIGHT);
@@ -580,7 +640,7 @@ namespace ZookieWizard
             AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_KAO2_PL_PC), "&1) Kangurek Kao: Runda 2 [PL, Retail] [PC]");
             AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_KAO2_EUR_PC), "&2) Kao the Kangaroo: Round 2 [EU, Digital] [PC]");
             AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_KAO_TW_PC), "&3) Kao: Tajemnica Wulkanu [PC]");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_ASTERIX_XXL2_PSP), "&4) Asterix & Obelix XXL 2: Mission Wifix [PSP]");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_ASTERIX_XXL2_PSP), "&4) Asterix && Obelix XXL 2: Mission Wifix [PSP]");
             AppendMenu(menu_bar, MF_POPUP, (UINT_PTR)test_menu, "Game &version");
 
             test_menu = CreateMenu();
@@ -605,42 +665,66 @@ namespace ZookieWizard
             theWindowsManager.updateReturningPosition();
 
             /********************************/
-            /* [PAGE 0] (0 – 6) Create checkboxes */
+            /* [PAGE 0] (0 – 16) Create checkboxes */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_AUTOCHECKBOX);
 
-            const int RENDER_FLAGS_COUNT = 9;
+            const int RENDER_FLAGS_COUNT = 2 + drawFlags::DRAW_FLAG_COUNT;
 
             const char* render_flags_names[RENDER_FLAGS_COUNT] =
             {
                 "Limit rendering framerate (30 fps)",
-                "Draw WIREFRAME",
-                "Outline SELECTED",
-                "Draw INVISIBLE MESHES",
-                "Draw BOX ZONES",
-                "Draw PROXIES",
+                "WIREFRAME MODE",
+
+                "Outline SELECTED NODES",
+                "Render INVISIBLE MESHES",
+                "DrawPass #1",
+                "DrawPass #2",
+                "DrawPass #3",
+                "Render with TEXTURES",
+                "Render with MATERIAL BLENDING",
+                "Render with FRUSTUM TESTING",
+                "Render with VERTEX COLORS",
+                "Render with DYNAMIC LIGHTS",
                 "Update ANIMATIONS",
-                "Render COLORS and LIGHTS",
-                "Render SPECIAL HELPERS"
+                "Objects: BOX ZONES",
+                "Objects: PROXIES",
+                "Objects: COLLISION",
+                "Objects: SPECIAL HELPERS"
             };
 
             for (a = 0; a < RENDER_FLAGS_COUNT; a++)
             {
-                if (0 == theWindowsManager.addWindow(render_flags_names[a], RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_RenderFlags, (void*)a, 0x01))
+                if (0 == (dummy_window = theWindowsManager.addWindow(render_flags_names[a], RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_RenderFlags, (void*)a, 0x01)))
                 {
                     return false;
+                }
+
+                switch (a)
+                {
+                    case (2 + 2): // "DrawPass #1"
+                    case (2 + 3): // "DrawPass #2"
+                    case (2 + 5): // "Render with TEXTURES"
+                    case (2 + 7): // "Render with FRUSTUM TESTING"
+                    {
+                        SendMessage(dummy_window,BM_SETCHECK, BST_CHECKED, 0);
+                        myDrawFlags |= (1 << (a - 2));
+
+                        break;
+                    }
                 }
             }
 
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (7) Create line decoration */
+            /* [PAGE 0] (17) Create line decoration */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
-            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), 0);
+            theWindowsManager.getCurrentPosition(nullptr, &y);
+            theWindowsManager.setCurrentPosition(0, y);
 
             if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
             {
@@ -650,7 +734,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
 
             /********************************/
-            /* [PAGE 0] (8) Create button */
+            /* [PAGE 0] (18) Create button */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON);
@@ -663,24 +747,34 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (9) Create dummy label */
+            /* [PAGE 0] (19) Create dummy label */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
-            if (0 == theWindowsManager.addWindow("Camera speed multiplier:", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01))
+            if (0 == theWindowsManager.addWindow("Camera movement and rotation speed:", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01))
             {
                 return false;
             }
 
             /********************************/
-            /* [PAGE 0] (10) Create editbox */
+            /* [PAGE 0] (20-21) Create editboxes */
 
             theWindowsManager.setCurrentClassName("EDIT");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | ES_AUTOHSCROLL);
 
+            a = (RECT_TABS_X2 / 2) - (WINDOW_PADDING / 2);
+
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == theWindowsManager.addWindow(TEST_CAMERA_DEFAULT_SPEED_TEXT, RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_CameraSpeed, nullptr, 0x01))
+            if (0 == theWindowsManager.addWindow(TEST_CAMERA_DEFAULT_SPEED_TEXT, a, WINDOW_HEIGHT, buttonFunc_CameraSpeed, (void*)0, 0))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(WINDOW_PADDING, 0);
+
+            theWindowsManager.addEdgesToNextWindow();
+            if (0 == theWindowsManager.addWindow(TEST_CAMERA_DEFAULT_SPEED_TEXT, a, WINDOW_HEIGHT, buttonFunc_CameraSpeed, (void*)1, 0x01))
             {
                 return false;
             }
@@ -688,11 +782,12 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (11) Create line decoration */
+            /* [PAGE 0] (22) Create line decoration */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
-            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), 0);
+            theWindowsManager.getCurrentPosition(nullptr, &y);
+            theWindowsManager.setCurrentPosition(0, y);
 
             if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
             {
@@ -702,7 +797,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
 
             /********************************/
-            /* [PAGE 0] (12) Create dummy label */
+            /* [PAGE 0] (23) Create dummy label */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
@@ -713,7 +808,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [PAGE 0] (13) Create editbox */
+            /* [PAGE 0] (24) Create editbox */
 
             theWindowsManager.setCurrentClassName("EDIT");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | ES_AUTOHSCROLL);
@@ -727,7 +822,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (14) Create button */
+            /* [PAGE 0] (25) Create button */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON);
@@ -740,7 +835,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (15) Create dummy label */
+            /* [PAGE 0] (26) Create dummy label */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
@@ -751,7 +846,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [PAGE 0] (16) Create editbox */
+            /* [PAGE 0] (27) Create editbox */
 
             theWindowsManager.setCurrentClassName("EDIT");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | ES_AUTOHSCROLL);
@@ -765,11 +860,12 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 0] (17) Create line decoration */
+            /* [PAGE 0] (28) Create line decoration */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
-            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), 0);
+            theWindowsManager.getCurrentPosition(nullptr, &y);
+            theWindowsManager.setCurrentPosition(0, y);
 
             if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
             {
@@ -779,7 +875,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
 
             /********************************/
-            /* [PAGE 0] (18) Create dummy label */
+            /* [PAGE 0] (29) Create dummy label */
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
@@ -852,7 +948,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
-            if (0 == theWindowsManager.addWindow("Which level do you want to load?", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01))
+            if (0 == theWindowsManager.addWindow("Denis Level Name / New Scene Name\n / Last Ar Name:", RECT_TABS_X2, (2 * WINDOW_HEIGHT), nullptr, nullptr, 0x01))
             {
                 return false;
             }
@@ -891,7 +987,8 @@ namespace ZookieWizard
             /* [PAGE 2] (1) Create line decoration */
 
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
-            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), 0);
+            theWindowsManager.getCurrentPosition(nullptr, &y);
+            theWindowsManager.setCurrentPosition(0, y);
 
             if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
             {
@@ -1052,15 +1149,15 @@ namespace ZookieWizard
             /* [PAGE 2] (21) Create listbox */
 
             theWindowsManager.setCurrentClassName("LISTBOX");
-            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_HSCROLL | WS_VSCROLL | LBS_DISABLENOSCROLL | LBS_HASSTRINGS | LBS_NOTIFY);
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_HSCROLL | WS_VSCROLL | LBS_DISABLENOSCROLL | LBS_HASSTRINGS | LBS_NOTIFY | LBS_WANTKEYBOARDINPUT);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == (listbox_window = theWindowsManager.addWindow("", RECT_TABS_X2, 384, buttonFunc_NodesListChild, nullptr, 0x01)))
+            if (0 == (dummy_window = theWindowsManager.addWindow("", RECT_TABS_X2, 384, buttonFunc_NodesListChild, nullptr, 0x01)))
             {
                 return false;
             }
 
-            SendMessage(listbox_window, LB_SETHORIZONTALEXTENT, (WPARAM)512, 0);
+            SendMessage(dummy_window, LB_SETHORIZONTALEXTENT, (WPARAM)512, 0);
 
             /********************************/
             /* [PAGE 3] */
@@ -1191,12 +1288,116 @@ namespace ZookieWizard
             }
 
             /********************************/
+            /* [PAGE 5] Create line decoration */
+
+            theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+            theWindowsManager.getCurrentPosition(nullptr, &y);
+            theWindowsManager.setCurrentPosition(0, y);
+
+            if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
+
+            /********************************/
+            /* [PAGE 0] (18) Create dummy labels */
+
+            theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD);
+
+            a = (RECT_TABS_X2 / 2) - (WINDOW_PADDING / 2);
+
+            if (0 == theWindowsManager.addWindow("PREVIEW", a, WINDOW_HEIGHT, nullptr, nullptr, 0x03))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING_SMALL);
+
+            if (0 == theWindowsManager.addWindow("Position [X Y Z]", a, WINDOW_HEIGHT, nullptr, nullptr, 0))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(WINDOW_PADDING, 0);
+
+            if (0 == theWindowsManager.addWindow("Rotation [X Y Z]", a, WINDOW_HEIGHT, nullptr, nullptr, 0x01))
+            {
+                return false;
+            }
+
+            theWindowsManager.getCurrentPosition(&x, &y);
+
+            theWindowsManager.offsetCurrentPosition(0, 3 * (WINDOW_HEIGHT + WINDOW_PADDING_SMALL));
+
+            if (0 == theWindowsManager.addWindow("Scale", a, WINDOW_HEIGHT, nullptr, nullptr, 0x02))
+            {
+                return false;
+            }
+
+            /********************************/
+            /* [PAGE 5] (19-20) Create editboxes */
+
+            theWindowsManager.setCurrentClassName("EDIT");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | ES_AUTOHSCROLL);
+
+            theWindowsManager.setCurrentPadding(WINDOW_PADDING, WINDOW_PADDING_SMALL);
+
+            theWindowsManager.setCurrentPosition(x, y);
+
+            for (b = 0; b < 3; b++)
+            {
+                theWindowsManager.addEdgesToNextWindow();
+                if (0 == theWindowsManager.addWindow("", a, WINDOW_HEIGHT, nullptr, nullptr, 0))
+                {
+                    return false;
+                }
+
+                theWindowsManager.addEdgesToNextWindow();
+                if (0 == theWindowsManager.addWindow("", a, WINDOW_HEIGHT, nullptr, nullptr, 0x01))
+                {
+                    return false;
+                }
+            }
+
+            theWindowsManager.offsetCurrentPosition(0, WINDOW_HEIGHT);
+
+            theWindowsManager.addEdgesToNextWindow();
+            if (0 == theWindowsManager.addWindow("", a, WINDOW_HEIGHT, nullptr, nullptr, 0x03))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
+
+            theWindowsManager.setCurrentPadding(0, 0);
+
+            /********************************/
+            /* [PAGE 0] (21) Create line decoration */
+
+            theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+            theWindowsManager.getCurrentPosition(nullptr, &y);
+            theWindowsManager.setCurrentPosition(0, y);
+
+
+            if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
+
+            /********************************/
             /* [PAGE 5] Create buttons */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON);
 
-            theWindowsManager.setCurrentPadding(WINDOW_PADDING_SMALL, WINDOW_PADDING_SMALL);
+            theWindowsManager.setCurrentPadding(WINDOW_PADDING, WINDOW_PADDING_SMALL);
 
             a = (RECT_TABS_X2 / 2) - (WINDOW_PADDING / 2);
 

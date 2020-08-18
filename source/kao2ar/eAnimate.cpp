@@ -14,7 +14,7 @@ namespace ZookieWizard
     {
         /*[0x10]*/ animStateA = nullptr;
         /*[0x14]*/ animStateB = nullptr;
-        /*[0x18]*/ unknown_18 = false;
+        /*[0x18]*/ isPaused = false;
         /*[0x34]*/ unknown_34 = 0;
         /*[0x38]*/ unknown_38 = 0;
         /*(kao3)[0x0120]*/ animStatesCount = 0;
@@ -256,7 +256,7 @@ namespace ZookieWizard
 
         tracks.serialize(ar, &E_TRACK_TYPEINFO);
 
-        ar.readOrWrite(&unknown_18, 0x01);
+        ar.readOrWrite(&isPaused, 0x01);
 
         ar.readOrWrite(&unknown_34, 0x04);
         ar.readOrWrite(&unknown_38, 0x01);
@@ -308,6 +308,8 @@ namespace ZookieWizard
         currentAnimState[0].setLoopType(loopTypeEnum::QUARTZ);
 
         animStatesCount = 1;
+
+        unknown_38 = true;
 
         /* Create new Anim State "containers" */
 

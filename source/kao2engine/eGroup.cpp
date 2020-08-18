@@ -1,7 +1,6 @@
 #include <kao2engine/eGroup.h>
 #include <kao2ar/Archive.h>
-
-#include <kao2engine/eTriMesh.h>
+#include <kao2ar/eDrawContext.h>
 
 #include <utilities/ColladaExporter.h>
 
@@ -390,44 +389,88 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eGroup: render each child node
+    // eGroup: update DrawPass flags from children nodes
     ////////////////////////////////////////////////////////////////
-    bool eGroup::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
+    void eGroup::updateDrawPassFlags(uint32_t* parent_flags)
     {
-        int32_t a, b;
-        eNode* child_node;
+        flags &= (~ 0x70000000);
 
-        if (false == eNode::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
+        for (int32_t a = 0; a < nodes.getSize(); a++)
         {
-            return false;
-        }
-
-        for (a = 0; a < nodes.getSize(); a++)
-        {
-            child_node = (eNode*)nodes.getIthChild(a);
+            eNode* child_node = (eNode*)nodes.getIthChild(a);
 
             if (nullptr != child_node)
             {
-                /* `0x01 & (child_node->getFlags() >> 0x0A)` */
-
-                /* Current object from Archive will have "ID >= (-1)" */
-                /* Object marked on list will receive "ID = (-2)" */
-                /* Object that is a child of marked group will receive "ID = (-3)" */
-                /* Any object that is not selected or marked will receive "ID = (-4)" */
-                if (((-2) == marked_id) || ((-3) == marked_id))
-                {
-                    b = (-3);
-                }
-                else
-                {
-                    b = (marked_id == a) ? (-2) : (-4);
-                }
-
-                child_node->renderObject(draw_flags, anim, parent_srp, parent_matrix, b);
+                child_node->updateDrawPassFlags(&flags);
             }
         }
 
-        return true;
+        eNode::updateDrawPassFlags(parent_flags);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: update before rendering [[vptr]+0x38]
+    // <kao2.00482E50>
+    ////////////////////////////////////////////////////////////////
+    void eGroup::updateBeforeRendering(eDrawContext &draw_context)
+    {
+        eNode::updateBeforeRendering(draw_context);
+
+        bool is_marked;
+        int32_t a, previous_marked_id;
+        eNode* child_node;
+
+        previous_marked_id = draw_context.getMarekedId();
+        is_marked = draw_context.setMarkedForGroupNode();
+
+        for (a = 0; a < nodes.getSize(); a++)
+        {
+            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
+            {
+                if (0x0408 == (child_node->getFlags() & 0x0408))
+                {
+                    if (!is_marked)
+                    {
+                        draw_context.setMarkedForChildNode(previous_marked_id == a);
+                    }
+
+                    child_node->updateBeforeRendering(draw_context);
+                }
+            }
+        }
+
+        draw_context.setMarkedId(previous_marked_id);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: render this node
+    ////////////////////////////////////////////////////////////////
+    void eGroup::renderNode(eDrawContext &draw_context) const
+    {
+        eNode* child_node;
+
+        int32_t previous_marked_id = draw_context.getMarekedId();
+        bool is_marked = draw_context.setMarkedForGroupNode();
+
+        for (int32_t a = 0; a < nodes.getSize(); a++)
+        {
+            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
+            {
+                if (draw_context.checkNodeFlags(child_node->getFlags(), child_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO)))
+                {
+                    if (!is_marked)
+                    {
+                        draw_context.setMarkedForChildNode(previous_marked_id == a);
+                    }
+
+                    child_node->renderNode(draw_context);
+                }
+            }
+        }
+
+        draw_context.setMarkedId(previous_marked_id);
     }
 
 
@@ -458,34 +501,6 @@ namespace ZookieWizard
                 if (nullptr != test_node)
                 {
                     return test_node;
-                }
-            }
-        }
-
-        return nullptr;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eGroup: find material by path
-    ////////////////////////////////////////////////////////////////
-    eMaterial* eGroup::findMaterial(eString &searched_path) const
-    {
-        int32_t i;
-        eNode* child_node;
-        eMaterial* test_material;
-
-        for (i = 0; i < nodes.getSize(); i++)
-        {
-            child_node = (eNode*)nodes.getIthChild(i);
-
-            if (nullptr != child_node)
-            {
-                test_material = child_node->findMaterial(searched_path);
-
-                if (nullptr != test_material)
-                {
-                    return test_material;
                 }
             }
         }

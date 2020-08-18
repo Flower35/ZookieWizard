@@ -1,5 +1,6 @@
 #include <kao2engine/eTriMesh.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 #include <kao2engine/ePhyTriMesh.h>
 #include <kao2engine/eGeoSet.h>
@@ -177,96 +178,84 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTriMesh: render
+    // eTriMesh: render this node
     ////////////////////////////////////////////////////////////////
-    bool eTriMesh::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
+    void eTriMesh::renderNode(eDrawContext &draw_context) const
     {
-        int32_t i, texID;
+        int32_t i, draw_flags;
         bool is_selected_or_marked;
         bool use_outline;
         float color[3];
 
+        eMatrix4x4* previous_matrix;
+        eMatrix4x4 parent_matrix;
         ePoint4 test_vertices[2];
-
-        GLuint tex_name = 0;
-        eTexture* test_texture;
 
         if (nullptr == geo)
         {
-            return false;
-        }
-
-        if (false == eNode::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
-        {
-            return false;
+            return;
         }
 
         /* Testing 3D mesh boundaries */
 
-        test_vertices[0] = ePoint4(boxBoundMin);
-        test_vertices[1] = ePoint4(boxBoundMax);
+        draw_flags = draw_context.getDrawFlags();
 
-        for (i = 0; i < 2; i++)
+        if (GUI::drawFlags::DRAW_FLAG_FRUSTUM & draw_flags)
         {
-            test_vertices[i].w = 1.0f;
-            test_vertices[i] = parent_matrix * test_vertices[i];
-        }
+            test_vertices[0] = ePoint4(boxBoundMin);
+            test_vertices[1] = ePoint4(boxBoundMax);
 
-        if (false == GUI::testWithCameraPlanes
-          (test_vertices[0].x, test_vertices[0].y, test_vertices[0].z,
-          test_vertices[1].x, test_vertices[1].y, test_vertices[1].z))
-        {
-            return false;
+            if (nullptr != (previous_matrix = draw_context.getParentMatrix()))
+            {
+                parent_matrix = (*previous_matrix);
+            }
+
+            for (i = 0; i < 2; i++)
+            {
+                test_vertices[i].w = 1.0f;
+                test_vertices[i] = parent_matrix * test_vertices[i];
+            }
+
+            if (false == GUI::testWithCameraPlanes
+              (test_vertices[0].x, test_vertices[0].y, test_vertices[0].z,
+              test_vertices[1].x, test_vertices[1].y, test_vertices[1].z))
+            {
+                return;
+            }
         }
 
         /* Render 3D mesh */
 
-        is_selected_or_marked = (((-2) == marked_id) || ((-1) == marked_id));
-        use_outline = ((GUI::drawFlags::DRAW_FLAG_OUTLINE & draw_flags) && (((-2) == marked_id) || ((-3) == marked_id)));
+        is_selected_or_marked = draw_context.isNodeSelectedOrMarked();
+        use_outline = draw_context.isNodeOutlined();
 
         if (is_selected_or_marked)
         {
-            /* This object is selected (-1) or marked (-2) and can be moved around */
             glPushMatrix();
-            GUI::multiplyBySelectedObjectTransform();
+            GUI::multiplyBySelectedObjectTransform(false);
         }
 
         if (use_outline)
         {
             GUI::colorOfMarkedObject(color[0], color[1], color[2]);
             glColor3f(color[0], color[1], color[2]);
-
-            //// glDisable(GL_DEPTH_TEST);
-            //// glPushMatrix();
-            //// glScalef(1.05f, 1.05f, 1.05f);
-
-            //// geo->draw(anim, draw_flags, 0, 0);
-
-            //// glPopMatrix();
-            //// glEnable(GL_DEPTH_TEST);
         }
 
-        /* (--dsp--) `i < geo->getTextureCoordsCount()` */
+        /* `i < geo->getTextureCoordsCount()` */
 
         for (i = 0; i < 1; i++)
         {
-            if (nullptr != material)
-            {
-                texID = geo->getTextureId(i);
+            draw_context.useMaterial
+            (
+                use_outline ? nullptr : material,
+                geo->getTextureId(i)
+            );
 
-                test_texture = material->getIthTexture(texID);
-
-                if ((false == use_outline) && (nullptr != test_texture))
-                {
-                    tex_name = test_texture->getTextureName();
-                }
-                else
-                {
-                    tex_name = 0;
-                }
-            }
-
-            geo->draw(draw_flags, tex_name, i);
+            geo->draw
+            (
+                use_outline ? ((~ GUI::drawFlags::DRAW_FLAG_COLORS) & draw_flags) : draw_flags,
+                i
+            );
         }
 
         if (use_outline)
@@ -278,8 +267,6 @@ namespace ZookieWizard
         {
             glPopMatrix();
         }
-
-        return true;
     }
 
 

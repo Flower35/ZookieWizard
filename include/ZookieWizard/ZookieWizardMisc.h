@@ -24,11 +24,14 @@ namespace ZookieWizard
         extern OPENFILENAME ofn;
 
         extern int currentGameVersion;
-        extern char currentWorkingDirectory[256];
-        extern char denisDirectory[256];
-        extern char denisLevelName[256];
+        extern char currentWorkingDirectory[LARGE_BUFFER_SIZE];
+        extern char denisDirectory[LARGE_BUFFER_SIZE];
+        extern char denisLevelName[LARGE_BUFFER_SIZE];
 
     /*** Functions ***/
+
+        void loadEditorSettings();
+        void saveEditorSettings();
 
         void openOrSaveAr(int);
         void setGameVersion(int);

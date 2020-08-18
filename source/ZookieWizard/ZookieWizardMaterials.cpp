@@ -33,7 +33,7 @@ namespace ZookieWizard
         float matMgr_mousePos[2];
         int matMgr_mouseMode;
 
-        HWND matMgr_Windows[8];
+        HWND matMgr_Windows[9];
 
         const int THUMBNAILS_IN_GRID = 10;
         const float THUMBNAIL_HW = 1.0f;
@@ -219,6 +219,48 @@ namespace ZookieWizard
 
 
         ////////////////////////////////////////////////////////////////
+        // Materials Manager: Finding material by the Bitmap path
+        ////////////////////////////////////////////////////////////////
+        void* materialsManager_FindMaterial(const char* bitmap_path)
+        {
+            int32_t a, b, c;
+            eTexture* dummy_texture;
+            eBitmap* dummy_bitmap;
+            eString dummy_path;
+
+            for (a = 0; a < matMgr_MatList_Count; a++)
+            {
+                if (nullptr != matMgr_MatList[a])
+                {
+                    c =  matMgr_MatList[a]->getTexturesCount();
+
+                    for (b = 0; b < c; b++)
+                    {
+                        dummy_texture = matMgr_MatList[a]->getIthTexture(b);
+
+                        if (nullptr != dummy_texture)
+                        {
+                            dummy_bitmap = dummy_texture->getBitmap();
+
+                            if (nullptr != dummy_bitmap)
+                            {
+                                dummy_path = dummy_bitmap->getPath();
+
+                                if (dummy_path.comparePath(bitmap_path))
+                                {
+                                    return matMgr_MatList[a];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return nullptr;
+        }
+
+
+        ////////////////////////////////////////////////////////////////
         // Materials manager: Updating selections on the lists, changing properties
         ////////////////////////////////////////////////////////////////
 
@@ -229,6 +271,20 @@ namespace ZookieWizard
             if (update_listbox)
             {
                 SendMessage(matMgr_Windows[3], LB_SETCURSEL, (WPARAM)matMgr_BmpList_Current, 0);
+            }
+
+            /* Update `isExternal` checkbox */
+
+            if ((matMgr_BmpList_Current >= 0) && (matMgr_BmpList_Current < matMgr_BmpList_Count))
+            {
+                eBitmap* current_bitmap = matMgr_BmpList[matMgr_BmpList_Current];
+
+                if (nullptr != current_bitmap)
+                {
+                    bool is_external = current_bitmap->getLoadedFromExternalFileFlag();
+
+                    SendMessage(matMgr_Windows[8], BM_SETCHECK, (WPARAM)(is_external ? BST_CHECKED : BST_UNCHECKED), 0);
+                }
             }
         }
 
@@ -366,6 +422,19 @@ namespace ZookieWizard
             }
         }
 
+        void materialsManager_UpdateCurrentBitmap(bool new_external_state)
+        {
+            if ((matMgr_BmpList_Current >= 0) && (matMgr_BmpList_Current < matMgr_BmpList_Count))
+            {
+                eBitmap* current_bitmap = matMgr_BmpList[matMgr_BmpList_Current];
+
+                if (nullptr != current_bitmap)
+                {
+                    current_bitmap->setLoadedFromExternalFileFlag(new_external_state);
+                }
+            }
+        }
+
         void materialsManager_UpdateCurrentMaterial(int32_t new_collision_type, int32_t new_sound_type, uint16_t new_flags)
         {
             if ((matMgr_MatList_Current >= 0) && (matMgr_MatList_Current < matMgr_MatList_Count))
@@ -493,7 +562,7 @@ namespace ZookieWizard
 
         void materialsManager_UpdateMaterialName(void* object)
         {
-            char bufor[256];
+            char bufor[LARGE_BUFFER_SIZE];
             eMaterial* current_material = (eMaterial*)object;
 
             if (nullptr == current_material)
@@ -511,11 +580,11 @@ namespace ZookieWizard
 
                     if ((nullptr == name_txt) || (name_str.getLength() <= 0))
                     {
-                        sprintf_s(bufor, 256, "<Unnamed Material>");
+                        sprintf_s(bufor, LARGE_BUFFER_SIZE, "<Unnamed Material>");
                     }
                     else
                     {
-                        sprintf_s(bufor, 256, "\"%s\"", name_txt);
+                        sprintf_s(bufor, LARGE_BUFFER_SIZE, "\"%s\"", name_txt);
                     }
 
                     SendMessage(matMgr_Windows[0], LB_DELETESTRING, (WPARAM)a, 0);
@@ -528,7 +597,7 @@ namespace ZookieWizard
 
         void materialsManager_UpdateBitmapName(void* object)
         {
-            char bufor[256];
+            char bufor[LARGE_BUFFER_SIZE];
             eBitmap* current_bitmap = (eBitmap*)object;
 
             if (nullptr == current_bitmap)
@@ -546,11 +615,11 @@ namespace ZookieWizard
 
                     if ((nullptr == name_txt) || (name_str.getLength() <= 0))
                     {
-                        sprintf_s(bufor, 256, "<Unnamed Bitmap>");
+                        sprintf_s(bufor, LARGE_BUFFER_SIZE, "<Unnamed Bitmap>");
                     }
                     else
                     {
-                        sprintf_s(bufor, 256, "\"%s\"", name_txt);
+                        sprintf_s(bufor, LARGE_BUFFER_SIZE, "\"%s\"", name_txt);
                     }
 
                     SendMessage(matMgr_Windows[3], LB_DELETESTRING, (WPARAM)a, 0);
@@ -718,7 +787,7 @@ namespace ZookieWizard
                             float render_x = (ratio < 1.0f) ? (THUMBNAIL_HW * ratio) : THUMBNAIL_HW;
                             float render_y = (ratio > 1.0f) ? (THUMBNAIL_HW / ratio) : THUMBNAIL_HW;
 
-                            glBindTexture(GL_TEXTURE_2D, dummy_bitmap->getTextureName());
+                            glBindTexture(GL_TEXTURE_2D, dummy_bitmap->getTextureId());
 
                             glBegin(GL_TRIANGLE_STRIP);
                             {
@@ -780,7 +849,7 @@ namespace ZookieWizard
                         float render_x = (ratio < 1.0f) ? (BIG_THUMBNAIL_HW * ratio) : BIG_THUMBNAIL_HW;
                         float render_y = (ratio > 1.0f) ? (BIG_THUMBNAIL_HW / ratio) : BIG_THUMBNAIL_HW;
 
-                        glBindTexture(GL_TEXTURE_2D, dummy_bitmap->getTextureName());
+                        glBindTexture(GL_TEXTURE_2D, dummy_bitmap->getTextureId());
 
                         glEnable(GL_BLEND);
                         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1066,7 +1135,7 @@ namespace ZookieWizard
 
         int materialsManager_ExportAllBitmaps(int start_id, eString working_directory, bool silent)
         {
-            char bufor[256];
+            char bufor[LARGE_BUFFER_SIZE];
             int result = 0;
             int total = 0;
 
@@ -1103,7 +1172,7 @@ namespace ZookieWizard
                     "================================\n"
                 );
 
-                sprintf_s(bufor, 256, "Exported %d / %d bitmaps.", result, total);
+                sprintf_s(bufor, LARGE_BUFFER_SIZE, "Exported %d / %d bitmaps.", result, total);
 
                 theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
             }
@@ -1113,7 +1182,7 @@ namespace ZookieWizard
 
         int materialsManager_ReimportAllBitmaps(int start_id, eString working_directory, bool silent)
         {
-            char bufor[256];
+            char bufor[LARGE_BUFFER_SIZE];
             int result = 0;
             int total = 0;
 
@@ -1150,7 +1219,7 @@ namespace ZookieWizard
                     "================================\n"
                 );
 
-                sprintf_s(bufor, 256, "Reimported %d / %d bitmaps.", result, total);
+                sprintf_s(bufor, LARGE_BUFFER_SIZE, "Reimported %d / %d bitmaps.", result, total);
 
                 theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
             }
@@ -1161,7 +1230,7 @@ namespace ZookieWizard
         void materialsManager_BulkTexturesExport()
         {
             int result_textures, result_archives, engine_version, test_id;
-            char bufor[256];
+            char bufor[LARGE_BUFFER_SIZE];
 
             eString output_dir;
             eString keywords[3];
@@ -1193,7 +1262,7 @@ namespace ZookieWizard
                 bufor[0] = 0x00;
 
                 ofn.lpstrFile = bufor;
-                ofn.nMaxFile = 256;
+                ofn.nMaxFile = LARGE_BUFFER_SIZE;
                 ofn.lpstrTitle = "Opening a list file..";
                 ofn.lpstrFilter = "Text files (*.txt)\0*.txt\0";
                 ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
@@ -1306,7 +1375,7 @@ namespace ZookieWizard
 
                 sprintf_s
                 (
-                    bufor, 256,
+                    bufor, LARGE_BUFFER_SIZE,
                     "Successfully exported %d textures from %d KAO2 archives!",
                     result_textures,
                     result_archives
@@ -1331,7 +1400,7 @@ namespace ZookieWizard
         void materialsManager_BulkTexturesReimport()
         {
             int result_textures, result_archives, engine_version, archive_version, test_id;
-            char bufor[256];
+            char bufor[LARGE_BUFFER_SIZE];
 
             eString input_dir;
             eString keywords[3];
@@ -1363,7 +1432,7 @@ namespace ZookieWizard
                 bufor[0] = 0x00;
 
                 ofn.lpstrFile = bufor;
-                ofn.nMaxFile = 256;
+                ofn.nMaxFile = LARGE_BUFFER_SIZE;
                 ofn.lpstrTitle = "Opening a list file..";
                 ofn.lpstrFilter = "Text files (*.txt)\0*.txt\0";
                 ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
@@ -1487,7 +1556,7 @@ namespace ZookieWizard
 
                 sprintf_s
                 (
-                    bufor, 256,
+                    bufor, LARGE_BUFFER_SIZE,
                     "Successfully reimported %d textures to %d KAO2 archives!",
                     result_textures,
                     result_archives
@@ -1629,6 +1698,16 @@ namespace ZookieWizard
             }
         }
 
+        void buttonFunc_BitmapCheckBox(WPARAM wParam, LPARAM lParam, void* custom_param)
+        {
+            if (BN_CLICKED == HIWORD(wParam))
+            {
+                bool is_external = (BST_CHECKED == SendMessage((HWND)lParam, BM_GETCHECK, 0, 0));
+
+                materialsManager_UpdateCurrentBitmap(is_external);
+            }
+        }
+
         bool materialsManager_AddWindows()
         {
             int32_t a;
@@ -1720,9 +1799,10 @@ namespace ZookieWizard
             /********************************/
             /* Create line decoration */
 
-            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), WINDOW_PADDING_SMALL);
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+            theWindowsManager.getCurrentPosition(nullptr, &a);
+            theWindowsManager.setCurrentPosition(0, a + WINDOW_PADDING_SMALL);
 
             if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
             {
@@ -1743,7 +1823,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* Create listbox */
+            /* (0) Create listbox - Materials list */
 
             theWindowsManager.setCurrentClassName("LISTBOX");
             theWindowsManager.setCurrentStyleFlags(LISTBOX_STYLES | WS_HSCROLL);
@@ -1759,9 +1839,10 @@ namespace ZookieWizard
             /********************************/
             /* Create line decoration and label */
 
-            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), WINDOW_PADDING_SMALL);
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+            theWindowsManager.getCurrentPosition(nullptr, &a);
+            theWindowsManager.setCurrentPosition(0, a + WINDOW_PADDING_SMALL);
 
             if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
             {
@@ -1777,7 +1858,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* Create listbox */
+            /* (1) Create listbox - Material Collision Types */
 
             theWindowsManager.setCurrentClassName("LISTBOX");
             theWindowsManager.setCurrentStyleFlags(LISTBOX_STYLES);
@@ -1797,9 +1878,10 @@ namespace ZookieWizard
             /********************************/
             /* Create line decoration and label */
 
-            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), WINDOW_PADDING_SMALL);
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+            theWindowsManager.getCurrentPosition(nullptr, &a);
+            theWindowsManager.setCurrentPosition(0, a + WINDOW_PADDING_SMALL);
 
             if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
             {
@@ -1815,7 +1897,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* Create listbox */
+            /* (2) Create listbox - Material Sound Types */
 
             theWindowsManager.setCurrentClassName("LISTBOX");
             theWindowsManager.setCurrentStyleFlags(LISTBOX_STYLES);
@@ -1835,9 +1917,10 @@ namespace ZookieWizard
             /********************************/
             /* Create line decoration and label */
 
-            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), WINDOW_PADDING_SMALL);
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+            theWindowsManager.getCurrentPosition(nullptr, &a);
+            theWindowsManager.setCurrentPosition(0, a + WINDOW_PADDING_SMALL);
 
             if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
             {
@@ -1853,7 +1936,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* Create checkboxes */
+            /*  (4-7) Create checkboxes - Material Blending Flags */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_AUTOCHECKBOX);
@@ -1871,9 +1954,10 @@ namespace ZookieWizard
             /********************************/
             /* Create line decoration and label */
 
-            theWindowsManager.offsetCurrentPosition((0 - RECT_TABS_X1), WINDOW_PADDING_SMALL);
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+            theWindowsManager.getCurrentPosition(nullptr, &a);
+            theWindowsManager.setCurrentPosition(0, a + WINDOW_PADDING_SMALL);
 
             if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
             {
@@ -1889,7 +1973,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* Create listbox */
+            /* (3) Create listbox - Bitmaps list */
 
             theWindowsManager.setCurrentClassName("LISTBOX");
             theWindowsManager.setCurrentStyleFlags(LISTBOX_STYLES | WS_HSCROLL);
@@ -1902,8 +1986,44 @@ namespace ZookieWizard
 
             SendMessage(matMgr_Windows[3], LB_SETHORIZONTALEXTENT, (WPARAM)512, 0);
 
+            /********************************/
+            /* Create line decoration */
+
+            theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+            theWindowsManager.getCurrentPosition(nullptr, &a);
+            theWindowsManager.setCurrentPosition(0, a + WINDOW_PADDING_SMALL);
+
+            if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
+            {
+                return false;
+            }
+
+            /********************************/
+            /* (8) Create checkbox - Bitmap marked as external */
+
+            theWindowsManager.setCurrentClassName("BUTTON");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_AUTOCHECKBOX);
+
+            if (0 == (matMgr_Windows[8] = theWindowsManager.addWindow("Loaded from external file", RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_BitmapCheckBox, nullptr, 0x01)))
+            {
+                return false;
+            }
+
+            /********************************/
+            /* Create the last line decoration */
+
+            theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+            theWindowsManager.getCurrentPosition(nullptr, &a);
+            theWindowsManager.setCurrentPosition(0, a + WINDOW_PADDING_SMALL);
+
+            if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
+            {
+                return false;
+            }
+
             return true;
         }
-
     }
 }

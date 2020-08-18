@@ -1,5 +1,6 @@
 #include <kao2engine/eCylNode.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 namespace ZookieWizard
 {
@@ -51,6 +52,69 @@ namespace ZookieWizard
 
         /* [0x5C] height */
         ar.readOrWrite(&height, 0x04);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCylNode: render this node
+    ////////////////////////////////////////////////////////////////
+    void eCylNode::renderNode(eDrawContext &draw_context) const
+    {
+        if (GUI::drawFlags::DRAW_FLAG_COLLISION & draw_context.getDrawFlags())
+        {
+            /* Inactive color (orange) */
+            float color[3] = {1.0f, 0.5f, 0};
+
+            bool is_selected_or_marked = draw_context.isNodeSelectedOrMarked();
+
+            if (is_selected_or_marked)
+            {
+                glPushMatrix();
+                GUI::multiplyBySelectedObjectTransform(false);
+            }
+
+            if (draw_context.isNodeOutlined())
+            {
+                GUI::colorOfMarkedObject(color[0], color[1], color[2]);
+            }
+
+            /********************************/
+
+            bool was_texturing_enabled = glIsEnabled(GL_TEXTURE_2D);
+            glDisable(GL_TEXTURE_2D);
+            bool was_blending_enabled = glIsEnabled(GL_BLEND);
+            glDisable(GL_BLEND);
+
+            glColor3f(color[0], color[1], color[2]);
+
+            GLUquadric* quadric = gluNewQuadric();
+
+            if (nullptr != quadric)
+            {
+                gluQuadricDrawStyle(quadric, GLU_LINE);
+                gluCylinder(quadric, radius, radius, height, 18, 15);
+                gluDeleteQuadric(quadric);
+            }
+
+            glColor3f(1.0f, 1.0f, 1.0f);
+
+            if (was_texturing_enabled)
+            {
+                glEnable(GL_TEXTURE_2D);
+            }
+
+            if (was_blending_enabled)
+            {
+                glEnable(GL_BLEND);
+            }
+
+            /********************************/
+
+            if (is_selected_or_marked)
+            {
+                glPopMatrix();
+            }
+        }
     }
 
 }

@@ -475,6 +475,12 @@ namespace ZookieWizard
                     break;
                 }
 
+                case WM_VKEYTOITEM:
+                {
+                    return theWindowsManager.overriddenListboxKeyDispatch((HWND)lParam, LOWORD(wParam));
+                }
+
+
                 /********************************/
                 /* Scrolling vertically */
 
@@ -1321,7 +1327,7 @@ namespace ZookieWizard
         ////////////////////////////////////////////////////////////////
         // WindowsManager: get specific window
         ////////////////////////////////////////////////////////////////
-        HWND WindowsManager::getSpecificWindow(int32_t page, int32_t place)
+        HWND WindowsManager::getSpecificWindow(int32_t page, int32_t place) const
         {
             if ((page >= 0) && (page < pagesCount))
             {

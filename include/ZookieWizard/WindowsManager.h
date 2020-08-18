@@ -14,7 +14,7 @@ namespace ZookieWizard
         typedef void (*void_func_with_params)(WPARAM, LPARAM, void*);
 
         #define WINDOWS_MANAGER_MENU_ID 101
-        #define WINDOWS_MANAGER_SCROLL_HEIGHT (3 * RECT_WINDOW_Y)
+        #define WINDOWS_MANAGER_SCROLL_HEIGHT (int)(3.5 * RECT_WINDOW_Y)
 
         #define WINDOWS_MANAGER_MESSAGE_ERROR 0
         #define WINDOWS_MANAGER_MESSAGE_WARNING 1
@@ -123,11 +123,13 @@ namespace ZookieWizard
                 HWND getPageLabelWindow() const;
                 HWND getScrollWindow() const;
 
-                HWND getSpecificWindow(int32_t page, int32_t place);
+                HWND getSpecificWindow(int32_t page, int32_t place) const;
 
                 void runStaticFunction(int32_t id, WPARAM wparam, LPARAM lparam) const;
 
                 void displayMessage(uint8_t type, const char* text) const;
+
+                LRESULT overriddenListboxKeyDispatch(HWND listbox_window, uint16_t keycode) const;
         };
 
         extern WindowsManager theWindowsManager;

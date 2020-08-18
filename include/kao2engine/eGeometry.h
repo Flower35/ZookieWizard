@@ -38,8 +38,6 @@ namespace ZookieWizard
             ePoint3 editingGetCenterPoint() const override;
             void editingRebuildCollision() override;
 
-            eMaterial* findMaterial(eString &searched_path) const override;
-
             eMaterial* getMaterial() const;
             void setMaterial(eMaterial* new_material);
 

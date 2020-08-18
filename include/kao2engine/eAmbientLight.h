@@ -21,6 +21,8 @@ namespace ZookieWizard
             ~eAmbientLight();
 
             TypeInfo* getType() const override;
+
+            /*[vptr]+0x74]*/ void bindLight(int32_t light_id) const override;
     };
 
 

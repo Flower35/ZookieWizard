@@ -2,6 +2,7 @@
 #include <kao2ar/eObject.h>
 
 #include <kao2engine/Log.h>
+#include <kao2engine/eNode.h>
 
 namespace ZookieWizard
 {
@@ -360,6 +361,11 @@ namespace ZookieWizard
             version = ver_max;
 
             selectedObject = parentObject;
+
+            if ((nullptr != parentObject) && parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
+            {
+                ((eNode*)parentObject)->updateDrawPassFlags(nullptr);
+            }
         }
         else if (isInWriteMode())
         {

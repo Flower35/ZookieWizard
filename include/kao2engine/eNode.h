@@ -7,10 +7,14 @@ namespace ZookieWizard
 {
     class eALBox;
     class eTransform;
-    class eMaterial;
     template <typename> class eCtrl;
 
     extern const char* theNodeFlagNames[32];
+
+    #define TXT_PARSING_NODE_PARAMTYPE_NUM 0
+    #define TXT_PARSING_NODE_PARAMTYPE_STR 1
+    #define TXT_PARSING_NODE_PARAMTYPE_REF 2
+
 
     ////////////////////////////////////////////////////////////////
     // eNode interface
@@ -32,6 +36,7 @@ namespace ZookieWizard
             /*[0x20-0x2C]*/ float sphBound[4];
             /*[0x30]*/ uint16_t flagsCollisionResponse;
             /*[0x34]*/ eCtrl<float>* visCtrl;
+            /*[0x38]*/ float visRate;
             /*[(kao3)0x34]*/ int32_t visGroup;
 
         /*** Methods ***/
@@ -49,7 +54,9 @@ namespace ZookieWizard
             eString getLogPrintMessage() const override;
             void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
 
-            bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id) override;
+            virtual void updateDrawPassFlags(uint32_t* parent_flags);
+            virtual void updateBeforeRendering(eDrawContext &draw_context);
+            virtual void renderNode(eDrawContext &draw_context) const;
 
             virtual ePoint3 editingGetCenterPoint() const;
             virtual void editingRebuildCollision();
@@ -69,14 +76,13 @@ namespace ZookieWizard
             void setParentNode(eNode* new_parent);
 
             virtual eNode* findNode(eString &searched_name) const;
-            virtual eMaterial* findMaterial(eString &searched_path) const;
 
             eTransform* getPreviousTransform() const;
             void setPreviousTransform();
 
-            int32_t getFlags() const;
-            void setFlags(int32_t bits_to_apply);
-            void unsetFlags(int32_t bits_to_erase);
+            uint32_t getFlags() const;
+            void setFlags(uint32_t bits_to_apply);
+            void unsetFlags(uint32_t bits_to_erase);
 
             eALBox* getAxisListBox() const;
             void setAxisListBox(eALBox* box);

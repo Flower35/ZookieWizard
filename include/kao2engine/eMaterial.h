@@ -39,7 +39,7 @@ namespace ZookieWizard
             /*[0x22]*/ uint16_t unknown_22;
             /*[0x24]*/ eString name;
             /*[0x28]*/ int32_t transpLayer;
-            /*[0x2C]*/ float unknown_2C;
+            /*[0x2C]*/ float alphaTestRef;
 
 
         /*** Methods ***/
@@ -79,6 +79,7 @@ namespace ZookieWizard
             uint16_t getSoundType() const;
             void setSoundType(uint16_t new_type);
 
+            float getAlphaTestRef() const;
     };
 
 

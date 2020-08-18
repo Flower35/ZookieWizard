@@ -73,7 +73,10 @@ namespace ZookieWizard
             bool loadFromFile(eString directory, bool silent_if_not_exists);
             void exportImageFile(eString directory) const;
 
-            GLuint getTextureName() const;
+            GLuint getTextureId() const;
+
+            bool getLoadedFromExternalFileFlag() const;
+            void setLoadedFromExternalFileFlag(bool new_flag);
 
             void setTransparencyColor(uint32_t color);
             bool isTransparent() const;

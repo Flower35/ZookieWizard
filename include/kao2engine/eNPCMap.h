@@ -54,6 +54,8 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
 
+            void renderNode(eDrawContext &draw_context) const override;
+
             void customSetup(ePoint3 &box_min, ePoint3 &box_max, int32_t navis_in_group);
     };
 

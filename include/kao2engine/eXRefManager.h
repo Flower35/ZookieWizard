@@ -34,7 +34,7 @@ namespace ZookieWizard
 
             void destroyNode() override;
 
-            bool renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id) override;
+            void renderNode(eDrawContext &draw_context) const override;
     };
 
 

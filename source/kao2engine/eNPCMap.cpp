@@ -1,5 +1,6 @@
 #include <kao2engine/eNPCMap.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 namespace ZookieWizard
 {
@@ -162,6 +163,48 @@ namespace ZookieWizard
         /* [0x48] unknown value */
 
         ar.readOrWrite(&unknown_48, 0x01);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNPCMap: render this node
+    ////////////////////////////////////////////////////////////////
+    void eNPCMap::renderNode(eDrawContext &draw_context) const
+    {
+        eGroup::renderNode(draw_context);
+
+        if (GUI::drawFlags::DRAW_FLAG_BOXZONES & draw_context.getDrawFlags())
+        {
+            /* Inactive color (orange) */
+            float color[3] = {1.0f, 0.5f, 0};
+
+            bool is_selected_or_marked = draw_context.isNodeSelectedOrMarked();
+
+            if (is_selected_or_marked)
+            {
+                glPushMatrix();
+                GUI::multiplyBySelectedObjectTransform(false);
+            }
+
+            if (draw_context.isNodeOutlined())
+            {
+                /* Active color */
+                GUI::colorOfMarkedObject(color[0], color[1], color[2]);
+            }
+
+            GUI::renderBoundingBox
+            (
+                2.0f,
+                color[0], color[1], color[2],
+                boxBoundMin.x, boxBoundMin.y, boxBoundMin.z,
+                boxBoundMax.x, boxBoundMax.y, boxBoundMax.z
+            );
+
+            if (is_selected_or_marked)
+            {
+                glPopMatrix();
+            }
+        }
     }
 
 

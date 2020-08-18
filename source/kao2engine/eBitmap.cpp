@@ -1043,6 +1043,7 @@ namespace ZookieWizard
     void eBitmap::serialize(Archive &ar)
     {
         int32_t a = 0;
+        bool can_be_empty = ((ar.getVersion() >= 0x8A) && isLoadedFromExternalFile);
 
         int32_t total_length;
         bool using_pal;
@@ -1054,7 +1055,7 @@ namespace ZookieWizard
 
         /* Bitmap dimensions */
 
-        if (ar.checkGameEngine((-1), GAME_VERSION_KAO_TW_PC) && ar.isInWriteMode() && isLoadedFromExternalFile)
+        if (ar.isInWriteMode() && can_be_empty)
         {
             ar.readOrWrite(&a, 0x04);
             ar.readOrWrite(&a, 0x04);
@@ -1072,7 +1073,7 @@ namespace ZookieWizard
         }
         else
         {
-            if (ar.checkGameEngine((-1), GAME_VERSION_KAO_TW_PC) && ar.isInWriteMode() && isLoadedFromExternalFile)
+            if (ar.isInWriteMode() && can_be_empty)
             {
                 ar.readOrWrite(&a, 0x04);
                 ar.readOrWrite(&a, 0x04);
@@ -1154,7 +1155,7 @@ namespace ZookieWizard
         /* Save pixels ALWAYS if "ar.engineSavedWith" is different from "KAO_TW" */
         /* Otherwise save pixels only when image was NOT loaded from external file */
 
-        if ((!ar.checkGameEngine((-1), GAME_VERSION_KAO_TW_PC)) || (!isLoadedFromExternalFile))
+        if (!can_be_empty)
         {
             if (total_length > 0)
             {
@@ -1181,7 +1182,8 @@ namespace ZookieWizard
 
         if (ar.isInReadMode())
         {
-            if (total_length <= 0)
+            /* <kao_tw.004271E3> */
+            if ((virtualWidth <= 0) || (virtualHeight <= 0))
             {
                 try
                 {
@@ -1273,9 +1275,24 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eBitmap: get texture name (used with eTexture)
     ////////////////////////////////////////////////////////////////
-    GLuint eBitmap::getTextureName() const
+    GLuint eBitmap::getTextureId() const
     {
         return texture_name_id;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: get or set the "loaded from external file" flag
+    ////////////////////////////////////////////////////////////////
+
+    bool eBitmap::getLoadedFromExternalFileFlag() const
+    {
+        return isLoadedFromExternalFile;
+    }
+
+    void eBitmap::setLoadedFromExternalFileFlag(bool new_flag)
+    {
+        isLoadedFromExternalFile = new_flag;
     }
 
 

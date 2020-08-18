@@ -23,6 +23,10 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
+        protected:
+
+            void useBasicLightParams(int32_t light_id) const;
+
         public:
 
             eLight();
@@ -30,6 +34,8 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            /*[vptr]+0x74]*/ virtual void bindLight(int32_t light_id) const = 0;
 
             void getDiffuseColor(float* values) const;
             void getAmbientColor(float* values) const;

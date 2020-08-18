@@ -37,4 +37,14 @@ namespace ZookieWizard
 
     eAmbientLight::~eAmbientLight() {}
 
+
+    ////////////////////////////////////////////////////////////////
+    // eAmbientLight: binding function
+    // [[vptr]+0x74] <kao2.005AE5C0>
+    ////////////////////////////////////////////////////////////////
+    void eAmbientLight::bindLight(int32_t light_id) const
+    {
+        useBasicLightParams(light_id);
+    }
+
 }

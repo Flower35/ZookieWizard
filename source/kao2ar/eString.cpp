@@ -285,6 +285,7 @@ namespace ZookieWizard
         if (count > 0)
         {
             text = new charT[1 + count];
+            text[0] = 0x00;
             text[count] = 0x00;
         }
         else
@@ -684,6 +685,54 @@ namespace ZookieWizard
         }
 
         return getSubstring(posSlash > posBackslash ? posSlash : posBackslash);
+    }
+
+    template <typename charT>
+    eStringPtrBase<charT> eStringPtrBase<charT>::trimWhitespace() const
+    {
+        charT* my_text = getText();
+        int my_length = getLength();
+        int a, start = (-1), end = (-1);
+
+        a = 0;
+
+        while ((start < 0) && (a < my_length))
+        {
+            if (' ' == my_text[a])
+            {
+                a++;
+            }
+            else
+            {
+                start = a;
+            }
+        }
+
+        if (start < 0)
+        {
+            return eStringPtrBase<charT>();
+        }
+
+        a = my_length - 1;
+
+        while ((end < 0) && (a > start))
+        {
+            if (' ' == my_text[a])
+            {
+                a--;
+            }
+            else
+            {
+                end = a;
+            }
+        }
+
+        if (end < 0)
+        {
+            end = start;
+        }
+
+        return getSubstring(start, (end - my_length));
     }
 
 

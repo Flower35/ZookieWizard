@@ -1,5 +1,6 @@
 #include <kao2engine/eXRefProxy.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 #include <kao2engine/eXRefTarget.h>
 
@@ -63,21 +64,35 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eXRefProxy: render in scene
+    // eXRefProxy: update DrawPass flags from children nodes
     ////////////////////////////////////////////////////////////////
-    bool eXRefProxy::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
+    void eXRefProxy::updateDrawPassFlags(uint32_t* parent_flags)
     {
-        if (false == eNode::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
-        {
-            return false;
-        }
+        flags &= (~ 0x70000000);
 
         if (nullptr != target)
         {
-            target->renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id);
+            eNode* local_scene = (eNode*)target->getLocalScene();
+
+            if (nullptr != local_scene)
+            {
+                local_scene->updateDrawPassFlags(&flags);
+            }
         }
 
-        return true;
+        eNode::updateDrawPassFlags(parent_flags);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eXRefProxy: render this node
+    ////////////////////////////////////////////////////////////////
+    void eXRefProxy::renderNode(eDrawContext &draw_context) const
+    {
+        if (nullptr != target)
+        {
+            target->renderXRefScene(draw_context);
+        }
     }
 
 

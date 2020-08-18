@@ -1,5 +1,6 @@
 #include <kao2engine/ePivot.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 #include <kao2engine/eTrack.h>
 
@@ -164,16 +165,37 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // ePivot: set animation object for rendering
+    // ePivot: update before rendering [[vptr]+0x38]
     ////////////////////////////////////////////////////////////////
-    bool ePivot::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
+    void ePivot::updateBeforeRendering(eDrawContext &draw_context)
     {
-        if (GUI::drawFlags::DRAW_FLAG_ANIMS & draw_flags)
+        eAnimate* previous_animate = draw_context.getAnimateObject();
+
+        if (GUI::drawFlags::DRAW_FLAG_ANIMS & draw_context.getDrawFlags())
         {
             animations.setAnimation(GUI::animationID, GUI::timerGetFrames());
         }
 
-        return eTransform::renderObject(draw_flags, &animations, parent_srp, parent_matrix, marked_id);
+        draw_context.setAnimateObject(&animations);
+
+        eTransform::updateBeforeRendering(draw_context);
+
+        draw_context.setAnimateObject(previous_animate);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePivot: render this node
+    ////////////////////////////////////////////////////////////////
+    void ePivot::renderNode(eDrawContext &draw_context) const
+    {
+        eAnimate* previous_animate = draw_context.getAnimateObject();
+
+        draw_context.setAnimateObject(&animations);
+
+        eTransform::renderNode(draw_context);
+
+        draw_context.setAnimateObject(previous_animate);
     }
 
 

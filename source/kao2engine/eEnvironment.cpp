@@ -1,5 +1,6 @@
 #include <kao2engine/eEnvironment.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 #include <kao2engine/eFogEnv.h>
 #include <kao2engine/eLight.h>
@@ -84,6 +85,40 @@ namespace ZookieWizard
                 fog->decRef();
                 fog = nullptr;
             }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eEnvironment: use lighting and render the child nodes
+    ////////////////////////////////////////////////////////////////
+    void eEnvironment::renderNode(eDrawContext &draw_context) const
+    {
+        int32_t valid_lights = 0;
+        eLight* dummy_light;
+
+        bool lights_enabled = (GUI::drawFlags::DRAW_FLAG_LIGHTING & draw_context.getDrawFlags());
+
+        if (lights_enabled)
+        {
+            for (int32_t i = 0; i < lights.getSize(); i++)
+            {
+                dummy_light = (eLight*)lights.getIthChild(i);
+
+                if (nullptr != dummy_light)
+                {
+                    draw_context.useLight(dummy_light);
+
+                    valid_lights++;
+                }
+            }
+        }
+
+        eGroup::renderNode(draw_context);
+
+        if (lights_enabled)
+        {
+            draw_context.decreaseLights(valid_lights);
         }
     }
 

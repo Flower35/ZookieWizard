@@ -6,6 +6,7 @@
 #include <kao2engine/eTriMesh.h>
 #include <kao2engine/eGeoSet.h>
 
+#include <ZookieWizard/ZookieWizardMaterials.h>
 #include <kao2engine/eMaterial.h>
 #include <kao2engine/eMaterialState.h>
 #include <kao2engine/eTexture.h>
@@ -897,9 +898,9 @@ namespace ZookieWizard
                     {
                         dummy_path = dummy_bitmap->getPath();
 
-                        matching_material = root->findMaterial(dummy_path);
+                        matching_material = (eMaterial*) GUI::materialsManager_FindMaterial(dummy_path.getText());
 
-                        if (nullptr != matching_material)
+                        if ((nullptr != matching_material) && (objMaterials[i].material != matching_material))
                         {
                             theLog.print(eString(" @ REPLACING \"") + dummy_path + "\" WITH PREVIOUS INSTANCE\n");
 

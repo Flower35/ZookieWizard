@@ -346,6 +346,11 @@ namespace ZookieWizard
     {
         char a, b;
 
+        if ((nullptr == source) || (nullptr == format))
+        {
+            return false;
+        }
+
         while (1)
         {
             b = format[0];

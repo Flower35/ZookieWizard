@@ -1,5 +1,6 @@
 #include <kao2engine/eBoxZone.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 namespace ZookieWizard
 {
@@ -47,32 +48,24 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eBoxZone: render
+    // eBoxZone: render this node
     ////////////////////////////////////////////////////////////////
-    bool eBoxZone::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
+    void eBoxZone::renderNode(eDrawContext &draw_context) const
     {
-        bool is_selected_or_marked;
-
-        /* Inactive color (red) */
-        float color[3] = {1.0f, 0, 0};
-
-        if (GUI::drawFlags::DRAW_FLAG_BOXZONES & draw_flags)
+        if (GUI::drawFlags::DRAW_FLAG_BOXZONES & draw_context.getDrawFlags())
         {
-            if (false == eNode::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
-            {
-                return false;
-            }
+            /* Inactive color (red) */
+            float color[3] = {1.0f, 0, 0};
 
-            is_selected_or_marked = (((-2) == marked_id) || ((-1) == marked_id));
+            bool is_selected_or_marked = draw_context.isNodeSelectedOrMarked();
 
             if (is_selected_or_marked)
             {
-                /* This object is selected (-1) or marked (-2) and can be moved around */
                 glPushMatrix();
-                GUI::multiplyBySelectedObjectTransform();
+                GUI::multiplyBySelectedObjectTransform(false);
             }
 
-            if ((GUI::drawFlags::DRAW_FLAG_OUTLINE & draw_flags) && (((-2) == marked_id) || ((-3) == marked_id)))
+            if (draw_context.isNodeOutlined())
             {
                 /* Active color */
                 GUI::colorOfMarkedObject(color[0], color[1], color[2]);
@@ -91,8 +84,6 @@ namespace ZookieWizard
                 glPopMatrix();
             }
         }
-
-        return true;
     }
 
 }

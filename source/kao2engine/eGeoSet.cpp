@@ -186,23 +186,10 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGeoSet: draw
     ////////////////////////////////////////////////////////////////
-    void eGeoSet::draw(int32_t draw_flags, GLuint tex_name, int32_t texID) const
+    void eGeoSet::draw(int32_t draw_flags, int32_t texID) const
     {
-        int32_t i;
-        eABB* boxes = nullptr;
-
         if ((texID >= 0) && (texID < 4))
         {
-            if (0 != tex_name)
-            {
-                glEnable(GL_TEXTURE_2D);
-                glBindTexture(GL_TEXTURE_2D, tex_name);
-            }
-            else
-            {
-                glDisable(GL_TEXTURE_2D);
-            }
-
             GUI::changeView(true);
 
             /* DEBUG (moving objects) */
@@ -220,32 +207,21 @@ namespace ZookieWizard
 
                 displayVertexBufferObject(texID, GUI::drawFlags::DRAW_FLAG_COLORS & draw_flags);
             }
-
-            if (0 != tex_name)
-            {
-                glDisable(GL_TEXTURE_2D);
-            }
         }
 
-        if ((GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_flags) && (GUI::drawFlags::DRAW_FLAG_BOXZONES & draw_flags))
+        if (GUI::drawFlags::DRAW_FLAG_COLLISION & draw_flags)
         {
-            if (nullptr != aabbTree)
+            if ((nullptr != aabbTree) && (aabbTree->getLength() > 0))
             {
-                boxes = aabbTree->getData();
+                eABB* boxes = aabbTree->getData();
 
-                for (i = 0; i < aabbTree->getLength(); i++)
-                {
-                    if ((0x80000000 & boxes[i].leftNode) || (0x80000000 & boxes[i].rightNode))
-                    {
-                        GUI::renderBoundingBox
-                        (
-                            0.5f,
-                            0, 1.0f, 0,
-                            boxes[i].min.x, boxes[i].min.y, boxes[i].min.z,
-                            boxes[i].max.x, boxes[i].max.y, boxes[i].max.z
-                        );
-                    }
-                }
+                GUI::renderBoundingBox
+                (
+                    0.5f,
+                    0, 1.0f, 0,
+                    boxes[0].min.x, boxes[0].min.y, boxes[0].min.z,
+                    boxes[0].max.x, boxes[0].max.y, boxes[0].max.z
+                );
             }
         }
     }

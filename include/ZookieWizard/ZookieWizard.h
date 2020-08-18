@@ -37,6 +37,8 @@ namespace ZookieWizard
     extern const char* MESSAGE_TITLE_INFO;
     extern const char* MESSAGE_TITLE_ERROR;
 
+    #define LARGE_BUFFER_SIZE 256
+
     ////////////////////////////////////////////////////////////////
     // FILE OPERATOR STRUCTURE
     ////////////////////////////////////////////////////////////////
@@ -73,9 +75,11 @@ namespace ZookieWizard
 
     class ErrorMessage
     {
-        public:
+        private:
 
-            char text[512];
+            char text[2 * LARGE_BUFFER_SIZE];
+
+        public:
 
             ErrorMessage(const char* message, ...);
 

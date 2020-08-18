@@ -20,7 +20,7 @@ namespace ZookieWizard
             /*[0x04-0x0C]*/ Collection<ArFunctions::serialize_eRefCounter> tracks;
             /*[0x10]*/ eAnimState** animStateA;
             /*[0x14]*/ eAnimState** animStateB;
-            /*[0x18]*/ bool unknown_18;
+            /*[0x18]*/ bool isPaused;
             /*[0x34]*/ int32_t unknown_34;
             /*[0x38]*/ bool unknown_38;
 

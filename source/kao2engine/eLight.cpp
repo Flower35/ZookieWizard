@@ -88,6 +88,20 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eLight: set light source parameters
+    // <kao2.0047EDB0>
+    ////////////////////////////////////////////////////////////////
+    void eLight::useBasicLightParams(int32_t light_id) const
+    {
+        GLenum light_enum = GL_LIGHT0 + light_id;
+
+        glLightfv(light_enum, GL_DIFFUSE, diffuse);
+        glLightfv(light_enum, GL_AMBIENT, ambient);
+        glLightfv(light_enum, GL_SPECULAR, specular);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eLight: color getters and setters
     ////////////////////////////////////////////////////////////////
 

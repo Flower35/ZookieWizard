@@ -1,5 +1,6 @@
 #include <kao2engine/eXRefManager.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 #include <kao2engine/eXRefTarget.h>
 #include <kao2engine/eScene.h>
@@ -107,30 +108,20 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefManager: render each child eXRefTarget
     ////////////////////////////////////////////////////////////////
-    bool eXRefManager::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
+    void eXRefManager::renderNode(eDrawContext &draw_context) const
     {
-        int32_t i;
         eXRefTarget* test_xref_taget;
 
-        if (GUI::drawFlags::DRAW_FLAG_PROXIES & draw_flags)
+        if (GUI::drawFlags::DRAW_FLAG_PROXIES & draw_context.getDrawFlags())
         {
-            if (false == eNode::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
+            for (int32_t i = 0; i < xrefs.getSize(); i++)
             {
-                return false;
-            }
-
-            for (i = 0; i < xrefs.getSize(); i++)
-            {
-                test_xref_taget = (eXRefTarget*)xrefs.getIthChild(i);
-
-                if (nullptr != test_xref_taget)
+                if (nullptr != (test_xref_taget = (eXRefTarget*)xrefs.getIthChild(i)))
                 {
-                    test_xref_taget->renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id);
+                    test_xref_taget->renderXRefScene(draw_context);
                 }
             }
         }
-
-        return true;
     }
 
 }

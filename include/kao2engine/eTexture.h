@@ -7,6 +7,7 @@ namespace ZookieWizard
 {
     class eTexTransform;
     class eBitmap;
+    struct eAnimate;
 
     ////////////////////////////////////////////////////////////////
     // eTexture interface
@@ -38,10 +39,11 @@ namespace ZookieWizard
 
             bool matchesPath(eString &searched_path) const;
 
-            GLuint getTextureName() const;
+            GLuint getTextureId() const;
             eBitmap* getBitmap() const;
 
             void setTextureTransform(eTexTransform* new_form);
+            void updateTextureMatrix(eAnimate* anim) const;
     };
 
 

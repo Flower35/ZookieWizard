@@ -1,11 +1,10 @@
 #include <kao2engine/eTransform.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 #include <kao2engine/eLeafCtrl.h>
 #include <kao2engine/eSRPCombineCtrl.h>
 #include <kao2engine/eMultiCtrl.h>
-
-#include <kao2engine/eCamera.h>
 
 #include <utilities/ColladaExporter.h>
 
@@ -39,7 +38,8 @@ namespace ZookieWizard
     {
         /*[0xA8]*/ ctrl = nullptr;
 
-        currentMatrix.transpose(transposedMatrix);
+        currentMatrix.transpose(transposedMatrix[0]);
+        currentMatrix.transpose(transposedMatrix[1]);
 
         jointType = false;
     }
@@ -117,6 +117,19 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eTransform: set current matrix and create a matrix with no scaling
+    ////////////////////////////////////////////////////////////////
+    void eTransform::getTransposedMatrices(eSRP some_srp)
+    {
+        currentMatrix = some_srp.getMatrix();
+        currentMatrix.transpose(transposedMatrix[0]);
+
+        some_srp.scale = 1.0f;
+        some_srp.getMatrix().transpose(transposedMatrix[1]);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eTransform: set xform
     ////////////////////////////////////////////////////////////////
     void eTransform::setXForm(eSRP &new_xform)
@@ -135,8 +148,7 @@ namespace ZookieWizard
 
         /* Create a matrix that represents current transformation */
 
-        currentMatrix = defaultTransform.getMatrix();
-        currentMatrix.transpose(transposedMatrix);
+        getTransposedMatrices(defaultTransform);
     }
 
 
@@ -167,56 +179,123 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTransform: reposition the model in 3D space
+    // eTransform: update before rendering [[vptr]+0x38]
+    // <kao2.0047BCF0>
     ////////////////////////////////////////////////////////////////
-    bool eTransform::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
+    void eTransform::updateBeforeRendering(eDrawContext &draw_context)
     {
-        bool is_selected_or_marked;
-        bool use_outline;
+        eSRP* previous_parent_srp;
+        eSRP test_srp;
 
-        if (false == eNode::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
+        eMatrix4x4* previous_parent_matrix;
+        eMatrix4x4 test_matrix;
+
+        eAnimate* animate;
+
+        /********************************/
+        /* Get some properties from "eDrawContext" */
+
+        animate = draw_context.getAnimateObject();
+
+        previous_parent_srp = draw_context.getParentSRP();
+        previous_parent_matrix = draw_context.getParentMatrix();
+
+        /********************************/
+        /* Update current "eSRP" and the current render matrix */
+
+        if (draw_context.isNodeSelectedOrMarked())
         {
-            return false;
-        }
-
-        /* Calculate transformation (for animations and for culling) */
-
-        updateSRP((GUI::drawFlags::DRAW_FLAG_ANIMS & draw_flags), anim, parent_srp);
-
-        eMatrix4x4 render_matrix(parent_matrix * currentMatrix);
-
-        /* Apply Transformation (on top of previous ones) */
-
-        glPushMatrix();
-
-        is_selected_or_marked = (((-2) == marked_id) || ((-1) == marked_id));
-        use_outline = ((GUI::drawFlags::DRAW_FLAG_OUTLINE & draw_flags) && (((-2) == marked_id) || ((-3) == marked_id)));
-
-        if (is_selected_or_marked)
-        {
-            /* This object is selected (-1) or marked (-2) and can be moved around */
-            GUI::multiplyBySelectedObjectTransform();
+            GUI::getMovedSeletedTransform(&test_srp);
         }
         else
         {
-            glMultMatrixf(transposedMatrix);
+            if (GUI::drawFlags::DRAW_FLAG_ANIMS & draw_context.getDrawFlags())
+            {
+                if ((0 == (flags & 0x00001000)) && (nullptr != ctrl))
+                {
+                    if (nullptr != animate)
+                    {
+                        defaultTransform = ctrl->ctrlGetTransform(defaultTransform, animate);
+                    }
+                    else
+                    {
+                        ctrl->ctrlApplyTransform(&defaultTransform, 0);
+                    }
+                }
+            }
+
+            test_srp = defaultTransform;
         }
 
-        if (GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_flags)
+        getTransposedMatrices(test_srp);
+
+        if (nullptr != previous_parent_srp)
+        {
+            worldTransform = test_srp.applyAnotherSRP(*previous_parent_srp);
+        }
+        else
+        {
+            worldTransform = test_srp;
+        }
+
+        if (nullptr != previous_parent_matrix)
+        {
+            test_matrix = (*previous_parent_matrix) * currentMatrix;
+        }
+        else
+        {
+            test_matrix = currentMatrix;
+        }
+
+        /********************************/
+        /* Go to the `eGroup` method, then restore the Draw Context */
+
+        draw_context.setParentSRP(&worldTransform);
+        draw_context.setParentMatrix(&test_matrix);
+
+        eGroup::updateBeforeRendering(draw_context);
+
+        draw_context.setParentMatrix(previous_parent_matrix);
+        draw_context.setParentSRP(previous_parent_srp);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: render this node
+    ////////////////////////////////////////////////////////////////
+    void eTransform::renderNode(eDrawContext &draw_context) const
+    {
+        bool use_outline = draw_context.isNodeOutlined();
+        bool is_selected = draw_context.isNodeSelectedOrMarked();
+
+        eSRP* previous_parent_srp = draw_context.getParentSRP();
+        eMatrix4x4* previous_parent_matrix = draw_context.getParentMatrix();
+
+        /********************************/
+        /* Draw the Helper Arrow with a transformation that ignores scaling */
+
+        if (GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_context.getDrawFlags())
         {
             if (use_outline)
             {
                 glColor3f(0, 1.0f, 0);
             }
 
-            /* Draw helper arrow or helper camera */
-            GUI::renderSpecialModel
-            (
-                (!use_outline),
-                getType()->checkHierarchy(&E_CAMERA_TYPEINFO)
-                    ? ZOOKIEWIZARD_SPECIALMODEL_CAMERA
-                    : ZOOKIEWIZARD_SPECIALMODEL_ARROW
-            );
+            glPushMatrix();
+
+            if (is_selected)
+            {
+                GUI::multiplyBySelectedObjectTransform(true);
+            }
+            else
+            {
+                glMultMatrixf(transposedMatrix[1]);
+            }
+
+            draw_context.useMaterial(nullptr, 0);
+            GUI::renderSpecialModel((!use_outline), ZOOKIEWIZARD_SPECIALMODEL_ARROW);
+
+            glPopMatrix();
 
             if (use_outline)
             {
@@ -224,51 +303,35 @@ namespace ZookieWizard
             }
         }
 
-        /* Draw children nodes */
+        /********************************/
+        /* Apply Transformation (on top of previous ones) */
 
-        eGroup::renderObject(draw_flags, anim, worldTransform, render_matrix, marked_id);
+        glPushMatrix();
 
-        /* Restore parent matrix */
-
-        glPopMatrix();
-
-        return true;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTransform: update SRP structure
-    // <kao2.0047BCF0>
-    ////////////////////////////////////////////////////////////////
-    void eTransform::updateSRP(bool update, eAnimate* anim, eSRP &parent_srp)
-    {
-        eSRP test_srp;
-
-        if (update)
+        if (is_selected)
         {
-            if ((0 == (flags & 0x00001000)) && (nullptr != ctrl))
-            {
-                if (nullptr != anim)
-                {
-                    defaultTransform = ctrl->ctrlGetTransform(test_srp, anim);
-
-                    /* Update render matrix */
-
-                    currentMatrix = defaultTransform.getMatrix();
-                    currentMatrix.transpose(transposedMatrix);
-                }
-            }
-
-            /* Update world transformation matrix */
-
-            worldTransform = defaultTransform.applyAnotherSRP(parent_srp);
-
-            /* (--dsp--) <kao2.0047BD9A> (update "eALBox" if exists) */
+            GUI::multiplyBySelectedObjectTransform(false);
         }
         else
         {
-            worldTransform = test_srp;
+            glMultMatrixf(transposedMatrix[0]);
         }
+
+        /********************************/
+        /* Draw children nodes */
+
+        draw_context.setParentSRP(&worldTransform);
+        draw_context.setParentMatrix(&currentMatrix);
+
+        eGroup::renderNode(draw_context);
+
+        /********************************/
+        /* Restore parent matrix (OpenGL) and the Draw Context */
+
+        glPopMatrix();
+
+        draw_context.setParentMatrix(previous_parent_matrix);
+        draw_context.setParentSRP(previous_parent_srp);
     }
 
 

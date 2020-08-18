@@ -186,7 +186,7 @@ namespace ZookieWizard
     {
         eString target_name;
 
-        char bufor[256];
+        char bufor[LARGE_BUFFER_SIZE];
 
         for (int i = 0; i < actionsCount; i++)
         {
@@ -206,8 +206,7 @@ namespace ZookieWizard
 
             sprintf_s
             (
-                bufor,
-                256,
+                bufor, LARGE_BUFFER_SIZE,
                 "    [%d/%d]: \"%s\".%s()",
                 (i + 1),
                 actionsCount,

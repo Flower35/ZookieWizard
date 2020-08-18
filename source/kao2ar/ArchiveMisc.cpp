@@ -1,4 +1,5 @@
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 #include <ZookieWizard/WindowsManager.h>
 #include <kao2engine/Log.h>
@@ -91,14 +92,36 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Ar: render scene, starting from selected object
     ////////////////////////////////////////////////////////////////
+
     void Archive::renderScene(int32_t draw_flags) const
     {
-        eSRP default_srp;
-        eMatrix4x4 default_matrix;
-
-        if (nullptr != selectedObject)
+        if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
         {
-            selectedObject->renderObject(draw_flags, nullptr, default_srp, default_matrix, markedChildId);
+            eNode* selected_node = (eNode*)selectedObject;
+
+            eSRP default_srp;
+            eMatrix4x4 default_matrix;
+
+            eDrawContext draw_context;
+            draw_context.setDrawFlags(draw_flags);
+            draw_context.setParentSRP(&default_srp);
+            draw_context.setParentMatrix(&default_matrix);
+            draw_context.setMarkedId(markedChildId);
+
+            selected_node->updateBeforeRendering(draw_context);
+
+            uint32_t node_flags = (GUI::drawFlags::DRAW_FLAG_INVISIBLE & draw_flags) ? 0x00 : 0x09;
+
+            for (int32_t draw_pass = 0; draw_pass < 3; draw_pass++)
+            {
+                if ((GUI::drawFlags::DRAW_FLAG_DRAWPASS1 << draw_pass) & draw_flags)
+                {
+                    draw_context.setNodeFlags(node_flags | (0x10000000 << draw_pass));
+                    selected_node->renderNode(draw_context);
+                }
+            }
+
+            draw_context.useMaterial(nullptr, 0);
         }
     }
 

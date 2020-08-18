@@ -1,5 +1,6 @@
 #include <kao2engine/eNode.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 #include <ZookieWizard/WindowsManager.h>
 #include <kao2engine/Log.h>
@@ -26,10 +27,10 @@ namespace ZookieWizard
         "???", // 0x00000010
         "???", // 0x00000020
         "???", // 0x00000040
-        "???", // 0x00000080
+        "\"SD\" ???", // 0x00000080
         "???", // 0x00000100
         "???", // 0x00000200
-        "Can be rendered (node)", // 0x00000400
+        "Update (node)", // 0x00000400
         "???", // 0x00000800
         "SRP Inheritance (pivot)", // 0x00001000
         "???", // 0x00002000
@@ -47,11 +48,12 @@ namespace ZookieWizard
         "???", // 0x02000000
         "???", // 0x04000000
         "???", // 0x08000000
-        "\"WS mesh\" DrawPass #1", // 0x10000000
-        "\"WS mesh\" DrawPass #2", // 0x20000000
-        "\"WS mesh\" DrawPass #3", // 0x40000000
+        "DrawPass #1", // 0x10000000
+        "DrawPass #2", // 0x20000000
+        "DrawPass #3", // 0x40000000
         "???", // 0x80000000
     };
+
 
     ////////////////////////////////////////////////////////////////
     // eNode interface
@@ -111,6 +113,7 @@ namespace ZookieWizard
         /*[0x1C]*/ flags = 0x249D;
         /*[0x30]*/ flagsCollisionResponse = 0x00FF;
         /*[0x34]*/ visCtrl = nullptr;
+        /*[0x38]*/ visRate = 1.0f;
         /*[0x2C]*/ sphBound[3] = -1.0f;
 
         visGroup = (-1);
@@ -158,8 +161,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eNode::serialize(Archive &ar)
     {
-        char bufor[256];
-        eGeometry* test_object;
+        char bufor[LARGE_BUFFER_SIZE];
         ePoint3 test_boundary[2];
 
         /* Node name and node parent */
@@ -175,7 +177,7 @@ namespace ZookieWizard
             {
                 sprintf_s
                 (
-                    bufor, 256,
+                    bufor, LARGE_BUFFER_SIZE,
                     "eNode::serialize():\n" \
                     "there is no parent attached to this node!\n" \
                     "\"%s\"",
@@ -204,9 +206,7 @@ namespace ZookieWizard
 
             if (getType()->checkHierarchy(&E_GEOMETRY_TYPEINFO))
             {
-                test_object = (eGeometry*)this;
-
-                test_object->oldNodeSerialization(test_boundary);
+                ((eGeometry*)this)->oldNodeSerialization(test_boundary);
             }
         }
 
@@ -350,38 +350,59 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eNode: get name
+    // eNode: get or set the name
     ////////////////////////////////////////////////////////////////
+
     eString eNode::getStringRepresentation() const
     {
         return name;
     }
 
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: internal rendering check
-    ////////////////////////////////////////////////////////////////
-    bool eNode::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
-    {
-        if (0 == (GUI::drawFlags::DRAW_FLAG_INVISIBLE & draw_flags))
-        {
-            if (0 == (0x01 & flags))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: set name
-    ////////////////////////////////////////////////////////////////
     void eNode::setName(eString new_name)
     {
         name = new_name;
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: update DrawPass flags from children nodes
+    ////////////////////////////////////////////////////////////////
+    void eNode::updateDrawPassFlags(uint32_t* parent_flags)
+    {
+        if (nullptr != parent_flags)
+        {
+            (*parent_flags) |= (0x70000000 & flags);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: update before rendering [[vptr]+0x38]
+    // <kao2.00479220>
+    ////////////////////////////////////////////////////////////////
+    void eNode::updateBeforeRendering(eDrawContext &draw_context)
+    {
+        if (nullptr != visCtrl)
+        {
+            visRate = visCtrl->ctrlGetTransform(visRate, draw_context.getAnimateObject());
+
+            if (visRate <= 0)
+            {
+                flags &= (~ 0x00000001);
+            }
+            else
+            {
+                flags |= 0x00000001;
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: render this node
+    ////////////////////////////////////////////////////////////////
+    void eNode::renderNode(eDrawContext &draw_context) const
+    {}
 
 
     ////////////////////////////////////////////////////////////////
@@ -605,31 +626,22 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eNode: find material by path
-    ////////////////////////////////////////////////////////////////
-    eMaterial* eNode::findMaterial(eString &searched_path) const
-    {
-        return nullptr;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // eNode: apply or erase flag bits
     ////////////////////////////////////////////////////////////////
 
-    void eNode::setFlags(int32_t bits_to_apply)
+    uint32_t eNode::getFlags() const
+    {
+        return flags;
+    }
+
+    void eNode::setFlags(uint32_t bits_to_apply)
     {
         flags |= bits_to_apply;
     }
 
-    void eNode::unsetFlags(int32_t bits_to_erase)
+    void eNode::unsetFlags(uint32_t bits_to_erase)
     {
         flags &= (~bits_to_erase);
-    }
-
-    int32_t eNode::getFlags() const
-    {
-        return flags;
     }
 
 

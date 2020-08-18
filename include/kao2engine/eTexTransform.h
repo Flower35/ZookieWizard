@@ -33,6 +33,8 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            void updateTextureMatrix(eAnimate* anim) const;
     };
 
 

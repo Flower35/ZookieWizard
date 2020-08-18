@@ -1,8 +1,6 @@
 #include <ZookieWizard/ZookieWizard.h>
 
 #include <kao2engine/eGeoSet.h>
-#include <kao2engine/eMaterial.h>
-#include <kao2engine/eTexture.h>
 #include <kao2engine/eBitmap.h>
 
 namespace ZookieWizard
@@ -10,7 +8,7 @@ namespace ZookieWizard
     namespace GUI
     {
         eGeoSet* mySpecialModels[ZOOKIEWIZARD_SPECIALMODEL_COUNT];
-        eMaterial* mySpecialModelsMaterials[ZOOKIEWIZARD_SPECIALMODEL_COUNT];
+        eBitmap* mySpecialModelsBitmaps[ZOOKIEWIZARD_SPECIALMODEL_COUNT];
 
         ////////////////////////////////////////////////////////////////
         // Model definitions
@@ -126,15 +124,12 @@ namespace ZookieWizard
             int32_t image_width, int32_t image_height,
             int32_t v_count, const ePoint3* vertices, const ePoint2* uv,
             int32_t i_count, const ushort* indices,
-            eGeoSet** model, eMaterial** material
+            eGeoSet** model, eBitmap** bitmap
         )
         {
             int32_t i;
 
             eGeoSet* test_geoset = nullptr;
-            eMaterial* test_material = nullptr;
-            eTexture* test_texture = nullptr;
-            eBitmap* test_bitmap = nullptr;
 
             eGeoArray<ePoint4>* test_vertex_array = nullptr;
             eGeoArray<ePoint2>* test_uv_array = nullptr;
@@ -209,28 +204,18 @@ namespace ZookieWizard
             /********************************/
             /* Create objects (texturing) */
 
-            test_bitmap = new eBitmap;
-            test_bitmap->incRef();
+            (*bitmap) = new eBitmap;
+            (*bitmap)->incRef();
 
-            materialsManager_DeleteBitmap(test_bitmap);
+            materialsManager_DeleteBitmap((*bitmap));
 
             for (i = 0; i < 256; i++)
             {
                 new_palette[i] = (palette[4*i+2]) | (palette[4*i+1] << 8) | (palette[4*i+0] << 16) | (palette[4*i+3] << 24);
             }
 
-            test_bitmap->loadRaw(pixels, new_palette, image_width, image_height);
-            test_bitmap->generateTexture();
-
-            test_texture = new eTexture(test_bitmap);
-            test_texture->incRef();
-            test_bitmap->decRef();
-
-            (*material) = new eMaterial(test_texture);
-            (*material)->incRef();
-            test_texture->decRef();
-
-            materialsManager_DeleteMaterial(*material);
+            (*bitmap)->loadRaw(pixels, new_palette, image_width, image_height);
+            (*bitmap)->generateTexture();
 
             return true;
         }
@@ -257,7 +242,7 @@ namespace ZookieWizard
                 64, 64,
                 16, model_arrow_vertices, model_arrow_uv,
                 63, model_arrow_indices,
-                &(mySpecialModels[0]), &(mySpecialModelsMaterials[0])
+                &(mySpecialModels[0]), &(mySpecialModelsBitmaps[0])
             ))
             {
                 return false;
@@ -272,7 +257,7 @@ namespace ZookieWizard
                 128, 256,
                 4, model_kao_vertices, model_kao_uv,
                 6, model_kao_indices,
-                &(mySpecialModels[1]), &(mySpecialModelsMaterials[1])
+                &(mySpecialModels[1]), &(mySpecialModelsBitmaps[1])
             ))
             {
                 return false;
@@ -287,7 +272,7 @@ namespace ZookieWizard
                 64, 64,
                 280, model_camera_vertices, model_camera_uv,
                 960, model_camera_indices,
-                &(mySpecialModels[2]), &(mySpecialModelsMaterials[2])
+                &(mySpecialModels[2]), &(mySpecialModelsBitmaps[2])
             ))
             {
                 return false;
@@ -302,7 +287,7 @@ namespace ZookieWizard
                 128, 128,
                 8, model_light_vertices, model_light_uv,
                 24, model_light_indices,
-                &(mySpecialModels[3]), &(mySpecialModelsMaterials[3])
+                &(mySpecialModels[3]), &(mySpecialModelsBitmaps[3])
             ))
             {
                 return false;
@@ -317,24 +302,33 @@ namespace ZookieWizard
         ////////////////////////////////////////////////////////////////
         void renderSpecialModel(bool use_texture, int32_t id)
         {
-            eTexture* dummy_texture = nullptr;
-            GLuint texture_name = 0;
+            GLuint texture_bind_id = 0;
 
             if ((id >= 0) && (id < ZOOKIEWIZARD_SPECIALMODEL_COUNT))
             {
                 if (nullptr != mySpecialModels[id])
                 {
-                    if (use_texture && (nullptr != mySpecialModelsMaterials[id]))
+                    if (use_texture && (nullptr != mySpecialModelsBitmaps[id]))
                     {
-                        dummy_texture = mySpecialModelsMaterials[id]->getIthTexture(0);
-
-                        if (nullptr != dummy_texture)
-                        {
-                            texture_name = dummy_texture->getTextureName();
-                        }
+                        texture_bind_id = mySpecialModelsBitmaps[id]->getTextureId();
                     }
 
-                    mySpecialModels[id]->draw(0, texture_name, 0);
+                    if (0 != texture_bind_id)
+                    {
+                        glEnable(GL_TEXTURE_2D);
+                        glBindTexture(GL_TEXTURE_2D, texture_bind_id);
+                    }
+                    else
+                    {
+                        glDisable(GL_TEXTURE_2D);
+                    }
+
+                    mySpecialModels[id]->draw(0, 0);
+
+                    if (0 != texture_bind_id)
+                    {
+                        glDisable(GL_TEXTURE_2D);
+                    }
                 }
             }
         }
@@ -355,10 +349,10 @@ namespace ZookieWizard
                     mySpecialModels[i] = nullptr;
                 }
 
-                if (nullptr != mySpecialModelsMaterials[i])
+                if (nullptr != mySpecialModelsBitmaps[i])
                 {
-                    mySpecialModelsMaterials[i]->decRef();
-                    mySpecialModelsMaterials[i] = nullptr;
+                    mySpecialModelsBitmaps[i]->decRef();
+                    mySpecialModelsBitmaps[i] = nullptr;
                 }
             }
         }

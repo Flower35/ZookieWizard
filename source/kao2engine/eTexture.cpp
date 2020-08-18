@@ -142,13 +142,13 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTexture: get texture name (used with eTriMesh)
+    // eTexture: get texture name index
     ////////////////////////////////////////////////////////////////
-    GLuint eTexture::getTextureName() const
+    GLuint eTexture::getTextureId() const
     {
         if (nullptr != bmp)
         {
-            return bmp->getTextureName();
+            return bmp->getTextureId();
         }
 
         return 0;
@@ -161,6 +161,26 @@ namespace ZookieWizard
     eBitmap* eTexture::getBitmap() const
     {
         return bmp;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTexture:
+    ////////////////////////////////////////////////////////////////
+    void eTexture::updateTextureMatrix(eAnimate* anim) const
+    {
+        if ((nullptr != form) && (nullptr != anim))
+        {
+            form->updateTextureMatrix(anim);
+        }
+        else
+        {
+            glMatrixMode(GL_TEXTURE);
+
+            glLoadIdentity();
+
+            glMatrixMode(GL_MODELVIEW);
+        }
     }
 
 

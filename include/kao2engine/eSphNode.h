@@ -29,6 +29,8 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            void renderNode(eDrawContext &draw_context) const override;
     };
 
 

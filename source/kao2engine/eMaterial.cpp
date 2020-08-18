@@ -72,7 +72,7 @@ namespace ZookieWizard
 
         /*[0x14]*/ materialFlags = 0x00;
         /*[0x28]*/ transpLayer = 0;
-        /*[0x2C]*/ unknown_2C = 0.5f;
+        /*[0x2C]*/ alphaTestRef = 0.5f;
 
         if (nullptr != x)
         {
@@ -188,8 +188,8 @@ namespace ZookieWizard
         /* [0x28] unknown */
         ar.readOrWrite(&transpLayer, 0x04);
 
-        /* [0x2C] unknown */
-        ar.readOrWrite(&unknown_2C, 0x04);
+        /* [0x2C] AlphaTest reference value */
+        ar.readOrWrite(&alphaTestRef, 0x04);
     }
 
 
@@ -436,6 +436,15 @@ namespace ZookieWizard
     void eMaterial::setSoundType(uint16_t new_type)
     {
         unknown_22 = new_type;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterial: get AlphaTest reference value
+    ////////////////////////////////////////////////////////////////
+    float eMaterial::getAlphaTestRef() const
+    {
+        return alphaTestRef;
     }
 
 }

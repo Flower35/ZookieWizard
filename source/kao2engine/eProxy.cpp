@@ -1,5 +1,6 @@
 #include <kao2engine/eProxy.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 #include <kao2engine/eXRefProxy.h>
 #include <kao2engine/eXRefTarget.h>
@@ -382,38 +383,33 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eProxy: render
+    // eProxy: render this node
     ////////////////////////////////////////////////////////////////
-    bool eProxy::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
+    void eProxy::renderNode(eDrawContext &draw_context) const
     {
-        bool is_selected_or_marked;
-        bool use_outline;
-
         const float CUBE_HALF_WIDTH = (64.0f / 2);
 
-        /* Inactive color (blue) */
-        float color[3] = {0, 0, 1.0f};
+        int32_t draw_flags = draw_context.getDrawFlags();
 
         if (GUI::drawFlags::DRAW_FLAG_PROXIES & draw_flags)
         {
-            if (false == eTransform::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
-            {
-                return false;
-            }
+            eTransform::renderNode(draw_context);
 
-            is_selected_or_marked = (((-2) == marked_id) || ((-1) == marked_id));
-            use_outline = ((GUI::drawFlags::DRAW_FLAG_OUTLINE & draw_flags) && (((-2) == marked_id) || ((-3) == marked_id)));
+            /* Inactive color (blue) */
+            float color[3] = {0, 0, 1.0f};
+
+            bool is_selected_or_marked = draw_context.isNodeSelectedOrMarked();
+            bool use_outline = draw_context.isNodeOutlined();
 
             glPushMatrix();
 
             if (is_selected_or_marked)
             {
-                /* This object is selected (-1) or marked (-2) and can be moved around */
-                GUI::multiplyBySelectedObjectTransform();
+                GUI::multiplyBySelectedObjectTransform(true);
             }
             else
             {
-                glMultMatrixf(transposedMatrix);
+                glMultMatrixf(transposedMatrix[1]);
             }
 
             if ((GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_flags) && (1 == category))
@@ -423,6 +419,7 @@ namespace ZookieWizard
                     glColor3f(0, 1.0f, 0);
                 }
 
+                draw_context.useMaterial(nullptr, 0);
                 GUI::renderSpecialModel(true, ZOOKIEWIZARD_SPECIALMODEL_KAO);
             }
 
@@ -446,8 +443,6 @@ namespace ZookieWizard
 
             glPopMatrix();
         }
-
-        return true;
     }
 
 }

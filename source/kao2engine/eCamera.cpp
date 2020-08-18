@@ -1,5 +1,6 @@
 #include <kao2engine/eCamera.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 namespace ZookieWizard
 {
@@ -107,19 +108,49 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eCamera: render
+    // eCamera: render this node
     ////////////////////////////////////////////////////////////////
-    bool eCamera::renderObject(int32_t draw_flags, eAnimate* anim, eSRP &parent_srp, eMatrix4x4 &parent_matrix, int32_t marked_id)
+    void eCamera::renderNode(eDrawContext &draw_context) const
     {
-        if (GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_flags)
+        if (GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_context.getDrawFlags())
         {
-            if (false == eTransform::renderObject(draw_flags, anim, parent_srp, parent_matrix, marked_id))
-            {
-                return false;
-            }
-        }
+            /********************************/
+            /* Apply Transformation */
 
-        return true;
+            glPushMatrix();
+
+            bool use_outline = draw_context.isNodeOutlined();
+
+            if (draw_context.isNodeSelectedOrMarked())
+            {
+                GUI::multiplyBySelectedObjectTransform(true);
+            }
+            else
+            {
+                glMultMatrixf(transposedMatrix[1]);
+            }
+
+            /********************************/
+            /* Draw helper camera */
+
+            if (use_outline)
+            {
+                glColor3f(0, 1.0f, 0);
+            }
+
+            draw_context.useMaterial(nullptr, 0);
+            GUI::renderSpecialModel((!use_outline), ZOOKIEWIZARD_SPECIALMODEL_CAMERA);
+
+            if (use_outline)
+            {
+                glColor3f(1.0f, 1.0f, 1.0f);
+            }
+
+            /********************************/
+            /* Restore parent matrix (OpenGL) */
+
+            glPopMatrix();
+        }
     }
 
 

@@ -272,6 +272,11 @@ namespace ZookieWizard
             prepared_special_models = true;
         }
 
+        if (0 == test_value)
+        {
+            loadEditorSettings();
+        }
+
         /********************************/
         /* Enter main loop */
 
@@ -306,6 +311,8 @@ namespace ZookieWizard
         }
 
         GUI::closeWindows();
+
+        saveEditorSettings();
 
         return test_value;
     }

@@ -53,7 +53,7 @@ namespace ZookieWizard
             int32_t getTextureCoordsCount() const;
             int32_t getTextureId(int32_t i) const;
 
-            void draw(int32_t draw_flags, GLuint tex_name, int32_t texID) const;
+            void draw(int32_t draw_flags, int32_t texID) const;
             void prepareForDrawing();
 
             void setVerticesArray(eGeoArray<ePoint4>* new_vertices_array);

@@ -37,7 +37,7 @@ namespace ZookieWizard
 
             double pitch;
             double yaw;
-            double speed;
+            double speed[2];
 
             float culling_normals[6][3];
             float culling_points[6][3];
@@ -68,13 +68,23 @@ namespace ZookieWizard
 
         enum drawFlags
         {
-            DRAW_FLAG_OUTLINE = (1 << 1),
-            DRAW_FLAG_INVISIBLE = (1 << 2),
-            DRAW_FLAG_BOXZONES = (1 << 3),
-            DRAW_FLAG_PROXIES = (1 << 4),
-            DRAW_FLAG_ANIMS = (1 << 5),
-            DRAW_FLAG_COLORS = (1 << 6),
-            DRAW_FLAG_SPECIAL = (1 << 7)
+            DRAW_FLAG_OUTLINE = (1 << 0),
+            DRAW_FLAG_INVISIBLE = (1 << 1),
+            DRAW_FLAG_DRAWPASS1 = (1 << 2),
+            DRAW_FLAG_DRAWPASS2 = (1 << 3),
+            DRAW_FLAG_DRAWPASS3 = (1 << 4),
+            DRAW_FLAG_TEXTURES = (1 << 5),
+            DRAW_FLAG_BLENDING = (1 << 6),
+            DRAW_FLAG_FRUSTUM = (1 << 7),
+            DRAW_FLAG_COLORS = (1 << 8),
+            DRAW_FLAG_LIGHTING = (1 << 9),
+            DRAW_FLAG_ANIMS = (1 << 10),
+            DRAW_FLAG_BOXZONES = (1 << 11),
+            DRAW_FLAG_PROXIES = (1 << 12),
+            DRAW_FLAG_COLLISION = (1 << 13),
+            DRAW_FLAG_SPECIAL = (1 << 14),
+
+            DRAW_FLAG_COUNT = 15
         };
 
         extern int32_t myDrawFlags;
@@ -100,7 +110,7 @@ namespace ZookieWizard
         void moveCameraOrObject(int8_t x, int8_t y, int8_t z, uint8_t movement_mode);
         void getMovedSeletedTransform(void* transform);
         void setMovedSeletedTransform(void* transform);
-        void multiplyBySelectedObjectTransform();
+        void multiplyBySelectedObjectTransform(bool ignore_scale);
         void repositionCamera(bool returning, void* transform);
 
         bool testWithCameraPlanes
@@ -120,7 +130,9 @@ namespace ZookieWizard
         void colorOfMarkedObject(float &color_r, float &color_g, float &color_b);
 
         void closeWindows();
+
         void updateNodesList(int32_t, void*);
+        void updateArSettingsText(int32_t, const char*);
 
         LONGLONG timerGet();
         void timerReset();
