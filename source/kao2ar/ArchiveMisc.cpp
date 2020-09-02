@@ -7,7 +7,7 @@
 #include <kao2engine/eScene.h>
 #include <kao2engine/eXRefTarget.h>
 #include <kao2engine/eXRefProxy.h>
-#include <kao2engine/eTriMesh.h>
+#include <kao2engine/eGeometry.h>
 
 namespace ZookieWizard
 {
@@ -93,7 +93,7 @@ namespace ZookieWizard
     // Ar: render scene, starting from selected object
     ////////////////////////////////////////////////////////////////
 
-    void Archive::renderScene(int32_t draw_flags) const
+    void Archive::renderScene(uint32_t draw_flags) const
     {
         if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
         {
@@ -147,7 +147,7 @@ namespace ZookieWizard
         eGroup* test_group;
         eNode *test_root, *test_node = nullptr;
         eTransform* parent_xform = nullptr;
-        eTriMesh* test_trimesh;
+        eGeometry* test_geometry;
 
         /********************************/
         /* If no object is selected, and we are not updating List or Root, then cancel this function */
@@ -229,15 +229,29 @@ namespace ZookieWizard
                                 if (test_typeinfo->checkHierarchy(&E_NODE_TYPEINFO))
                                 {
                                     test_node = (eNode*)test_typeinfo->create();
-                                    test_group->appendChild(test_node);
 
-                                    sprintf_s
-                                    (
-                                        bufor, 128,
-                                        "Node (type \"%s\") added to group \"%s\".",
-                                        (char*)param,
-                                        test_group->getStringRepresentation().getText()
-                                    );
+                                    if (nullptr != test_node)
+                                    {
+                                        test_group->appendChild(test_node);
+                                        test_node->editingNewNodeSetup();
+
+                                        sprintf_s
+                                        (
+                                            bufor, 128,
+                                            "Node (type \"%s\") added to group \"%s\".",
+                                            (char*)param,
+                                            test_group->getStringRepresentation().getText()
+                                        );
+                                    }
+                                    else
+                                    {
+                                        sprintf_s
+                                        (
+                                            bufor, 128,
+                                            "Cannot create a node of selected type. Class \"%s\" is abstract.",
+                                            test_typeinfo->name
+                                        );
+                                    }
 
                                     GUI::theWindowsManager.displayMessage
                                     (
@@ -368,12 +382,7 @@ namespace ZookieWizard
                             {
                                 if (test_node->getReferenceCount() >= 2)
                                 {
-                                    test_root = test_node->getRootNode();
-
-                                    if (nullptr == test_root)
-                                    {
-                                        test_root = test_group->getRootNode();
-                                    }
+                                    test_root = test_group->getRootNode();
 
                                     if (nullptr != test_root)
                                     {
@@ -790,13 +799,13 @@ namespace ZookieWizard
 
                 GUI::updateNodesList(3, (void*)test_node->getFlags());
 
-                /* Update material selection in Materials Manager, if the selected object is a "eTriMesh" */
+                /* Update material selection in Materials Manager, if the selected object is a "eGeometry" */
 
-                if (test_node->getType()->checkHierarchy(&E_TRIMESH_TYPEINFO))
+                if (test_node->getType()->checkHierarchy(&E_GEOMETRY_TYPEINFO))
                 {
-                    test_trimesh = (eTriMesh*)test_node;
+                    test_geometry = (eGeometry*)test_node;
 
-                    GUI::materialsManager_SetCurrentMaterialFromTriMesh(test_trimesh->getMaterial());
+                    GUI::materialsManager_SetCurrentMaterialFromGeometry(test_geometry->getMaterial());
                 }
             }
 

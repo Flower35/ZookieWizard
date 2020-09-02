@@ -31,6 +31,11 @@ namespace ZookieWizard
             TypeInfo* getType() const override;
 
             void renderNode(eDrawContext &draw_context) const override;
+
+            void editingRebuildCollision() override;
+
+            int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
+            int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
     };
 
 

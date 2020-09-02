@@ -141,9 +141,26 @@ namespace ZookieWizard
         return false;
     }
 
+    bool FileOperator::peek(char &next_char)
+    {
+        if (file.is_open())
+        {
+            next_char = file.peek();
+
+            return (file.good() && (!file.eof()));
+        }
+
+        return false;
+    }
+
     bool FileOperator::endOfFileReached()
     {
         return file.eof();
+    }
+
+    void FileOperator::skip(int size)
+    {
+        file.seekp(size, std::ios_base::cur);
     }
 
 

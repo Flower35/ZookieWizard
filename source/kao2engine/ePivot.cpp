@@ -200,17 +200,144 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // ePivot: preparing just-created node
+    ////////////////////////////////////////////////////////////////
+    void ePivot::editingNewNodeSetup()
+    {
+        animations.rebuildEmptyAnimState(false);
+
+        eTransform::editingNewNodeSetup();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // ePivot: rebuild "eAnimState"(s) in "eAnimate"
     ////////////////////////////////////////////////////////////////
-    void ePivot::rebuildEmptyAnimState()
+    void ePivot::rebuildEmptyAnimState(bool is_root)
     {
-        animations.rebuildEmptyAnimState();
+        animations.rebuildEmptyAnimState(is_root);
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // ePivot: custom TXT parser
+    ////////////////////////////////////////////////////////////////
+    int32_t ePivot::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test[1];
+        float dummy_floats[2];
+        eString dummy_name;
+
+        if (1 != (test[0] = eTransform::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test[0];
+        }
+
+        if (message.compareExact("animClearTracks", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "animClearTracks", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            animations.tracks.clear();
+            return 0;
+        }
+        else if (message.compareExact("animAddTrack", true))
+        {
+            if (3 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "animAddTrack", 3);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "animAddTrack", 1, TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            params[0].getValue(&dummy_name);
+
+            /********************************/
+
+            if (params[1].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[1].getValue(&(test[0]));
+                dummy_floats[0] = (float)test[0];
+            }
+            else if (params[1].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[1].getValue(&(dummy_floats[0]));
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "animAddTrack", 2, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[2].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[2].getValue(&(test[0]));
+                dummy_floats[1] = (float)test[0];
+            }
+            else if (params[2].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[2].getValue(&(dummy_floats[1]));
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "animAddTrack", 3, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            animAddTrack(dummy_name.trimWhitespace(), dummy_floats[0], dummy_floats[1]);
+            return 0;
+        }
+        else if (message.compareExact("animRemoveTrack", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "animRemoveTrack", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "animRemoveTrack", 0, TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            params[0].getValue(&dummy_name);
+
+            /********************************/
+
+            animRemoveTrack(dummy_name.trimWhitespace());
+            return 0;
+        }
+
+        return 1;
     }
 
 
     ////////////////////////////////////////////////////////////////
     // ePivot: changing the number of animation tracks
     ////////////////////////////////////////////////////////////////
+
+    void ePivot::animClearTracks()
+    {
+        animations.tracks.clear();
+    }
 
     void ePivot::animAddTrack(eString anim_name, float first_frame, float frames_count)
     {

@@ -24,7 +24,7 @@ namespace ZookieWizard
         extern OPENFILENAME ofn;
 
         extern int currentGameVersion;
-        extern char currentWorkingDirectory[LARGE_BUFFER_SIZE];
+        extern char mediaDirectory[LARGE_BUFFER_SIZE];
         extern char denisDirectory[LARGE_BUFFER_SIZE];
         extern char denisLevelName[LARGE_BUFFER_SIZE];
 
@@ -32,6 +32,8 @@ namespace ZookieWizard
 
         void loadEditorSettings();
         void saveEditorSettings();
+
+        const char* getEditorString(int32_t id, bool silent);
 
         void openOrSaveAr(int);
         void setGameVersion(int);
@@ -46,7 +48,6 @@ namespace ZookieWizard
         void exportArToCollada();
         void exportTrimeshToObj();
         void importTrimeshFromObj();
-        void importNodesFromTxt();
         void changeNodesWithTxt();
 }
 

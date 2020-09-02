@@ -22,7 +22,7 @@ namespace ZookieWizard
         bool isOrthoMode = false;
         testCameraStruct testCamera;
 
-        int32_t myDrawFlags = 0;
+        uint32_t myDrawFlags = 0;
 
         bool usePerformanceCounter = false;
         LARGE_INTEGER performanceCounterFrequency;

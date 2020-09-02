@@ -222,7 +222,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     bool WavefrontObjImporter::openMtl(eString filename)
     {
-        eString name = workingDirectory + filename;
+        eString name = filename.isRooted() ? filename : (workingDirectory + filename);
         char* text = name.getText();
 
         if (!myFiles[1].open(text, (FILE_OPERATOR_MODE_READ | FILE_OPERATOR_MODE_BINARY)))

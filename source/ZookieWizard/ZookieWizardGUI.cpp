@@ -17,7 +17,7 @@ namespace ZookieWizard
 
         static bool updatingNodeName = false;
 
-        static const int32_t nodesList_ButtonsCount = 16;
+        static const int32_t nodesList_ButtonsCount = 15;
         static const int32_t nodesList_ActionsCount = 5;
         int32_t nodesList_CurrentAction;
         static HWND nodesList_Windows[1 + nodesList_ButtonsCount];
@@ -225,10 +225,6 @@ namespace ZookieWizard
                     importTrimeshFromObj();
                 }
                 else if (2 == (int32_t)custom_param)
-                {
-                    importNodesFromTxt();
-                }
-                else if (3 == (int32_t)custom_param)
                 {
                     changeNodesWithTxt();
                 }
@@ -497,11 +493,17 @@ namespace ZookieWizard
         // (2) "LevelName"
         // (3) "CameraMovementSpeed"
         // (4) "CameraRotationSpeed"
+        // (5) "DrawFlags" (CheckBoxes)
         ////////////////////////////////////////////////////////////////
         void updateArSettingsText(int32_t id, const char* new_text)
         {
             HWND dummy_window;
             int32_t page_id, window_id;
+
+            if (nullptr == new_text)
+            {
+                return;
+            }
 
             switch (id)
             {
@@ -540,15 +542,28 @@ namespace ZookieWizard
                     break;
                 }
 
+                case 5: // "DrawFlags"
+                {
+                    myDrawFlags = std::atoi(new_text);
+
+                    for (window_id = (2 + 0); window_id < (2 + drawFlags::DRAW_FLAG_COUNT); window_id++)
+                    {
+                        if (NULL != (dummy_window = theWindowsManager.getSpecificWindow(0, window_id)))
+                        {
+                            SendMessage(dummy_window, BM_SETCHECK, (0x01 & (myDrawFlags >> (window_id - 2))) ? BST_CHECKED : BST_UNCHECKED, 0);
+                        }
+                    }
+
+                    return;
+                }
+
                 default:
                 {
                     return;
                 }
             }
 
-            dummy_window = theWindowsManager.getSpecificWindow(page_id, window_id);
-
-            if (NULL != dummy_window)
+            if (NULL != (dummy_window = theWindowsManager.getSpecificWindow(page_id, window_id)))
             {
                 SetWindowText(dummy_window, new_text);
             }
@@ -708,7 +723,7 @@ namespace ZookieWizard
                     case (2 + 5): // "Render with TEXTURES"
                     case (2 + 7): // "Render with FRUSTUM TESTING"
                     {
-                        SendMessage(dummy_window,BM_SETCHECK, BST_CHECKED, 0);
+                        SendMessage(dummy_window, BM_SETCHECK, BST_CHECKED, 0);
                         myDrawFlags |= (1 << (a - 2));
 
                         break;
@@ -910,7 +925,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | ES_AUTOHSCROLL);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == theWindowsManager.addWindow("", RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_EditBoxTyping, (void*)currentWorkingDirectory, 0x01))
+            if (0 == theWindowsManager.addWindow("", RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_EditBoxTyping, (void*)mediaDirectory, 0x01))
             {
                 return false;
             }
@@ -1129,14 +1144,8 @@ namespace ZookieWizard
 
             theWindowsManager.setCurrentPosition(x, y);
             nodesList_ActionIds[14] = 4;
-            nodesList_ActionIds[15] = 4;
 
-            if (0 == (nodesList_Windows[1 + 14] = theWindowsManager.addWindow("Import Nodes from a TXT file", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)2, 0)))
-            {
-                return false;
-            }
-
-            if (0 == (nodesList_Windows[1 + 15] = theWindowsManager.addWindow("Change Nodes with a TXT file", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)3, 0x01)))
+            if (0 == (nodesList_Windows[1 + 14] = theWindowsManager.addWindow("Change Nodes with a TXT file", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)2, 0x01)))
             {
                 return false;
             }

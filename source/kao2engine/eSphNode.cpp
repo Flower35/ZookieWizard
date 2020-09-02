@@ -113,4 +113,128 @@ namespace ZookieWizard
         }
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eSphNode: (editor option) rebuild collision
+    ////////////////////////////////////////////////////////////////
+    void eSphNode::editingRebuildCollision()
+    {
+        eGeometry::editingRebuildCollision();
+
+        flagsCollisionResponse = 0;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSphNode: custom TXT parser methods
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eSphNode::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        int32_t test;
+        eString prop_name;
+
+        if (1 != (test = eGeometry::parsingSetProperty(result_msg, property)))
+        {
+            return test;
+        }
+
+        prop_name = property.getName();
+
+        if (prop_name.compareExact("radius", true))
+        {
+            if (property.checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                property.getValue(&test);
+                radius = (float)test;
+            }
+            else if (property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                property.getValue(&radius);
+            }
+            else
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "radius", TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (radius < 0)
+            {
+                radius = 0;
+            }
+
+            boxBoundMin.x = (-radius);
+            boxBoundMin.y = (-radius);
+            boxBoundMin.z = (-radius);
+            boxBoundMax.x = radius;
+            boxBoundMax.y = radius;
+            boxBoundMax.z = radius;
+
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t eSphNode::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+
+        if (1 != (test = eGeometry::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("setRadius", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setRadius", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[0].getValue(&test);
+                radius = (float)test;
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[0].getValue(&radius);
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setRadius", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (radius < 0)
+            {
+                radius = 0;
+            }
+
+            boxBoundMin.x = (-radius);
+            boxBoundMin.y = (-radius);
+            boxBoundMin.z = (-radius);
+            boxBoundMax.x = radius;
+            boxBoundMax.y = radius;
+            boxBoundMax.z = radius;
+
+            if (nullptr != axisListBox)
+            {
+                editingRebuildCollision();
+            }
+
+            return 0;
+        }
+
+        return 1;
+    }
+
 }

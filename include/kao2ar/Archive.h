@@ -144,7 +144,7 @@ namespace ZookieWizard
             eString getMediaDir() const;
             void setMediaDir(eString new_media_dir);
 
-            void renderScene(int32_t draw_flags) const;
+            void renderScene(uint32_t draw_flags) const;
             void changeSelectedObject(int32_t child_id, void* param);
 
             void copySceneFromMe(eScene** target) const;

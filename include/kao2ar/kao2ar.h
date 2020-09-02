@@ -43,7 +43,6 @@ namespace ZookieWizard
 
         int32_t splitString(eString &source, eString* destination, int32_t max_entries);
         int32_t propertyString(eString &source, eString* destination, int32_t max_entries, int32_t line_number);
-        int32_t splitParams(eString &source, eString* destination, int32_t max_entries);
         eString removeComment(eString source, bool hashtag_or_slashes);
 
         bool compareNameWithWildcards(const char* source, const char* format);

@@ -2,6 +2,7 @@
 #include <kao2ar/Archive.h>
 
 #include <utilities/ColladaExporter.h>
+#include <ZookieWizard/WindowsManager.h>
 
 namespace ZookieWizard
 {
@@ -386,6 +387,114 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eScene: preparing just-created node
+    ////////////////////////////////////////////////////////////////
+    void eScene::editingNewNodeSetup()
+    {
+        GUI::theWindowsManager.displayMessage
+        (
+            WINDOWS_MANAGER_MESSAGE_ERROR,
+            "\"eScene\" object that is not a root of the Archive will cause the game to crash!\n" \
+            "Dereferencing node..."
+        );
+
+        decRef();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eScene: custom TXT parser
+    ////////////////////////////////////////////////////////////////
+    int32_t eScene::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+        float dummy_floats[3];
+
+        if (1 != (test = ePivot::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("setBackgroundColor", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setBackgroundColor", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setBackgroundColor", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+            }
+
+            params[0].getValue(dummy_floats);
+
+            /********************************/
+
+            setBackgroundColor(dummy_floats);
+            return 0;
+        }
+        else if (message.compareExact("setAmbientColor", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setAmbientColor", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setAmbientColor", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+            }
+
+            params[0].getValue(dummy_floats);
+
+            /********************************/
+
+            setAmbientColor(dummy_floats);
+            return 0;
+        }
+        else if (message.compareExact("setCompileStrings", true))
+        {
+            if (2 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setCompileStrings", 2);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setCompileStrings", 1, TXT_PARSING_NODE_PROPTYPE_STRING);
+            }
+
+            params[0].getValue(&compileStrA);
+
+            /********************************/
+
+            if (!params[1].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setCompileStrings", 2, TXT_PARSING_NODE_PROPTYPE_STRING);
+            }
+
+            params[1].getValue(&compileStrB);
+
+            /********************************/
+
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eScene: COLLADA exporting
     ////////////////////////////////////////////////////////////////
     void eScene::writeNodeToXmlFile(ColladaExporter &exporter) const
@@ -460,6 +569,18 @@ namespace ZookieWizard
         color[0] = new_color[0];
         color[1] = new_color[1];
         color[2] = new_color[2];
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eScene: set ambient color
+    ////////////////////////////////////////////////////////////////
+    void eScene::setAmbientColor(GLfloat new_color[3])
+    {
+        ambient[0] = new_color[0];
+        ambient[1] = new_color[1];
+        ambient[2] = new_color[2];
+        ambient[3] = 1.0f;
     }
 
 

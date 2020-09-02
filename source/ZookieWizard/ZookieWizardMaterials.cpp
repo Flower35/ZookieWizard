@@ -511,7 +511,7 @@ namespace ZookieWizard
             }
         }
 
-        void materialsManager_SetCurrentMaterialFromTriMesh(void* object)
+        void materialsManager_SetCurrentMaterialFromGeometry(void* object)
         {
             eMaterial* test_material = (eMaterial*)object;
 
@@ -1010,7 +1010,7 @@ namespace ZookieWizard
         {
             char bufor[512];
             eString test_str = "<Invalid Selection>";
-            eString working_directory = materialsManager_AssignWorkingDirectory(currentWorkingDirectory);
+            eString working_directory = materialsManager_AssignWorkingDirectory(getEditorString(1, false));
 
             theLog.print
             (
@@ -1074,7 +1074,7 @@ namespace ZookieWizard
         {
             char bufor[512];
             eString test_str = "<Invalid Selection>";
-            eString working_directory = materialsManager_AssignWorkingDirectory(currentWorkingDirectory);
+            eString working_directory = materialsManager_AssignWorkingDirectory(getEditorString(1, false));
 
             theLog.print
             (
@@ -1620,12 +1620,12 @@ namespace ZookieWizard
                 else if (5 == (int)custom_param)
                 {
                     /* "Export All Loaded Bitmaps" */
-                    materialsManager_ExportAllBitmaps(0, currentWorkingDirectory, false);
+                    materialsManager_ExportAllBitmaps(0, getEditorString(1, false), false);
                 }
                 else if (6 == (int)custom_param)
                 {
                     /* "Reimport All Loaded Bitmaps" */
-                    materialsManager_ReimportAllBitmaps(0, currentWorkingDirectory, false);
+                    materialsManager_ReimportAllBitmaps(0, getEditorString(1, false), false);
                 }
                 else if (7 == (int)custom_param)
                 {

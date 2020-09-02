@@ -29,7 +29,7 @@ namespace ZookieWizard
     eBillboard::eBillboard()
     : eTransform()
     {
-        /*[0xAC]*/ enabled = false;
+        /*[0xAC]*/ billboarded = true;
     }
 
     eBillboard::~eBillboard() {}
@@ -43,7 +43,7 @@ namespace ZookieWizard
     {
         eTransform::serialize(ar);
 
-        ar.readOrWrite(&enabled, 0x01);
+        ar.readOrWrite(&billboarded, 0x01);
     }
 
 }

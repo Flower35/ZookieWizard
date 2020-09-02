@@ -151,6 +151,79 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eOmniLight: custom TXT parser methods
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eOmniLight::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        int32_t test;
+        float dummy_floats[3];
+
+        if (1 != (test = eLight::parsingSetProperty(result_msg, property)))
+        {
+            return test;
+        }
+
+        if (property.getName().compareExact("pos", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "pos", TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            property.getValue(dummy_floats);
+
+            position.x = dummy_floats[0];
+            position.y = dummy_floats[1];
+            position.z = dummy_floats[2];
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t eOmniLight::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+        float dummy_floats[3];
+
+        if (1 != (test = eLight::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("setPos", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setPos", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setPos", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[0].getValue(dummy_floats);
+
+            /********************************/
+
+            position.x = dummy_floats[0];
+            position.y = dummy_floats[1];
+            position.z = dummy_floats[2];
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eOmniLight: get or set position
     ////////////////////////////////////////////////////////////////
 

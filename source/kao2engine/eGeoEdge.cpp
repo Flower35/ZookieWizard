@@ -30,14 +30,14 @@ namespace ZookieWizard
     eGeoEdge::eGeoEdge()
     : eGeometry()
     {
-        unknown_58 = nullptr;
+        edges = nullptr;
 
         flags |= 0x40000000;
     }
 
     eGeoEdge::~eGeoEdge()
     {
-        unknown_58->decRef();
+        edges->decRef();
     }
 
 
@@ -59,7 +59,7 @@ namespace ZookieWizard
         }
 
         /* [0x58] unknown */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_58, &E_GEOARRAY_EPOINT4_TYPEINFO);
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&edges, &E_GEOARRAY_EPOINT4_TYPEINFO);
     }
 
 
@@ -70,7 +70,7 @@ namespace ZookieWizard
     {
         if (GUI::drawFlags::DRAW_FLAG_COLLISION & draw_context.getDrawFlags())
         {
-            if (nullptr != unknown_58)
+            if (nullptr != edges)
             {
                 /* Inactive color (orange) */
                 float color[3] = {1.0f, 0.5f, 0};
@@ -99,8 +99,8 @@ namespace ZookieWizard
                 glLineWidth(2.0f);
                 glBegin(GL_LINES);
 
-                ePoint4* vertices = unknown_58->getData();
-                int32_t vertex_pairs = unknown_58->getLength() - 1;
+                ePoint4* vertices = edges->getData();
+                int32_t vertex_pairs = edges->getLength() - 1;
 
                 if (nullptr != vertices)
                 {
@@ -108,9 +108,11 @@ namespace ZookieWizard
 
                     while (a < vertex_pairs)
                     {
-                        glVertex3f(vertices[a].x, vertices[a].y, vertices[a].z);
-                        a++;
-                        glVertex3f(vertices[a].x, vertices[a].y, vertices[a].z);
+                        for (int32_t b = 0; b < 2; b++)
+                        {
+                            glVertex3f(vertices[a].x, vertices[a].y, vertices[a].z);
+                            a++;
+                        }
                     }
                 }
 
@@ -136,6 +138,172 @@ namespace ZookieWizard
                 }
             }
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoEdge: (editor option) find object in 3D space
+    ////////////////////////////////////////////////////////////////
+    ePoint3 eGeoEdge::editingGetCenterPoint() const
+    {
+        if (nullptr != edges)
+        {
+            if (edges->getLength() >= 1)
+            {
+                return edges->getData()[0];
+            }
+        }
+
+        return {0, 0, 0};
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoEdge: (editor option) rebuild collision
+    ////////////////////////////////////////////////////////////////
+    void eGeoEdge::editingRebuildCollision()
+    {
+        eGeometry::editingRebuildCollision();
+
+        flagsCollisionResponse = 0;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoEdge: (editor option) apply new transformation
+    ////////////////////////////////////////////////////////////////
+    void eGeoEdge::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
+    {
+        int32_t a, edges_length;
+        ePoint4* edges_data;
+        eMatrix4x4 matrix = new_transform.getMatrix();
+
+        if ((nullptr != edges) && (nullptr != (edges_data = edges->getData())))
+        {
+            edges_length = edges->getLength();
+
+            for (a = 0; a < edges_length; a++)
+            {
+                edges_data[a] = matrix * edges_data[a];
+            }
+
+            calculateBoundaryBox(boxBoundMin, boxBoundMax, edges_length, edges_data, 0, nullptr);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoEdge: custom TXT parser
+    ////////////////////////////////////////////////////////////////
+    int32_t eGeoEdge::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test, edges_length;
+        ePoint4* edges_data[2];
+        float dummy_floats[2][3];
+
+        if (1 != (test = eGeometry::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("clearEdges", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "clearEdges", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            if (nullptr != edges)
+            {
+                edges->setup(0, nullptr);
+            }
+            else
+            {
+                edges = new eGeoArray<ePoint4>();
+            }
+
+            editingClearCollision();
+
+            return 0;
+        }
+        if (message.compareExact("addEdge", true))
+        {
+            if (2 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "addEdge", 2);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "addEdge", 1, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[0].getValue(&(dummy_floats[0][0]));
+
+            /********************************/
+
+            if (!params[1].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "addEdge", 2, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[1].getValue(&(dummy_floats[1][0]));
+
+            /********************************/
+
+            if (nullptr != edges)
+            {
+                edges_length = edges->getLength();
+                edges_data[0] = edges->getData();
+
+                edges_data[1] = new ePoint4 [2 + edges_length];
+
+                for (test = 0; test < edges_length; test++)
+                {
+                    edges_data[1][test] = edges_data[0][test];
+                }
+            }
+            else
+            {
+                edges = new eGeoArray<ePoint4>();
+                edges->incRef();
+
+                edges_length = 0;
+                edges_data[1] = new ePoint4 [2];
+            }
+
+            for (test = 0; test < 2; test++)
+            {
+                edges_data[1][edges_length].x = dummy_floats[test][0];
+                edges_data[1][edges_length].y = dummy_floats[test][1];
+                edges_data[1][edges_length].z = dummy_floats[test][2];
+                edges_data[1][edges_length].w = 1.0f;
+                edges_length++;
+            }
+
+            edges->setup(edges_length, edges_data[1]);
+
+            /********************************/
+
+            calculateBoundaryBox(boxBoundMin, boxBoundMax, edges_length, edges_data[1], 0, nullptr);
+
+            if (nullptr != axisListBox)
+            {
+                editingRebuildCollision();
+            }
+
+            return 0;
+        }
+
+        return 1;
     }
 
 }

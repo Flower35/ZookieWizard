@@ -88,6 +88,150 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eLight: custom TXT parser methods
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eLight::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        int32_t test;
+        float dummy_floats[3];
+        eString prop_name;
+
+        if (1 != (test = eNode::parsingSetProperty(result_msg, property)))
+        {
+            return test;
+        }
+
+        prop_name = property.getName();
+
+        if (prop_name.compareExact("diffuseColor", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "diffuseColor", TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            property.getValue(dummy_floats);
+
+            setDiffuseColor(dummy_floats);
+            return 0;
+        }
+        else if (prop_name.compareExact("ambientColor", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "ambientColor", TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            property.getValue(dummy_floats);
+
+            setAmbientColor(dummy_floats);
+            return 0;
+        }
+        else if (prop_name.compareExact("specularColor", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "specularColor", TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            property.getValue(dummy_floats);
+
+            setSpecularColor(dummy_floats);
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t eLight::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+        float dummy_floats[3];
+
+        if (1 != (test = eNode::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("setDiffuseColor", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setDiffuseColor", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setDiffuseColor", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[0].getValue(dummy_floats);
+
+            /********************************/
+
+            setDiffuseColor(dummy_floats);
+            return 0;
+        }
+        else if (message.compareExact("setAmbientColor", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setAmbientColor", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setAmbientColor", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[0].getValue(dummy_floats);
+
+            /********************************/
+
+            setAmbientColor(dummy_floats);
+            return 0;
+        }
+        else if (message.compareExact("setSpecularColor", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setSpecularColor", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setSpecularColor", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[0].getValue(dummy_floats);
+
+            /********************************/
+
+            setSpecularColor(dummy_floats);
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eLight: set light source parameters
     // <kao2.0047EDB0>
     ////////////////////////////////////////////////////////////////

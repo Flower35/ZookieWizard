@@ -17,7 +17,7 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0xAC]*/ bool enabled;
+            /*[0xAC]*/ bool billboarded;
 
         /*** Methods ***/
 

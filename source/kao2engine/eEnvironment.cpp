@@ -135,20 +135,330 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eEnvironment: custom TXT parser methods
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eEnvironment::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        int32_t test;
+        float dummy_floats[3];
+        eString prop_name;
+
+        if (1 != (test = eGroup::parsingSetProperty(result_msg, property)))
+        {
+            return test;
+        }
+
+        prop_name = property.getName();
+
+        if (prop_name.compareExact("fogColor", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "fogColor", TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            property.getValue(dummy_floats);
+
+            setFogColor(dummy_floats);
+            return 0;
+        }
+        else if (prop_name.compareExact("fogStart", true))
+        {
+            if (property.checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                property.getValue(&test);
+                dummy_floats[0] = (float)test;
+            }
+            else if (property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                property.getValue(dummy_floats);
+            }
+            else
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "fogStart", TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            setFogStart(dummy_floats[0]);
+            return 0;
+        }
+        else if (prop_name.compareExact("fogEnd", true))
+        {
+            if (property.checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                property.getValue(&test);
+                dummy_floats[0] = (float)test;
+            }
+            else if (property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                property.getValue(dummy_floats);
+            }
+            else
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "fogEnd", TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            setFogEnd(dummy_floats[0]);
+            return 0;
+        }
+        else if (prop_name.compareExact("fogMax", true))
+        {
+            if (property.checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                property.getValue(&test);
+                dummy_floats[0] = (float)test;
+            }
+            else if (property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                property.getValue(dummy_floats);
+            }
+            else
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "fogMax", TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            setFogMax(dummy_floats[0]);
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t eEnvironment::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+        float dummy_floats[3];
+        eLight* dummy_light = nullptr;
+
+        if (1 != (test = eGroup::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("clearLights", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "clearLights", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            clearLighs();
+            return 0;
+        }
+        else if (message.compareExact("addLight", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "addLight", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "addLight", 0, TXT_PARSING_NODE_PROPTYPE_NODEREF);
+                return 2;
+            }
+
+            /********************************/
+
+            params[0].getValue(&dummy_light);
+
+            if (nullptr == dummy_light)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"addLight\" message: noderef is not set!");
+                return 2;
+            }
+
+            if (!(dummy_light->getType()->checkHierarchy(&E_LIGHT_TYPEINFO)))
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"addLight\" message: expected the noderef to be a child of \"eLight\"!");
+                return 2;
+            }
+
+            /********************************/
+
+            addLight(dummy_light);
+            return 0;
+        }
+        else if (message.compareExact("removeLight", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "removeLight", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "removeLight", 0, TXT_PARSING_NODE_PROPTYPE_NODEREF);
+                return 2;
+            }
+
+            /********************************/
+
+            params[0].getValue(&dummy_light);
+
+            if (nullptr == dummy_light)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"removeLight\" message: noderef is not set!");
+                return 2;
+            }
+
+            if (!(dummy_light->getType()->checkHierarchy(&E_LIGHT_TYPEINFO)))
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"removeLight\" message: expected the noderef to be a child of \"eLight\"!");
+                return 2;
+            }
+
+            /********************************/
+
+            removeLight(dummy_light);
+            return 0;
+        }
+        else if (message.compareExact("setFogColor", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setFogColor", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setFogColor", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[0].getValue(dummy_floats);
+
+            /********************************/
+
+            setFogColor(dummy_floats);
+            return 0;
+        }
+        else if (message.compareExact("setFogStart", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setFogStart", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[0].getValue(&test);
+                dummy_floats[0] = (float)test;
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[0].getValue(dummy_floats);
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setFogStart", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            setFogStart(dummy_floats[0]);
+            return 0;
+        }
+        else if (message.compareExact("setFogEnd", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setFogEnd", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[0].getValue(&test);
+                dummy_floats[0] = (float)test;
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[0].getValue(dummy_floats);
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setFogEnd", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            setFogEnd(dummy_floats[0]);
+            return 0;
+        }
+        else if (message.compareExact("setFogMax", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setFogMax", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[0].getValue(&test);
+                dummy_floats[0] = (float)test;
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[0].getValue(dummy_floats);
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setFogMax", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            setFogMax(dummy_floats[0]);
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eEnvironment: add or remove a lighting source
     ////////////////////////////////////////////////////////////////
 
-    void eEnvironment::clearLighting()
+    void eEnvironment::clearLighs()
     {
         lights.clear();
     }
 
-    void eEnvironment::addLighting(eLight* new_light)
+    void eEnvironment::addLight(eLight* new_light)
     {
         lights.appendChild(new_light);
     }
 
-    void eEnvironment::removeLighting(eLight* selected_light)
+    void eEnvironment::removeLight(eLight* selected_light)
     {
         lights.findAndDeleteChild(selected_light);
     }

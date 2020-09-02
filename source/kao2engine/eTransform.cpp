@@ -336,6 +336,423 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eTransform: custom TXT parser methods
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eTransform::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        int32_t test;
+        float dummy_floats[3];
+        eString prop_name;
+
+        if (1 != (test = eGroup::parsingSetProperty(result_msg, property)))
+        {
+            return test;
+        }
+
+        prop_name = property.getName();
+
+        if (prop_name.compareExact("pos", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "pos", TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            property.getValue(dummy_floats);
+
+            defaultTransform.pos.x = dummy_floats[0];
+            defaultTransform.pos.y = dummy_floats[1];
+            defaultTransform.pos.z = dummy_floats[2];
+
+            return 0;
+        }
+        else if (prop_name.compareExact("rot", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "rot", TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            property.getValue(dummy_floats);
+
+            dummy_floats[0] /= 180.0f * (float)M_PI;
+            dummy_floats[1] /= 180.0f * (float)M_PI;
+            dummy_floats[2] /= 180.0f * (float)M_PI;
+            defaultTransform.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
+
+            return 0;
+        }
+        else if (prop_name.compareExact("scl", true))
+        {
+            if (property.checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                property.getValue(&test);
+                defaultTransform.scale = (float)test;
+            }
+            else if (property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                property.getValue(&(defaultTransform.scale));
+            }
+            else
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "scl", TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t eTransform::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test[4];
+        float dummy_floats[4];
+        eSRP dummy_srp;
+
+        if (1 != (test[0] = eGroup::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test[0];
+        }
+
+        if (message.compareExact("setPos", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setPos", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setPos", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[0].getValue(dummy_floats);
+
+            defaultTransform.pos.x = dummy_floats[0];
+            defaultTransform.pos.y = dummy_floats[1];
+            defaultTransform.pos.z = dummy_floats[2];
+
+            /********************************/
+
+            getTransposedMatrices(defaultTransform);
+            return 0;
+        }
+        else if (message.compareExact("setRot", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setRot", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setRot", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[0].getValue(dummy_floats);
+
+            dummy_floats[0] /= 180.0f * (float)M_PI;
+            dummy_floats[1] /= 180.0f * (float)M_PI;
+            dummy_floats[2] /= 180.0f * (float)M_PI;
+            defaultTransform.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
+
+            /********************************/
+
+            getTransposedMatrices(defaultTransform);
+            return 0;
+        }
+        else if (message.compareExact("setScl", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setScl", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[0].getValue(&(test[0]));
+                defaultTransform.scale = (float)test[0];
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[0].getValue(&(defaultTransform.scale));
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setScl", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            getTransposedMatrices(defaultTransform);
+            return 0;
+        }
+        else if (message.compareExact("ctrlClearKeyframes", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "ctrlClearKeyframes", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlClearKeyframes", 0, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            params[0].getValue(&(test[0]));
+
+            /********************************/
+
+            ctrlClearKeyframes(test[0]);
+            return 0;
+        }
+        else if (message.compareExact("ctrlSetStaticScale", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "ctrlSetStaticScale", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[0].getValue(&(test[0]));
+                dummy_srp.scale = (float)test[0];
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[0].getValue(&(dummy_srp.scale));
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlSetStaticScale", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            ctrlSetStaticScale(dummy_srp.scale);
+            return 0;
+        }
+        else if (message.compareExact("ctrlSetStaticRotation", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "ctrlSetStaticRotation", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlSetStaticRotation", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[0].getValue(dummy_floats);
+
+            dummy_floats[0] /= 180.0f * (float)M_PI;
+            dummy_floats[1] /= 180.0f * (float)M_PI;
+            dummy_floats[2] /= 180.0f * (float)M_PI;
+            dummy_srp.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
+
+            /********************************/
+
+            ctrlSetStaticRotation(dummy_srp.rot);
+            return 0;
+        }
+        else if (message.compareExact("ctrlSetStaticPosition", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "ctrlSetStaticPosition", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlSetStaticPosition", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[0].getValue(dummy_floats);
+
+            dummy_srp.pos.x = dummy_floats[0];
+            dummy_srp.pos.y = dummy_floats[1];
+            dummy_srp.pos.z = dummy_floats[2];
+
+            /********************************/
+
+            ctrlSetStaticPosition(dummy_srp.pos);
+            return 0;
+        }
+        else if (message.compareExact("ctrlSetLoopType", true))
+        {
+            if (3 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "ctrlSetLoopType", 3);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlSetLoopType", 1, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[1].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlSetLoopType", 2, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[2].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlSetLoopType", 3, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            params[0].getValue(&(test[0]));
+            params[1].getValue(&(test[1]));
+            params[2].getValue(&(test[2]));
+
+            /********************************/
+
+            ctrlSetLoopType(test[0], test[1], test[2]);
+            return 0;
+        }
+        else if (message.compareExact("ctrlAddKeyframe", true))
+        {
+            if (6 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "ctrlAddKeyframe", 6);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlAddKeyframe", 1, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            params[0].getValue(&(test[3]));
+
+            /********************************/
+
+            if (params[1].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[1].getValue(&(test[0]));
+                dummy_floats[3] = (float)test[0];
+            }
+            else if (params[1].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[1].getValue(&(dummy_floats[3]));
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlAddKeyframe", 2, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[2].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlAddKeyframe", 3, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[2].getValue(dummy_floats);
+            dummy_srp.pos.x = dummy_floats[0];
+            dummy_srp.pos.y = dummy_floats[1];
+            dummy_srp.pos.z = dummy_floats[2];
+
+            /********************************/
+
+            if (!params[3].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlAddKeyframe", 4, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[3].getValue(dummy_floats);
+            dummy_floats[0] /= 180.0f * (float)M_PI;
+            dummy_floats[1] /= 180.0f * (float)M_PI;
+            dummy_floats[2] /= 180.0f * (float)M_PI;
+            dummy_srp.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
+
+            /********************************/
+
+            if (params[4].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[4].getValue(&(test[0]));
+                dummy_srp.scale = (float)test[0];
+            }
+            else if (params[4].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[4].getValue(&(dummy_srp.scale));
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlAddKeyframe", 5, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[5].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlAddKeyframe", 6, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            params[5].getValue(&(test[0]));
+
+            /********************************/
+
+            ctrlAddKeyframe(test[3], dummy_floats[3], dummy_srp, test[0]);
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eTransform: (editor option) rebuild collision
     ////////////////////////////////////////////////////////////////
     void eTransform::editingRebuildCollision()
@@ -373,6 +790,17 @@ namespace ZookieWizard
         {
             setXForm(new_transform);
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: preparing just-created node
+    ////////////////////////////////////////////////////////////////
+    void eTransform::editingNewNodeSetup()
+    {
+        getTransposedMatrices(defaultTransform);
+
+        eGroup::editingNewNodeSetup();
     }
 
 
@@ -702,7 +1130,7 @@ namespace ZookieWizard
                 ctrl = multi_ctrl;
                 ctrl->incRef();
             }
-            else if (false == ctrl->getType()->checkHierarchy(&E_MULTICTRL_FLOAT_TYPEINFO))
+            else if (false == ctrl->getType()->checkHierarchy(&E_MULTICTRL_ESRP_TYPEINFO))
             {
                 multi_ctrl = new eMultiCtrl<eSRP>;
 
@@ -712,6 +1140,10 @@ namespace ZookieWizard
                 ctrl->decRef();
                 ctrl = multi_ctrl;
                 ctrl->incRef();
+            }
+            else
+            {
+                ((eMultiCtrl<eSRP>*)ctrl)->multiCtrl_SetSize(1 + anim_id);
             }
 
             ctrl->ctrlAddKeyframe(anim_id, new_time, new_data, param);

@@ -19,7 +19,7 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x58]*/ eGeoArray<ePoint4>* unknown_58;
+            /*[0x58]*/ eGeoArray<ePoint4>* edges;
 
         /*** Methods ***/
 
@@ -32,6 +32,12 @@ namespace ZookieWizard
             TypeInfo* getType() const override;
 
             void renderNode(eDrawContext &draw_context) const override;
+
+            ePoint3 editingGetCenterPoint() const override;
+            void editingRebuildCollision() override;
+            void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id);
+
+            int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
     };
 
 

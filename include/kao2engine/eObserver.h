@@ -39,6 +39,11 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
 
+            void editingNewNodeSetup() override;
+
+            int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
+            int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
+
             float getFieldOfView() const;
             float getNearPlane() const;
             float getFarPlane() const;

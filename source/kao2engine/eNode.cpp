@@ -18,6 +18,11 @@ namespace ZookieWizard
         eNode* theNodesDebug[AR_MAX_ITEMS] = {nullptr};
     #endif
 
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: helper definitions and structures
+    ////////////////////////////////////////////////////////////////
+
     const char* theNodeFlagNames[32] =
     {
         "Visible (node)", // 0x00000001
@@ -53,6 +58,297 @@ namespace ZookieWizard
         "DrawPass #3", // 0x40000000
         "???", // 0x80000000
     };
+
+    TxtParsingNodeProp::TxtParsingNodeProp()
+    {
+        type = TXT_PARSING_NODE_PROPTYPE_UNKNOWN;
+    }
+
+    eString TxtParsingNodeProp::getName() const
+    {
+        return name;
+    }
+
+    void TxtParsingNodeProp::setName(eString new_name)
+    {
+        name = new_name;
+    }
+
+    bool TxtParsingNodeProp::checkType(int32_t expected_type) const
+    {
+        return (type == expected_type);
+    }
+
+    bool TxtParsingNodeProp::getValue(void* result_ptr) const
+    {
+        if (nullptr != result_ptr)
+        {
+            switch (type)
+            {
+                case TXT_PARSING_NODE_PROPTYPE_INTEGER:
+                {
+                    *(int32_t*)result_ptr = intValue;
+                    return true;
+                }
+
+                case TXT_PARSING_NODE_PROPTYPE_FLOAT1:
+                {
+                    ((float*)result_ptr)[0] = floatValues[0];
+                    return true;
+                }
+
+                case TXT_PARSING_NODE_PROPTYPE_FLOAT2:
+                {
+                    ((float*)result_ptr)[0] = floatValues[0];
+                    ((float*)result_ptr)[1] = floatValues[1];
+                    return true;
+                }
+
+                case TXT_PARSING_NODE_PROPTYPE_FLOAT3:
+                {
+                    ((float*)result_ptr)[0] = floatValues[0];
+                    ((float*)result_ptr)[1] = floatValues[1];
+                    ((float*)result_ptr)[2] = floatValues[2];
+                    return true;
+                }
+
+                case TXT_PARSING_NODE_PROPTYPE_STRING:
+                {
+                    *(eString*)result_ptr = strValue;
+                    return true;
+                }
+
+                case TXT_PARSING_NODE_PROPTYPE_NODEREF:
+                {
+                    *(eNode**)result_ptr = nodeValue;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    void TxtParsingNodeProp::setValue(int32_t new_type, void* new_value_ptr)
+    {
+        if (nullptr == new_value_ptr)
+        {
+            new_type = TXT_PARSING_NODE_PROPTYPE_UNKNOWN;
+            return;
+        }
+
+        switch (new_type)
+        {
+            case TXT_PARSING_NODE_PROPTYPE_INTEGER:
+            {
+                intValue = *(int32_t*)new_value_ptr;
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_FLOAT1:
+            {
+                floatValues[0] = ((float*)new_value_ptr)[0];
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_FLOAT2:
+            {
+                floatValues[0] = ((float*)new_value_ptr)[0];
+                floatValues[1] = ((float*)new_value_ptr)[1];
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_FLOAT3:
+            {
+                floatValues[0] = ((float*)new_value_ptr)[0];
+                floatValues[1] = ((float*)new_value_ptr)[1];
+                floatValues[2] = ((float*)new_value_ptr)[2];
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_STRING:
+            {
+                strValue = *(eString*)new_value_ptr;
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_NODEREF:
+            {
+                nodeValue = *(eNode**)new_value_ptr;
+                break;
+            }
+
+            default:
+            {
+                new_type = TXT_PARSING_NODE_PROPTYPE_UNKNOWN;
+                return;
+            }
+        }
+
+        type = new_type;
+    }
+
+    void TxtParsingNode_ErrorArgCount(char* result, const char* current_msg, int32_t expected)
+    {
+        if (expected <= 0)
+        {
+            sprintf_s(result, LARGE_BUFFER_SIZE, "\"%s\" message takes no arguments!", current_msg);
+        }
+        else
+        {
+            sprintf_s(result, LARGE_BUFFER_SIZE, "\"%s\" message: incorrect number of arguments! (Expected %d)", current_msg, expected);
+        }
+    }
+
+    void TxtParsingNode_ErrorArgType(char* result, const char* current_msg, int32_t arg_num, int32_t expected_type)
+    {
+        const char* which_arg;
+        const char* which_type;
+
+        switch (arg_num)
+        {
+            case 1:
+            {
+                which_arg = " first";
+                break;
+            }
+
+            case 2:
+            {
+                which_arg = " second";
+                break;
+            }
+
+            case 3:
+            {
+                which_arg = " third";
+                break;
+            }
+
+            case 4:
+            {
+                which_arg = " fourth";
+                break;
+            }
+
+            case 5:
+            {
+                which_arg = " fifth";
+                break;
+            }
+
+            case 6:
+            {
+                which_arg = " sixth";
+                break;
+            }
+
+            default:
+            {
+                which_arg = "";
+                break;
+            }
+        }
+
+        switch (expected_type)
+        {
+            case TXT_PARSING_NODE_PROPTYPE_INTEGER:
+            {
+                which_type = "an integer";
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_FLOAT1:
+            {
+                which_type = "an integer or floating-point";
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_FLOAT2:
+            {
+                which_type = "a floating-point pair";
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_FLOAT3:
+            {
+                which_type = "a floating-point triple";
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_STRING:
+            {
+                which_type = "a string";
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_NODEREF:
+            {
+                which_type = "a NodeRef";
+                break;
+            }
+
+            default:
+            {
+                which_type = "something";
+                break;
+            }
+        }
+
+        sprintf_s(result, LARGE_BUFFER_SIZE, "\"%s\" message: expected the%s argument to be %s!", current_msg, which_arg, which_type);
+    }
+
+    void TxtParsingNode_ErrorPropType(char* result, const char* current_prop, int32_t expected_type)
+    {
+        const char* which_type;
+
+        switch (expected_type)
+        {
+            case TXT_PARSING_NODE_PROPTYPE_INTEGER:
+            {
+                which_type = "an integer";
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_FLOAT1:
+            {
+                which_type = "an integer or floating-point";
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_FLOAT2:
+            {
+                which_type = "a floating-point pair";
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_FLOAT3:
+            {
+                which_type = "a floating-point triple";
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_STRING:
+            {
+                which_type = "a string";
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_NODEREF:
+            {
+                which_type = "a NodeRef";
+                break;
+            }
+
+            default:
+            {
+                which_type = "something";
+                break;
+            }
+        }
+
+        sprintf_s(result, LARGE_BUFFER_SIZE, "Expected \"%s\" property to be %s!", current_prop, which_type);
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -303,6 +599,13 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eCamera" / "eGeometry" / "eNPCMap" / "ePivot" / "eZone")
+    ////////////////////////////////////////////////////////////////
+    void eNode::editingNewNodeSetup()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
     // eNode: empty function (for "eGroup" / "eZone")
     ////////////////////////////////////////////////////////////////
     void eNode::findAndDereference(eNode* target)
@@ -406,35 +709,325 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eNode: custom TXT parser methods
+    // (returns 1 if no property / message was found
+    //  2 for general errors, 0 otherwise)
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eNode::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        eString prop_name = property.getName();
+        eNode* dummy_node = nullptr;
+
+        if (prop_name.compareExact("parent", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "parent", TXT_PARSING_NODE_PROPTYPE_NODEREF);
+                return 2;
+            }
+
+            property.getValue(&dummy_node);
+
+            if (nullptr == dummy_node)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Noderef for \"parent\" property is not set!");
+                return 2;
+            }
+
+            if (!(dummy_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO)))
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Expected the noderef of \"parent\" property to be a \"eGroup\" or its child!");
+                return 2;
+            }
+
+            ((eGroup*)dummy_node)->appendChild(this);
+            return 0;
+        }
+        else if (prop_name.compareExact("name", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "name", TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            property.getValue(&name);
+            return 0;
+        }
+        else if (prop_name.compareExact("flags", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "flags", TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            property.getValue(&flags);
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t eNode::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test[2];
+        float dummy_floats[2];
+        eNode* dummy_node = nullptr;
+
+        if (message.compareExact("setParent", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setParent", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setParent", 0, TXT_PARSING_NODE_PROPTYPE_NODEREF);
+                return 2;
+            }
+
+            /********************************/
+
+            params[0].getValue(&dummy_node);
+
+            if (nullptr == dummy_node)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setParent\" message: noderef is not set!");
+                return 2;
+            }
+
+            if (!(dummy_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO)))
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setParent\" message: expected the noderef to be a \"eGroup\" or its child!");
+                return 2;
+            }
+
+            /********************************/
+
+            ((eGroup*)dummy_node)->appendChild(this);
+            return 0;
+        }
+        else if (message.compareExact("setName", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setName", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setName", 0, TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            /********************************/
+
+            params[0].getValue(&name);
+            return 0;
+        }
+        else if (message.compareExact("setFlags", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setFlags", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setFlags", 0, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            /********************************/
+
+            params[0].getValue(&flags);
+            return 0;
+        }
+        else if (message.compareExact("visCtrlClear", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "visCtrlClear", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "visCtrlClear", 0, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            params[0].getValue(&(test[0]));
+
+            /********************************/
+
+            visCtrlClear(test[0]);
+            return 0;
+        }
+        else if (message.compareExact("`visCtrlSetStatic", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "visCtrlSetStatic", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[0].getValue(&(test[0]));
+                dummy_floats[0] = (float)test[0];
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[0].getValue(&(dummy_floats[0]));
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "visCtrlSetStatic", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            visCtrlSetStatic(dummy_floats[0]);
+            return 0;
+        }
+        else if (message.compareExact("visCtrlSetLoopType", true))
+        {
+            if (2 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "visCtrlSetLoopType", 2);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "visCtrlSetLoopType", 1, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            params[0].getValue(&(test[0]));
+
+            /********************************/
+
+            if (!params[1].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "visCtrlSetLoopType", 2, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            params[1].getValue(&(test[1]));
+
+            /********************************/
+
+            visCtrlSetLoopType(test[0], test[1]);
+            return 0;
+        }
+        else if (message.compareExact("visCtrlAddKeyframe", true))
+        {
+            if (3 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "visCtrlAddKeyframe", 3);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "visCtrlAddKeyframe", 1, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            params[0].getValue(&(test[0]));
+
+            /********************************/
+
+            if (params[1].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[1].getValue(&(test[1]));
+                dummy_floats[0] = (float)test[1];
+            }
+            else if (params[1].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[1].getValue(&(dummy_floats[0]));
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "visCtrlAddKeyframe", 2, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[2].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[2].getValue(&(test[1]));
+                dummy_floats[1] = (float)test[1];
+            }
+            else if (params[2].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[2].getValue(&(dummy_floats[1]));
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "visCtrlAddKeyframe", 3, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            visCtrlAddKeyframe(test[0], dummy_floats[0], dummy_floats[1]);
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eNode: get or set parent node
     ////////////////////////////////////////////////////////////////
 
-    eNode* eNode::getRootNode() const
+    eGroup* eNode::getRootNode() const
     {
-        const eNode *root, *test_root;
+        eGroup* last_parent = nullptr;
+        eGroup* test_parent = parent;
 
-        root = nullptr;
-        test_root = this;
-
-        while (nullptr != test_root)
+        while (nullptr != test_parent)
         {
-            test_root = test_root->getParentNode();
+            last_parent = test_parent;
 
-            if (nullptr != test_root)
-            {
-                root = test_root;
-            }
+            test_parent = test_parent->getParentNode();
         }
 
-        return (eNode*)root;
+        return last_parent;
     }
 
-    eNode* eNode::getParentNode() const
+    eGroup* eNode::getParentNode() const
     {
         return parent;
     }
 
-    void eNode::setParentNode(eNode* new_parent)
+    void eNode::setParentNode(eGroup* new_parent)
     {
         parent = new_parent;
     }
@@ -573,6 +1166,10 @@ namespace ZookieWizard
                 visCtrl->decRef();
                 visCtrl = multi_ctrl;
                 visCtrl->incRef();
+            }
+            else
+            {
+                ((eMultiCtrl<float>*)visCtrl)->multiCtrl_SetSize(1 + anim_id);
             }
 
             visCtrl->ctrlAddKeyframe(anim_id, time, opacity, 0x01);

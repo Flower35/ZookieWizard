@@ -65,7 +65,7 @@ namespace ZookieWizard
 
         result_scene = new eScene();
         result_scene->setFlags(0x70071000);
-        result_scene->rebuildEmptyAnimState();
+        result_scene->rebuildEmptyAnimState(true);
 
         global_env = new eEnvironment("global_env");
         global_env->setFlags(0x70000000);

@@ -59,11 +59,13 @@ namespace ZookieWizard
 
         bool read(void* pointer, int size);
         bool write(void* pointer, int size);
+        bool peek(char &next_char);
 
         void setDir(char* filename);
         bool createDir();
 
         void setPointer(int offset);
+        void skip(int size);
 
         bool endOfFileReached();
     };

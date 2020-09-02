@@ -24,11 +24,15 @@ namespace ZookieWizard
     OPENFILENAME ofn;
 
     int currentGameVersion = (-1);
-    char currentWorkingDirectory[LARGE_BUFFER_SIZE] = "";
+    char mediaDirectory[LARGE_BUFFER_SIZE] = "";
     char denisDirectory[LARGE_BUFFER_SIZE] = "";
     char denisLevelName[LARGE_BUFFER_SIZE] = "";
 
+    bool currentWorkingDirectoryStored = false;
+    char currentWorkingDirectory[LARGE_BUFFER_SIZE];
+
     #define ZOOKIE_WIZARD_SETTINGS_FILENAME "ZookieWizard.ini"
+    #define ZOOKIE_WIZARD_SETTINGS_COUNT 7
 
 
     ////////////////////////////////////////////////////////////////
@@ -42,29 +46,120 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // miscellaneous: Get one of the editor strings
+    // (timming and checking if empty)
+    // (1 = MediaDir, 2 = DenisDir, 3 = LevelName)
+    ////////////////////////////////////////////////////////////////
+    const char* getEditorString(int32_t id, bool silent)
+    {
+        char bufor[LARGE_BUFFER_SIZE];
+
+        bool display_warning = true;
+        char* result;
+        const char* warning_text;
+
+        switch (id)
+        {
+            case 1:
+            {
+                result = mediaDirectory;
+                warning_text = "MediaDir";
+                break;
+            }
+
+            case 2:
+            {
+                result = denisDirectory;
+                warning_text = "DenisDir";
+                break;
+            }
+
+            case 3:
+            {
+                result = denisLevelName;
+                warning_text = "LevelName";
+                break;
+            }
+
+            default:
+            {
+                result = nullptr;
+                warning_text = "???";
+            }
+        }
+
+        if (nullptr != result)
+        {
+            eString dummy_str(result);
+            dummy_str.trimWhitespace();
+
+            display_warning = (dummy_str.getLength() <= 0);
+
+            strcpy_s(result, LARGE_BUFFER_SIZE, display_warning ? "" : dummy_str.getText());
+        }
+
+        if ((!silent) && display_warning)
+        {
+            sprintf_s(bufor, LARGE_BUFFER_SIZE, "WARNING: The editor setting \"%s\" is empty!", warning_text);
+
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_WARNING, bufor);
+        }
+
+        return result;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // miscellaneous: Get Current Working Directory (Windows)
+    ////////////////////////////////////////////////////////////////
+
+    void getCurrentWorkingDirectory(char* large_buffer)
+    {
+        if (!currentWorkingDirectoryStored)
+        {
+            GetCurrentDirectory(LARGE_BUFFER_SIZE, currentWorkingDirectory);
+
+            currentWorkingDirectoryStored = true;
+        }
+
+        if (nullptr != large_buffer)
+        {
+            strcpy_s(large_buffer, LARGE_BUFFER_SIZE, currentWorkingDirectory);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // miscellaneous: load or save editor settings
     ////////////////////////////////////////////////////////////////
 
     void loadEditorSettings()
     {
+        char bufor[LARGE_BUFFER_SIZE];
         int32_t a, setting_id, line_number = 1;
         FileOperator file;
         eString keywords[3];
         const char* dummy_text;
 
-        const char* settings_names[6] =
+        const char* settings_names[ZOOKIE_WIZARD_SETTINGS_COUNT] =
         {
-            "EngineVersion", "MediaDir", "DenisDir", "LevelName", "CameraMovementSpeed", "CameraRotationSpeed"
+            "EngineVersion", "MediaDir", "DenisDir", "LevelName", "CameraMovementSpeed", "CameraRotationSpeed", "DrawFlags"
         };
 
-        const bool settings_is_str[6] =
+        const bool settings_is_str[7] =
         {
-            false, true, true, true, false, false
+            false, true, true, true, false, false, false
         };
 
         try
         {
-            if (!file.open(ZOOKIE_WIZARD_SETTINGS_FILENAME, FILE_OPERATOR_MODE_READ))
+            bufor[0] = '\0';
+            getCurrentWorkingDirectory(bufor);
+            keywords[0] = bufor;
+            keywords[0] += "/";
+            keywords[0] += ZOOKIE_WIZARD_SETTINGS_FILENAME;
+
+            if (!file.open(keywords[0].getText(), FILE_OPERATOR_MODE_READ))
             {
                 return;
             }
@@ -79,7 +174,7 @@ namespace ZookieWizard
                 {
                     setting_id = (-1);
 
-                    for (a = 0; (setting_id < 0) && (a < 6); a++)
+                    for (a = 0; (setting_id < 0) && (a < ZOOKIE_WIZARD_SETTINGS_COUNT); a++)
                     {
                         if (keywords[1].compareExact(settings_names[a], true))
                         {
@@ -157,6 +252,13 @@ namespace ZookieWizard
                                     break;
                                 }
 
+                                case 6: // "DrawFlags"
+                                {
+                                    setting_id = 5;
+
+                                    break;
+                                }
+
                                 default:
                                 {
                                     setting_id = (-1);
@@ -182,22 +284,28 @@ namespace ZookieWizard
 
     void saveEditorSettings()
     {
-        char bufor[64];
+        char bufor[LARGE_BUFFER_SIZE];
         eString dummy_str[2];
         FileOperator file;
         int32_t setting_id;
 
-        const char* settings_names[6] =
+        const char* settings_names[ZOOKIE_WIZARD_SETTINGS_COUNT] =
         {
-            "EngineVersion", "MediaDir", "DenisDir", "LevelName", "CameraMovementSpeed", "CameraRotationSpeed"
+            "EngineVersion", "MediaDir", "DenisDir", "LevelName", "CameraMovementSpeed", "CameraRotationSpeed", "DrawFlags"
         };
 
-        const bool settings_is_str[6] =
+        const bool settings_is_str[ZOOKIE_WIZARD_SETTINGS_COUNT] =
         {
-            false, true, true, true, false, false
+            false, true, true, true, false, false, false
         };
 
-        if (!file.open(ZOOKIE_WIZARD_SETTINGS_FILENAME, 0))
+        bufor[0] = '\0';
+        getCurrentWorkingDirectory(bufor);
+        dummy_str[0] = bufor;
+        dummy_str[0] += "/";
+        dummy_str[0] += ZOOKIE_WIZARD_SETTINGS_FILENAME;
+
+        if (!file.open(dummy_str[0].getText(), 0))
         {
             ErrorMessage
             (
@@ -209,7 +317,7 @@ namespace ZookieWizard
             return;
         }
 
-        for (setting_id = 0; setting_id < 6; setting_id++)
+        for (setting_id = 0; setting_id < ZOOKIE_WIZARD_SETTINGS_COUNT; setting_id++)
         {
             dummy_str[0] = settings_names[setting_id];
 
@@ -219,7 +327,7 @@ namespace ZookieWizard
                 {
                     case 1: // "MediaDir"
                     {
-                        dummy_str[1] = eString(currentWorkingDirectory).trimWhitespace();
+                        dummy_str[1] = eString(mediaDirectory).trimWhitespace();
                         break;
                     }
 
@@ -251,21 +359,28 @@ namespace ZookieWizard
                 {
                     case 0: // "EngineVersion"
                     {
-                        sprintf_s(bufor, 64, "%d", currentGameVersion);
+                        sprintf_s(bufor, LARGE_BUFFER_SIZE, "%d", currentGameVersion);
 
                         break;
                     }
 
                     case 4: // "CameraMovementSpeed"
                     {
-                        sprintf_s(bufor, 64, "%.3f", GUI::testCamera.speed[0]);
+                        sprintf_s(bufor, LARGE_BUFFER_SIZE, "%.3f", GUI::testCamera.speed[0]);
 
                         break;
                     }
 
-                    case 5: // CameraRotationSpeed"
+                    case 5: // "CameraRotationSpeed"
                     {
-                        sprintf_s(bufor, 64, "%.3f", GUI::testCamera.speed[1]);
+                        sprintf_s(bufor, LARGE_BUFFER_SIZE, "%.3f", GUI::testCamera.speed[1]);
+
+                        break;
+                    }
+
+                    case 6: // "DrawFlags"
+                    {
+                        sprintf_s(bufor, LARGE_BUFFER_SIZE, "%lu", GUI::myDrawFlags);
 
                         break;
                     }
@@ -387,7 +502,7 @@ namespace ZookieWizard
                 }
                 else if (2 == open_or_save_dialog)
                 {
-                    sprintf_s(bufor, LARGE_BUFFER_SIZE, "%s.ar", denisLevelName);
+                    sprintf_s(bufor, LARGE_BUFFER_SIZE, "%s.ar", getEditorString(3, false));
 
                     result = GetSaveFileName(&ofn);
                 }
@@ -417,7 +532,7 @@ namespace ZookieWizard
                 myARs[0].close(true);
             }
 
-            myARs[0].setMediaDir(currentWorkingDirectory);
+            myARs[0].setMediaDir(getEditorString(1, false));
 
             /* Set target filename or leave directory path */
 
@@ -573,13 +688,15 @@ namespace ZookieWizard
     {
         char bufor[LARGE_BUFFER_SIZE];
         eString filename;
+        bool empty_name;
 
         try
         {
             filename = eString(denisLevelName).trimWhitespace();
-            sprintf_s(denisLevelName, LARGE_BUFFER_SIZE, filename.getText());
+            empty_name = (filename.getLength() <= 0);
+            sprintf_s(denisLevelName, LARGE_BUFFER_SIZE, empty_name ? "" : filename.getText());
 
-            if (filename.getLength() > 0)
+            if (!empty_name)
             {
                 sprintf_s(bufor, LARGE_BUFFER_SIZE, "%s.log", denisLevelName);
             }
@@ -852,7 +969,7 @@ namespace ZookieWizard
     {
         char bufor[LARGE_BUFFER_SIZE];
 
-        DenisFileOperator file(denisDirectory);
+        DenisFileOperator file(getEditorString(2, false));
 
         try
         {
@@ -865,7 +982,7 @@ namespace ZookieWizard
             );
 
             myDenisLevels[0].destroy();
-            myDenisLevels[0] = DenisLevelMap(denisLevelName);
+            myDenisLevels[0] = DenisLevelMap(getEditorString(3, false));
 
             myDenisLevels[0].openAndSerialize(file);
 
@@ -911,7 +1028,7 @@ namespace ZookieWizard
     {
         char bufor[LARGE_BUFFER_SIZE];
 
-        DenisFileOperator file(denisDirectory);
+        DenisFileOperator file(getEditorString(2, false));
 
         eScene* test_scene;
 
@@ -944,7 +1061,7 @@ namespace ZookieWizard
                 bufor, LARGE_BUFFER_SIZE,
                     "Denis Map has been converted to Kao2 engine!\n\n" \
                     "Now you can save Archive to: \"%s/build/win32/%s.ar\"",
-                currentWorkingDirectory,
+                getEditorString(1, true),
                 myDenisLevels[0].getName().getText()
             );
 
@@ -1023,7 +1140,7 @@ namespace ZookieWizard
 
         new_scene = new eScene();
         new_scene->setFlags(0x70071000);
-        new_scene->rebuildEmptyAnimState();
+        new_scene->rebuildEmptyAnimState(true);
 
         global_env = new eEnvironment("global_env");
         global_env->setFlags(0x70000000);
@@ -1071,7 +1188,7 @@ namespace ZookieWizard
             bufor, LARGE_BUFFER_SIZE,
             "Empty scene for Kao2 created!\n\n" \
             "Now you can save Archive to: \"%s/build/win32/%s.ar\"",
-            currentWorkingDirectory,
+            getEditorString(1, true),
             denisLevelName
         );
 
@@ -1300,192 +1417,56 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // miscellaneous: Import Kao2 Nodes from "*.txt" file
-    ////////////////////////////////////////////////////////////////
-
-    void importNodesFromTxt()
-    {
-        int32_t result;
-        eString filename;
-        char bufor[LARGE_BUFFER_SIZE];
-
-        try
-        {
-            /* Show instruction */
-
-            GUI::theWindowsManager.displayMessage
-            (
-                WINDOWS_MANAGER_MESSAGE_INFO,
-                "Select a text file structured in a following way:\n\n" \
-                "<ClassName> # starts a new object\n" \
-                "  name = node name\n" \
-                "  pos = X Y Z positions\n" \
-                "  rot = X Y Z euler angles\n" \
-                "  scl = scale\n" \
-                "and other properties...\n" \
-                "\n--------------------------------\n" \
-                "    EXAMPLE:\n\n" \
-                "<eProxy>\n" \
-                "  name = foka\n" \
-                "  pos = 0 500.0 1000.0\n" \
-                "  rot = 0 0 90.0\n" \
-                "  scl = 2.0\n" \
-                "  link = characters\\fluffs\\bobr\\scripts\\bobr_generic.def\n" \
-                "  category = fluff\n"
-            );
-
-            /* Try to open a text file */
-
-            bufor[0] = 0x00;
-
-            ofn.lpstrFile = bufor;
-            ofn.nMaxFile = LARGE_BUFFER_SIZE;
-            ofn.lpstrTitle = "Opening a TXT/DEF file...";
-            ofn.lpstrFilter = "Text files (*.txt;*.def)\0*.txt;*.def\0";
-            ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
-
-            if (0 == GetOpenFileName(&ofn))
-            {
-                return;
-            }
-
-            filename = bufor;
-
-            theLog.print
-            (
-                "================================\n" \
-                "==   NODES FROM TXT IMPORT    ==\n" \
-                "==            BEGIN           ==\n" \
-                "================================\n"
-            );
-
-            /* Refreshing the "Media directory" will be useful */
-            /* when reloading "eProxy" nodes of the "geoproxy" category */
-
-            myARs[0].setMediaDir(currentWorkingDirectory);
-
-            result = myARs[0].appendNodesFromTxtFile(filename.getText());
-
-            theLog.print
-            (
-                "================================\n" \
-                "==   NODES FROM TXT IMPORT    ==\n" \
-                "==          FINISHED          ==\n" \
-                "================================\n"
-            );
-
-            sprintf_s
-            (
-                bufor, LARGE_BUFFER_SIZE,
-                "<\"%s\">\n\n%d nodes successfully added :)",
-                filename.getText(),
-                result
-            );
-
-            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
-        }
-        catch (ErrorMessage &e)
-        {
-            theLog.print
-            (
-                "================================\n" \
-                "==   NODES FROM TXT IMPORT    ==\n" \
-                "==            oops!           ==\n" \
-                "================================\n"
-            );
-
-            e.display();
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // miscellaneous: Change Kao2 Nodes with a "*.txt" file
     ////////////////////////////////////////////////////////////////
 
     void changeNodesWithTxt()
     {
         int32_t result;
-        eString filename;
-        char bufor[LARGE_BUFFER_SIZE];
+        char bufor[2][LARGE_BUFFER_SIZE];
 
-        try
+        bufor[1][0] = 0x00;
+
+        ofn.lpstrFile = bufor[1];
+        ofn.nMaxFile = LARGE_BUFFER_SIZE;
+        ofn.lpstrTitle = "Opening a TXT/DEF file...";
+        ofn.lpstrFilter = "Text files (*.txt;*.def)\0*.txt;*.def\0";
+        ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
+
+        if (0 == GetOpenFileName(&ofn))
         {
-            /* Show instruction */
+            return;
+        }
 
-            GUI::theWindowsManager.displayMessage
-            (
-                WINDOWS_MANAGER_MESSAGE_INFO,
-                "Select a text file structured in a following way:\n\n" \
-                "  node nodeType nodeRefName(\"mask\")\n" \
-                "  send nodeRefName.customMessage(params)\n" \
-                "\n--------------------------------\n" \
-                "    EXAMPLE:\n\n" \
-                "  node eEnvironment env(\"/global_env\")\n" \
-                "  node eBoxZone zone(\"/*/boxZone01\")\n" \
-                "  node eGroup group(\"/*/#VS-magazyn?1\")\n\n" \
-                "  send env.setFogColor(1, 0.5, 1)\n" \
-                "  send zone.clearEnterActions()\n" \
-                "  send zone.addEnterAction(group, \"enable\")\n" \
-                "  send zone.addLeaveAction(\"$hero\", \"disableSteering\")\n\n"
-            );
+        theLog.print
+        (
+            "================================\n" \
+            "==   CHANGE NODES WITH TXT    ==\n" \
+            "==            BEGIN           ==\n" \
+            "================================\n"
+        );
 
-            /* Try to open a text file */
+        result = myARs[0].changeNodesWithTxtFile(bufor[1]);
 
-            bufor[0] = 0x00;
+        theLog.print
+        (
+            "================================\n" \
+            "==   CHANGE NODES WITH TXT    ==\n" \
+            "==          FINISHED          ==\n" \
+            "================================\n"
+        );
 
-            ofn.lpstrFile = bufor;
-            ofn.nMaxFile = LARGE_BUFFER_SIZE;
-            ofn.lpstrTitle = "Opening a TXT/DEF file...";
-            ofn.lpstrFilter = "Text files (*.txt;*.def)\0*.txt;*.def\0";
-            ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
-
-            if (0 == GetOpenFileName(&ofn))
-            {
-                return;
-            }
-
-            filename = bufor;
-
-            theLog.print
-            (
-                "================================\n" \
-                "==   CHANGE NODES WITH TXT    ==\n" \
-                "==            BEGIN           ==\n" \
-                "================================\n"
-            );
-
-            result = myARs[0].changeNodesWithTxtFile(filename.getText());
-
-            theLog.print
-            (
-                "================================\n" \
-                "==   CHANGE NODES WITH TXT    ==\n" \
-                "==          FINISHED          ==\n" \
-                "================================\n"
-            );
-
+        if (result >= 0)
+        {
             sprintf_s
             (
-                bufor, LARGE_BUFFER_SIZE,
-                "<\"%s\">\n\n%d node messages succesfully parsed :)",
-                filename.getText(),
+                bufor[0], LARGE_BUFFER_SIZE,
+                "<\"%s\">\n\n%d messages parsed by the \"ArCustomParser\" :)",
+                bufor[1],
                 result
             );
 
-            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
-        }
-        catch (ErrorMessage &e)
-        {
-            theLog.print
-            (
-                "================================\n" \
-                "==   CHANGE NODES WITH TXT    ==\n" \
-                "==            oops!           ==\n" \
-                "================================\n"
-            );
-
-            e.display();
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor[0]);
         }
     }
 

@@ -105,7 +105,7 @@ namespace ZookieWizard
 
             joints = new eSplineJointBase [jointsMaxLength];
 
-            for (i = 0; i <jointsMaxLength; i++)
+            for (i = 0; i < jointsMaxLength; i++)
             {
                 joints[i].serializeSplineJoint(ar);
 

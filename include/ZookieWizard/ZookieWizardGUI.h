@@ -87,7 +87,7 @@ namespace ZookieWizard
             DRAW_FLAG_COUNT = 15
         };
 
-        extern int32_t myDrawFlags;
+        extern uint32_t myDrawFlags;
 
         extern LONGLONG timePrevious;
         extern float timeFrameStart;

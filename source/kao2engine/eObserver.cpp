@@ -128,6 +128,196 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eObserver: preparing just-created node
+    ////////////////////////////////////////////////////////////////
+    void eObserver::editingNewNodeSetup()
+    {
+        if (nullptr == pathCtrl)
+        {
+            pathCtrl = new ePathCamCtrl();
+            pathCtrl->incRef();
+        }
+
+        pathCtrl->setPosition(defaultTransform.pos);
+        pathCtrl->setCameraLink((eCamera*)this);
+
+        eTransform::editingNewNodeSetup();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eObserver: custom TXT parser methods
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eObserver::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        int32_t test;
+        eString prop_name;
+
+        if (1 != (test = eTransform::parsingSetProperty(result_msg, property)))
+        {
+            return test;
+        }
+
+        prop_name = property.getName();
+
+        if (prop_name.compareExact("fov", true))
+        {
+            if (property.checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                property.getValue(&test);
+                fov = (float)test;
+            }
+            else if (property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                property.getValue(&fov);
+            }
+            else
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "fov", TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            return 0;
+        }
+        else if (prop_name.compareExact("nearPlane", true))
+        {
+            if (property.checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                property.getValue(&test);
+                nearPlane = (float)test;
+            }
+            else if (property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                property.getValue(&nearPlane);
+            }
+            else
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "nearPlane", TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            return 0;
+        }
+        else if (prop_name.compareExact("farPlane", true))
+        {
+            if (property.checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                property.getValue(&test);
+                farPlane = (float)test;
+            }
+            else if (property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                property.getValue(&farPlane);
+            }
+            else
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "farPlane", TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t eObserver::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+
+        if (1 != (test = eTransform::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("setFieldOfView", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setFieldOfView", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[0].getValue(&test);
+                fov = (float)test;
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[0].getValue(&fov);
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setFieldOfView", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            return 0;
+        }
+        else if (message.compareExact("setNearPlane", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setNearPlane", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[0].getValue(&test);
+                nearPlane = (float)test;
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[0].getValue(&nearPlane);
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setNearPlane", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            return 0;
+        }
+        else if (message.compareExact("setFarPlane", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setFarPlane", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[0].getValue(&test);
+                farPlane = (float)test;
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[0].getValue(&farPlane);
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setFarPlane", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eObserver: getters and setters
     ////////////////////////////////////////////////////////////////
 

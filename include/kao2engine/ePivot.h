@@ -37,8 +37,13 @@ namespace ZookieWizard
             void updateBeforeRendering(eDrawContext &draw_context) override;
             void renderNode(eDrawContext &draw_context) const override;
 
-            void rebuildEmptyAnimState();
+            void editingNewNodeSetup() override;
 
+            int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
+
+            void rebuildEmptyAnimState(bool is_root);
+
+            void animClearTracks();
             void animAddTrack(eString anim_name, float first_frame, float frames_count);
             void animRemoveTrack(eString anim_name);
     };

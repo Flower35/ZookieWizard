@@ -105,7 +105,12 @@ namespace ZookieWizard
 
             void findAndDereference(eNode* target) override;
 
+            void editingNewNodeSetup() override;
+
+            int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
+
             void setBackgroundColor(GLfloat new_color[3]);
+            void setAmbientColor(GLfloat new_color[3]);
             void setCompileStrings(eString &str_a, eString &str_b);
 
             eCollisionMgr* getCollisionManager() const;

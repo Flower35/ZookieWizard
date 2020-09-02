@@ -178,11 +178,14 @@ namespace ZookieWizard
 
         if (nullptr != o)
         {
+            if (this == (previous_parent = o->getParentNode()))
+            {
+                return;
+            }
+
             /* This is in case the child node already has parent, */
             /* but is referenced only once (so it doesn't get deleted) */
             o->incRef();
-
-            previous_parent = (eGroup*)o->getParentNode();
 
             if (nullptr != previous_parent)
             {
@@ -196,6 +199,8 @@ namespace ZookieWizard
             o->setParentNode(this);
 
             o->decRef();
+
+            o->setPreviousTransform();
         }
     }
 
@@ -385,6 +390,57 @@ namespace ZookieWizard
                 }
             }
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: custom TXT parser
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eGroup::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+        eNode* root_node;
+        eNode* child_node;
+
+        if (1 != (test = eNode::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("clearNodes", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "clearNodes", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            root_node = getRootNode();
+
+            while (nodes.getSize() > 0)
+            {
+                if (nullptr != (child_node = (eNode*)nodes.getIthChild(0)))
+                {
+                    if (child_node->getReferenceCount() >= 2)
+                    {
+                        if (nullptr != root_node)
+                        {
+                            root_node->findAndDereference(child_node);
+                        }
+                    }
+
+                }
+
+                deleteIthChild(0);
+            }
+
+            return 0;
+        }
+
+        return 1;
     }
 
 

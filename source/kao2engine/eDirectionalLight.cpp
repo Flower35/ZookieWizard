@@ -119,6 +119,151 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eDirectionalLight: custom TXT parser methods
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eDirectionalLight::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        int32_t test;
+        float dummy_floats[3];
+        eString prop_name;
+        eTransform* dummy_target;
+
+        if (1 != (test = eLight::parsingSetProperty(result_msg, property)))
+        {
+            return test;
+        }
+
+        prop_name = property.getName();
+
+        if (prop_name.compareExact("pos", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "pos", TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            property.getValue(dummy_floats);
+
+            position.x = dummy_floats[0];
+            position.y = dummy_floats[1];
+            position.z = dummy_floats[2];
+            return 0;
+        }
+        else if (prop_name.compareExact("target", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "target", TXT_PARSING_NODE_PROPTYPE_NODEREF);
+                return 2;
+            }
+
+            property.getValue(&dummy_target);
+
+            if (nullptr == dummy_target)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Noderef for \"target\" property is not set!");
+                return 2;
+            }
+
+            if (!(dummy_target->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO)))
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Expected the noderef of \"target\" property to be a \"eTransform\" or its child!");
+                return 2;
+            }
+
+            setLightTarget(dummy_target);
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t eDirectionalLight::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+        float dummy_floats[3];
+        eTransform* dummy_target;
+
+        if (1 != (test = eLight::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("setPos", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setPos", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setPos", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[0].getValue(dummy_floats);
+
+            /********************************/
+
+            position.x = dummy_floats[0];
+            position.y = dummy_floats[1];
+            position.z = dummy_floats[2];
+            return 0;
+        }
+        else if (message.compareExact("setTarget", true))
+        {
+            if (0 == params_count)
+            {
+                setLightTarget(nullptr);
+                return 0;
+            }
+            else if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setTarget", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setTarget", 0, TXT_PARSING_NODE_PROPTYPE_NODEREF);
+                return 2;
+            }
+
+            /********************************/
+
+            params[0].getValue(&dummy_target);
+
+            if (nullptr == dummy_target)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setTarget\" message: noderef is not set!");
+                return 2;
+            }
+
+            if (!(dummy_target->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO)))
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setTarget\" message: expected the noderef to be a \"eTransform\" or its child!");
+                return 2;
+            }
+
+            /********************************/
+
+            setLightTarget(dummy_target);
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eDirectionalLight: binding function
     // [[vptr]+0x74] <kao2.0047F8D0>
     ////////////////////////////////////////////////////////////////

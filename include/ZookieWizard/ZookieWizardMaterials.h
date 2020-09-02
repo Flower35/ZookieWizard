@@ -16,7 +16,7 @@ namespace ZookieWizard
         void materialsManager_InsertBitmap(void* object);
         void* materialsManager_FindMaterial(const char* bitmap_path);
 
-        void materialsManager_SetCurrentMaterialFromTriMesh(void* object);
+        void materialsManager_SetCurrentMaterialFromGeometry(void* object);
         void materialsManager_UpdateMaterialName(void* object);
         void materialsManager_UpdateBitmapName(void* object);
 

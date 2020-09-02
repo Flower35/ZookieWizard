@@ -43,6 +43,8 @@ namespace ZookieWizard
             void editingClearCollision() override;
             void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id) override;
 
+            int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
+
             void destroyNode() override;
             void findAndDereference(eNode* target) override;
 

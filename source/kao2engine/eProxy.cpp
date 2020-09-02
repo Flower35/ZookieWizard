@@ -177,6 +177,186 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eProxy: preparing just-created node
+    ////////////////////////////////////////////////////////////////
+    void eProxy::editingNewNodeSetup()
+    {
+        Archive dummy_ar(getEditorString(1, false));
+
+        eTransform::editingNewNodeSetup();
+
+        reloadXRef(dummy_ar);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eProxy: custom TXT parser methods
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eProxy::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        int32_t test;
+        eString prop_name, dummy_str;
+
+        if (1 != (test = eTransform::parsingSetProperty(result_msg, property)))
+        {
+            return test;
+        }
+
+        prop_name = property.getName();
+
+        if (prop_name.compareExact("link", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "link", TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            property.getValue(&targetFile);
+            return 0;
+        }
+        else if (prop_name.compareExact("category", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "category", TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            property.getValue(&dummy_str);
+
+            if (dummy_str.compareExact("particle", true))
+            {
+                category = 0;
+            }
+            else if (dummy_str.compareExact("hero", true))
+            {
+                category = 1;
+            }
+            else if (dummy_str.compareExact("powerup", true))
+            {
+                category = 2;
+            }
+            else if (dummy_str.compareExact("enemy", true))
+            {
+                category = 3;
+            }
+            else if (dummy_str.compareExact("fluff", true))
+            {
+                category = 4;
+            }
+            else if (dummy_str.compareExact("geoproxy", true))
+            {
+                category = 5;
+            }
+            else if (dummy_str.compareExact("object", true))
+            {
+                category = 6;
+            }
+            else
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Unknown proxy category for \"category\" property!");
+                return 2;
+            }
+
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t eProxy::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+        eString dummy_str;
+        Archive dummy_ar(getEditorString(1, false));
+
+        if (1 != (test = eTransform::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("setLinkAndCategory", true))
+        {
+            if (2 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setLinkAndCategory", 2);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setLinkAndCategory", 1, TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            params[0].getValue(&targetFile);
+
+            /********************************/
+
+            if (!params[1].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setLinkAndCategory", 2, TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            params[1].getValue(&dummy_str);
+
+            if (dummy_str.compareExact("particle", true))
+            {
+                category = 0;
+            }
+            else if (dummy_str.compareExact("hero", true))
+            {
+                category = 1;
+            }
+            else if (dummy_str.compareExact("powerup", true))
+            {
+                category = 2;
+            }
+            else if (dummy_str.compareExact("enemy", true))
+            {
+                category = 3;
+            }
+            else if (dummy_str.compareExact("fluff", true))
+            {
+                category = 4;
+            }
+            else if (dummy_str.compareExact("geoproxy", true))
+            {
+                category = 5;
+            }
+            else if (dummy_str.compareExact("object", true))
+            {
+                category = 6;
+            }
+            else
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setLinkAndCategory\" message: unknown proxy category!");
+                return 2;
+            }
+
+            /********************************/
+
+            if (nullptr != externalContentLink)
+            {
+                nodes.findAndDeleteChild(externalContentLink);
+                externalContentLink = nullptr;
+            }
+
+            reloadXRef(dummy_ar);
+
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eProxy: reload XRef
     ////////////////////////////////////////////////////////////////
     void eProxy::reloadXRef(Archive &ar)

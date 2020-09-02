@@ -38,7 +38,7 @@ namespace ZookieWizard
 
             void setAnimation(int32_t anim_id, float time);
 
-            void rebuildEmptyAnimState();
+            void rebuildEmptyAnimState(bool is_root);
     };
 
     namespace ArFunctions

@@ -87,6 +87,7 @@ namespace ZookieWizard
             eStringPtrBase<charT> getSubstring(int pos, int count = (-1)) const;
             eStringPtrBase<charT> getFilename() const;
             eStringPtrBase<charT> trimWhitespace() const;
+            bool isRooted() const;
 
             /* Operatory przypisywania i kopiowania */
             eStringPtrBase<charT>& operator = (const charT* str);

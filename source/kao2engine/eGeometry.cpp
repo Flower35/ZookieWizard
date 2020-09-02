@@ -110,6 +110,138 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eGeometry: custom TXT parser methods
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eGeometry::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        int32_t test[2];
+        eString prop_name;
+        eString dummy_name;
+
+        if (1 != (test[0] = eNode::parsingSetProperty(result_msg, property)))
+        {
+            return test[0];
+        }
+
+        prop_name = property.getName();
+
+        if (prop_name.compareExact("materialCollision", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "materialCollision", TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            property.getValue(&dummy_name);
+
+            test[0] = (-1);
+
+            for (test[1] = 0; ((-1) == test[0]) && (test[1] < 16); test[1]++)
+            {
+                if (dummy_name.compareExact(theMaterialTypes[test[1]].name, true))
+                {
+                    test[0] = theMaterialTypes[test[1]].id;
+                }
+            }
+
+            if ((-1) == test[0])
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Unknown collision type for \"materialCollision\" property!");
+                return 2;
+            }
+
+            if (nullptr == material)
+            {
+                setMaterial(new eMaterial(nullptr));
+            }
+
+            material->setCollisionType(test[0]);
+
+            return 0;
+        }
+        else if (prop_name.compareExact("materialSound", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "materialSound", TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            property.getValue(&dummy_name);
+
+            if (dummy_name.compareExact("GRASS", true))
+            {
+                test[0] = 0x00000;
+            }
+            else if (dummy_name.compareExact("WOOD", true))
+            {
+                test[0] = 0x1000;
+            }
+            else if (dummy_name.compareExact("METAL", true))
+            {
+                test[0] = 0x2000;
+            }
+            else if (dummy_name.compareExact("STONE", true))
+            {
+                test[0] = 0x4000;
+            }
+            else if (dummy_name.compareExact("SNOW", true))
+            {
+                test[0] = 0x8000;
+            }
+            else if (dummy_name.compareExact("SAND", true))
+            {
+                test[0] = 0x0001;
+            }
+            else
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Unknown sound type for \"materialSound\" property!");
+                return 2;
+            }
+
+            if (nullptr == material)
+            {
+                setMaterial(new eMaterial(nullptr));
+            }
+
+            material->setSoundType((int16_t)test[0]);
+
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t eGeometry::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test[1];
+
+        if (1 != (test[0] = eNode::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test[0];
+        }
+
+        if (message.compareExact("rebuildCollision", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "rebuildCollision", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            editingRebuildCollision();
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eGeometry: get Material pointer
     ////////////////////////////////////////////////////////////////
     eMaterial* eGeometry::getMaterial() const

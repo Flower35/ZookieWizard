@@ -295,7 +295,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eAnimate: rebuild "eAnimState" to be valid in Kao2
     ////////////////////////////////////////////////////////////////
-    void eAnimate::rebuildEmptyAnimState()
+    void eAnimate::rebuildEmptyAnimState(bool is_root)
     {
         clearAnimStateContainers();
 
@@ -304,12 +304,12 @@ namespace ZookieWizard
         currentAnimState[0] = eAnimState();
 
         currentAnimState[0].setStartFrame(0);
-        currentAnimState[0].setEndFrame(1.0e+30f);
+        currentAnimState[0].setEndFrame(is_root ? (1.0e+30f) : 0);
         currentAnimState[0].setLoopType(loopTypeEnum::QUARTZ);
 
         animStatesCount = 1;
 
-        unknown_38 = true;
+        unknown_38 = is_root ? true : false;
 
         /* Create new Anim State "containers" */
 
@@ -317,7 +317,7 @@ namespace ZookieWizard
         (*animStateA) = new eAnimState;
 
         (**animStateA).setStartFrame(0);
-        (**animStateA).setEndFrame(1.0e+30f);
+        (**animStateA).setEndFrame(is_root ? (1.0e+30f) : 0);
         (**animStateA).setLoopType(loopTypeEnum::QUARTZ);
 
         (**animStateA).incRef();

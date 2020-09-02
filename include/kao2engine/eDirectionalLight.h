@@ -36,6 +36,9 @@ namespace ZookieWizard
             ePoint3 editingGetCenterPoint() const override;
             void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id) override;
 
+            int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
+            int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
+
             /*[vptr]+0x74]*/ void bindLight(int32_t light_id) const override;
 
             ePoint3 getPosition() const;

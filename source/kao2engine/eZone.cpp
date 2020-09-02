@@ -167,6 +167,244 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eZone: preparing just-created node
+    ////////////////////////////////////////////////////////////////
+    void eZone::editingNewNodeSetup()
+    {
+        createCollisionEntry();
+
+        eNode::editingNewNodeSetup();
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // eZone: custom TXT parser methods
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eZone::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        int32_t test;
+        float dummy_floats[3];
+        eString prop_name;
+
+        if (1 != (test = eNode::parsingSetProperty(result_msg, property)))
+        {
+            return test;
+        }
+
+        prop_name = property.getName();
+
+        if (prop_name.compareExact("min", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "min", TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            property.getValue(dummy_floats);
+
+            boxBoundMin.x = dummy_floats[0];
+            boxBoundMin.y = dummy_floats[1];
+            boxBoundMin.z = dummy_floats[2];
+            return 0;
+        }
+        else if (prop_name.compareExact("max", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "max", TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            property.getValue(dummy_floats);
+
+            boxBoundMax.x = dummy_floats[0];
+            boxBoundMax.y = dummy_floats[1];
+            boxBoundMax.z = dummy_floats[2];
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t eZone::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+        float dummy_floats[3];
+        eActionBase dummy_action;
+
+        if (1 != (test = eNode::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("setBoundaryBox", true))
+        {
+            if (2 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setBoundaryBox", 2);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setBoundaryBox", 1, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[0].getValue(dummy_floats);
+
+            boxBoundMin.x = dummy_floats[0];
+            boxBoundMin.y = dummy_floats[1];
+            boxBoundMin.z = dummy_floats[2];
+
+            /********************************/
+
+            if (!params[1].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setBoundaryBox", 2, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[1].getValue(dummy_floats);
+
+            boxBoundMax.x = dummy_floats[0];
+            boxBoundMax.y = dummy_floats[1];
+            boxBoundMax.z = dummy_floats[2];
+
+            /********************************/
+
+            createCollisionEntry();
+            return 0;
+        }
+        else if (message.compareExact("clearEnterActions", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "clearEnterActions", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            enterActions.clearActions();
+            return 0;
+        }
+        else if (message.compareExact("clearLeaveActions", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "clearLeaveActions", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            leaveActions.clearActions();
+            return 0;
+        }
+        else if (message.compareExact("addEnterAction", true))
+        {
+            if (2 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "addEnterAction", 2);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                params[0].getValue(&(dummy_action.nodeTarget));
+
+                if (nullptr == dummy_action.nodeTarget)
+                {
+                    sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"addEnterAction\" message: noderef is not set!");
+                    return 2;
+                }
+
+                dummy_action.nodeTarget->incRef();
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                params[0].getValue(&(dummy_action.actorName));
+            }
+            else
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"addEnterAction\" message: expected the first argument to be a noderef or string!");
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[1].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "addEnterAction", 2, TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            params[1].getValue(&(dummy_action.message));
+
+            /********************************/
+
+            enterActions.addAction(dummy_action);
+            return 0;
+        }
+        else if (message.compareExact("addLeaveAction", true))
+        {
+            if (2 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "addLeaveAction", 2);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                params[0].getValue(&(dummy_action.nodeTarget));
+
+                if (nullptr == dummy_action.nodeTarget)
+                {
+                    sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"addLeaveAction\" message: noderef is not set!");
+                    return 2;
+                }
+
+                dummy_action.nodeTarget->incRef();
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                params[0].getValue(&(dummy_action.actorName));
+            }
+            else
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"addLeaveAction\" message: expected the first argument to be a noderef or string!");
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[1].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "addLeaveAction", 2, TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            params[1].getValue(&(dummy_action.message));
+
+            /********************************/
+
+            leaveActions.addAction(dummy_action);
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eZone: set boundary box
     ////////////////////////////////////////////////////////////////
     void eZone::setBoundaryBox(ePoint3 &new_min, ePoint3 &new_max)

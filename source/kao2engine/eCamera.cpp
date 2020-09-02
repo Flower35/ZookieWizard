@@ -180,6 +180,159 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eCamera: custom TXT parser methods
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eCamera::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        int32_t test;
+        float dummy_float;
+        eString prop_name;
+        eTransform* dummy_target;
+
+        if (1 != (test = eTransform::parsingSetProperty(result_msg, property)))
+        {
+            return test;
+        }
+
+        prop_name = property.getName();
+
+        if (prop_name.compareExact("lookingAtFollowCamera", true))
+        {
+            if (property.checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                property.getValue(&test);
+                lookingAtCurrentFollowCamera = (0 != test);
+            }
+            else if (property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                property.getValue(&dummy_float);
+                lookingAtCurrentFollowCamera = (0 != dummy_float);
+            }
+            else
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "lookingAtFollowCamera", TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            return 0;
+        }
+        else if (prop_name.compareExact("target", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "target", TXT_PARSING_NODE_PROPTYPE_NODEREF);
+                return 2;
+            }
+
+            property.getValue(&dummy_target);
+
+            if (nullptr == dummy_target)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Noderef for \"target\" property is not set!");
+                return 2;
+            }
+
+            if (!(dummy_target->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO)))
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Expected the noderef of \"target\" property to be a \"eTransform\" or its child!");
+                return 2;
+            }
+
+            setCameraTarget(dummy_target);
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t eCamera::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+        float dummy_float;
+        eTransform* dummy_target;
+
+        if (1 != (test = eTransform::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("setLookingAtFollowCamera", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setLookingAtFollowCamera", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[0].getValue(&test);
+                lookingAtCurrentFollowCamera = (0 != test);
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[0].getValue(&dummy_float);
+                lookingAtCurrentFollowCamera = (0 != dummy_float);
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setLookingAtFollowCamera", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            return 0;
+        }
+        else if (message.compareExact("setTarget", true))
+        {
+            if (0 == params_count)
+            {
+                setCameraTarget(nullptr);
+                return 0;
+            }
+            else if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setTarget", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setTarget", 0, TXT_PARSING_NODE_PROPTYPE_NODEREF);
+                return 2;
+            }
+
+            /********************************/
+
+            params[0].getValue(&dummy_target);
+
+            if (nullptr == dummy_target)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setTarget\" message: noderef is not set!");
+                return 2;
+            }
+
+            if (!(dummy_target->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO)))
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setTarget\" message: expected the noderef to be a \"eTransform\" or its child!");
+                return 2;
+            }
+
+            /********************************/
+
+            setCameraTarget(dummy_target);
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eCamera: get or set the target point
     ////////////////////////////////////////////////////////////////
 

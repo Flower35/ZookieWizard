@@ -259,54 +259,6 @@ namespace ZookieWizard
         return splitString(dummy, &(destination[1]), max_entries - 1);
     }
 
-    int32_t ArFunctions::splitParams(eString &source, eString* destination, int32_t max_entries)
-    {
-        int32_t a, start, result = 0;
-        eString test_str;
-        char appended_character[2] = {0x00, 0x00};
-
-        int32_t length = source.getLength();
-        const char* text = source.getText();
-
-        for (a = 0; a < length; a++)
-        {
-            if (text[a] > 0x20)
-            {
-                appended_character[0] = text[a];
-                test_str += appended_character;
-            }
-        }
-
-        length = test_str.getLength();
-        text = test_str.getText();
-
-        start = 0;
-
-        for (a = 0; a < length; a++)
-        {
-            if (',' == text[a])
-            {
-                if (result >= max_entries)
-                {
-                    return result;
-                }
-
-                destination[result] = test_str.getSubstring(start, a - start);
-                result++;
-
-                start = a + 1;
-            }
-        }
-
-        if ((result < max_entries) && (a > start))
-        {
-            destination[result] = test_str.getSubstring(start, a - start);
-            result++;
-        }
-
-        return result;
-    }
-
     eString ArFunctions::removeComment(eString source, bool hashtag_or_slashes)
     {
         int length = source.getLength();

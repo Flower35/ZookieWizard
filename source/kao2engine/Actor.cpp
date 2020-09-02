@@ -236,6 +236,80 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // Actor: custom TXT parser methods
+    ////////////////////////////////////////////////////////////////
+
+    int32_t Actor::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        int32_t test;
+
+        if (1 != (test = ePivot::parsingSetProperty(result_msg, property)))
+        {
+            return test;
+        }
+
+        if (property.getName().compareExact("script", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "script", TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            property.getValue(&scriptPath);
+
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t Actor::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+
+        if (1 != (test = ePivot::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("setScript", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setScript", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setScript", 0, TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            params[0].getValue(&scriptPath);
+
+            /********************************/
+
+            unknown_04D0.clear();
+            unknown_04DC.clear();
+
+            if (nullptr != script)
+            {
+                script->decRef();
+                script = nullptr;
+            }
+
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Actor: save script file
     ////////////////////////////////////////////////////////////////
     void Actor::saveMyScript(Archive &ar) const

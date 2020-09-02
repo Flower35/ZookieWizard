@@ -95,6 +95,7 @@
     <ClCompile Include="..\source\kao2ar\Archive.cpp" />
     <ClCompile Include="..\source\kao2ar\ArchiveImports.cpp" />
     <ClCompile Include="..\source\kao2ar\ArchiveMisc.cpp" />
+    <ClCompile Include="..\source\kao2ar\ArCustomParser.cpp" />
     <ClCompile Include="..\source\kao2ar\AxisList.cpp" />
     <ClCompile Include="..\source\kao2ar\Collection.cpp" />
     <ClCompile Include="..\source\kao2ar\eAnimate.cpp" />

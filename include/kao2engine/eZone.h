@@ -45,6 +45,10 @@ namespace ZookieWizard
             ePoint3 editingGetCenterPoint() const override;
             void editingRebuildCollision() override;
             void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id) override;
+            void editingNewNodeSetup() override;
+
+            int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
+            int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
 
             void setBoundaryBox(ePoint3 &new_min, ePoint3 &new_max);
 

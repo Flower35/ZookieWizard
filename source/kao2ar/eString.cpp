@@ -96,7 +96,7 @@ namespace ZookieWizard
             int x = 0;
             if (nullptr != str)
             {
-                while ((x < 255) && (0x00 != str[x]))
+                while ((x < (1024 - 1)) && (0x00 != str[x]))
                 {
                     x++;
                 }
@@ -733,6 +733,44 @@ namespace ZookieWizard
         }
 
         return getSubstring(start, (end - my_length));
+    }
+
+    template <typename charT>
+    bool eStringPtrBase<charT>::isRooted() const
+    {
+        int length = getLength();
+        charT* text = getText();
+
+        int b = 0;
+
+        for (int a = 0; a < length; a++)
+        {
+            if (0 == b)
+            {
+                if (((text[a] < 'a') || (text[a] > 'z')) && ((text[a] < 'A') || (text[a] > 'Z')))
+                {
+                    if (':' == text[a])
+                    {
+                        b++;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else if (1 == b)
+            {
+                if (('/' == text[a]) || ('\\' == text[a]))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        return false;
     }
 
 
