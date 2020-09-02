@@ -54,8 +54,8 @@ namespace ZookieWizard
             int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
 
-            void reloadXRef(Archive &ar);
-            void exportXRef(Archive &ar);
+            void reloadXRef(eString media_dir, int32_t engine_version);
+            void exportXRef(eString media_dir, int32_t engine_version);
 
             void setTargetName(eString new_target);
             void setCategory(int32_t new_category);

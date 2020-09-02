@@ -18,7 +18,7 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x01CC]*/ bool lookingAtCurrentFollowCamera;
+            /*[0x01CC]*/ bool followCurrentActor;
             /*[0x01D0]*/ eTransform* camTarget;
             /*[0x01D8-0x01E4]*/ float unknown_01D8[4];
 

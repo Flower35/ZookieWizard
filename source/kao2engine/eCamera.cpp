@@ -30,7 +30,7 @@ namespace ZookieWizard
     eCamera::eCamera()
     : eObserver()
     {
-        /*[0x01CC]*/ lookingAtCurrentFollowCamera = true;
+        /*[0x01CC]*/ followCurrentActor = true;
 
         /*[0x01D0]*/ camTarget = nullptr;
 
@@ -86,7 +86,7 @@ namespace ZookieWizard
         ar.readOrWrite(&(unknown_01D8[2]), 0x04);
 
         /* [0x01CC] Shold the camera look at the Actor with `eFollowCameraCtrl.makeCurrent()` */
-        ar.readOrWrite(&lookingAtCurrentFollowCamera, 0x01);
+        ar.readOrWrite(&followCurrentActor, 0x01);
 
         /* "Asterix & Obelix XXL 2: Mission Wifix" */
         if (ar.getVersion() >= 0x91)
@@ -190,28 +190,28 @@ namespace ZookieWizard
         eString prop_name;
         eTransform* dummy_target;
 
-        if (1 != (test = eTransform::parsingSetProperty(result_msg, property)))
+        if (1 != (test = eObserver::parsingSetProperty(result_msg, property)))
         {
             return test;
         }
 
         prop_name = property.getName();
 
-        if (prop_name.compareExact("lookingAtFollowCamera", true))
+        if (prop_name.compareExact("followCurrentActor", true))
         {
             if (property.checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
             {
                 property.getValue(&test);
-                lookingAtCurrentFollowCamera = (0 != test);
+                followCurrentActor = (0 != test);
             }
             else if (property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
             {
                 property.getValue(&dummy_float);
-                lookingAtCurrentFollowCamera = (0 != dummy_float);
+                followCurrentActor = (0 != dummy_float);
             }
             else
             {
-                TxtParsingNode_ErrorPropType(result_msg, "lookingAtFollowCamera", TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                TxtParsingNode_ErrorPropType(result_msg, "followCurrentActor", TXT_PARSING_NODE_PROPTYPE_FLOAT1);
                 return 2;
             }
 
@@ -252,16 +252,16 @@ namespace ZookieWizard
         float dummy_float;
         eTransform* dummy_target;
 
-        if (1 != (test = eTransform::parsingCustomMessage(result_msg, message, params_count, params)))
+        if (1 != (test = eObserver::parsingCustomMessage(result_msg, message, params_count, params)))
         {
             return test;
         }
 
-        if (message.compareExact("setLookingAtFollowCamera", true))
+        if (message.compareExact("followCurrentActor", true))
         {
             if (1 != params_count)
             {
-                TxtParsingNode_ErrorArgCount(result_msg, "setLookingAtFollowCamera", 1);
+                TxtParsingNode_ErrorArgCount(result_msg, "followCurrentActor", 1);
                 return 2;
             }
 
@@ -270,16 +270,16 @@ namespace ZookieWizard
             if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
             {
                 params[0].getValue(&test);
-                lookingAtCurrentFollowCamera = (0 != test);
+                followCurrentActor = (0 != test);
             }
             else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
             {
                 params[0].getValue(&dummy_float);
-                lookingAtCurrentFollowCamera = (0 != dummy_float);
+                followCurrentActor = (0 != dummy_float);
             }
             else
             {
-                TxtParsingNode_ErrorArgType(result_msg, "setLookingAtFollowCamera", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                TxtParsingNode_ErrorArgType(result_msg, "followCurrentActor", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
                 return 2;
             }
 
@@ -361,7 +361,7 @@ namespace ZookieWizard
 
     void eCamera::setLookingAtFollowCamera(bool value)
     {
-        lookingAtCurrentFollowCamera = value;
+        followCurrentActor = value;
     }
 
 }

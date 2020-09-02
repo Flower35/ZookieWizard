@@ -83,11 +83,11 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefTarget: set name and load target (used with eProxy)
     ////////////////////////////////////////////////////////////////
-    bool eXRefTarget::loadTarget(Archive &ar, int32_t ar_flags, eString model_name)
+    bool eXRefTarget::loadTarget(eString media_dir, int32_t engine_version, int32_t ar_flags, eString model_name)
     {
         bool result = false;
         eScene* previous_scene;
-        Archive parallel_ar(ar.getMediaDir());
+        Archive parallel_ar(media_dir);
 
         fileName = model_name;
 
@@ -106,7 +106,7 @@ namespace ZookieWizard
             (
                 fileName,
                 ((AR_MODE_READ | ar_flags) & (~ AR_MODE_WRITE)),
-                ar.getCurrentEngineVersion(),
+                engine_version,
                 true,
                 0
             );
@@ -130,10 +130,10 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefTarget: save external model to a separate AR file
     ////////////////////////////////////////////////////////////////
-    void eXRefTarget::exportTarget(Archive &ar, int32_t ar_flags) const
+    void eXRefTarget::exportTarget(eString media_dir, int32_t engine_version, int32_t ar_flags) const
     {
         eScene* previous_scene;
-        Archive parallel_ar(ar.getMediaDir());
+        Archive parallel_ar(media_dir);
 
         if (nullptr != scene)
         {
@@ -152,7 +152,7 @@ namespace ZookieWizard
                 (
                     fileName,
                     ((AR_MODE_WRITE | ar_flags) & (~ AR_MODE_READ)),
-                    ar.getCurrentEngineVersion(),
+                    engine_version,
                     true,
                     0
                 );

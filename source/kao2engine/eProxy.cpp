@@ -116,7 +116,7 @@ namespace ZookieWizard
 
         if (ar.isInReadMode())
         {
-            reloadXRef(ar);
+            reloadXRef(ar.getMediaDir(), ar.getCurrentEngineVersion());
         }
 
         /********************************/
@@ -124,7 +124,7 @@ namespace ZookieWizard
 
         if (ar.isInExportProxiesMode())
         {
-            exportXRef(ar);
+            exportXRef(ar.getMediaDir(), ar.getCurrentEngineVersion());
         }
     }
 
@@ -181,11 +181,9 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eProxy::editingNewNodeSetup()
     {
-        Archive dummy_ar(getEditorString(1, false));
-
         eTransform::editingNewNodeSetup();
 
-        reloadXRef(dummy_ar);
+        reloadXRef(getEditorString(1, false), currentGameVersion);
     }
 
 
@@ -270,7 +268,6 @@ namespace ZookieWizard
     {
         int32_t test;
         eString dummy_str;
-        Archive dummy_ar(getEditorString(1, false));
 
         if (1 != (test = eTransform::parsingCustomMessage(result_msg, message, params_count, params)))
         {
@@ -347,7 +344,7 @@ namespace ZookieWizard
                 externalContentLink = nullptr;
             }
 
-            reloadXRef(dummy_ar);
+            reloadXRef(getEditorString(1, false), currentGameVersion);
 
             return 0;
         }
@@ -359,7 +356,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eProxy: reload XRef
     ////////////////////////////////////////////////////////////////
-    void eProxy::reloadXRef(Archive &ar)
+    void eProxy::reloadXRef(eString media_dir, int32_t engine_version)
     {
         int32_t ar_flags;
 
@@ -388,7 +385,7 @@ namespace ZookieWizard
             test_xref_taget = new eXRefTarget;
             test_xref_taget->incRef();
 
-            if (test_xref_taget->loadTarget(ar, ar_flags, targetFile))
+            if (test_xref_taget->loadTarget(media_dir, engine_version, ar_flags, targetFile))
             {
                 test_xref_proxy = new eXRefProxy(test_xref_taget);
                 test_xref_proxy->incRef();
@@ -407,7 +404,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eProxy: export XRef
     ////////////////////////////////////////////////////////////////
-    void eProxy::exportXRef(Archive &ar)
+    void eProxy::exportXRef(eString media_dir, int32_t engine_version)
     {
         int32_t ar_flags, a, b = nodes.getSize();
 
@@ -443,7 +440,7 @@ namespace ZookieWizard
 
                     if (nullptr != test_xref_taget)
                     {
-                        test_xref_taget->exportTarget(ar, ar_flags);
+                        test_xref_taget->exportTarget(media_dir, engine_version, ar_flags);
                     }
                 }
             }

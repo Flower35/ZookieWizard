@@ -223,7 +223,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     int32_t ePivot::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
     {
-        int32_t test[1];
+        int32_t test[2];
         float dummy_floats[2];
         eString dummy_name;
 
@@ -247,7 +247,7 @@ namespace ZookieWizard
         }
         else if (message.compareExact("animAddTrack", true))
         {
-            if (3 != params_count)
+            if (4 != params_count)
             {
                 TxtParsingNode_ErrorArgCount(result_msg, "animAddTrack", 3);
                 return 2;
@@ -255,45 +255,61 @@ namespace ZookieWizard
 
             /********************************/
 
-            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
             {
-                TxtParsingNode_ErrorArgType(result_msg, "animAddTrack", 1, TXT_PARSING_NODE_PROPTYPE_STRING);
+                TxtParsingNode_ErrorArgType(result_msg, "animAddTrack", 1, TXT_PARSING_NODE_PROPTYPE_INTEGER);
                 return 2;
             }
 
-            params[0].getValue(&dummy_name);
+            params[0].getValue(&(test[0]));
+
+            if ((test[1] = animations.tracks.getSize()) != test[0])
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"animAddTrack\" message: expected track ID %d, but the resulting ID would be %d...", test[0], (1 + test[1]));
+                return 2;
+            }
 
             /********************************/
 
-            if (params[1].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            if (!params[1].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
             {
-                params[1].getValue(&(test[0]));
-                dummy_floats[0] = (float)test[0];
-            }
-            else if (params[1].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
-            {
-                params[1].getValue(&(dummy_floats[0]));
-            }
-            else
-            {
-                TxtParsingNode_ErrorArgType(result_msg, "animAddTrack", 2, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                TxtParsingNode_ErrorArgType(result_msg, "animAddTrack", 2, TXT_PARSING_NODE_PROPTYPE_STRING);
                 return 2;
             }
+
+            params[1].getValue(&dummy_name);
 
             /********************************/
 
             if (params[2].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
             {
                 params[2].getValue(&(test[0]));
-                dummy_floats[1] = (float)test[0];
+                dummy_floats[0] = (float)test[0];
             }
             else if (params[2].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
             {
-                params[2].getValue(&(dummy_floats[1]));
+                params[2].getValue(&(dummy_floats[0]));
             }
             else
             {
                 TxtParsingNode_ErrorArgType(result_msg, "animAddTrack", 3, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (params[3].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                params[3].getValue(&(test[0]));
+                dummy_floats[1] = (float)test[0];
+            }
+            else if (params[3].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+            {
+                params[3].getValue(&(dummy_floats[1]));
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "animAddTrack", 4, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
                 return 2;
             }
 

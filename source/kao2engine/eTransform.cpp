@@ -378,9 +378,9 @@ namespace ZookieWizard
 
             property.getValue(dummy_floats);
 
-            dummy_floats[0] /= 180.0f * (float)M_PI;
-            dummy_floats[1] /= 180.0f * (float)M_PI;
-            dummy_floats[2] /= 180.0f * (float)M_PI;
+            dummy_floats[0] = (dummy_floats[0] / 180.0f) * (float)M_PI;
+            dummy_floats[1] = (dummy_floats[1] / 180.0f) * (float)M_PI;
+            dummy_floats[2] = (dummy_floats[2] / 180.0f) * (float)M_PI;
             defaultTransform.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
 
             return 0;
@@ -464,9 +464,9 @@ namespace ZookieWizard
 
             params[0].getValue(dummy_floats);
 
-            dummy_floats[0] /= 180.0f * (float)M_PI;
-            dummy_floats[1] /= 180.0f * (float)M_PI;
-            dummy_floats[2] /= 180.0f * (float)M_PI;
+            dummy_floats[0] = (dummy_floats[0] / 180.0f) * (float)M_PI;
+            dummy_floats[1] = (dummy_floats[1] / 180.0f) * (float)M_PI;
+            dummy_floats[2] = (dummy_floats[2] / 180.0f) * (float)M_PI;
             defaultTransform.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
 
             /********************************/
@@ -575,9 +575,9 @@ namespace ZookieWizard
 
             params[0].getValue(dummy_floats);
 
-            dummy_floats[0] /= 180.0f * (float)M_PI;
-            dummy_floats[1] /= 180.0f * (float)M_PI;
-            dummy_floats[2] /= 180.0f * (float)M_PI;
+            dummy_floats[0] = (dummy_floats[0] / 180.0f) * (float)M_PI;
+            dummy_floats[1] = (dummy_floats[1] / 180.0f) * (float)M_PI;
+            dummy_floats[2] = (dummy_floats[2] / 180.0f) * (float)M_PI;
             dummy_srp.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
 
             /********************************/
@@ -710,9 +710,9 @@ namespace ZookieWizard
             }
 
             params[3].getValue(dummy_floats);
-            dummy_floats[0] /= 180.0f * (float)M_PI;
-            dummy_floats[1] /= 180.0f * (float)M_PI;
-            dummy_floats[2] /= 180.0f * (float)M_PI;
+            dummy_floats[0] = (dummy_floats[0] / 180.0f) * (float)M_PI;
+            dummy_floats[1] = (dummy_floats[1] / 180.0f) * (float)M_PI;
+            dummy_floats[2] = (dummy_floats[2] / 180.0f) * (float)M_PI;
             dummy_srp.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
 
             /********************************/

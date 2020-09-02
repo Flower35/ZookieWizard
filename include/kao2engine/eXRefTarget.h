@@ -37,8 +37,8 @@ namespace ZookieWizard
 
             void renderXRefScene(eDrawContext &draw_context) const;
 
-            bool loadTarget(Archive &ar, int32_t ar_flags, eString model_name);
-            void exportTarget(Archive &ar, int32_t ar_flags) const;
+            bool loadTarget(eString media_dir, int32_t engine_version, int32_t ar_flags, eString model_name);
+            void exportTarget(eString media_dir, int32_t engine_version, int32_t ar_flags) const;
 
             eScene* getLocalScene() const;
     };

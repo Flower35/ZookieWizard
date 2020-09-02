@@ -68,7 +68,7 @@ namespace ZookieWizard
 
                     test_xref_taget->exportTarget
                     (
-                        ar,
+                        ar.getMediaDir(), ar.getCurrentEngineVersion(),
                         (AR_MODE_ABSOLUTE_PATH | AR_MODE_XREF_PATH)
                     );
                 }

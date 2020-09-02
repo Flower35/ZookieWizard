@@ -455,12 +455,28 @@ namespace ZookieWizard
 
     void eEnvironment::addLight(eLight* new_light)
     {
-        lights.appendChild(new_light);
+        int32_t a, b = lights.getSize();
+
+        if (nullptr != new_light)
+        {
+            for (a = 0; a < b; a++)
+            {
+                if (lights.getIthChild(a) == new_light)
+                {
+                    return;
+                }
+            }
+
+            lights.appendChild(new_light);
+        }
     }
 
     void eEnvironment::removeLight(eLight* selected_light)
     {
-        lights.findAndDeleteChild(selected_light);
+        if (nullptr != selected_light)
+        {
+            lights.findAndDeleteChild(selected_light);
+        }
     }
 
 
