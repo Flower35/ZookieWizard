@@ -38,6 +38,27 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // ArCustomParserFileStatus class
+    ////////////////////////////////////////////////////////////////
+
+    class ArCustomParserFileStatus
+    {
+        /*** Properties ***/
+
+        public:
+
+            eString fileName;
+            int32_t fileOffset;
+
+            int32_t lineNumber;
+            int32_t characterPosition;
+            int32_t currentIndentation;
+    };
+
+    #define AR_CUSTOM_PARSER_MAX_INCLUDES 16
+
+
+    ////////////////////////////////////////////////////////////////
     // ArCustomParser class
     ////////////////////////////////////////////////////////////////
 
@@ -70,6 +91,9 @@ namespace ZookieWizard
             int32_t propsCount;
             int32_t propsMaxLength;
             TxtParsingNodeProp* props;
+
+            int32_t includedFileId;
+            ArCustomParserFileStatus includedFiles[AR_CUSTOM_PARSER_MAX_INCLUDES];
 
         /*** Methods ***/
 

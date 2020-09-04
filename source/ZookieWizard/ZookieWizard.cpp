@@ -112,6 +112,11 @@ namespace ZookieWizard
         return false;
     }
 
+    int FileOperator::getPointer()
+    {
+        return (int)file.tellp();
+    }
+
     void FileOperator::setPointer(int offset)
     {
         file.seekp(offset, std::ios::beg);

@@ -47,7 +47,6 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void ColladaExporter::openXml(eString filename)
     {
-        int32_t i, l;
         char* text = filename.getText();
 
         if (!myFile.open(text, (FILE_OPERATOR_MODE_BINARY)))
@@ -60,21 +59,7 @@ namespace ZookieWizard
             );
         }
 
-        l = filename.getLength();
-
-        for (i = l - 1; i >= 0; i--)
-        {
-            switch (text[i])
-            {
-                case '/':
-                case '\\':
-                {
-                    workingDirectory = filename.getSubstring(0, (i + 1));
-
-                    return;
-                }
-            }
-        }
+        workingDirectory = filename.getPath();
     }
 
 

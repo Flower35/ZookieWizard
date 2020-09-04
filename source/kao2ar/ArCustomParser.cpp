@@ -80,6 +80,8 @@ namespace ZookieWizard
         propsCount = 0;
         propsMaxLength = 0;
         props = nullptr;
+
+        includedFileId = 0;
     }
 
 
@@ -227,6 +229,10 @@ namespace ZookieWizard
             return false;
         }
 
+        /********************************/
+
+        includedFiles[0].fileName = filename;
+
         return true;
     }
 
@@ -253,402 +259,513 @@ namespace ZookieWizard
 
         try
         {
-            while (!sourceFile.endOfFileReached())
+            while (includedFileId >= 0)
             {
-                if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectName()))
+                while (!sourceFile.endOfFileReached())
                 {
-                    if (AR_CUSTOM_PARSER_STATUS_EOF != test[0])
+                    if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = skipUntilNotEmpty()))
                     {
-                        throwError(test[0], "Error while parsing a keyword", nullptr);
+                        if (AR_CUSTOM_PARSER_STATUS_EOF != test[0])
+                        {
+                            throwError(test[0], "Error while peeking the next keyword", nullptr);
+                        }
                     }
-                }
-                else
-                {
-                    if (lastName.compareExact("FindNode", true))
+                    else if (sourceFile.peek(dummy_char))
                     {
-                        /********************************/
-                        /* "FindNode": (1) type and name */
-
-                        parseTypeInfoAndIdentifier(false, "FindNode", dummy_typeinfo, dummy_str[0]);
-
-                        /********************************/
-                        /* "FindNode": (2) linker text */
-
-                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar('(')))
+                        if ('#' == dummy_char)
                         {
-                            throwError(test[0], "\"FindNode\": error while reading linker text", "Expected `(`.");
-                        }
+                            characterPosition++;
+                            sourceFile.skip(+1);
 
-                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectString()))
-                        {
-                            throwError(test[0], "\"FindNode\": error while reading linker text", nullptr);
-                        }
-
-                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar(')')))
-                        {
-                            throwError(test[0], "\"FindNode\": error while reading linker text", "Expected `)`.");
-                        }
-
-                        dummy_str[1] = lastString;
-
-                        /********************************/
-                        /* "FindNode": (3) linking and storing noderef */
-
-                        dummy_node = noderefinker.findLink
-                        (
-                            root_node,
-                            (nullptr != defaultParent) ? defaultParent : root_node,
-                            "FindNode_link",
-                            dummy_str[1],
-                            dummy_typeinfo
-                        );
-
-                        insertNewNoderef(dummy_node, dummy_str[0]);
-
-                        /********************************/
-                        /* "FindNode": finished */
-
-                        successful_messages++;
-                    }
-                    else if (lastName.compareExact("AddNode", true))
-                    {
-                        /********************************/
-                        /* "AddNode": (1) type and name */
-
-                        parseTypeInfoAndIdentifier(true, "AddNode", dummy_typeinfo, dummy_str[0]);
-
-                        /********************************/
-                        /* "AddNode": (2) begin checking properties */
-
-                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar('(')))
-                        {
-                            throwError(test[0], "\"AddNode\": error while reading properties", "Expected `(`.");
-                        }
-
-                        propsCount = 0;
-                        continue_with_props = true;
-
-                        sprintf_s(bufor[1] , LARGE_BUFFER_SIZE, "Unknown error...");
-
-                        while (continue_with_props)
-                        {
-                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = skipUntilNotEmpty()))
+                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectName()))
                             {
-                                throwError(test[0], "\"AddNode\": error while reading properties", nullptr);
+                                throwError(test[0], "Error while parsing a directive", nullptr);
                             }
 
-                            if (sourceFile.peek(dummy_char))
+                            if (lastName.compareExact("include", true))
                             {
-                                if (')' == dummy_char)
-                                {
-                                    characterPosition++;
-                                    sourceFile.skip(+1);
+                                /********************************/
+                                /* "#include": (1) check the number of nested files */
 
-                                    continue_with_props = false;
-                                }
-                                else
+                                if ((includedFileId + 1) >= AR_CUSTOM_PARSER_MAX_INCLUDES)
                                 {
-                                    if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectFullProperty("AddNode", &dummy_prop)))
-                                    {
-                                        throwError(test[0], "\"AddNode\": error while reading properties", nullptr);
-                                    }
+                                    sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "(the maximum is %d)", AR_CUSTOM_PARSER_MAX_INCLUDES);
 
-                                    insertNewProp(&dummy_prop);
+                                    throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"#include\": Too many nested files", bufor[0]);
                                 }
+
+                                /********************************/
+                                /* "#include": (2) read file path */
+
+                                if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectString()))
+                                {
+                                    throwError(test[0], "\"#include\": Error while reading file name", nullptr);
+                                }
+
+                                if (lastString.getLength() <= 0)
+                                {
+                                    throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"#include\": File name is empty", nullptr);
+                                }
+
+                                /********************************/
+                                /* "#include": (3) save current file offset and debug info */
+
+                                includedFiles[includedFileId].fileOffset = sourceFile.getPointer();
+                                includedFiles[includedFileId].lineNumber = lineNumber;
+                                includedFiles[includedFileId].characterPosition = characterPosition;
+                                includedFiles[includedFileId].currentIndentation = currentIndentation;
+
+                                /********************************/
+                                /* "#include": (4) relative filepath construction */
+
+                                if (!lastString.isRooted())
+                                {
+                                    lastString = includedFiles[includedFileId].fileName.getPath() + lastString;
+                                }
+
+                                includedFileId++;
+                                includedFiles[includedFileId].fileName = lastString;
+
+                                /********************************/
+                                /* "#include": (4) open another file */
+
+                                sourceFile.close();
+
+                                if (!sourceFile.open(lastString.getText(), (FILE_OPERATOR_MODE_READ | FILE_OPERATOR_MODE_BINARY)))
+                                {
+                                    sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"#include\": Could not open file: \"%s\"", lastString.getText());
+
+                                    throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], nullptr);
+                                }
+
+                                /********************************/
+                                /* "#include": (5) reset parsing info */
+
+                                lineNumber = 1;
+                                characterPosition = 1;
+                                currentIndentation = 0;
                             }
                             else
                             {
-                                throwError(AR_CUSTOM_PARSER_STATUS_EOF, "\"AddNode\": error while reading properties", nullptr);
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "Unrecognized directive", lastName.getText());
                             }
                         }
-
-                        /********************************/
-                        /* "AddNode": (3) creating object and using all found properties */
-
-                        dummy_node = (eNode*)dummy_typeinfo->create();
-
-                        if (nullptr == dummy_node)
+                        else if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectName()))
                         {
-                            sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "Class \"%s\" is abstract.", dummy_typeinfo->name);
-
-                            throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"AddNode\": error while creating new node", bufor[0]);
+                            throwError(test[0], "Error while parsing a keyword", nullptr);
                         }
-
-                        dummy_node->incRef();
-
-                        if (nullptr != defaultParent)
+                        else if (lastName.compareExact("FindNode", true))
                         {
-                            defaultParent->appendChild(dummy_node);
-                        }
+                            /********************************/
+                            /* "FindNode": (1) type and name */
 
-                        for (int32_t a = 0; a < propsCount; a++)
-                        {
-                            if (0 != (test[0] = dummy_node->parsingSetProperty(bufor[1], props[a])))
+                            parseTypeInfoAndIdentifier(false, "FindNode", dummy_typeinfo, dummy_str[0]);
+
+                            /********************************/
+                            /* "FindNode": (2) linker text */
+
+                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar('(')))
                             {
-                                dummy_node->decRef();
+                                throwError(test[0], "\"FindNode\": error while reading linker text", "Expected `(`.");
+                            }
 
+                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectString()))
+                            {
+                                throwError(test[0], "\"FindNode\": error while reading linker text", nullptr);
+                            }
+
+                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar(')')))
+                            {
+                                throwError(test[0], "\"FindNode\": error while reading linker text", "Expected `)`.");
+                            }
+
+                            dummy_str[1] = lastString;
+
+                            /********************************/
+                            /* "FindNode": (3) linking and storing noderef */
+
+                            dummy_node = noderefinker.findLink
+                            (
+                                root_node,
+                                (nullptr != defaultParent) ? defaultParent : root_node,
+                                "FindNode_link",
+                                dummy_str[1],
+                                dummy_typeinfo
+                            );
+
+                            insertNewNoderef(dummy_node, dummy_str[0]);
+
+                            /********************************/
+                            /* "FindNode": finished */
+
+                            successful_messages++;
+                        }
+                        else if (lastName.compareExact("AddNode", true))
+                        {
+                            /********************************/
+                            /* "AddNode": (1) type and name */
+
+                            parseTypeInfoAndIdentifier(true, "AddNode", dummy_typeinfo, dummy_str[0]);
+
+                            /********************************/
+                            /* "AddNode": (2) begin checking properties */
+
+                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar('(')))
+                            {
+                                throwError(test[0], "\"AddNode\": error while reading properties", "Expected `(`.");
+                            }
+
+                            propsCount = 0;
+                            continue_with_props = true;
+
+                            sprintf_s(bufor[1] , LARGE_BUFFER_SIZE, "Unknown error...");
+
+                            while (continue_with_props)
+                            {
+                                if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = skipUntilNotEmpty()))
+                                {
+                                    throwError(test[0], "\"AddNode\": error while reading properties", nullptr);
+                                }
+
+                                if (sourceFile.peek(dummy_char))
+                                {
+                                    if (')' == dummy_char)
+                                    {
+                                        characterPosition++;
+                                        sourceFile.skip(+1);
+
+                                        continue_with_props = false;
+                                    }
+                                    else
+                                    {
+                                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectFullProperty("AddNode", &dummy_prop)))
+                                        {
+                                            throwError(test[0], "\"AddNode\": error while reading properties", nullptr);
+                                        }
+
+                                        insertNewProp(&dummy_prop);
+                                    }
+                                }
+                                else
+                                {
+                                    throwError(AR_CUSTOM_PARSER_STATUS_EOF, "\"AddNode\": error while reading properties", nullptr);
+                                }
+                            }
+
+                            /********************************/
+                            /* "AddNode": (3) creating object and using all found properties */
+
+                            dummy_node = (eNode*)dummy_typeinfo->create();
+
+                            if (nullptr == dummy_node)
+                            {
+                                sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "Class \"%s\" is abstract.", dummy_typeinfo->name);
+
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"AddNode\": error while creating new node", bufor[0]);
+                            }
+
+                            dummy_node->incRef();
+
+                            if (nullptr != defaultParent)
+                            {
+                                defaultParent->appendChild(dummy_node);
+                            }
+
+                            for (int32_t a = 0; a < propsCount; a++)
+                            {
+                                if (0 != (test[0] = dummy_node->parsingSetProperty(bufor[1], props[a])))
+                                {
+                                    dummy_node->decRef();
+
+                                    if (1 == test[0])
+                                    {
+                                        sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": Unrecognized property \"%s\".", dummy_typeinfo->name, props[a].getName().getText());
+                                    }
+                                    else
+                                    {
+                                        sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": %s", dummy_typeinfo->name, bufor[1]);
+                                    }
+
+                                    throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"AddNode\": error while assigning property", bufor[0]);
+                                }
+                            }
+
+                            dummy_parent[0] = dummy_node->getParentNode();
+
+                            dummy_node->decRef();
+
+                            if (nullptr == dummy_parent[0])
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"AddNode\": error while creating new node", "No default parent selected. (parsing from node that is not \"eGroup\" or its child)");
+                            }
+
+                            dummy_node->editingNewNodeSetup();
+
+                            /********************************/
+                            /* "AddNode": (4) store noderef if the identifier was not empty */
+
+                            if (dummy_str[0].getLength() > 0)
+                            {
+                                insertNewNoderef(dummy_node, dummy_str[0]);
+                            }
+
+                            /********************************/
+                            /* "AddNode": finished */
+
+                            successful_messages++;
+                        }
+                        else if (lastName.compareExact("NodeMsg", true))
+                        {
+                            /********************************/
+                            /* "NodeMsg": (1) identifier name */
+
+                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectName()))
+                            {
+                                throwError(test[0], "\"NodeMsg\": error while reading node identifier", nullptr);
+                            }
+
+                            if (lastName.getLength() <= 0)
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeMsg\": no node identifier defined", nullptr);
+                            }
+
+                            dummy_node = findNodeByIdentifier("NodeMsg");
+
+                            dummy_typeinfo = dummy_node->getType();
+
+                            /********************************/
+                            /* "NodeMsg": (2) message */
+
+                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectName()))
+                            {
+                                throwError(test[0], "\"NodeMsg\": error while reading message", nullptr);
+                            }
+
+                            if (lastName.getLength() <= 0)
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeMsg\": no message defined", nullptr);
+                            }
+
+                            dummy_str[0] = lastName;
+
+                            /********************************/
+                            /* "NodeMsg": (3) begin checking arguments */
+
+                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar('(')))
+                            {
+                                throwError(test[0], "\"NodeMsg\": error while reading arguments", "Expected `(`.");
+                            }
+
+                            propsCount = 0;
+                            continue_with_props = true;
+
+                            sprintf_s(bufor[1] , LARGE_BUFFER_SIZE, "Unknown error...");
+
+                            while (continue_with_props)
+                            {
+                                if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = skipUntilNotEmpty()))
+                                {
+                                    throwError(test[0], "\"NodeMsg\": error while reading arguments", nullptr);
+                                }
+
+                                if (sourceFile.peek(dummy_char))
+                                {
+                                    if (')' == dummy_char)
+                                    {
+                                        characterPosition++;
+                                        sourceFile.skip(+1);
+
+                                        continue_with_props = false;
+                                    }
+                                    else
+                                    {
+                                        dummy_prop.setName(eString(-1));
+
+                                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectProperty("NodeMsg", &dummy_prop)))
+                                        {
+                                            throwError(test[0], "\"NodeMsg\": error while reading arguments", nullptr);
+                                        }
+
+                                        insertNewProp(&dummy_prop);
+                                    }
+                                }
+                                else
+                                {
+                                    throwError(AR_CUSTOM_PARSER_STATUS_EOF, "\"NodeMsg\": error while reading arguments", nullptr);
+                                }
+                            }
+
+                            /********************************/
+                            /* "NodeMsg": (4) sending a message with all collected arguments */
+
+                            if (0 != (test[0] = dummy_node->parsingCustomMessage(bufor[1], dummy_str[0], propsCount, props)))
+                            {
                                 if (1 == test[0])
                                 {
-                                    sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": Unrecognized property \"%s\".", dummy_typeinfo->name, props[a].getName().getText());
+                                    sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": Unrecognized message \"%s\".", dummy_typeinfo->name, dummy_str[0].getText());
                                 }
                                 else
                                 {
                                     sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": %s", dummy_typeinfo->name, bufor[1]);
                                 }
 
-                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"AddNode\": error while assigning property", bufor[0]);
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeMsg\": error while sending a custom message", bufor[0]);
                             }
+
+                            /********************************/
+                            /* "NodeMsg": finished */
+
+                            successful_messages++;
                         }
-
-                        dummy_parent[0] = dummy_node->getParentNode();
-
-                        dummy_node->decRef();
-
-                        if (nullptr == dummy_parent[0])
+                        else if (lastName.compareExact("NodeSetCollision", true))
                         {
-                            throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"AddNode\": error while creating new node", "No default parent selected. (parsing from node that is not \"eGroup\" or its child)");
-                        }
+                            /********************************/
+                            /* "NodeSetCollision": (1) identifier name */
 
-                        dummy_node->editingNewNodeSetup();
+                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectName()))
+                            {
+                                throwError(test[0], "\"NodeSetCollision\": error while reading node identifier", nullptr);
+                            }
 
-                        /********************************/
-                        /* "AddNode": (4) store noderef if the identifier was not empty */
+                            if (lastName.getLength() <= 0)
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeSetCollision\": no node identifier defined", nullptr);
+                            }
 
-                        if (dummy_str[0].getLength() > 0)
-                        {
-                            insertNewNoderef(dummy_node, dummy_str[0]);
-                        }
+                            dummy_node = findNodeByIdentifier("NodeSetCollision");
 
-                        /********************************/
-                        /* "AddNode": finished */
+                            /********************************/
+                            /* "NodeSetCollision": (2) desired state - number in brackets */
 
-                        successful_messages++;
-                    }
-                    else if (lastName.compareExact("NodeMsg", true))
-                    {
-                        /********************************/
-                        /* "NodeMsg": (1) identifier name */
+                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar('(')))
+                            {
+                                throwError(test[0], "\"NodeSetCollision\": error while reading collision state", "Expected `(`.");
+                            }
 
-                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectName()))
-                        {
-                            throwError(test[0], "\"NodeMsg\": error while reading node identifier", nullptr);
-                        }
-
-                        if (lastName.getLength() <= 0)
-                        {
-                            throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeMsg\": no node identifier defined", nullptr);
-                        }
-
-                        dummy_node = findNodeByIdentifier("NodeMsg");
-
-                        dummy_typeinfo = dummy_node->getType();
-
-                        /********************************/
-                        /* "NodeMsg": (2) message */
-
-                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectName()))
-                        {
-                            throwError(test[0], "\"NodeMsg\": error while reading message", nullptr);
-                        }
-
-                        if (lastName.getLength() <= 0)
-                        {
-                            throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeMsg\": no message defined", nullptr);
-                        }
-
-                        dummy_str[0] = lastName;
-
-                        /********************************/
-                        /* "NodeMsg": (3) begin checking arguments */
-
-                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar('(')))
-                        {
-                            throwError(test[0], "\"NodeMsg\": error while reading arguments", "Expected `(`.");
-                        }
-
-                        propsCount = 0;
-                        continue_with_props = true;
-
-                        sprintf_s(bufor[1] , LARGE_BUFFER_SIZE, "Unknown error...");
-
-                        while (continue_with_props)
-                        {
                             if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = skipUntilNotEmpty()))
                             {
-                                throwError(test[0], "\"NodeMsg\": error while reading arguments", nullptr);
+                                throwError(test[0], "\"NodeSetCollision\": error while reading collision state", nullptr);
                             }
 
                             if (sourceFile.peek(dummy_char))
                             {
-                                if (')' == dummy_char)
+                                if ('1' == dummy_char)
                                 {
-                                    characterPosition++;
-                                    sourceFile.skip(+1);
-
-                                    continue_with_props = false;
+                                    test[1] = 1;
+                                }
+                                else if ('0' == dummy_char)
+                                {
+                                    test[1] = 0;
                                 }
                                 else
                                 {
-                                    dummy_prop.setName(eString(-1));
+                                    throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeSetCollision\": error while reading collision state", "Expected `0` or `1`.");
+                                }
 
-                                    if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectProperty("NodeMsg", &dummy_prop)))
-                                    {
-                                        throwError(test[0], "\"NodeMsg\": error while reading arguments", nullptr);
-                                    }
+                                characterPosition++;
+                                sourceFile.skip(+1);
+                            }
+                            else
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_EOF, "\"NodeSetCollision\": error while reading collision state", nullptr);
+                            }
 
-                                    insertNewProp(&dummy_prop);
+                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar(')')))
+                            {
+                                throwError(test[0], "\"NodeSetCollision\": error while reading collision state", "Expected `)`.");
+                            }
+
+                            /********************************/
+                            /* "NodeSetCollision": (3) rebuilding or clearing collision */
+
+                            if (0 != test[1])
+                            {
+                                dummy_node->editingRebuildCollision();
+                            }
+                            else
+                            {
+                                dummy_node->editingClearCollision();
+                            }
+
+                            /********************************/
+                            /* "NodeSetCollision": finished */
+
+                            successful_messages++;
+                        }
+                        else if (lastName.compareExact("RemoveNode", true))
+                        {
+                            /********************************/
+                            /* "RemoveNode": (1) identifier name */
+
+                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectName()))
+                            {
+                                throwError(test[0], "\"RemoveNode\": error while reading node identifier", nullptr);
+                            }
+
+                            if (lastName.getLength() <= 0)
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"RemoveNode\": no node identifier defined", nullptr);
+                            }
+
+                            dummy_node = findNodeByIdentifier("RemoveNode");
+
+                            /********************************/
+                            /* "RemoveNode": (2) checking parent and dereferencing node */
+
+                            dummy_parent[0] = dummy_node->getParentNode();
+
+                            if (nullptr == dummy_parent[0])
+                            {
+                                sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"RemoveNode\": node \"%s\" has no parent", lastName.getText());
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], nullptr);
+                            }
+
+                            if (dummy_node->getReferenceCount() >= 2)
+                            {
+                                if (nullptr != (dummy_parent[1] = dummy_parent[0]->getRootNode()))
+                                {
+                                    dummy_parent[1]->findAndDereference(dummy_node);
                                 }
                             }
-                            else
-                            {
-                                throwError(AR_CUSTOM_PARSER_STATUS_EOF, "\"NodeMsg\": error while reading arguments", nullptr);
-                            }
-                        }
 
-                        /********************************/
-                        /* "NodeMsg": (4) sending a message with all collected arguments */
+                            dummy_parent[0]->findAndDeleteChild(dummy_node);
 
-                        if (0 != (test[0] = dummy_node->parsingCustomMessage(bufor[1], dummy_str[0], propsCount, props)))
-                        {
-                            if (1 == test[0])
-                            {
-                                sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": Unrecognized message \"%s\".", dummy_typeinfo->name, dummy_str[0].getText());
-                            }
-                            else
-                            {
-                                sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": %s", dummy_typeinfo->name, bufor[1]);
-                            }
+                            /********************************/
+                            /* "RemoveNode": finished */
 
-                            throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeMsg\": error while sending a custom message", bufor[0]);
-                        }
-
-                        /********************************/
-                        /* "NodeMsg": finished */
-
-                        successful_messages++;
-                    }
-                    else if (lastName.compareExact("NodeSetCollision", true))
-                    {
-                        /********************************/
-                        /* "NodeSetCollision": (1) identifier name */
-
-                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectName()))
-                        {
-                            throwError(test[0], "\"NodeSetCollision\": error while reading node identifier", nullptr);
-                        }
-
-                        if (lastName.getLength() <= 0)
-                        {
-                            throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeSetCollision\": no node identifier defined", nullptr);
-                        }
-
-                        dummy_node = findNodeByIdentifier("NodeSetCollision");
-
-                        /********************************/
-                        /* "NodeSetCollision": (2) desired state - number in brackets */
-
-                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar('(')))
-                        {
-                            throwError(test[0], "\"NodeSetCollision\": error while reading collision state", "Expected `(`.");
-                        }
-
-                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = skipUntilNotEmpty()))
-                        {
-                            throwError(test[0], "\"NodeSetCollision\": error while reading collision state", nullptr);
-                        }
-
-                        if (sourceFile.peek(dummy_char))
-                        {
-                            if ('1' == dummy_char)
-                            {
-                                test[1] = 1;
-                            }
-                            else if ('0' == dummy_char)
-                            {
-                                test[1] = 0;
-                            }
-                            else
-                            {
-                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeSetCollision\": error while reading collision state", "Expected `0` or `1`.");
-                            }
-
-                            characterPosition++;
-                            sourceFile.skip(+1);
+                            successful_messages++;
                         }
                         else
                         {
-                            throwError(AR_CUSTOM_PARSER_STATUS_EOF, "\"NodeSetCollision\": error while reading collision state", nullptr);
+                            throwError(AR_CUSTOM_PARSER_STATUS_OK, "Unrecognized keyword", lastName.getText());
                         }
-
-                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar(')')))
-                        {
-                            throwError(test[0], "\"NodeSetCollision\": error while reading collision state", "Expected `)`.");
-                        }
-
-                        /********************************/
-                        /* "NodeSetCollision": (3) rebuilding or clearing collision */
-
-                        if (0 != test[1])
-                        {
-                            dummy_node->editingRebuildCollision();
-                        }
-                        else
-                        {
-                            dummy_node->editingClearCollision();
-                        }
-
-                        /********************************/
-                        /* "NodeSetCollision": finished */
-
-                        successful_messages++;
-                    }
-                    else if (lastName.compareExact("RemoveNode", true))
-                    {
-                        /********************************/
-                        /* "RemoveNode": (1) identifier name */
-
-                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectName()))
-                        {
-                            throwError(test[0], "\"RemoveNode\": error while reading node identifier", nullptr);
-                        }
-
-                        if (lastName.getLength() <= 0)
-                        {
-                            throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"RemoveNode\": no node identifier defined", nullptr);
-                        }
-
-                        dummy_node = findNodeByIdentifier("RemoveNode");
-
-                        /********************************/
-                        /* "RemoveNode": (2) checking parent and dereferencing node */
-
-                        dummy_parent[0] = dummy_node->getParentNode();
-
-                        if (nullptr == dummy_parent[0])
-                        {
-                            sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"RemoveNode\": node \"%s\" has no parent", lastName.getText());
-                            throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], nullptr);
-                        }
-
-                        if (dummy_node->getReferenceCount() >= 2)
-                        {
-                            if (nullptr != (dummy_parent[1] = dummy_parent[0]->getRootNode()))
-                            {
-                                dummy_parent[1]->findAndDereference(dummy_node);
-                            }
-                        }
-
-                        dummy_parent[0]->findAndDeleteChild(dummy_node);
-
-                        /********************************/
-                        /* "RemoveNode": finished */
-
-                        successful_messages++;
                     }
                     else
                     {
-                        throwError(AR_CUSTOM_PARSER_STATUS_OK, "Unrecognized keyword", lastName.getText());
+                        throwError(AR_CUSTOM_PARSER_STATUS_EOF, "Error while peeking the next keyword", nullptr);
                     }
+                }
+
+                /********************************/
+
+                sourceFile.close();
+                includedFileId--;
+
+                if (includedFileId >= 0)
+                {
+                    lastString = includedFiles[includedFileId].fileName;
+
+                    if (!sourceFile.open(lastString.getText(), (FILE_OPERATOR_MODE_READ | FILE_OPERATOR_MODE_BINARY)))
+                    {
+                        sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"#include\": Could not reopen file: \"%s\"", lastString.getText());
+
+                        throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], nullptr);
+                    }
+
+                    sourceFile.setPointer(includedFiles[includedFileId].fileOffset);
+                    lineNumber = includedFiles[includedFileId].lineNumber;
+                    characterPosition = includedFiles[includedFileId].characterPosition;
+                    currentIndentation = includedFiles[includedFileId].currentIndentation;
                 }
             }
         }
@@ -738,6 +855,7 @@ namespace ZookieWizard
     {
         const char* reason;
         char result[2 * LARGE_BUFFER_SIZE];
+        eString current_filename = includedFiles[includedFileId].fileName.getFilename(true);
 
         switch (status)
         {
@@ -784,12 +902,13 @@ namespace ZookieWizard
         sprintf_s
         (
             result, 2 * LARGE_BUFFER_SIZE,
-            "%s!%s%s%s%s\n\n(line %d, position %d)",
+            "%s!%s%s%s%s\n\n(\"%s\": line %d, position %d)",
             main_message,
             (nullptr != reason) ? "\n\nREASON: " : "",
             (nullptr != reason) ? reason : "",
             (nullptr != param1) ? "\n\n" : "",
             (nullptr != param1) ? param1 : "",
+            (current_filename.getLength() > 0) ? current_filename.getText() : "",
             lineNumber, characterPosition
         );
 

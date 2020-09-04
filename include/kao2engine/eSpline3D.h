@@ -6,21 +6,19 @@
 namespace ZookieWizard
 {
     ////////////////////////////////////////////////////////////////
-    // Spline Joint structure
+    // Spline Vertex structure
     ////////////////////////////////////////////////////////////////
 
-    struct eSplineJointBase
+    struct eSplineVertexBase
     {
         /*** Properties ***/
 
-            /*[0x00-0x08]*/ float unknown_00[3];
-            /*[0x0C-0x14]*/ float unknown_0C[3];
-            /*[0x18-0x20]*/ float unknown_18[3];
+            /*[0x00-0x20]*/ ePoint3 position[3];
             /*[0x24]*/ eString name;
 
         /*** Methods ***/
 
-            eSplineJointBase();
+            eSplineVertexBase();
 
             void serializeSplineJoint(Archive &ar);
     };
@@ -36,9 +34,9 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x08]*/ int32_t jointsCount;
-            /*[0x0C]*/ int32_t jointsMaxLength;
-            /*[0x10]*/ eSplineJointBase* joints;
+            /*[0x08]*/ int32_t verticesCount;
+            /*[0x0C]*/ int32_t verticesMaxLength;
+            /*[0x10]*/ eSplineVertexBase* vertices;
 
             /*[0x14]*/ float unknown_14;
 
@@ -51,6 +49,20 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            void renderSpline(bool use_outline) const;
+
+            void clearVertices();
+            void addVertex(ePoint3 new_pos_a, ePoint3 new_pos_b, ePoint3 new_pos_c, eString new_name);
+
+            int32_t getVerticesCount() const;
+            ePoint3 getVertexPosition(int32_t vertex_id, int32_t param_id) const;
+            void setVertexPosition(int32_t vertex_id, int32_t param_id, ePoint3 new_position);
+
+        private:
+
+            void splineGetPoint(ePoint3 &result, float time) const;
+            void splineGetSegment(ePoint3 &result, float time) const;
     };
 
 

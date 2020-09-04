@@ -80,10 +80,7 @@ namespace ZookieWizard
 
             /********************************/
 
-            bool was_texturing_enabled = glIsEnabled(GL_TEXTURE_2D);
-            glDisable(GL_TEXTURE_2D);
-            bool was_blending_enabled = glIsEnabled(GL_BLEND);
-            glDisable(GL_BLEND);
+            draw_context.useMaterial(nullptr, 0);
 
             glColor3f(color[0], color[1], color[2]);
 
@@ -97,16 +94,6 @@ namespace ZookieWizard
             }
 
             glColor3f(1.0f, 1.0f, 1.0f);
-
-            if (was_texturing_enabled)
-            {
-                glEnable(GL_TEXTURE_2D);
-            }
-
-            if (was_blending_enabled)
-            {
-                glEnable(GL_BLEND);
-            }
 
             /********************************/
 

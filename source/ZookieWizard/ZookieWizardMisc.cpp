@@ -575,7 +575,7 @@ namespace ZookieWizard
             {
                 myARs[0].changeSelectedObject(NODES_LISTBOX_ROOT, nullptr);
 
-                eString dummy_name = ar_name.getFilename();
+                eString dummy_name = ar_name.getFilename(true);
 
                 if (checkArFilenameExtensions(dummy_name))
                 {
@@ -589,7 +589,7 @@ namespace ZookieWizard
 
             if (false == skip_dialog)
             {
-                ar_name = ar_name.getFilename();
+                ar_name = ar_name.getFilename(true);
             }
 
             sprintf_s

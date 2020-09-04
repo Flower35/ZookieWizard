@@ -257,7 +257,7 @@ namespace ZookieWizard
                 (
                     "[%s]\n" \
                     "invalid archive magic. Expected \"tate\".",
-                    path.getFilename().getText()
+                    path.getFilename(true).getText()
                 );
 
                 return false;
@@ -287,7 +287,7 @@ namespace ZookieWizard
                     "[%s]\n" \
                     "invalid archive version %i\n" \
                     "(current version: %i, minimum: %i).",
-                    path.getFilename().getText(), version, ver_max, ver_min
+                    path.getFilename(true).getText(), version, ver_max, ver_min
                 );
 
                 return false;
@@ -309,7 +309,7 @@ namespace ZookieWizard
                     "[%s]\n" \
                     "Incorrect number of temporary class fields.\n" \
                     "(max: %d)",
-                    path.getFilename().getText(),
+                    path.getFilename(true).getText(),
                     AR_MAX_ITEMS
                 );
 

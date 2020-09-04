@@ -85,7 +85,8 @@ namespace ZookieWizard
             bool comparePath(const eStringPtrBase<charT>& str) const;
             bool hasExtension(const charT* str) const;
             eStringPtrBase<charT> getSubstring(int pos, int count = (-1)) const;
-            eStringPtrBase<charT> getFilename() const;
+            eStringPtrBase<charT> getPath() const;
+            eStringPtrBase<charT> getFilename(bool with_extesion) const;
             eStringPtrBase<charT> trimWhitespace() const;
             bool isRooted() const;
 

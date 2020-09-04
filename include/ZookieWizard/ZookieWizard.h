@@ -64,6 +64,7 @@ namespace ZookieWizard
         void setDir(char* filename);
         bool createDir();
 
+        int getPointer();
         void setPointer(int offset);
         void skip(int size);
 

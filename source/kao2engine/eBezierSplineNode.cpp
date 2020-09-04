@@ -1,5 +1,6 @@
 #include <kao2engine/eBezierSplineNode.h>
 #include <kao2ar/Archive.h>
+#include <kao2ar/eDrawContext.h>
 
 #include <kao2engine/eSpline3D.h>
 
@@ -30,9 +31,14 @@ namespace ZookieWizard
 
     eBezierSplineNode::eBezierSplineNode()
     : eNode()
-    {}
+    {
+        spline = nullptr;
+    }
 
-    eBezierSplineNode::~eBezierSplineNode() {}
+    eBezierSplineNode::~eBezierSplineNode()
+    {
+        spline->decRef();
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -43,8 +49,178 @@ namespace ZookieWizard
     {
         eNode::serialize(ar);
 
-        /* Splines group */
-        splines.serialize(ar, &E_SPLINE3D_TYPEINFO);
+        int32_t a = (nullptr != spline) ? 0x01 : 0x00;
+        ar.readOrWrite(&a, 0x04);
+
+        if (ar.isInReadMode() && (a > 1))
+        {
+            throw ErrorMessage
+            (
+                "eBezierSplineNode::serialize():\n" \
+                "Expected one \"eSpline3D\" object!"
+            );
+
+            return;
+        }
+
+        if (1 == a)
+        {
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&spline, &E_SPLINE3D_TYPEINFO);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBezierSplineNode: render this node
+    ////////////////////////////////////////////////////////////////
+    void eBezierSplineNode::renderNode(eDrawContext &draw_context) const
+    {
+        if (GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_context.getDrawFlags())
+        {
+            if (nullptr != spline)
+            {
+                bool is_selected_or_marked = draw_context.isNodeSelectedOrMarked();
+
+                draw_context.useMaterial(nullptr, 0);
+
+                if (is_selected_or_marked)
+                {
+                    glPushMatrix();
+                    GUI::multiplyBySelectedObjectTransform(false);
+                }
+
+                spline->renderSpline(draw_context.isNodeOutlined());
+
+                if (is_selected_or_marked)
+                {
+                    glPopMatrix();
+                }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBezierSplineNode: (editor option) find object in 3D space
+    ////////////////////////////////////////////////////////////////
+    ePoint3 eBezierSplineNode::editingGetCenterPoint() const
+    {
+        if (nullptr != spline)
+        {
+            return spline->getVertexPosition(0, 0);
+        }
+
+        return {0};
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBezierSplineNode: (editor option) apply new transformation
+    ////////////////////////////////////////////////////////////////
+    void eBezierSplineNode::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
+    {
+        int32_t a, b, length;
+        ePoint4 dummy_vertex;
+        eMatrix4x4 matrix = new_transform.getMatrix();
+
+        if (nullptr != spline)
+        {
+            length = spline->getVerticesCount();
+
+            for (b = 0; b < 3; b++)
+            {
+                for (a = 0; a < length; a++)
+                {
+                    dummy_vertex = spline->getVertexPosition(a, b);
+                    dummy_vertex.w = 1.0f;
+
+                    spline->setVertexPosition(a, b, (matrix * dummy_vertex));
+                }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBezierSplineNode: custom TXT parser
+    ////////////////////////////////////////////////////////////////
+    int32_t eBezierSplineNode::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+        float dummy_floats[3];
+        ePoint3 dummy_pos[3];
+        eString dummy_str;
+
+        if (1 != (test = eNode::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("clearVertices", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "clearVertices", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            if (nullptr != spline)
+            {
+                spline->clearVertices();
+            }
+
+            return 0;
+        }
+        else if (message.compareExact("addVertex", true))
+        {
+            if (4 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "addVertex", 4);
+                return 2;
+            }
+
+            /********************************/
+
+            for (test = 0; test < 3; test++)
+            {
+                if (!params[test].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+                {
+                    TxtParsingNode_ErrorArgType(result_msg, "addVertex", (1 + test), TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                    return 2;
+                }
+
+                params[test].getValue(dummy_floats);
+
+                dummy_pos[test].x = dummy_floats[0];
+                dummy_pos[test].y = dummy_floats[1];
+                dummy_pos[test].z = dummy_floats[2];
+            }
+
+            /********************************/
+
+            if (!params[3].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "addVertex", 4, TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            params[3].getValue(&dummy_str);
+
+            /********************************/
+
+            if (nullptr == spline)
+            {
+                spline = new eSpline3D();
+            }
+
+            spline->addVertex(dummy_pos[0], dummy_pos[1], dummy_pos[2], dummy_str);
+
+            return 0;
+        }
+
+        return 1;
     }
 
 }

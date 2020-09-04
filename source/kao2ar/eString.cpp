@@ -665,26 +665,42 @@ namespace ZookieWizard
     }
 
     template <typename charT>
-    eStringPtrBase<charT> eStringPtrBase<charT>::getFilename() const
+    eStringPtrBase<charT> eStringPtrBase<charT>::getPath() const
     {
-        int posSlash = 0;
-        int posBackslash = 0;
-        int count = pString->getLength();
-        charT* myText = pString->getText();
+        int afterslash_pos = 0;
+        charT* text = getText();
 
-        for (int i = (count -1); i >= 0; i--)
+        for (int i = (getLength() - 1); (0 == afterslash_pos) && (i >= 0); i--)
         {
-            if ((0 == posSlash) && ('/' == myText[i]))
+            if (('/' == text[i]) || ('\\' == text[i]))
             {
-                posSlash = (1 + i);
-            }
-            else if ((0 == posBackslash) && ('\\' == myText[i]))
-            {
-                posBackslash = (1 + i);
+                afterslash_pos = (1 + i);
             }
         }
 
-        return getSubstring(posSlash > posBackslash ? posSlash : posBackslash);
+        return getSubstring(0, afterslash_pos);
+    }
+
+    template <typename charT>
+    eStringPtrBase<charT> eStringPtrBase<charT>::getFilename(bool with_extesion) const
+    {
+        int dot_pos = (-1);
+        int afterslash_pos = 0;
+        charT* text = getText();
+
+        for (int i = (getLength() - 1); (0 == afterslash_pos) && (i >= 0); i--)
+        {
+            if ((!with_extesion) && (dot_pos < 0) && ('.' == text[i]))
+            {
+                dot_pos = i;
+            }
+            else if (('/' == text[i]) || ('\\' == text[i]))
+            {
+                afterslash_pos = (1 + i);
+            }
+        }
+
+        return getSubstring(afterslash_pos, dot_pos);
     }
 
     template <typename charT>

@@ -7,6 +7,7 @@
 
 namespace ZookieWizard
 {
+    class eSpline3D;
 
     ////////////////////////////////////////////////////////////////
     // eBezierSplineNode interface
@@ -19,7 +20,7 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x08-0x10]*/ Collection<ArFunctions::serialize_eRefCounter> splines;
+            /*[0x3C-0x44]*/ eSpline3D* spline;
 
         /*** Methods ***/
 
@@ -30,6 +31,13 @@ namespace ZookieWizard
 
             void serialize(Archive &ar) override;
             TypeInfo* getType() const override;
+
+            void renderNode(eDrawContext &draw_context) const override;
+
+            ePoint3 editingGetCenterPoint() const override;
+            void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id);
+
+            int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
     };
 
 

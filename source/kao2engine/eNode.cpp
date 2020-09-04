@@ -41,9 +41,9 @@ namespace ZookieWizard
         "???", // 0x00002000
         "Anim Inheritance (pivot)", // 0x00004000
         "???", // 0x00008000
-        "Already loaded (proxy)", // 0x00010000
-        "???", // 0x00020000
-        "???", // 0x00040000
+        "Relative Ctrl (pivot) / Ready (proxy)", // 0x00010000
+        "??? (pivot)", // 0x00020000
+        "Ctrl Blend (pivot)", // 0x00040000
         "???", // 0x00080000
         "???", // 0x00100000
         "???", // 0x00200000
@@ -716,6 +716,7 @@ namespace ZookieWizard
 
     int32_t eNode::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
     {
+        int32_t test;
         eString prop_name = property.getName();
         eNode* dummy_node = nullptr;
 
@@ -764,6 +765,18 @@ namespace ZookieWizard
             }
 
             property.getValue(&flags);
+            return 0;
+        }
+        else if (prop_name.compareExact("collisionFlags", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "collisionFlags", TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            property.getValue(&test);
+            flagsCollisionResponse = test & 0x00FF;
             return 0;
         }
 
@@ -853,6 +866,28 @@ namespace ZookieWizard
             /********************************/
 
             params[0].getValue(&flags);
+            return 0;
+        }
+        else if (message.compareExact("setCollisionFlags", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setCollisionFlags", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setCollisionFlags", 0, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            /********************************/
+
+            params[0].getValue(&(test[0]));
+            flagsCollisionResponse = test[0] & 0x00FF;
             return 0;
         }
         else if (message.compareExact("visCtrlClear", true))

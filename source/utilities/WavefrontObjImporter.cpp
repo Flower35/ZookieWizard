@@ -153,7 +153,6 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     bool WavefrontObjImporter::openObj(eString filename, eGroup* target)
     {
-        int32_t i, j;
         char* text = filename.getText();
 
         if (false == target->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
@@ -181,37 +180,8 @@ namespace ZookieWizard
             return false;
         }
 
-        j = (-1);
-
-        for (i = filename.getLength() - 1; i >= 0; i--)
-        {
-            switch (text[i])
-            {
-                case '.':
-                {
-                    j = i;
-
-                    break;
-                }
-
-                case '/':
-                case '\\':
-                {
-                    workingDirectory = filename.getSubstring(0, (i + 1));
-
-                    if (j < 0)
-                    {
-                        fileName = filename.getSubstring(i + 1);
-                    }
-                    else
-                    {
-                        fileName = filename.getSubstring((i + 1), (j - i - 1));
-                    }
-
-                    return true;
-                }
-            }
-        }
+        workingDirectory = filename.getPath();
+        fileName = filename.getFilename(false);
 
         return true;
     }
