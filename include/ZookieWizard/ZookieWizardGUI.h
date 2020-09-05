@@ -97,6 +97,8 @@ namespace ZookieWizard
         extern int32_t animationFPS;
         extern bool renderingLimitFramerate;
 
+        extern bool updatingMovedSelectedTransformEditboxes;
+
         /*** Functions ***/
 
         bool createWindows(HINSTANCE hInstance);
@@ -109,7 +111,7 @@ namespace ZookieWizard
 
         void moveCameraOrObject(int8_t x, int8_t y, int8_t z, uint8_t movement_mode);
         void getMovedSeletedTransform(void* transform);
-        void setMovedSeletedTransform(void* transform);
+        void setMovedSeletedTransform(void* transform, int32_t ignored_editbox);
         void multiplyBySelectedObjectTransform(bool ignore_scale);
         void repositionCamera(bool returning, void* transform);
 

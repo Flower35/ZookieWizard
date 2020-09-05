@@ -16,6 +16,7 @@ namespace ZookieWizard
         HFONT myWindowFont = NULL;
 
         static bool updatingNodeName = false;
+        bool updatingMovedSelectedTransformEditboxes = false;
 
         static const int32_t nodesList_ButtonsCount = 15;
         static const int32_t nodesList_ActionsCount = 5;
@@ -85,11 +86,11 @@ namespace ZookieWizard
         void buttonFunc_Anim(WPARAM wParam, LPARAM lParam, void* custom_param)
         {
             int32_t i;
-            char bufor[8];
+            char bufor[32];
 
             if (EN_CHANGE == HIWORD(wParam))
             {
-                GetWindowText((HWND)lParam, bufor, 8);
+                GetWindowText((HWND)lParam, bufor, 32);
 
                 i = std::atoi(bufor);
 
@@ -251,11 +252,11 @@ namespace ZookieWizard
         {
             int32_t id = (int32_t)custom_param;
             double new_speed;
-            char bufor[8];
+            char bufor[32];
 
             if ((EN_CHANGE == HIWORD(wParam)) && (id >= 0) && (id < 2))
             {
-                GetWindowText((HWND)lParam, bufor, 8);
+                GetWindowText((HWND)lParam, bufor, 32);
 
                 new_speed = std::atof(bufor);
 
@@ -362,6 +363,62 @@ namespace ZookieWizard
                 {
                     myARs[0].changeSelectedObject(NODES_EDITING_UNSET_FLAG, custom_param);
                 }
+            }
+        }
+
+        void buttonFunc_CurrentTransform(WPARAM wParam, LPARAM lParam, void* custom_param)
+        {
+            int32_t id = (int32_t)custom_param;
+            char bufor[32];
+            float dummy_float;
+            eSRP customizable_xform;
+            float dummy_angles[3];
+
+            if ((!updatingMovedSelectedTransformEditboxes) && (EN_CHANGE == HIWORD(wParam)) && (id >= 1) && (id <= 7))
+            {
+                GetWindowText((HWND)lParam, bufor, 32);
+                dummy_float = (float)std::atof(bufor);
+
+                GUI::getMovedSeletedTransform(&customizable_xform);
+
+                switch (id)
+                {
+                    case 1: // pos.x
+                    {
+                        customizable_xform.pos.x = dummy_float;
+                        break;
+                    }
+
+                    case 2: // pos.y
+                    {
+                        customizable_xform.pos.y = dummy_float;
+                        break;
+                    }
+
+                    case 3: // pos.z
+                    {
+                        customizable_xform.pos.z = dummy_float;
+                        break;
+                    }
+
+                    case 4: // Euler angle X
+                    case 5: // Euler angle Y
+                    case 6: // Euler angle Z
+                    {
+                        customizable_xform.rot.toEulerAngles(true, dummy_angles[0], dummy_angles[1], dummy_angles[2]);
+                        dummy_angles[id - 4] = dummy_float / 180.0f * (float)M_PI;
+                        customizable_xform.rot.fromEulerAngles(true, dummy_angles[0], dummy_angles[1], dummy_angles[2]);
+                        break;
+                    }
+
+                    case 7: // scale
+                    {
+                        customizable_xform.scale = dummy_float;
+                        break;
+                    }
+                }
+
+                GUI::setMovedSeletedTransform(&customizable_xform, id);
             }
         }
 
@@ -1319,7 +1376,7 @@ namespace ZookieWizard
 
             a = (RECT_TABS_X2 / 2) - (WINDOW_PADDING / 2);
 
-            if (0 == theWindowsManager.addWindow("PREVIEW", a, WINDOW_HEIGHT, nullptr, nullptr, 0x03))
+            if (0 == theWindowsManager.addWindow("EDITING THE TRANSFORMATION\n  OF THE CURRENTLY MOVED OBJECT", RECT_TABS_X2, (2 * WINDOW_HEIGHT), nullptr, nullptr, 0x03))
             {
                 return false;
             }
@@ -1360,13 +1417,13 @@ namespace ZookieWizard
             for (b = 0; b < 3; b++)
             {
                 theWindowsManager.addEdgesToNextWindow();
-                if (0 == theWindowsManager.addWindow("", a, WINDOW_HEIGHT, nullptr, nullptr, 0))
+                if (0 == theWindowsManager.addWindow("", a, WINDOW_HEIGHT, buttonFunc_CurrentTransform, (void*)(b + 1), 0))
                 {
                     return false;
                 }
 
                 theWindowsManager.addEdgesToNextWindow();
-                if (0 == theWindowsManager.addWindow("", a, WINDOW_HEIGHT, nullptr, nullptr, 0x01))
+                if (0 == theWindowsManager.addWindow("", a, WINDOW_HEIGHT, buttonFunc_CurrentTransform, (void*)(b + 4), 0x01))
                 {
                     return false;
                 }
@@ -1375,7 +1432,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_HEIGHT);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == theWindowsManager.addWindow("", a, WINDOW_HEIGHT, nullptr, nullptr, 0x03))
+            if (0 == theWindowsManager.addWindow("", a, WINDOW_HEIGHT, buttonFunc_CurrentTransform, (void*)(7), 0x03))
             {
                 return false;
             }

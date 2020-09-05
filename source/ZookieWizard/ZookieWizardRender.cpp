@@ -515,7 +515,7 @@ namespace ZookieWizard
         // Get or Set selected object's new transformation
         ////////////////////////////////////////////////////////////////
 
-        void updateMovedSelectedTransformEditboxes()
+        void updateMovedSelectedTransformEditboxes(int32_t ignored_editbox)
         {
             char bufor[64];
 
@@ -525,6 +525,8 @@ namespace ZookieWizard
             float output[EDITBOXES_COUNT];
             HWND dummy_editbox;
             const int places[EDITBOXES_COUNT] = {(-10), (-8), (-6), (-9), (-7), (-5), (-4)};
+
+            /********************************/
 
             output[0] = selectedObjectNewTransform.pos.x;
             output[1] = selectedObjectNewTransform.pos.y;
@@ -539,14 +541,26 @@ namespace ZookieWizard
 
             output[6] = selectedObjectNewTransform.scale;
 
+            /********************************/
+
+            updatingMovedSelectedTransformEditboxes = true;
+            ignored_editbox--; // [1 ... 7] -> [0 ... 6]
+
             for (int a = 0; a < EDITBOXES_COUNT; a++)
             {
-                if (NULL != (dummy_editbox =theWindowsManager.getSpecificWindow(PAGE_ID, places[a])))
+                if (ignored_editbox != a)
                 {
-                    sprintf_s(bufor, 64, "%f", output[a]);
-                    SetWindowText(dummy_editbox, bufor);
+                    if (NULL != (dummy_editbox = theWindowsManager.getSpecificWindow(PAGE_ID, places[a])))
+                    {
+                        sprintf_s(bufor, 64, "%f", output[a]);
+                        SetWindowText(dummy_editbox, bufor);
+                    }
                 }
             }
+
+            updatingMovedSelectedTransformEditboxes = false;
+
+            /********************************/
 
             selectedObjectNewTransform.getMatrix().transpose(selectedObjectTransposedMatrix[0]);
 
@@ -564,7 +578,7 @@ namespace ZookieWizard
             (*test_srp_ptr) = selectedObjectNewTransform;
         }
 
-        void setMovedSeletedTransform(void* transform)
+        void setMovedSeletedTransform(void* transform, int32_t ignored_editbox)
         {
             eSRP* test_srp_ptr = (eSRP*)transform;
 
@@ -577,7 +591,7 @@ namespace ZookieWizard
                 selectedObjectNewTransform = eSRP();
             }
 
-            updateMovedSelectedTransformEditboxes();
+            updateMovedSelectedTransformEditboxes(ignored_editbox);
         }
 
         void multiplyBySelectedObjectTransform(bool ignore_scale)
@@ -688,7 +702,7 @@ namespace ZookieWizard
                         selectedObjectNewTransform.pos.z += float(dir_z * STRAFING_SPEED * testCamera.speed[0]);
                     }
 
-                    updateMovedSelectedTransformEditboxes();
+                    updateMovedSelectedTransformEditboxes(0);
                 }
                 else if (2 == testCamera.object_mode)
                 {
@@ -727,7 +741,7 @@ namespace ZookieWizard
                         selectedObjectNewTransform.rot = selectedObjectNewTransform.rot * test_quaternion;
                     }
 
-                    updateMovedSelectedTransformEditboxes();
+                    updateMovedSelectedTransformEditboxes(0);
                 }
             }
 

@@ -59,10 +59,11 @@ namespace ZookieWizard
             ePoint3 getVertexPosition(int32_t vertex_id, int32_t param_id) const;
             void setVertexPosition(int32_t vertex_id, int32_t param_id, ePoint3 new_position);
 
+            void splineGetSegment(ePoint3 &result, float time) const;
+
         private:
 
             void splineGetPoint(ePoint3 &result, float time) const;
-            void splineGetSegment(ePoint3 &result, float time) const;
     };
 
 

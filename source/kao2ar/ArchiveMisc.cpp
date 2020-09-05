@@ -756,7 +756,7 @@ namespace ZookieWizard
                 }
             }
 
-            GUI::setMovedSeletedTransform((void*)&test_srp);
+            GUI::setMovedSeletedTransform((void*)&test_srp, 0);
         }
 
         /********************************/

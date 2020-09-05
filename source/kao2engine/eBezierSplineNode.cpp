@@ -223,4 +223,21 @@ namespace ZookieWizard
         return 1;
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eBezierSplineNode: get point from the spline
+    // without rendering (used with "ePathConstrainCtrl")
+    // <kao2.004A7630>
+    ////////////////////////////////////////////////////////////////
+    void eBezierSplineNode::bezierSplineGetSegment(ePoint3 &result, float time) const
+    {
+        if (nullptr != spline)
+        {
+            spline->splineGetSegment(result, time);
+            return;
+        }
+
+        result = {0};
+    }
+
 }

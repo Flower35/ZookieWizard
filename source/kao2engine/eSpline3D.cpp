@@ -111,6 +111,9 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eSpline3D::renderSpline(bool use_outline) const
     {
+        const float POINT_HALF_WIDTH = (32.0f / 2);
+
+        int32_t a;
         ePoint3 vertex;
         float color[3];
         float time_param;
@@ -131,6 +134,8 @@ namespace ZookieWizard
             color[2] = 1.0f;
         }
 
+        glColor3f(color[0], color[1], color[2]);
+
         /********************************/
 
         time_param = 0;
@@ -147,9 +152,23 @@ namespace ZookieWizard
 
         /********************************/
 
-        glColor3f(1.0f, 1.0f, 1.0f);
-        glLineWidth(1.0f);
         glEnd();
+
+        for (a = 0; a < verticesCount; a++)
+        {
+            GUI::renderBoundingBox
+            (
+                1.0f, color[0], color[1], color[2],
+                vertices[a].position[0].x - POINT_HALF_WIDTH,
+                vertices[a].position[0].y - POINT_HALF_WIDTH,
+                vertices[a].position[0].z - POINT_HALF_WIDTH,
+                vertices[a].position[0].x + POINT_HALF_WIDTH,
+                vertices[a].position[0].y + POINT_HALF_WIDTH,
+                vertices[a].position[0].z + POINT_HALF_WIDTH
+            );
+        }
+
+        glColor3f(1.0f, 1.0f, 1.0f);
     }
 
 
@@ -159,8 +178,58 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eSpline3D::splineGetPoint(ePoint3 &result, float time) const
     {
-        result = {0};
-        return;
+        ePoint3 test_pts[4];
+        float f[2];
+        int32_t id[2];
+
+        if ((nullptr == vertices) || (verticesCount < 2))
+        {
+            result = {0};
+            return;
+        }
+
+        /****************/
+
+        if (time < 0)
+        {
+            time = 0;
+        }
+        else if (time > 1.0f)
+        {
+            time = 1.0f;
+        }
+
+        /****************/
+
+        if (time >= 1.0f)
+        {
+            id[0] = (verticesCount - 2);
+            f[0] = 1.0f;
+        }
+        else
+        {
+            id[1] = (verticesCount - 1);
+            id[0] = (int32_t)(time * id[1]);
+            f[0] = (time - (float)id[0] / id[1]) * id[1] / 1.0f;
+        }
+
+        /****************/
+
+        f[1] = f[0] * f[0];
+
+        test_pts[0] = vertices[id[0] + 1].position[0] * (3.0f * f[1]);
+
+        test_pts[1] = vertices[id[0] + 1].position[2] * ((6.0f * f[0]) - (9.0f * f[1]));
+
+        test_pts[2] = vertices[id[0]].position[1] * (3.0f * ((1.0f - 4.0f * f[0]) + (3.0f * f[1])));
+
+        f[0] = (1.0f - f[0]);
+
+        test_pts[3] = vertices[id[0]].position[0] * ((-3.0f) * f[0] * f[0]);
+
+        /****************/
+
+        result = test_pts[0] + test_pts[1] + test_pts[2] + test_pts[3];
     }
 
 
@@ -170,8 +239,56 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eSpline3D::splineGetSegment(ePoint3 &result, float time) const
     {
-        result = {0};
-        return;
+        ePoint3 test_pts[4];
+        float f[4];
+        int32_t id[2];
+
+        if (nullptr == vertices)
+        {
+            result = {0};
+            return;
+        }
+
+        if (time <= 0)
+        {
+            splineGetPoint(test_pts[0], time);
+
+            result = (test_pts[0] * time) + vertices[0].position[0];
+            return;
+        }
+        else if (time >= 1.0f)
+        {
+            splineGetPoint(test_pts[0], time);
+
+            result = (test_pts[0] * (1.0f - time)) + vertices[verticesCount - 1].position[0];
+            return;
+        }
+        else
+        {
+            id[1] = (verticesCount - 1);
+            id[0] = (int32_t)(id[1] * time);
+
+            f[0] = (time - (float)id[0] / id[1]) * id[1] / 1.0f;
+            f[1] = (1.0f - f[0]);
+
+            f[2] = f[0] * f[0]; // t^2
+            f[3] = f[1] * f[1]; // (1-t)^2
+
+            /* P4 * t^3 */
+            test_pts[0] = vertices[id[0] + 1].position[0] * (f[2] * f[0]);
+
+            /* P3 * 3 * t^2 * (1-t) */
+            test_pts[1] = vertices[id[0] + 1].position[1] * (3.0f * f[2] * f[1]);
+
+            /* P2 * 3 * t * (1-t)^2 */
+            test_pts[2] = vertices[id[0]].position[2] * (3.0f * f[0] * f[3]);
+
+            /* P1 * (1-t)^3 */
+            test_pts[3] = vertices[id[0]].position[0] * (f[3] * f[1]);
+
+            result = test_pts[3] + test_pts[2] + test_pts[1] + test_pts[0];
+            return;
+        }
     }
 
 

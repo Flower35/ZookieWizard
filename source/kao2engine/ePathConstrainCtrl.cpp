@@ -49,13 +49,11 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void ePathConstrainCtrl::ctrlApplyTransform(ePoint3* e, float time) const
     {
-        float test;
+        float time_for_spline;
 
-        unknown_0C->ctrlApplyTransform(&test, time);
+        unknown_0C->ctrlApplyTransform(&time_for_spline, time);
 
-        /* (--dsp--) calls <kao2.004A7630> */
-        /* object = [0x08] (eBezierSplineNode) */
-        /* arg1 = `ePoint3 e`, arg2 = `float test`. */
+        unknown_08->bezierSplineGetSegment(*e, time_for_spline);
     }
 
 
