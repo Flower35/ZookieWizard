@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eReadySteadyGo::~eReadySteadyGo() {}
+    eReadySteadyGo::~eReadySteadyGo()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eReadySteadyGo: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eReadySteadyGo::createFromOtherObject(const eReadySteadyGo &other)
+    {}
+
+    eReadySteadyGo::eReadySteadyGo(const eReadySteadyGo &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eReadySteadyGo& eReadySteadyGo::operator = (const eReadySteadyGo &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eReadySteadyGo::cloneFromMe() const
+    {
+        return new eReadySteadyGo(*this);
+    }
 
 }

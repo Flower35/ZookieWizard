@@ -60,7 +60,105 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eNPCMap serialization
+    // eNPCMap: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eNPCMap::createFromOtherObject(const eNPCMap &other)
+    {
+        unknown_4C = other.unknown_4C;
+        unknown_50 = other.unknown_50;
+
+        boxBoundMin = other.boxBoundMin;
+        boxBoundMax = other.boxBoundMax;
+
+        unknown_54 = other.unknown_54;
+        unknown_58 = other.unknown_58;
+        unknown_5C = other.unknown_5C;
+
+        /****************/
+
+        if (other.groupA_Count > 0)
+        {
+            groupA_MaxLength = other.groupA_Count;
+            groupA = new int32_t [groupA_MaxLength];
+
+            for (groupA_Count = 0; groupA_Count < groupA_MaxLength; groupA_Count++)
+            {
+                groupA[groupA_Count] = other.groupA[groupA_Count];
+            }
+        }
+        else
+        {
+            groupA_Count = 0;
+            groupA_MaxLength = 0;
+            groupA = nullptr;
+        }
+
+        /****************/
+
+        int32_t a = unknown_50 * unknown_4C;
+        unknown_60 = new int32_t [a];
+
+        if (nullptr != other.unknown_60)
+        {
+            std::memcpy(unknown_60, other.unknown_60, sizeof(int32_t) * a);
+        }
+        else
+        {
+            std::memset(unknown_60, 0x00, sizeof(int32_t) * a);
+        }
+
+        /****************/
+
+        unknown_7C = other.unknown_7C;
+
+        navisCount = other.navisCount;
+
+        unknown_AC = other.unknown_AC;
+
+        unknown_48 = other.unknown_48;
+    }
+
+    eNPCMap::eNPCMap(const eNPCMap &other)
+    : eGroup(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eNPCMap& eNPCMap::operator = (const eNPCMap &other)
+    {
+        if ((&other) != this)
+        {
+            eGroup::operator = (other);
+
+            /****************/
+
+            if (nullptr != unknown_60)
+            {
+                delete[](unknown_60);
+            }
+
+            if (nullptr != groupA)
+            {
+                delete[](groupA);
+            }
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eNPCMap::cloneFromMe() const
+    {
+        return new eNPCMap(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNPCMap: serialization
     // <kao2.00420DC0>
     ////////////////////////////////////////////////////////////////
     void eNPCMap::serialize(Archive &ar)
@@ -209,9 +307,9 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eNPCMap: custom setup
+    // eNPCMap: custom Map setup
     ////////////////////////////////////////////////////////////////
-    void eNPCMap::customSetup(ePoint3 &box_min, ePoint3 &box_max, int32_t navis_in_group)
+    void eNPCMap::customMapSetup(ePoint3 &box_min, ePoint3 &box_max, int32_t navis_in_group)
     {
         int i, size;
 

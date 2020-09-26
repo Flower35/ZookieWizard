@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eDisableGeo : public Gadget
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             eDisableGeo();
             ~eDisableGeo();
 
+        private:
+
+            void createFromOtherObject(const eDisableGeo &other);
+
+        public:
+
+            eDisableGeo(const eDisableGeo &other);
+            eDisableGeo& operator = (const eDisableGeo &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eDisableGeo TypeInfo
-    // <kao2.00433500> (registration)
+    // <kao2.004334D0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_DISABLEGEO_ID = 0x3AC241BB;

@@ -43,6 +43,80 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eXYZPoint3Ctrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eXYZPoint3Ctrl::createFromOtherObject(const eXYZPoint3Ctrl &other)
+    {
+        xCtrl = other.xCtrl;
+        if (nullptr != xCtrl)
+        {
+            xCtrl->incRef();
+        }
+
+        yCtrl = other.yCtrl;
+        if (nullptr != yCtrl)
+        {
+            yCtrl->incRef();
+        }
+
+        zCtrl = other.zCtrl;
+        if (nullptr != zCtrl)
+        {
+            zCtrl->incRef();
+        }
+    }
+
+    eXYZPoint3Ctrl::eXYZPoint3Ctrl(const eXYZPoint3Ctrl &other)
+    : eCtrl<ePoint3>(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eXYZPoint3Ctrl& eXYZPoint3Ctrl::operator = (const eXYZPoint3Ctrl &other)
+    {
+        if ((&other) != this)
+        {
+            eCtrl<ePoint3>::operator = (other);
+
+            /****************/
+
+            xCtrl->decRef();
+            yCtrl->decRef();
+            zCtrl->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eXYZPoint3Ctrl::cloneFromMe() const
+    {
+        return new eXYZPoint3Ctrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eXYZPoint3Ctrl: serialization
+    // <kao2.004A0D70>
+    ////////////////////////////////////////////////////////////////
+    void eXYZPoint3Ctrl::serialize(Archive &ar)
+    {
+        /* X-controller */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&xCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
+
+        /* Y-controller */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&yCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
+
+        /* Z-controller */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&zCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eXYZPoint3Ctrl: animation function
     // [[vptr]+0x28] Modify "ePoint3" based on current time
     // <kao2.004A0D20>
@@ -84,23 +158,6 @@ namespace ZookieWizard
                 e->x = 0;
             }
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eXYZPoint3Ctrl serialization
-    // <kao2.004A0D70>
-    ////////////////////////////////////////////////////////////////
-    void eXYZPoint3Ctrl::serialize(Archive &ar)
-    {
-        /* X-controller */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&xCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
-
-        /* Y-controller */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&yCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
-
-        /* Z-controller */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&zCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
     }
 
 
@@ -150,6 +207,28 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eXYZPoint3Ctrl: clear keyframes for specific animation
+    ////////////////////////////////////////////////////////////////
+    void eXYZPoint3Ctrl::ctrlClearKeyframes(int32_t anim_id)
+    {
+        if (nullptr != xCtrl)
+        {
+            xCtrl->ctrlClearKeyframes(anim_id);
+        }
+
+        if (nullptr != yCtrl)
+        {
+            yCtrl->ctrlClearKeyframes(anim_id);
+        }
+
+        if (nullptr != zCtrl)
+        {
+            zCtrl->ctrlClearKeyframes(anim_id);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eXYZPoint3Ctrl: set loop type
     ////////////////////////////////////////////////////////////////
     void eXYZPoint3Ctrl::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
@@ -170,28 +249,6 @@ namespace ZookieWizard
             {
                 zCtrl->ctrlSetLoopType(anim_id, loop_type, 0x01);
             }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eXYZPoint3Ctrl: clear keyframes for specific animation
-    ////////////////////////////////////////////////////////////////
-    void eXYZPoint3Ctrl::ctrlClearKeyframes(int32_t anim_id)
-    {
-        if (nullptr != xCtrl)
-        {
-            xCtrl->ctrlClearKeyframes(anim_id);
-        }
-
-        if (nullptr != yCtrl)
-        {
-            yCtrl->ctrlClearKeyframes(anim_id);
-        }
-
-        if (nullptr != zCtrl)
-        {
-            zCtrl->ctrlClearKeyframes(anim_id);
         }
     }
 

@@ -6,14 +6,13 @@
 
 namespace ZookieWizard
 {
-
     ////////////////////////////////////////////////////////////////
     // eTransform interface
+    // <kao2.005D0B60> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eTransform : public eGroup
     {
-
         /*** Properties ***/
 
         protected:
@@ -33,12 +32,27 @@ namespace ZookieWizard
             eTransform();
             ~eTransform();
 
-            void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+        private:
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
+            void createFromOtherObject(const eTransform &other);
+
+        public:
+
+            eTransform(const eTransform &other);
+            eTransform& operator = (const eTransform &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
+            TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
+            /* << eNode >> */
+
+            void setPreviousTransformGradually(eTransform* last_xform) override;
             void updateBeforeRendering(eDrawContext &draw_context) override;
             void renderNode(eDrawContext &draw_context) const override;
 
@@ -52,6 +66,8 @@ namespace ZookieWizard
 
             void ctrlExpandAnimTracks(int32_t new_size) override;
             void ctrlRemoveAnimTrack(int32_t deleted_id) override;
+
+            /* << eTransform >> */
 
             eSRP getXForm(bool animated) const;
             void setXForm(eSRP &new_xform);
@@ -69,6 +85,8 @@ namespace ZookieWizard
 
         protected:
 
+            /* << eTransform >> */
+
             void getTransposedMatrices(eSRP some_srp);
 
             void deserializationCorrection();
@@ -77,7 +95,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eTransform TypeInfo
-    // <kao2.0047C5B0> (registration)
+    // <kao2.0047C580> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TRANSFORM_ID = 0x8112;

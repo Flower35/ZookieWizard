@@ -46,7 +46,64 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eGroupManager serialization
+    // eGroupManager: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eGroupManager::createFromOtherObject(const eGroupManager &other)
+    {
+        if (other.groupsCount > 0)
+        {
+            groupsMaxLength = other.groupsCount;
+            groups = new eGroup* [groupsMaxLength];
+
+            for (groupsCount = 0; groupsCount < groupsMaxLength; groupsCount++)
+            {
+                groups[groupsCount] = (eGroup*) other.groups[groupsCount]->cloneFromMe();
+            }
+        }
+        else
+        {
+            groupsCount = 0;
+            groupsMaxLength = 0;
+            groups = nullptr;
+        }
+    }
+
+    eGroupManager::eGroupManager(const eGroupManager &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eGroupManager& eGroupManager::operator = (const eGroupManager &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            if (nullptr != groups)
+            {
+                delete[](groups);
+            }
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eGroupManager::cloneFromMe() const
+    {
+        return new eGroupManager(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroupManager: serialization
     // <kao2.0042C340>
     ////////////////////////////////////////////////////////////////
     void eGroupManager::serialize(Archive &ar)

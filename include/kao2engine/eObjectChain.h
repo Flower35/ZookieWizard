@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eObjectChain : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eObjectChain();
             ~eObjectChain();
 
+        private:
+
+            void createFromOtherObject(const eObjectChain &other);
+
+        public:
+
+            eObjectChain(const eObjectChain &other);
+            eObjectChain& operator = (const eObjectChain &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eObjectChain TypeInfo
-    // <kao2.00525FF0> (registration)
+    // <kao2.00525FC0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_OBJECTCHAIN_ID = 0x000204C4;

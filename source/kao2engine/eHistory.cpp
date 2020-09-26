@@ -30,7 +30,41 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eHistory::~eHistory() {}
+    eHistory::~eHistory()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eHistory: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eHistory::createFromOtherObject(const eHistory &other)
+    {}
+
+    eHistory::eHistory(const eHistory &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eHistory& eHistory::operator = (const eHistory &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eHistory::cloneFromMe() const
+    {
+        return new eHistory(*this);
+    }
 
 
     ////////////////////////////////////////////////////////////////

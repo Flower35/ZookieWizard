@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eMultiTargetThrower::~eMultiTargetThrower() {}
+    eMultiTargetThrower::~eMultiTargetThrower()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMultiTargetThrower: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eMultiTargetThrower::createFromOtherObject(const eMultiTargetThrower &other)
+    {}
+
+    eMultiTargetThrower::eMultiTargetThrower(const eMultiTargetThrower &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eMultiTargetThrower& eMultiTargetThrower::operator = (const eMultiTargetThrower &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eMultiTargetThrower::cloneFromMe() const
+    {
+        return new eMultiTargetThrower(*this);
+    }
 
 }

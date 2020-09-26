@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eCameraTarget interface
+    // <kao2.005D4AD0> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eCameraTarget : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +28,25 @@ namespace ZookieWizard
             eCameraTarget();
             ~eCameraTarget();
 
+        private:
+
+            void createFromOtherObject(const eCameraTarget &other);
+
+        public:
+
+            eCameraTarget(const eCameraTarget &other);
+            eCameraTarget& operator = (const eCameraTarget &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCameraTarget TypeInfo
-    // <kao2.00510A70> (registration)
+    // <kao2.00510A40> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_CAMERATARGET_ID = 0xCA3E7A10;

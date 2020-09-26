@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSpider : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eSpider();
             ~eSpider();
 
+        private:
+
+            void createFromOtherObject(const eSpider &other);
+
+        public:
+
+            eSpider(const eSpider &other);
+            eSpider& operator = (const eSpider &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSpider TypeInfo
-    // <kao2.0043AE90> (registration)
+    // <kao2.0043AE60> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SPIDER_ID = 0x3B9365F6;

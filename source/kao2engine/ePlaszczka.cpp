@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eWalk()
     {}
 
-    ePlaszczka::~ePlaszczka() {}
+    ePlaszczka::~ePlaszczka()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePlaszczka: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePlaszczka::createFromOtherObject(const ePlaszczka &other)
+    {}
+
+    ePlaszczka::ePlaszczka(const ePlaszczka &other)
+    : eWalk(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePlaszczka& ePlaszczka::operator = (const ePlaszczka &other)
+    {
+        if ((&other) != this)
+        {
+            eWalk::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePlaszczka::cloneFromMe() const
+    {
+        return new ePlaszczka(*this);
+    }
 
 }

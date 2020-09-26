@@ -1,9 +1,8 @@
 #include <kao2engine/eGeoSet.h>
 #include <kao2ar/Archive.h>
 
-#include <kao2engine/ePhyTriMesh.h>
-
 #include <kao2engine/e3fXArray.h>
+#include <kao2engine/ePhyTriMesh.h>
 
 namespace ZookieWizard
 {
@@ -74,42 +73,171 @@ namespace ZookieWizard
 
     eGeoSet::~eGeoSet()
     {
-        int32_t i;
-
-        if (0 != displayList)
-        {
-            glDeleteLists(displayList, getTextureCoordsCount());
-        }
-
-        aabbTree->decRef();
-
-        phy->decRef();
-
-        colorsArray->decRef();
-
-        for (i = 0; i < 4; i++)
-        {
-            texCoordsArray[i]->decRef();
-        }
-
-        for (i = 0; i < 2; i++)
-        {
-            normalsArray[i]->decRef();
-        }
-
-        for (i = 0; i < 2; i++)
-        {
-            verticesArray[i]->decRef();
-        }
-
-        indicesArray->decRef();
-
-        indicesOffsets->decRef();
+        clearExistingGeoSet();
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // eGeoSet serialization
+    // eGeoSet: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eGeoSet::createFromOtherObject(const eGeoSet &other)
+    {
+        int32_t a;
+
+        /****************/
+
+        unknown_08 = other.unknown_08;
+
+        defaultVertexCount = other.defaultVertexCount;
+
+        texCoordsCount = other.texCoordsCount;
+
+        /****************/
+
+        if (nullptr != other.indicesOffsets)
+        {
+            indicesOffsets = new eGeoArray<ushort>(*(other.indicesOffsets));
+            indicesOffsets->incRef();
+        }
+        else
+        {
+            indicesOffsets = nullptr;
+        }
+
+        /****************/
+
+        if (nullptr != other.indicesArray)
+        {
+            indicesArray = new eGeoArray<ushort>(*(other.indicesArray));
+            indicesArray->incRef();
+        }
+        else
+        {
+            indicesArray = nullptr;
+        }
+
+        /****************/
+
+        for (a = 0; a < 2; a++)
+        {
+            if (nullptr != other.verticesArray[a])
+            {
+                verticesArray[a] = new eGeoArray<ePoint4>(*(other.verticesArray[a]));
+                verticesArray[a]->incRef();
+            }
+            else
+            {
+                verticesArray[a] = nullptr;
+            }
+        }
+
+        /****************/
+
+        for (a = 0; a < 2; a++)
+        {
+            if (nullptr != other.normalsArray[a])
+            {
+                normalsArray[a] = new eGeoArray<ePoint4>(*(other.normalsArray[a]));
+                normalsArray[a]->incRef();
+            }
+            else
+            {
+                normalsArray[a] = nullptr;
+            }
+        }
+
+        /****************/
+
+        for (a = 0; a < texCoordsCount; a++)
+        {
+            texCoordsId[a] = other.texCoordsId[a];
+
+            if (nullptr != other.texCoordsArray[a])
+            {
+                texCoordsArray[a] = new eGeoArray<ePoint2>(*(other.texCoordsArray[a]));
+                texCoordsArray[a]->incRef();
+            }
+            else
+            {
+                texCoordsArray[a] = nullptr;
+            }
+        }
+
+        for (a = texCoordsCount; a < 4; a++)
+        {
+            texCoordsArray[a] = nullptr;
+            texCoordsId[a] = 0;
+        }
+
+        /****************/
+
+        if (nullptr != other.colorsArray)
+        {
+            colorsArray = new eGeoArray<ePoint4>(*(other.colorsArray));
+            colorsArray->incRef();
+        }
+        else
+        {
+            colorsArray = nullptr;
+        }
+
+        /****************/
+
+        displayList = 0;
+
+        currentSet = 0;
+
+        /****************/
+
+        /* << MUST BE RESOLVED! >> */
+        phy = nullptr;
+
+        /****************/
+
+        if (nullptr != other.aabbTree)
+        {
+            aabbTree = new eGeoArray<eABB>(*(other.aabbTree));
+            aabbTree->incRef();
+        }
+        else
+        {
+            aabbTree = nullptr;
+        }
+    }
+
+    eGeoSet::eGeoSet(const eGeoSet &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eGeoSet& eGeoSet::operator = (const eGeoSet &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            clearExistingGeoSet();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eGeoSet::cloneFromMe() const
+    {
+        return new eGeoSet(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoSet: serialization
     // <kao2.0046A930>
     ////////////////////////////////////////////////////////////////
     void eGeoSet::serialize(Archive &ar)
@@ -224,133 +352,6 @@ namespace ZookieWizard
                 );
             }
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eGeoSet: generate OpenGL Display List
-    // <kao2.0046A190>
-    ////////////////////////////////////////////////////////////////
-    void eGeoSet::displayVertexBufferObject(int32_t texID, bool use_color) const
-    {
-        int32_t i, j;
-
-        /* VERTICES */
-
-        glEnableClientState(GL_VERTEX_ARRAY);
-
-        glVertexPointer
-        (
-            0x04,
-            GL_FLOAT,
-            0,
-            verticesArray[currentSet]->getData()
-        );
-
-        /* TEXTURE */
-
-        if ((texID >= 0) && (texID < texCoordsCount))
-        {
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-            glTexCoordPointer
-            (
-                0x02,
-                GL_FLOAT,
-                0,
-                texCoordsArray[texID]->getData()
-            );
-        }
-
-        /* NORMALS */
-
-        if (nullptr != normalsArray[currentSet])
-        {
-            glEnableClientState(GL_NORMAL_ARRAY);
-
-            glNormalPointer
-            (
-                GL_FLOAT,
-                0x10,
-                normalsArray[currentSet]->getData()
-            );
-        };
-
-        /* COLORS */
-
-        if (use_color && (nullptr != colorsArray))
-        {
-            glEnableClientState(GL_COLOR_ARRAY);
-
-            glColorPointer
-            (
-                0x04,
-                GL_FLOAT,
-                0,
-                colorsArray->getData()
-            );
-        }
-
-        /* INDICES (strips or triangles) */
-
-        if (nullptr != indicesOffsets)
-        {
-            j = 0;
-
-            for (i = 0; i < indicesOffsets->getLength(); i++)
-            {
-                if (nullptr != indicesArray)
-                {
-                    glDrawElements
-                    (
-                        GL_TRIANGLE_STRIP,
-                        indicesOffsets->getData()[i],
-                        GL_UNSIGNED_SHORT,
-                        (indicesArray->getData() + j)
-                    );
-                }
-                else
-                {
-                    glDrawArrays
-                    (
-                        GL_TRIANGLE_STRIP,
-                        j,
-                        indicesOffsets->getData()[i]
-                    );
-                }
-
-                j += indicesOffsets->getData()[i];
-            }
-        }
-        else
-        {
-            if (nullptr != indicesArray)
-            {
-                glDrawElements
-                (
-                    GL_TRIANGLES,
-                    indicesArray->getLength(),
-                    GL_UNSIGNED_SHORT,
-                    indicesArray->getData()
-                );
-            }
-            else
-            {
-                glDrawArrays
-                (
-                    GL_TRIANGLES,
-                    0x00,
-                    defaultVertexCount
-                );
-            }
-        }
-
-        /* DISABLE CLIENT STATES */
-
-        glDisableClientState(GL_COLOR_ARRAY);
-        glDisableClientState(GL_NORMAL_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        glDisableClientState(GL_VERTEX_ARRAY);
     }
 
 
@@ -903,6 +904,199 @@ namespace ZookieWizard
             aabbTree->decRef();
             aabbTree = nullptr;
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoSet: clear already existing object
+    ////////////////////////////////////////////////////////////////
+    void eGeoSet::clearExistingGeoSet()
+    {
+        int32_t a;
+
+        /****************/
+
+        if (0 != displayList)
+        {
+            glDeleteLists(displayList, getTextureCoordsCount());
+            displayList = 0;
+        }
+
+        /****************/
+
+        aabbTree->decRef();
+        aabbTree = nullptr;
+
+        /****************/
+
+        phy->decRef();
+        phy = nullptr;
+
+        /****************/
+
+        colorsArray->decRef();
+        colorsArray = nullptr;
+
+        /****************/
+
+        for (a = 0; a < 4; a++)
+        {
+            texCoordsArray[a]->decRef();
+            texCoordsArray[a] = nullptr;
+        }
+
+        /****************/
+
+        for (a = 0; a < 2; a++)
+        {
+            normalsArray[a]->decRef();
+            normalsArray[a] = nullptr;
+        }
+
+        /****************/
+
+        for (a = 0; a < 2; a++)
+        {
+            verticesArray[a]->decRef();
+            verticesArray[a] = nullptr;
+        }
+
+        /****************/
+
+        indicesArray->decRef();
+        indicesArray = nullptr;
+
+        /****************/
+
+        indicesOffsets->decRef();
+        indicesOffsets = nullptr;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoSet: display Vertex Buffer Object (OpenGL calls)
+    // <kao2.0046A190>
+    ////////////////////////////////////////////////////////////////
+    void eGeoSet::displayVertexBufferObject(int32_t texID, bool use_color) const
+    {
+        int32_t i, j;
+
+        /* VERTICES */
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+
+        glVertexPointer
+        (
+            0x04,
+            GL_FLOAT,
+            0,
+            verticesArray[currentSet]->getData()
+        );
+
+        /* TEXTURE */
+
+        if ((texID >= 0) && (texID < texCoordsCount))
+        {
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+            glTexCoordPointer
+            (
+                0x02,
+                GL_FLOAT,
+                0,
+                texCoordsArray[texID]->getData()
+            );
+        }
+
+        /* NORMALS */
+
+        if (nullptr != normalsArray[currentSet])
+        {
+            glEnableClientState(GL_NORMAL_ARRAY);
+
+            glNormalPointer
+            (
+                GL_FLOAT,
+                0x10,
+                normalsArray[currentSet]->getData()
+            );
+        };
+
+        /* COLORS */
+
+        if (use_color && (nullptr != colorsArray))
+        {
+            glEnableClientState(GL_COLOR_ARRAY);
+
+            glColorPointer
+            (
+                0x04,
+                GL_FLOAT,
+                0,
+                colorsArray->getData()
+            );
+        }
+
+        /* INDICES (strips or triangles) */
+
+        if (nullptr != indicesOffsets)
+        {
+            j = 0;
+
+            for (i = 0; i < indicesOffsets->getLength(); i++)
+            {
+                if (nullptr != indicesArray)
+                {
+                    glDrawElements
+                    (
+                        GL_TRIANGLE_STRIP,
+                        indicesOffsets->getData()[i],
+                        GL_UNSIGNED_SHORT,
+                        (indicesArray->getData() + j)
+                    );
+                }
+                else
+                {
+                    glDrawArrays
+                    (
+                        GL_TRIANGLE_STRIP,
+                        j,
+                        indicesOffsets->getData()[i]
+                    );
+                }
+
+                j += indicesOffsets->getData()[i];
+            }
+        }
+        else
+        {
+            if (nullptr != indicesArray)
+            {
+                glDrawElements
+                (
+                    GL_TRIANGLES,
+                    indicesArray->getLength(),
+                    GL_UNSIGNED_SHORT,
+                    indicesArray->getData()
+                );
+            }
+            else
+            {
+                glDrawArrays
+                (
+                    GL_TRIANGLES,
+                    0x00,
+                    defaultVertexCount
+                );
+            }
+        }
+
+        /* DISABLE CLIENT STATES */
+
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
     }
 
 }

@@ -13,10 +13,14 @@ namespace ZookieWizard
     {
         /*** Properties ***/
 
+        public:
+
             /*[0x00]*/ float unknown_00;
             /*[0x04]*/ float unknown_04;
 
         /*** Methods ***/
+
+        public:
 
             void serialize(Archive &ar);
     };
@@ -24,6 +28,8 @@ namespace ZookieWizard
     struct eLinearCtrlBaseB
     {
         /*** Properties ***/
+
+        public:
 
             /*[0x00]*/ float unknown_00;
             /*[0x04]*/ float unknown_04;
@@ -34,18 +40,20 @@ namespace ZookieWizard
             /*[0x18]*/ float unknown_18;
 
         /*** Methods ***/
-            
+
+            public:
+
             void serialize(Archive &ar);
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eLinearCtrl interface
+    // <kao2.005D6CE0> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eLinearCtrl : public eObject
     {
-
         /*** Properties ***/
 
         protected:
@@ -66,9 +74,9 @@ namespace ZookieWizard
             /*[0x30]*/ float unknown_30;
             /*[0x34]*/ float unknown_34;
             /*[0x38]*/ float unknown_38;
-            
+
             /*(...)*/
-            
+
             /*[0x3C]*/ float* series;
             /*[0x40]*/ int32_t seriesLength;
 
@@ -79,14 +87,26 @@ namespace ZookieWizard
             eLinearCtrl();
             ~eLinearCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eLinearCtrl &other);
+
+        public:
+
+            eLinearCtrl(const eLinearCtrl &other);
+            eLinearCtrl& operator = (const eLinearCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eLinearCtrl TypeInfo
-    // <kao2.00559A30> (registration)
+    // <kao2.00559A00> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_LINEARCTRL_ID = 0xFFEAAA01;

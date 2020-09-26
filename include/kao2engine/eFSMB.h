@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eFSMB interface
+    // <kao2.005D6D38> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eFSMB : public eFSOp
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,13 +27,25 @@ namespace ZookieWizard
             eFSMB();
             ~eFSMB();
 
+        private:
+
+            void createFromOtherObject(const eFSMB &other);
+
+        public:
+
+            eFSMB(const eFSMB &other);
+            eFSMB& operator = (const eFSMB &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFSMB TypeInfo
-    // <kao2.0055FB50> (registration)
+    // <kao2.0055FB20> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FSMB_ID = 0xFF777791;

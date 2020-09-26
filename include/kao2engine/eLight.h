@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eLight interface
+    // <kao2.005D0D28> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eLight : public eNode
     {
-
         /*** Properties ***/
 
         protected:
@@ -23,22 +23,32 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
-        protected:
-
-            void useBasicLightParams(int32_t light_id) const;
-
         public:
 
             eLight();
             ~eLight();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eLight &other);
+
+        public:
+
+            eLight(const eLight &other);
+            eLight& operator = (const eLight &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eNode >> */
 
             int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
 
-            /*[vptr]+0x74]*/ virtual void bindLight(int32_t light_id) const = 0;
+            /* << eLight >> */
 
             void getDiffuseColor(float* values) const;
             void getAmbientColor(float* values) const;
@@ -47,12 +57,20 @@ namespace ZookieWizard
             void setDiffuseColor(float* values);
             void setAmbientColor(float* values);
             void setSpecularColor(float* values);
+
+            /*[[vptr]+0x74]*/ virtual void bindLight(int32_t light_id) const = 0;
+
+        protected:
+
+            /* << eLight >> */
+
+            void useBasicLightParams(int32_t light_id) const;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eLight TypeInfo
-    // <kao2.0047F0F0> (registration)
+    // <kao2.0047F0C0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_LIGHT_ID = 0x03454500;

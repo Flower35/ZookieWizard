@@ -943,7 +943,7 @@ namespace ZookieWizard
 
                         /* Render one frame */
 
-                        myARs[0].renderScene(myDrawFlags);
+                        myARs[currentArId].renderScene(myDrawFlags);
                     }
 
                     glFlush();

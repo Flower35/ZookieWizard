@@ -10,11 +10,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eEnvironment interface
+    // <kao2.005D0C48> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eEnvironment : public eGroup
     {
-
         /*** Properties ***/
 
         protected:
@@ -30,15 +30,31 @@ namespace ZookieWizard
             eEnvironment(eString s);
             ~eEnvironment();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eEnvironment &other);
+
+        public:
+
+            eEnvironment(const eEnvironment &other);
+            eEnvironment& operator = (const eEnvironment &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eNode >> */
+
+            void findAndDereference(eNode* target) override;
 
             void renderNode(eDrawContext &draw_context) const override;
 
             int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
 
-            void findAndDereference(eNode* target) override;
+            /* << eEnvironment >> */
 
             void clearLighs();
             void addLight(eLight* new_light);
@@ -53,7 +69,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eEnvironment TypeInfo
-    // <kao2.0047E5C0> (registration)
+    // <kao2.0047E590> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ENVIRONMENT_ID = 0x3F800001;

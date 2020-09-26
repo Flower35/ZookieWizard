@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eIceCubeMarks : public eMarks
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eIceCubeMarks();
             ~eIceCubeMarks();
 
+        private:
+
+            void createFromOtherObject(const eIceCubeMarks &other);
+
+        public:
+
+            eIceCubeMarks(const eIceCubeMarks &other);
+            eIceCubeMarks& operator = (const eIceCubeMarks &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eIceCubeMarks TypeInfo
-    // <kao2.0055B1A0> (registration)
+    // <kao2.0055B170> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ICECUBEMARKS_ID = 0x3B3E6952;

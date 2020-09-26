@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eDemoPlayer::~eDemoPlayer() {}
+    eDemoPlayer::~eDemoPlayer()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eDemoPlayer: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eDemoPlayer::createFromOtherObject(const eDemoPlayer &other)
+    {}
+
+    eDemoPlayer::eDemoPlayer(const eDemoPlayer &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eDemoPlayer& eDemoPlayer::operator = (const eDemoPlayer &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eDemoPlayer::cloneFromMe() const
+    {
+        return new eDemoPlayer(*this);
+    }
 
 }

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class StateDumper : public Gadget
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             StateDumper();
             ~StateDumper();
 
+        private:
+
+            void createFromOtherObject(const StateDumper &other);
+
+        public:
+
+            StateDumper(const StateDumper &other);
+            StateDumper& operator = (const StateDumper &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // StateDumper TypeInfo
-    // <kao2.005AFF80> (registration)
+    // <kao2.005AFF50> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_STATEDUMPER_ID = 0x07EA1234;

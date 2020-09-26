@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSndEmiterBox : public eSndEmiter
     {
-
         /*** Properties ***/
 
         protected:
@@ -21,13 +20,8 @@ namespace ZookieWizard
             /*[0xB8]*/
             /*(...)*/
 
-            /*[0xC8]*/ float unknown_C8;
-            /*[0xCC]*/ float unknown_CC;
-            /*[0xD0]*/ float unknown_D0;
-
-            /*[0xD4]*/ float unknown_D4;
-            /*[0xD8]*/ float unknown_D8;
-            /*[0xDC]*/ float unknown_DC;
+            /*[0xC8-0x0D0]*/ ePoint3 boxBoundMin;
+            /*[0xD4-0x0DC]*/ ePoint3 boxBoundMax;
 
         /*** Methods ***/
 
@@ -36,14 +30,26 @@ namespace ZookieWizard
             eSndEmiterBox();
             ~eSndEmiterBox();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eSndEmiterBox &other);
+
+        public:
+
+            eSndEmiterBox(const eSndEmiterBox &other);
+            eSndEmiterBox& operator = (const eSndEmiterBox &other);
+            eObject* cloneFromMe() const override;
+
+        /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSndEmiterBox TypeInfo
-    // <kao2.005AF040> (registration)
+    // <kao2.005AF010> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SNDEMITERBOX_ID = 0x09994524;

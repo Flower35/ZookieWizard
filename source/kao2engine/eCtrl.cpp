@@ -74,6 +74,52 @@ namespace ZookieWizard
         return &E_CTRL_FLOAT_TYPEINFO;
     }
 
+    template <typename T>
+    eCtrl<T>::eCtrl()
+    : eCtrlBase()
+    {}
+
+    template <typename T>
+    eCtrl<T>::~eCtrl()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    template <typename T>
+    void eCtrl<T>::createFromOtherObject(const eCtrl<T> &other)
+    {}
+
+    template <typename T>
+    eCtrl<T>::eCtrl(const eCtrl<T> &other)
+    : eCtrlBase(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    template <typename T>
+    eCtrl<T>& eCtrl<T>::operator = (const eCtrl<T> &other)
+    {
+        if ((&other) != this)
+        {
+            eCtrlBase::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    template <typename T>
+    eObject* eCtrl<T>::cloneFromMe() const
+    {
+        return nullptr;
+    }
+
 
     ////////////////////////////////////////////////////////////////
     // eCtrl: animation function

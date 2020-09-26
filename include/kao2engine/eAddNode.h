@@ -28,13 +28,25 @@ namespace ZookieWizard
             eAddNode();
             ~eAddNode();
 
+        private:
+
+            void createFromOtherObject(const eAddNode &other);
+
+        public:
+
+            eAddNode(const eAddNode &other);
+            eAddNode& operator = (const eAddNode &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eAddNode TypeInfo
-    // <kao2.00519250> (registration)
+    // <kao2.00519220> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ADDNODE_ID = 0x00465719;

@@ -43,11 +43,47 @@ namespace ZookieWizard
         createAxisListEntry(zone, boxBound);
     }
 
-    eALZoneSensor::~eALZoneSensor() {}
+    eALZoneSensor::~eALZoneSensor()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eALZoneSensor serialization
+    // eALZoneSensor: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eALZoneSensor::createFromOtherObject(const eALZoneSensor &other)
+    {
+        sensorName = other.sensorName;
+    }
+
+    eALZoneSensor::eALZoneSensor(const eALZoneSensor &other)
+    : eALBox(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eALZoneSensor& eALZoneSensor::operator = (const eALZoneSensor &other)
+    {
+        if ((&other) != this)
+        {
+            eALBox::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eALZoneSensor::cloneFromMe() const
+    {
+        return new eALZoneSensor(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eALZoneSensor: serialization
     // <kao2.0049D370>
     ////////////////////////////////////////////////////////////////
     void eALZoneSensor::serialize(Archive &ar)

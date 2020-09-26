@@ -50,7 +50,65 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eEnvironment serialization
+    // eEnvironment: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eEnvironment::createFromOtherObject(const eEnvironment &other)
+    {
+        lights = other.lights;
+
+        unknown_54[0] = other.unknown_54[0];
+        unknown_54[1] = other.unknown_54[1];
+        unknown_54[2] = other.unknown_54[2];
+        unknown_54[3] = other.unknown_54[3];
+
+        if (nullptr != other.fog)
+        {
+            fog = new eFogEnv(*(other.fog));
+            fog->incRef();
+
+            flags |= 0x00001000;
+        }
+        else
+        {
+            fog = nullptr;
+
+            flags &= (~ 0x00001000);
+        }
+    }
+
+    eEnvironment::eEnvironment(const eEnvironment &other)
+    : eGroup(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eEnvironment& eEnvironment::operator = (const eEnvironment &other)
+    {
+        if ((&other) != this)
+        {
+            eGroup::operator = (other);
+
+            /****************/
+
+            fog->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eEnvironment::cloneFromMe() const
+    {
+        return new eEnvironment(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eEnvironment: serialization
     // <kao2.0047DBA0>
     ////////////////////////////////////////////////////////////////
     void eEnvironment::serialize(Archive &ar)
@@ -90,6 +148,17 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eEnvironment: find reference to some node when deleting it
+    ////////////////////////////////////////////////////////////////
+    void eEnvironment::findAndDereference(eNode* target)
+    {
+        lights.findAndDeleteChild((eRefCounter*)target);
+
+        eGroup::findAndDereference(target);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eEnvironment: use lighting and render the child nodes
     ////////////////////////////////////////////////////////////////
     void eEnvironment::renderNode(eDrawContext &draw_context) const
@@ -120,17 +189,6 @@ namespace ZookieWizard
         {
             draw_context.decreaseLights(valid_lights);
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eEnvironment: find reference to some node when deleting it
-    ////////////////////////////////////////////////////////////////
-    void eEnvironment::findAndDereference(eNode* target)
-    {
-        lights.findAndDeleteChild((eRefCounter*)target);
-
-        eGroup::findAndDereference(target);
     }
 
 

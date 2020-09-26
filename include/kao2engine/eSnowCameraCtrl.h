@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSnowCameraCtrl : public eFollowCameraCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eSnowCameraCtrl();
             ~eSnowCameraCtrl();
 
+        private:
+
+            void createFromOtherObject(const eSnowCameraCtrl &other);
+
+        public:
+
+            eSnowCameraCtrl(const eSnowCameraCtrl &other);
+            eSnowCameraCtrl& operator = (const eSnowCameraCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSnowCameraCtrl TypeInfo
-    // <kao2.005162D0> (registration)
+    // <kao2.005162A0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SNOWCAMERACTRL_ID = 0xCA3E7A33;

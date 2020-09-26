@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eNaviPoint : public eTransform
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             eNaviPoint();
             ~eNaviPoint();
 
+        private:
+
+            void createFromOtherObject(const eNaviPoint &other);
+
+        public:
+
+            eNaviPoint(const eNaviPoint &other);
+            eNaviPoint& operator = (const eNaviPoint &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eNaviPoint TypeInfo
-    // <kao2.00429CF0> (registration)
+    // <kao2.00429CC0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_NAVIPOINT_ID = 0xFACEFACE;

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eSetCollisionFlags::~eSetCollisionFlags() {}
+    eSetCollisionFlags::~eSetCollisionFlags()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSetCollisionFlags: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSetCollisionFlags::createFromOtherObject(const eSetCollisionFlags &other)
+    {}
+
+    eSetCollisionFlags::eSetCollisionFlags(const eSetCollisionFlags &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSetCollisionFlags& eSetCollisionFlags::operator = (const eSetCollisionFlags &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSetCollisionFlags::cloneFromMe() const
+    {
+        return new eSetCollisionFlags(*this);
+    }
 
 }

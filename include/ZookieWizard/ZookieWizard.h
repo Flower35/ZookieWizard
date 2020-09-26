@@ -100,6 +100,7 @@ namespace ZookieWizard
 #include <ZookieWizard/ZookieWizardMisc.h>
 #include <ZookieWizard/ZookieWizardSpecialModels.h>
 #include <ZookieWizard/ZookieWizardMaterials.h>
+#include <ZookieWizard/ZookieWizardNodes.h>
 
 
 #endif

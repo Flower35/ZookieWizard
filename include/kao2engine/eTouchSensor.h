@@ -15,7 +15,6 @@ namespace ZookieWizard
 
     class eTouchSensor : public eGroup
     {
-
         /*** Properties ***/
 
         protected:
@@ -30,14 +29,26 @@ namespace ZookieWizard
             eTouchSensor();
             ~eTouchSensor();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eTouchSensor &other);
+
+        public:
+
+            eTouchSensor(const eTouchSensor &other);
+            eTouchSensor& operator = (const eTouchSensor &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eTouchSensor TypeInfo
-    // <kao2.004BABF0> (registration)
+    // <kao2.004BABC0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TOUCHSENSOR_ID = 0x0000FF01;

@@ -11,11 +11,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eZone interface
+    // <kao2.005D17E8> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eZone : public eNode
     {
-
         /*** Properties ***/
 
         protected:
@@ -37,10 +37,29 @@ namespace ZookieWizard
             eZone();
             ~eZone();
 
-            void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+        private:
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
+            void createFromOtherObject(const eZone &other);
+
+        public:
+
+            eZone(const eZone &other);
+            eZone& operator = (const eZone &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
+            TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
+
+            /* << eNode >> */
+
+            void destroyNode() override;
+            void findAndDereference(eNode* target) override;
+
+            bool createCollisionEntry() override;
 
             ePoint3 editingGetCenterPoint() const override;
             void editingRebuildCollision() override;
@@ -50,12 +69,9 @@ namespace ZookieWizard
             int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
 
+            /* << eZone >> */
+
             void setBoundaryBox(ePoint3 &new_min, ePoint3 &new_max);
-
-            void createCollisionEntry();
-
-            void destroyNode() override;
-            void findAndDereference(eNode* target) override;
 
             void zoneClearActions(bool enter_or_leave);
             void zoneAddAction(bool enter_or_leave, eActionBase &new_action);
@@ -64,7 +80,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eZone TypeInfo
-    // <kao2.0049DEF0> (registration)
+    // <kao2.0049DEC0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ZONE_ID = 0xFE01;

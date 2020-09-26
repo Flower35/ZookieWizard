@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eNaviCtrl()
     {}
 
-    eNearestNavi::~eNearestNavi() {}
+    eNearestNavi::~eNearestNavi()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNearestNavi: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eNearestNavi::createFromOtherObject(const eNearestNavi &other)
+    {}
+
+    eNearestNavi::eNearestNavi(const eNearestNavi &other)
+    : eNaviCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eNearestNavi& eNearestNavi::operator = (const eNearestNavi &other)
+    {
+        if ((&other) != this)
+        {
+            eNaviCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eNearestNavi::cloneFromMe() const
+    {
+        return new eNearestNavi(*this);
+    }
 
 }

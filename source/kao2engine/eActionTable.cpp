@@ -47,6 +47,70 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eActionTable: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eActionTable::createFromOtherObject(const eActionTable &other)
+    {
+        if (other.actionsCount > 0)
+        {
+            actionsCount = other.actionsCount;
+            actionsMaxLength = actionsCount;
+
+            actions = new eActionBase [actionsMaxLength];
+
+            for (int32_t a = 0; a < actionsCount; a++)
+            {
+                addAction(other.actions[a]);
+            }
+        }
+        else
+        {
+            actionsCount = 0;
+            actionsMaxLength = 0;
+            actions = nullptr;
+        }
+    }
+
+    eActionTable::eActionTable(const eActionTable &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eActionTable& eActionTable::operator = (const eActionTable &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            clearActions();
+
+            if (nullptr != actions)
+            {
+                delete[](actions);
+                actions = nullptr;
+            }
+
+            actionsMaxLength = 0;
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eActionTable::cloneFromMe() const
+    {
+        return new eActionTable(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Action Structure
     // <kao2.004AF0C0> (constructor)
     // <kao2.004AF470> (serialization)
@@ -70,47 +134,46 @@ namespace ZookieWizard
         nodeTarget = nullptr;
     }
 
-    eActionBase& eActionBase::operator = (const eActionBase &otherAction)
+    void eActionBase::createFromOtherObject(const eActionBase &other)
     {
-        message = otherAction.message;
-        unknown_10 = otherAction.unknown_10;
-        unknown_14 = otherAction.unknown_14;
-        unknown_15 = otherAction.unknown_15;
-        actorName = otherAction.actorName;
+        message = other.message;
+        unknown_10 = other.unknown_10;
+        unknown_14 = other.unknown_14;
+        unknown_15 = other.unknown_15;
+        actorName = other.actorName;
 
-        if (nodeTarget != otherAction.nodeTarget)
+        nodeTarget = other.nodeTarget;
+        if (nullptr != nodeTarget)
         {
-            if (nullptr != nodeTarget)
-            {
-                nodeTarget->decRef();
-                nodeTarget = nullptr;
-            }
-
-            nodeTarget = otherAction.nodeTarget;
-
-            if (nullptr != nodeTarget)
-            {
-                nodeTarget->incRef();
-            }
+            nodeTarget->incRef();
         }
 
-        if (cameraPacket != otherAction.cameraPacket)
+        cameraPacket = other.cameraPacket;
+        if (nullptr != cameraPacket)
         {
-            if (nullptr != cameraPacket)
-            {
-                cameraPacket->decRef();
-                cameraPacket = nullptr;
-            }
+            cameraPacket->incRef();
+        }
+    }
 
-            cameraPacket = otherAction.cameraPacket;
+    eActionBase::eActionBase(const eActionBase &other)
+    {
+        createFromOtherObject(other);
+    }
 
-            if (nullptr != cameraPacket)
-            {
-                cameraPacket->incRef();
-            }
+    eActionBase& eActionBase::operator = (const eActionBase &other)
+    {
+        if ((&other) != this)
+        {
+            nodeTarget->decRef();
+
+            cameraPacket->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
         }
 
-        return *this;
+        return (*this);
     }
 
     void eActionBase::serializeAction(Archive &ar)
@@ -142,7 +205,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eActionTable serialization
+    // eActionTable: serialization
     // <kao2.004AF910>
     ////////////////////////////////////////////////////////////////
     void eActionTable::serialize(Archive &ar)
@@ -182,7 +245,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eActionTable: export readable structure
     ////////////////////////////////////////////////////////////////
-    void eActionTable::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
+    void eActionTable::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
     {
         eString target_name;
 

@@ -29,21 +29,7 @@ namespace ZookieWizard
     eCollisionMgr::eCollisionMgr()
     : eObject()
     {
-        /* DEBUG: "eScene" ("eGroup") deconstuctor is not finished. */
-        /* "eALZone" should have `nullptr` link to a scene, when destroying a level. */
-        debug_AlreadyDestroyed = false;
-
-        /*[0x04]*/ seriesA_Count = 0;
-        /*[0x08]*/ seriesA_MaxLength = 0;
-        /*[0x0C]*/ seriesA = nullptr;
-
-        /*[0x10]*/ unknown_10 = 0;
-
-        ArFunctions::generate_AxisList_pointers(&(unknown_14), 8, 3);
-
-        /*[0x2C]*/ seriesB_Count = 0;
-        /*[0x30]*/ seriesB_MaxLength = 0;
-        /*[0x34]*/ seriesB = nullptr;
+        clearNewCollisionMgr();
     }
 
     eCollisionMgr::~eCollisionMgr()
@@ -69,6 +55,146 @@ namespace ZookieWizard
             seriesA = nullptr;
             seriesA_MaxLength = 0;
             seriesA_Count = 0;
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCollisionMgr: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eCollisionMgr::createFromOtherObject(const eCollisionMgr &other)
+    {
+        throw ErrorMessage
+        (
+            "CRITICAL ERROR while cloning the \"eCollisionMgr\" object:\n" \
+            "cloning << collision managers >> without context is not supported!!!"
+        );
+    }
+
+    eCollisionMgr::eCollisionMgr(const eCollisionMgr &other)
+    : eObject(other)
+    {
+        clearNewCollisionMgr();
+
+        /****************/
+
+        createFromOtherObject(other);
+    }
+
+    eCollisionMgr& eCollisionMgr::operator = (const eCollisionMgr &other)
+    {
+        if ((&other) != this)
+        {
+            eObject::operator = (other);
+
+            /****************/
+
+            if (nullptr != seriesB)
+            {
+                delete[](seriesB);
+                seriesB = nullptr;
+            }
+
+            seriesB_Count = 0;
+
+            /****************/
+
+            ArFunctions::destroy_AxisList_pointers(&(unknown_14), 8, 3);
+
+            unknown_14 = nullptr;
+
+            /****************/
+
+            if (nullptr != seriesA)
+            {
+                delete[](seriesA);
+                seriesA = nullptr;
+            }
+
+            seriesA_Count = 0;
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eCollisionMgr::cloneFromMe() const
+    {
+        return new eCollisionMgr(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCollisionMgr: serialization
+    // <kao2.004995F0>
+    ////////////////////////////////////////////////////////////////
+    void eCollisionMgr::serialize(Archive &ar)
+    {
+        int32_t i;
+
+        /* [0x04] Unknown group */
+
+        if (ar.isInReadMode())
+        {
+            if (nullptr != seriesA)
+            {
+                delete[](seriesA);
+                seriesA = nullptr;
+
+                seriesA_Count = 0;
+            }
+
+            ar.readOrWrite(&seriesA_MaxLength, 0x04);
+
+            seriesA = new int32_t [seriesA_MaxLength];
+
+            for (i = 0; i < seriesA_MaxLength; i++)
+            {
+                seriesA_Count = (i+1);
+
+                ar.readOrWrite(&(seriesA[i]), 0x04);
+            }
+        }
+        else
+        {
+            ar.readOrWrite(&seriesA_Count, 0x04);
+
+            for (i = 0; i < seriesA_Count; i++)
+            {
+                ar.readOrWrite(&(seriesA[i]), 0x04);
+            }
+        }
+
+        /* [0x10] unknown ID */
+
+        ar.readOrWrite(&unknown_10, 0x04);
+
+        /* [0x2C] Unknown group */
+
+        if (ar.isInReadMode())
+        {
+            if (nullptr != seriesB)
+            {
+                delete[](seriesB);
+                seriesB = nullptr;
+
+                seriesB_Count = 0;
+            }
+
+            seriesB_MaxLength = unknown_10;
+
+            seriesB = new eALBox* [seriesB_MaxLength];
+
+            for (i = 0; i < seriesB_MaxLength; i++)
+            {
+                seriesB_Count = (i + 1);
+
+                seriesB[i] = nullptr;
+            }
         }
     }
 
@@ -215,77 +341,6 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eCollisionMgr serialization
-    // <kao2.004995F0>
-    ////////////////////////////////////////////////////////////////
-    void eCollisionMgr::serialize(Archive &ar)
-    {
-        int32_t i;
-
-        /* [0x04] Unknown group */
-
-        if (ar.isInReadMode())
-        {
-            if (nullptr != seriesA)
-            {
-                delete[](seriesA);
-                seriesA = nullptr;
-
-                seriesA_Count = 0;
-            }
-
-            ar.readOrWrite(&seriesA_MaxLength, 0x04);
-
-            seriesA = new int32_t [seriesA_MaxLength];
-
-            for (i = 0; i < seriesA_MaxLength; i++)
-            {
-                seriesA_Count = (i+1);
-
-                ar.readOrWrite(&(seriesA[i]), 0x04);
-            }
-        }
-        else
-        {
-            ar.readOrWrite(&seriesA_Count, 0x04);
-
-            for (i = 0; i < seriesA_Count; i++)
-            {
-                ar.readOrWrite(&(seriesA[i]), 0x04);
-            }
-        }
-
-        /* [0x10] unknown ID */
-
-        ar.readOrWrite(&unknown_10, 0x04);
-
-        /* [0x2C] Unknown group */
-
-        if (ar.isInReadMode())
-        {
-            if (nullptr != seriesB)
-            {
-                delete[](seriesB);
-                seriesB = nullptr;
-
-                seriesB_Count = 0;
-            }
-
-            seriesB_MaxLength = unknown_10;
-
-            seriesB = new eALBox* [seriesB_MaxLength];
-
-            for (i = 0; i < seriesB_MaxLength; i++)
-            {
-                seriesB_Count = (i + 1);
-
-                seriesB[i] = nullptr;
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // eCollisionMgr: store some eALBox pointer
     ////////////////////////////////////////////////////////////////
     void eCollisionMgr::save_ALBox(int32_t offset, eALBox* pointer)
@@ -415,6 +470,29 @@ namespace ZookieWizard
         unknown_10 = 0;
 
         insertNewItem_seriesA(0);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCollisionMgr: clear this object
+    ////////////////////////////////////////////////////////////////
+    void eCollisionMgr::clearNewCollisionMgr()
+    {
+        /* DEBUG: "eScene" ("eGroup") deconstuctor is not finished. */
+        /* "eALZone" should have `nullptr` link to a scene, when destroying a level. */
+        debug_AlreadyDestroyed = false;
+
+        /*[0x04]*/ seriesA_Count = 0;
+        /*[0x08]*/ seriesA_MaxLength = 0;
+        /*[0x0C]*/ seriesA = nullptr;
+
+        /*[0x10]*/ unknown_10 = 0;
+
+        ArFunctions::generate_AxisList_pointers(&(unknown_14), 8, 3);
+
+        /*[0x2C]*/ seriesB_Count = 0;
+        /*[0x30]*/ seriesB_MaxLength = 0;
+        /*[0x34]*/ seriesB = nullptr;
     }
 
 }

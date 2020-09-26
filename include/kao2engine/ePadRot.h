@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class ePadRot : public eLookAtCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             ePadRot();
             ~ePadRot();
 
+        private:
+
+            void createFromOtherObject(const ePadRot &other);
+
+        public:
+
+            ePadRot(const ePadRot &other);
+            ePadRot& operator = (const ePadRot &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // ePadRot TypeInfo
-    // <kao2.004DBDA0> (registration)
+    // <kao2.004DBD70> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PADROT_ID = 0x3C1A9105;

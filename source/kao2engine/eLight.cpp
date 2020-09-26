@@ -47,14 +47,65 @@ namespace ZookieWizard
         specular[2] = 0;
         specular[3] = 0;
 
+        /*[0x1C]*/
         flags |= 0x40000000;
+        flags &= (~0x00000400);
     }
 
-    eLight::~eLight() {}
+    eLight::~eLight()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eLight serialization
+    // eLight: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eLight::createFromOtherObject(const eLight &other)
+    {
+        diffuse[0] = other.diffuse[0];
+        diffuse[1] = other.diffuse[1];
+        diffuse[2] = other.diffuse[2];
+        diffuse[3] = other.diffuse[3];
+
+        ambient[0] = other.ambient[0];
+        ambient[1] = other.ambient[1];
+        ambient[2] = other.ambient[2];
+        ambient[3] = other.ambient[3];
+
+        specular[0] = other.specular[0];
+        specular[1] = other.specular[1];
+        specular[2] = other.specular[2];
+        specular[3] = other.specular[3];
+    }
+
+    eLight::eLight(const eLight &other)
+    : eNode(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eLight& eLight::operator = (const eLight &other)
+    {
+        if ((&other) != this)
+        {
+            eNode::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eLight::cloneFromMe() const
+    {
+        return nullptr;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLight: serialization
     // <kao2.0047ECD0>
     ////////////////////////////////////////////////////////////////
     void eLight::serialize(Archive &ar)
@@ -232,20 +283,6 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eLight: set light source parameters
-    // <kao2.0047EDB0>
-    ////////////////////////////////////////////////////////////////
-    void eLight::useBasicLightParams(int32_t light_id) const
-    {
-        GLenum light_enum = GL_LIGHT0 + light_id;
-
-        glLightfv(light_enum, GL_DIFFUSE, diffuse);
-        glLightfv(light_enum, GL_AMBIENT, ambient);
-        glLightfv(light_enum, GL_SPECULAR, specular);
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // eLight: color getters and setters
     ////////////////////////////////////////////////////////////////
 
@@ -292,6 +329,20 @@ namespace ZookieWizard
         specular[1] = values[1];
         specular[2] = values[2];
         specular[3] = 1.0f;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLight: set light source parameters
+    // <kao2.0047EDB0>
+    ////////////////////////////////////////////////////////////////
+    void eLight::useBasicLightParams(int32_t light_id) const
+    {
+        GLenum light_enum = GL_LIGHT0 + light_id;
+
+        glLightfv(light_enum, GL_DIFFUSE, diffuse);
+        glLightfv(light_enum, GL_AMBIENT, ambient);
+        glLightfv(light_enum, GL_SPECULAR, specular);
     }
 
 }

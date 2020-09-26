@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eSplineWalk()
     {}
 
-    eMotorowki::~eMotorowki() {}
+    eMotorowki::~eMotorowki()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMotorowki: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eMotorowki::createFromOtherObject(const eMotorowki &other)
+    {}
+
+    eMotorowki::eMotorowki(const eMotorowki &other)
+    : eSplineWalk(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eMotorowki& eMotorowki::operator = (const eMotorowki &other)
+    {
+        if ((&other) != this)
+        {
+            eSplineWalk::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eMotorowki::cloneFromMe() const
+    {
+        return new eMotorowki(*this);
+    }
 
 }

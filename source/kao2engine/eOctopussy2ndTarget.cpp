@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eSecondCameraTarget()
     {}
 
-    eOctopussy2ndTarget::~eOctopussy2ndTarget() {}
+    eOctopussy2ndTarget::~eOctopussy2ndTarget()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eOctopussy2ndTarget: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eOctopussy2ndTarget::createFromOtherObject(const eOctopussy2ndTarget &other)
+    {}
+
+    eOctopussy2ndTarget::eOctopussy2ndTarget(const eOctopussy2ndTarget &other)
+    : eSecondCameraTarget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eOctopussy2ndTarget& eOctopussy2ndTarget::operator = (const eOctopussy2ndTarget &other)
+    {
+        if ((&other) != this)
+        {
+            eSecondCameraTarget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eOctopussy2ndTarget::cloneFromMe() const
+    {
+        return new eOctopussy2ndTarget(*this);
+    }
 
 }

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eLavaFlakes : public eSnow
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             eLavaFlakes();
             ~eLavaFlakes();
 
+        private:
+
+            void createFromOtherObject(const eLavaFlakes &other);
+
+        public:
+
+            eLavaFlakes(const eLavaFlakes &other);
+            eLavaFlakes& operator = (const eLavaFlakes &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eLavaFlakes TypeInfo
-    // <kao2.00561700> (registration)
+    // <kao2.005616D0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_LAVAFLAKES_ID = 0x0323A7F9;

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eBaseballBieg()
     {}
 
-    eBonusBieg::~eBonusBieg() {}
+    eBonusBieg::~eBonusBieg()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBonusBieg: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eBonusBieg::createFromOtherObject(const eBonusBieg &other)
+    {}
+
+    eBonusBieg::eBonusBieg(const eBonusBieg &other)
+    : eBaseballBieg(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eBonusBieg& eBonusBieg::operator = (const eBonusBieg &other)
+    {
+        if ((&other) != this)
+        {
+            eBaseballBieg::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eBonusBieg::cloneFromMe() const
+    {
+        return new eBonusBieg(*this);
+    }
 
 }

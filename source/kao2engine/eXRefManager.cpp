@@ -37,43 +37,58 @@ namespace ZookieWizard
         /*[0x14]*/ name = "$XRefManager";
     }
 
-    eXRefManager::~eXRefManager() {}
+    eXRefManager::~eXRefManager()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eXRefManager serialization
+    // eXRefManager: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eXRefManager::createFromOtherObject(const eXRefManager &other)
+    {
+        throw ErrorMessage
+        (
+            "CRITICAL ERROR while cloning the \"eXRefManager\" object:\n" \
+            "cloning << XRef managers >> without context is not supported!!!"
+        );
+    }
+
+    eXRefManager::eXRefManager(const eXRefManager &other)
+    : eNode(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eXRefManager& eXRefManager::operator = (const eXRefManager &other)
+    {
+        if ((&other) != this)
+        {
+            eNode::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eXRefManager::cloneFromMe() const
+    {
+        return new eXRefManager(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eXRefManager: serialization
     // <kao2.004AE730>
     ////////////////////////////////////////////////////////////////
     void eXRefManager::serialize(Archive &ar)
     {
-        int32_t i;
-        eXRefTarget* test_xref_taget;
-
         eNode::serialize(ar);
 
         xrefs.serialize(ar, &E_XREFTARGET_TYPEINFO);
-
-        /********************************/
-        /* Saving external models... */
-
-        if (ar.isInExportProxiesMode())
-        {
-            for (i = 0; i < xrefs.getSize(); i++)
-            {
-                test_xref_taget = (eXRefTarget*)xrefs.getIthChild(i);
-
-                if (nullptr != test_xref_taget)
-                {
-                    /* These targets already start with "build/win32" names */
-
-                    test_xref_taget->exportTarget
-                    (
-                        ar.getMediaDir(), ar.getCurrentEngineVersion(),
-                        (AR_MODE_ABSOLUTE_PATH | AR_MODE_XREF_PATH)
-                    );
-                }
-            }
-        }
     }
 
 
@@ -120,6 +135,30 @@ namespace ZookieWizard
                 {
                     test_xref_taget->renderXRefScene(draw_context);
                 }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eXRefManager: exporting Proxies
+    ////////////////////////////////////////////////////////////////
+    void eXRefManager::exportXRef(const eString &media_dir, int32_t engine_version) const
+    {
+        eXRefTarget* test_xref_taget;
+
+        for (int32_t a = 0; a < xrefs.getSize(); a++)
+        {
+            if (nullptr != (test_xref_taget = (eXRefTarget*)xrefs.getIthChild(a)))
+            {
+                /* These targets already start with "build/win32" names */
+
+                test_xref_taget->exportTarget
+                (
+                    media_dir,
+                    engine_version,
+                    AR_MODE_XREF_PATH
+                );
             }
         }
     }

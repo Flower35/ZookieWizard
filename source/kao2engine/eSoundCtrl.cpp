@@ -44,6 +44,70 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eSoundCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSoundCtrl::createFromOtherObject(const eSoundCtrl &other)
+    {
+        unknown_08[0] = other.unknown_08[0];
+        unknown_08[1] = other.unknown_08[1];
+        unknown_08[2] = other.unknown_08[2];
+        unknown_08[3] = other.unknown_08[3];
+
+        keysCount = other.keysCount;
+
+        if (keysCount > 0)
+        {
+            keysMaxLength = keysCount;
+
+            keys = new eSoundKeyBase [keysMaxLength];
+
+            for (int32_t a = 0; a < keysCount; a++)
+            {
+                keys[a] = other.keys[a];
+            }
+        }
+        else
+        {
+            keysMaxLength = 0;
+            keys = nullptr;
+        }
+    }
+
+    eSoundCtrl::eSoundCtrl(const eSoundCtrl &other)
+    : eCtrlBase(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSoundCtrl& eSoundCtrl::operator = (const eSoundCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eCtrlBase::operator = (other);
+
+            /****************/
+
+            if (nullptr != keys)
+            {
+                delete[](keys);
+            }
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSoundCtrl::cloneFromMe() const
+    {
+        return new eSoundCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Sound Key Structure
     // <kao2.0056D300> (counstructor)
     // <kao2.0056D320> (destructor)
@@ -74,7 +138,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eSoundCtrl serialization
+    // eSoundCtrl: serialization
     // <kao2.0056D000>
     ////////////////////////////////////////////////////////////////
     void eSoundCtrl::serialize(Archive &ar)

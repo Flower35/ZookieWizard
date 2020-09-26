@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eSpeaking::~eSpeaking() {}
+    eSpeaking::~eSpeaking()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSpeaking: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSpeaking::createFromOtherObject(const eSpeaking &other)
+    {}
+
+    eSpeaking::eSpeaking(const eSpeaking &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSpeaking& eSpeaking::operator = (const eSpeaking &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSpeaking::cloneFromMe() const
+    {
+        return new eSpeaking(*this);
+    }
 
 }

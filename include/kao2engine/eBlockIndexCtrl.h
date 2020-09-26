@@ -13,6 +13,8 @@ namespace ZookieWizard
     {
         /*** Properties ***/
 
+        public:
+
             /*[0x00]*/ int32_t aID;
             /*[0x04]*/ int32_t unknown_04;
             /*[0x08]*/ float startFrame;
@@ -21,6 +23,8 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
+        public:
+
             BlockIndexBase();
 
             void serializeBlockIndex(Archive &ar);
@@ -28,11 +32,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eBlockIndexCtrl interface
+    // <kao2.005D2500> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eBlockIndexCtrl : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -48,14 +52,26 @@ namespace ZookieWizard
             eBlockIndexCtrl();
             ~eBlockIndexCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eBlockIndexCtrl &other);
+
+        public:
+
+            eBlockIndexCtrl(const eBlockIndexCtrl &other);
+            eBlockIndexCtrl& operator = (const eBlockIndexCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eBlockIndexCtrl TypeInfo
-    // <kao2.004BD510> (registration)
+    // <kao2.004BD4E0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_BLOCKINDEXCTRL_ID = 0x7007;

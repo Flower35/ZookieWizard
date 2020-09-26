@@ -34,12 +34,53 @@ namespace ZookieWizard
         /*[0x28]*/ unknown_28 = nullptr;
     }
 
-    eSplineWalk::~eSplineWalk() 
+    eSplineWalk::~eSplineWalk()
     {
+        unknown_28->decRef();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSplineWalk: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSplineWalk::createFromOtherObject(const eSplineWalk &other)
+    {
+        unknown_28 = other.unknown_28;
+
         if (nullptr != unknown_28)
         {
-            unknown_28->decRef();
+            unknown_28->incRef();
         }
+    }
+
+    eSplineWalk::eSplineWalk(const eSplineWalk &other)
+    : eSplineBase(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSplineWalk& eSplineWalk::operator = (const eSplineWalk &other)
+    {
+        if ((&other) != this)
+        {
+            eSplineBase::operator = (other);
+
+            /****************/
+
+            unknown_28->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSplineWalk::cloneFromMe() const
+    {
+        return new eSplineWalk(*this);
     }
 
 }

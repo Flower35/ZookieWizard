@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    AnimDumper::~AnimDumper() {}
+    AnimDumper::~AnimDumper()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // AnimDumper: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void AnimDumper::createFromOtherObject(const AnimDumper &other)
+    {}
+
+    AnimDumper::AnimDumper(const AnimDumper &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    AnimDumper& AnimDumper::operator = (const AnimDumper &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* AnimDumper::cloneFromMe() const
+    {
+        return new AnimDumper(*this);
+    }
 
 }

@@ -19,13 +19,25 @@ namespace ZookieWizard
             eCameraCtrl();
             ~eCameraCtrl();
 
+        private:
+
+            void createFromOtherObject(const eCameraCtrl &other);
+
+        public:
+
+            eCameraCtrl(const eCameraCtrl &other);
+            eCameraCtrl& operator = (const eCameraCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCameraCtrl TypeInfo
-    // <kao2.004823D0> (registration)
+    // <kao2.004823A0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_CAMERACTRL_ID = 0x00202122;

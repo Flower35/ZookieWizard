@@ -44,6 +44,62 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eBlockIndexCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eBlockIndexCtrl::createFromOtherObject(const eBlockIndexCtrl &other)
+    {
+        throw ErrorMessage
+        (
+            "CRITICAL ERROR while cloning the \"eBlockIndexCtrl\" object:\n" \
+            "cloning << block index controllers >> without context is not supported!!!"
+        );
+    }
+
+    eBlockIndexCtrl::eBlockIndexCtrl(const eBlockIndexCtrl &other)
+    : eRefCounter(other)
+    {
+        blocksCount = 0;
+        blocksMaxLength = 0;
+        blocks = nullptr;
+
+        /****************/
+
+        createFromOtherObject(other);
+    }
+
+    eBlockIndexCtrl& eBlockIndexCtrl::operator = (const eBlockIndexCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            if (nullptr != blocks)
+            {
+                delete[](blocks);
+                blocks = nullptr;
+            }
+
+            blocksCount = 0;
+            blocksMaxLength = 0;
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eBlockIndexCtrl::cloneFromMe() const
+    {
+        return new eBlockIndexCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Block Index Structure
     // <kao2.004BD1E0> (serialization)
     ////////////////////////////////////////////////////////////////
@@ -68,7 +124,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eBlockIndexCtrl serialization
+    // eBlockIndexCtrl: serialization
     // <kao2.004BD350>
     ////////////////////////////////////////////////////////////////
     void eBlockIndexCtrl::serialize(Archive &ar)

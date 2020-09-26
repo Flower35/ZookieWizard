@@ -8,7 +8,7 @@
 
 namespace ZookieWizard
 {
-    MaterialType theMaterialTypes[16] =
+    MaterialType theMaterialTypes[KAO2_MATERIAL_TYPES_COUNT] =
     {
         {0x00000000, "NORMAL"},
         {0x00000001, "ICE"},
@@ -28,12 +28,17 @@ namespace ZookieWizard
         {0x80000000, "DESTROYABLE"}
     };
 
-    const char* theMaterialSound[6] =
+    MaterialSound theMaterialSounds[KAO2_MATERIAL_SOUNDS_COUNT] =
     {
-        "GRASS", "WOOD", "METAL", "STONE", "SNOW", "SAND"
+        {0x0000, "GRASS"},
+        {0x1000, "WOOD"},
+        {0x2000, "METAL"},
+        {0x4000, "STONE"},
+        {0x8000, "SNOW"},
+        {0x0001, "SAND"}
     };
 
-    const char* theMaterialFlags[4] =
+    const char* theMaterialFlags[KAO2_MATERIAL_FLAGS_COUNT] =
     {
         "2-SIDED", "BLEND", "ADDITIVE", "ALPHA_TEST"
     };
@@ -68,7 +73,7 @@ namespace ZookieWizard
 
         /*[0x1C]*/ collisionType = 0;
         /*[0x20]*/ unknown_20 = 0;
-        /*[0x22]*/ unknown_22 = 0;
+        /*[0x22]*/ soundType = 0;
 
         /*[0x14]*/ materialFlags = 0x00;
         /*[0x28]*/ transpLayer = 0;
@@ -91,7 +96,73 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eMaterial serialization
+    // eMaterial: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eMaterial::createFromOtherObject(const eMaterial &other)
+    {
+        textures = other.textures;
+
+        materialFlags = other.materialFlags;
+
+        if (nullptr != other.state)
+        {
+            state = new eMaterialState(*(other.state));
+        }
+        else
+        {
+            state = nullptr;
+        }
+
+        collisionType = other.collisionType;
+
+        unknown_20 = other.unknown_20;
+
+        soundType = other.soundType;
+
+        name = other.name;
+
+        transpLayer = other.transpLayer;
+
+        alphaTestRef = other.alphaTestRef;
+    }
+
+    eMaterial::eMaterial(const eMaterial &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+
+        /****************/
+
+        GUI::materialsManager_InsertMaterial(this);
+    }
+
+    eMaterial& eMaterial::operator = (const eMaterial &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            state->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eMaterial::cloneFromMe() const
+    {
+        return new eMaterial(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterial: serialization
     // <kao2.0047CB10>
     ////////////////////////////////////////////////////////////////
     void eMaterial::serialize(Archive &ar)
@@ -130,7 +201,7 @@ namespace ZookieWizard
         {
             ar.readOrWrite(&collisionType, 0x04);
             ar.readOrWrite(&unknown_20, 0x02);
-            ar.readOrWrite(&unknown_22, 0x02);
+            ar.readOrWrite(&soundType, 0x02);
         }
         else
         {
@@ -146,7 +217,7 @@ namespace ZookieWizard
                 {
                     case 0x01000000:
                     {
-                        unknown_22 = 0x40;
+                        soundType = 0x40;
 
                         test &= 0x00FFFFFF;
                         collisionType = theMaterialTypes[test].id;
@@ -156,7 +227,7 @@ namespace ZookieWizard
 
                     case 0x02000000:
                     {
-                        unknown_22 = 0x10;
+                        soundType = 0x10;
                     }
 
                     default:
@@ -172,7 +243,7 @@ namespace ZookieWizard
                 throw ErrorMessage
                 (
                     "eMaterial::serialize():" \
-                    "ar.version smaller than 108 not supported for saving..."
+                    "ar.version() smaller than 108 not supported for saving..."
                 );
             }
         }
@@ -281,6 +352,15 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eMaterial: get textures count
+    ////////////////////////////////////////////////////////////////
+    int32_t eMaterial::getTexturesCount() const
+    {
+        return textures.getSize();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eMaterial: get i-th texture (used with eTriMesh)
     ////////////////////////////////////////////////////////////////
     eTexture* eMaterial::getIthTexture(int32_t i) const
@@ -299,17 +379,14 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eMaterial: get name
+    // eMaterial: get or set the Material name
     ////////////////////////////////////////////////////////////////
+
     eString eMaterial::getStringRepresentation() const
     {
         return name;
     }
 
-
-    ////////////////////////////////////////////////////////////////
-    // eMaterial: set name
-    ////////////////////////////////////////////////////////////////
     void eMaterial::setName(eString new_name)
     {
         name = new_name;
@@ -349,15 +426,6 @@ namespace ZookieWizard
         }
 
         return false;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eMaterial: get textures count
-    ////////////////////////////////////////////////////////////////
-    int32_t eMaterial::getTexturesCount() const
-    {
-        return textures.getSize();
     }
 
 
@@ -430,12 +498,12 @@ namespace ZookieWizard
 
     uint16_t eMaterial::getSoundType() const
     {
-        return unknown_22;
+        return soundType;
     }
 
     void eMaterial::setSoundType(uint16_t new_type)
     {
-        unknown_22 = new_type;
+        soundType = new_type;
     }
 
 

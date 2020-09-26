@@ -6,7 +6,7 @@
 namespace ZookieWizard
 {
     ////////////////////////////////////////////////////////////////
-    // Sound Key
+    // eSoundCtrl Keyframe
     ////////////////////////////////////////////////////////////////
 
     struct eSoundKeyBase
@@ -25,19 +25,20 @@ namespace ZookieWizard
             void serializeSoundKey(Archive &ar);
     };
 
+
     ////////////////////////////////////////////////////////////////
     // eSoundCtrl interface
+    // <kao2.005D7498> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eSoundCtrl : public eCtrlBase
     {
-
         /*** Properties ***/
 
         protected:
 
             /*[0x08-0x14]*/ float unknown_08[4];
-            
+
             /*[0x18]*/ int32_t keysCount;
             /*[0x1C]*/ int32_t keysMaxLength;
             /*[0x20]*/ eSoundKeyBase* keys;
@@ -49,14 +50,26 @@ namespace ZookieWizard
             eSoundCtrl();
             ~eSoundCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eSoundCtrl &other);
+
+        public:
+
+            eSoundCtrl(const eSoundCtrl &other);
+            eSoundCtrl& operator = (const eSoundCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSoundCtrl TypeInfo
-    // <kao2.0056D660> (registration)
+    // <kao2.0056D630> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SOUNDCTRL_ID = 0x44444555;

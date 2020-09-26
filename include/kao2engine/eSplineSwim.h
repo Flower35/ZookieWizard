@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSplineSwim : public eSplineBase
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eSplineSwim();
             ~eSplineSwim();
 
+        private:
+
+            void createFromOtherObject(const eSplineSwim &other);
+
+        public:
+
+            eSplineSwim(const eSplineSwim &other);
+            eSplineSwim& operator = (const eSplineSwim &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSplineSwim TypeInfo
-    // <kao2.0044C490> (registration)
+    // <kao2.0044C460> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SPLINESWIM_ID = 0x3B93287C;

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eGravitation : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eGravitation();
             ~eGravitation();
 
+        private:
+
+            void createFromOtherObject(const eGravitation &other);
+
+        public:
+
+            eGravitation(const eGravitation &other);
+            eGravitation& operator = (const eGravitation &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eGravitation TypeInfo
-    // <kao2.004415E0> (registration)
+    // <kao2.004415B0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_GRAVITATION_ID = 0x3BD892F0;

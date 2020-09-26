@@ -46,7 +46,7 @@ namespace ZookieWizard
         /*[0x01F8]*/ unknown_01F8 = 0;
         /*[0x01F4]*/ unknown_01F4 = 0;
 
-        /* somee manipulation and multiplication with a global variable */
+        /* some manipulation and multiplication with a global variable */
         /*[0x0204]*/ unknown_0204 = 0;
 
         /*[0x0048]*/ unknown_0048 = (-1.0f);
@@ -55,15 +55,82 @@ namespace ZookieWizard
 
     eParticleEmiter::~eParticleEmiter()
     {
-        if (nullptr != soundEmiter)
-        {
-            soundEmiter->decRef();
-        }
+        soundEmiter->decRef();
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // eParticleEmiter serialization
+    // eParticleEmiter: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eParticleEmiter::createFromOtherObject(const eParticleEmiter &other)
+    {
+        unknown_0048 = other.unknown_0048;
+        unknown_004C = other.unknown_004C;
+        unknown_0050 = other.unknown_0050;
+        unknown_0054 = other.unknown_0054;
+        unknown_0058 = other.unknown_0058;
+        unknown_005C = other.unknown_005C;
+        unknown_0060 = other.unknown_0060;
+
+        unknown_0070 = other.unknown_0070;
+
+        unknown_01DC = other.unknown_01DC;
+        unknown_01E0 = other.unknown_01E0;
+        unknown_01E4 = other.unknown_01E4;
+        unknown_01E8 = other.unknown_01E8;
+
+        unknown_01F1 = other.unknown_01F1;
+        unknown_01F0 = other.unknown_01F0;
+
+        unknown_01F4 = other.unknown_01F4;
+        unknown_01FC = other.unknown_01FC;
+        unknown_0200 = other.unknown_0200;
+        unknown_0204 = other.unknown_0204;
+
+        unknown_0218 = other.unknown_0218;
+
+        soundEmiterFileName = other.soundEmiterFileName;
+
+        soundEmiter = other.soundEmiter;
+        if (nullptr != soundEmiter)
+        {
+            soundEmiter->incRef();
+        }
+    }
+
+    eParticleEmiter::eParticleEmiter(const eParticleEmiter &other)
+    : eGroup(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eParticleEmiter& eParticleEmiter::operator = (const eParticleEmiter &other)
+    {
+        if ((&other) != this)
+        {
+            eGroup::operator = (other);
+
+            /****************/
+
+            soundEmiter->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eParticleEmiter::cloneFromMe() const
+    {
+        return nullptr;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eParticleEmiter: serialization
     // <kao2.00551F30>
     ////////////////////////////////////////////////////////////////
     void eParticleEmiter::serialize(Archive &ar)
@@ -122,7 +189,7 @@ namespace ZookieWizard
             if (ar.isInReadMode())
             {
                 /* [0x0218] unknown */
-                
+
                 unknown_0218 = 0x00;
 
                 /* [0x0210] Sound emiter file name */

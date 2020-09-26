@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eSwitelikKao::~eSwitelikKao() {}
+    eSwitelikKao::~eSwitelikKao()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSwitelikKao: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSwitelikKao::createFromOtherObject(const eSwitelikKao &other)
+    {}
+
+    eSwitelikKao::eSwitelikKao(const eSwitelikKao &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSwitelikKao& eSwitelikKao::operator = (const eSwitelikKao &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSwitelikKao::cloneFromMe() const
+    {
+        return new eSwitelikKao(*this);
+    }
 
 }

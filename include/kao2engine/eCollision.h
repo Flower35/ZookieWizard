@@ -12,7 +12,6 @@ namespace ZookieWizard
 
     class eCollision : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +27,25 @@ namespace ZookieWizard
             eCollision();
             ~eCollision();
 
+        private:
+
+            void createFromOtherObject(const eCollision &other);
+
+        public:
+
+            eCollision(const eCollision &other);
+            eCollision& operator = (const eCollision &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCollision TypeInfo
-    // <kao2.00598140> (registration)
+    // <kao2.00598110> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_COLLISION_ID = 0x0002FCFF;

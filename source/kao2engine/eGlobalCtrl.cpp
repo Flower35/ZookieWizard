@@ -43,11 +43,68 @@ namespace ZookieWizard
         /*[0x0168]*/ unknown_0168 = 0x00;
     }
 
-    eGlobalCtrl::~eGlobalCtrl() {}
+    eGlobalCtrl::~eGlobalCtrl()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eGlobalCtrl serialization
+    // eGlobalCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eGlobalCtrl::createFromOtherObject(const eGlobalCtrl &other)
+    {
+        unknown_0008 = other.unknown_0008;
+
+        unknown_000C = other.unknown_000C;
+        unknown_0054 = other.unknown_0054;
+        unknown_009C = other.unknown_009C;
+        unknown_00E4 = other.unknown_00E4;
+
+        unknown_012C = other.unknown_012C;
+        unknown_0130 = other.unknown_0130;
+        unknown_0134 = other.unknown_0134;
+        unknown_0138 = other.unknown_0138;
+        unknown_013C = other.unknown_013C;
+        unknown_0140 = other.unknown_0140;
+        unknown_0144 = other.unknown_0144;
+        unknown_0148 = other.unknown_0148;
+        unknown_014C = other.unknown_014C;
+        unknown_0150 = other.unknown_0150;
+
+        unknown_0154 = other.unknown_0154;
+        unknown_0158 = other.unknown_0158;
+        unknown_015C = other.unknown_015C;
+        unknown_0160 = other.unknown_0160;
+    }
+
+    eGlobalCtrl::eGlobalCtrl(const eGlobalCtrl &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eGlobalCtrl& eGlobalCtrl::operator = (const eGlobalCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eGlobalCtrl::cloneFromMe() const
+    {
+        return new eGlobalCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGlobalCtrl: serialization
     // <kao2.0055CA40>
     ////////////////////////////////////////////////////////////////
     void eGlobalCtrl::serialize(Archive &ar)

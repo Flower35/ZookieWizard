@@ -238,6 +238,16 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // ArCustomParser: retrieve the default (or changed) group,
+    // to update it in the caller Archive
+    ////////////////////////////////////////////////////////////////
+    eGroup* ArCustomParser::getDefaultParent() const
+    {
+        return defaultParent;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // ArCustomParser: main parsing function
     ////////////////////////////////////////////////////////////////
     int32_t ArCustomParser::beginParsing()
@@ -250,7 +260,7 @@ namespace ZookieWizard
         TypeInfo* dummy_typeinfo;
         eNode* root_node = ArFunctions::getCurrentScene();
         eNode* dummy_node;
-        eGroup* dummy_parent[2];
+        eGroup* dummy_parent;
 
         char dummy_char;
         bool continue_with_props;
@@ -490,11 +500,11 @@ namespace ZookieWizard
                                 }
                             }
 
-                            dummy_parent[0] = dummy_node->getParentNode();
+                            dummy_parent = dummy_node->getParentNode();
 
                             dummy_node->decRef();
 
-                            if (nullptr == dummy_parent[0])
+                            if (nullptr == dummy_parent)
                             {
                                 throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"AddNode\": error while creating new node", "No default parent selected. (parsing from node that is not \"eGroup\" or its child)");
                             }
@@ -712,23 +722,25 @@ namespace ZookieWizard
                             /********************************/
                             /* "RemoveNode": (2) checking parent and dereferencing node */
 
-                            dummy_parent[0] = dummy_node->getParentNode();
+                            dummy_parent = dummy_node->getParentNode();
 
-                            if (nullptr == dummy_parent[0])
+                            if (nullptr == dummy_parent)
                             {
                                 sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"RemoveNode\": node \"%s\" has no parent", lastName.getText());
                                 throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], nullptr);
                             }
 
-                            if (dummy_node->getReferenceCount() >= 2)
+                            test[1] = dummy_parent->getNodesCount();
+
+                            for (test[0] = 0; test[0] < test[1]; test[0]++)
                             {
-                                if (nullptr != (dummy_parent[1] = dummy_parent[0]->getRootNode()))
+                                if (dummy_parent->getIthChild(test[0]) == dummy_node)
                                 {
-                                    dummy_parent[1]->findAndDereference(dummy_node);
+                                    defaultParent = (eGroup*)nodesManager_RemoveChild(dummy_parent, test[0], defaultParent);
+
+                                    test[0] = test[1];
                                 }
                             }
-
-                            dummy_parent[0]->findAndDeleteChild(dummy_node);
 
                             /********************************/
                             /* "RemoveNode": finished */

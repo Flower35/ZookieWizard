@@ -37,11 +37,53 @@ namespace ZookieWizard
         /*[0x80]*/ attenuationQuadratic = 0;
     }
 
-    eOmniLight::~eOmniLight() {}
+    eOmniLight::~eOmniLight()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eOmniLight serialization
+    // eOmniLight: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eOmniLight::createFromOtherObject(const eOmniLight &other)
+    {
+        position = other.position;
+
+        attenuationConstant = other.attenuationConstant;
+
+        attenuationLinear = other.attenuationLinear;
+
+        attenuationQuadratic = other.attenuationQuadratic;
+    }
+
+    eOmniLight::eOmniLight(const eOmniLight &other)
+    : eLight(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eOmniLight& eOmniLight::operator = (const eOmniLight &other)
+    {
+        if ((&other) != this)
+        {
+            eLight::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eOmniLight::cloneFromMe() const
+    {
+        return new eOmniLight(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eOmniLight: serialization
     // <kao2.0047F510>
     ////////////////////////////////////////////////////////////////
     void eOmniLight::serialize(Archive &ar)
@@ -92,40 +134,6 @@ namespace ZookieWizard
             GUI::renderSpecialModel((!use_outline), ZOOKIEWIZARD_SPECIALMODEL_LIGHT);
 
             glColor3f(1.0f, 1.0f, 1.0f);
-
-            glPopMatrix();
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eOmniLight: binding function
-    // [[vptr]+0x74] <kao2.0047F2C0>
-    ////////////////////////////////////////////////////////////////
-    void eOmniLight::bindLight(int32_t light_id) const
-    {
-        GLenum light_enum = GL_LIGHT0 + light_id;
-
-        float dummy_floats[16];
-
-        if (nullptr != previousTransform)
-        {
-            glPushMatrix();
-
-            previousTransform->getXForm(true).getMatrix().transpose(dummy_floats);
-
-            glLoadMatrixf(dummy_floats);
-
-            dummy_floats[0] = position.x;
-            dummy_floats[1] = position.y;
-            dummy_floats[2] = position.z;
-            dummy_floats[3] = 0;
-
-            glLightfv(light_enum, GL_POSITION, dummy_floats);
-
-            glLightf(light_enum, GL_CONSTANT_ATTENUATION, attenuationConstant);
-            glLightf(light_enum, GL_LINEAR_ATTENUATION, attenuationLinear);
-            glLightf(light_enum, GL_QUADRATIC_ATTENUATION, attenuationQuadratic);
 
             glPopMatrix();
         }
@@ -220,6 +228,40 @@ namespace ZookieWizard
         }
 
         return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eOmniLight: binding function
+    // [[vptr]+0x74] <kao2.0047F2C0>
+    ////////////////////////////////////////////////////////////////
+    void eOmniLight::bindLight(int32_t light_id) const
+    {
+        GLenum light_enum = GL_LIGHT0 + light_id;
+
+        float dummy_floats[16];
+
+        if (nullptr != previousTransform)
+        {
+            glPushMatrix();
+
+            previousTransform->getXForm(true).getMatrix().transpose(dummy_floats);
+
+            glLoadMatrixf(dummy_floats);
+
+            dummy_floats[0] = position.x;
+            dummy_floats[1] = position.y;
+            dummy_floats[2] = position.z;
+            dummy_floats[3] = 0;
+
+            glLightfv(light_enum, GL_POSITION, dummy_floats);
+
+            glLightf(light_enum, GL_CONSTANT_ATTENUATION, attenuationConstant);
+            glLightf(light_enum, GL_LINEAR_ATTENUATION, attenuationLinear);
+            glLightf(light_enum, GL_QUADRATIC_ATTENUATION, attenuationQuadratic);
+
+            glPopMatrix();
+        }
     }
 
 

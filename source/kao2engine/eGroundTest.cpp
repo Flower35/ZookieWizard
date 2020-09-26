@@ -31,17 +31,61 @@ namespace ZookieWizard
     eGroundTest::eGroundTest(eString s, float x, float y)
     : eNode()
     {
-        unknown_3C = new eCylinderShape;
+        unknown_3C = new eCylinderShape(x, y);
         unknown_3C->incRef();
 
         name = s;
     }
 
-    eGroundTest::~eGroundTest() {}
+    eGroundTest::~eGroundTest()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eGroundTest serialization
+    // eGroundTest: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eGroundTest::createFromOtherObject(const eGroundTest &other)
+    {
+        unknown_3C = other.unknown_3C;
+        if (nullptr != unknown_3C)
+        {
+            unknown_3C->incRef();
+        }
+    }
+
+    eGroundTest::eGroundTest(const eGroundTest &other)
+    : eNode(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eGroundTest& eGroundTest::operator = (const eGroundTest &other)
+    {
+        if ((&other) != this)
+        {
+            eNode::operator = (other);
+
+            /****************/
+
+            unknown_3C->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eGroundTest::cloneFromMe() const
+    {
+        return new eGroundTest(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroundTest: serialization
     // <kao2.004CE700>
     ////////////////////////////////////////////////////////////////
     void eGroundTest::serialize(Archive &ar)

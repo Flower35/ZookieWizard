@@ -8,6 +8,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Log interface
+    // <kao2.005D8418> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class Log : public Gadget
@@ -19,9 +20,25 @@ namespace ZookieWizard
             Log();
             ~Log();
 
+        private:
+
+            void createFromOtherObject(const Log &other);
+
+        public:
+
+            Log(const Log &other);
+            Log& operator = (const Log &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
 
+            /* << Gadget >> */
+
             eString getDefaultGadgetName() const override;
+
+            /* << Log >> */
 
             void print(eString what) const;
             void print(eObject* what) const;
@@ -30,7 +47,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Log TypeInfo
-    // <kao2.0059B970> (registration)
+    // <kao2.0059B940> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_LOG_ID = 0x00020005;

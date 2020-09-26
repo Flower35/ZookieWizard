@@ -13,10 +13,14 @@ namespace ZookieWizard
     {
         /*** Properties ***/
 
+        public:
+
             /*[0x00]*/ float unknown_00;
             /*[0x04-0x0C]*/ ePoint3 unknown_04;
 
         /*** Methods ***/
+
+        public:
 
             void serialize(Archive &ar);
     };
@@ -24,6 +28,8 @@ namespace ZookieWizard
     struct e3fCtrlBaseB
     {
         /*** Properties ***/
+
+        public:
 
             /*[0x00]*/ float unknown_00;
             /*[0x04]*/ float unknown_04;
@@ -35,18 +41,20 @@ namespace ZookieWizard
             /*[0x1C]*/ float unknown_1C;
 
         /*** Methods ***/
-            
+
+        public:
+
             void serialize(Archive &ar);
     };
 
 
     ////////////////////////////////////////////////////////////////
     // e3fCtrl interface
+    // <kao2.005D6D08> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class e3fCtrl : public eObject
     {
-
         /*** Properties ***/
 
         protected:
@@ -72,14 +80,26 @@ namespace ZookieWizard
             e3fCtrl();
             ~e3fCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const e3fCtrl &other);
+
+        public:
+
+            e3fCtrl(const e3fCtrl &other);
+            e3fCtrl& operator = (const e3fCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // e3fCtrl TypeInfo
-    // <kao2.00559B00> (registration)
+    // <kao2.00559AD0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_3FCTRL_ID = 0xFFEAAA02;

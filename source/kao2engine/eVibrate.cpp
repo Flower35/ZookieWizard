@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eVibrate::~eVibrate() {}
+    eVibrate::~eVibrate()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eVibrate: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eVibrate::createFromOtherObject(const eVibrate &other)
+    {}
+
+    eVibrate::eVibrate(const eVibrate &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eVibrate& eVibrate::operator = (const eVibrate &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eVibrate::cloneFromMe() const
+    {
+        return new eVibrate(*this);
+    }
 
 }

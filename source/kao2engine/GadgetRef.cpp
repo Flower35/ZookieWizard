@@ -32,11 +32,47 @@ namespace ZookieWizard
         /*[0x08]*/ unknown_id = new_id;
     }
 
-    GadgetRef::~GadgetRef() {}
+    GadgetRef::~GadgetRef()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // GadgetRef serialization
+    // GadgetRef: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void GadgetRef::createFromOtherObject(const GadgetRef &other)
+    {
+        unknown_id = other.unknown_id;
+    }
+
+    GadgetRef::GadgetRef(const GadgetRef &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    GadgetRef& GadgetRef::operator = (const GadgetRef &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* GadgetRef::cloneFromMe() const
+    {
+        return new GadgetRef(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // GadgetRef: serialization
     // <kao2.00627230>
     ////////////////////////////////////////////////////////////////
     void GadgetRef::serialize(Archive &ar)

@@ -36,15 +36,56 @@ namespace ZookieWizard
 
     eTeleportCtrl::~eTeleportCtrl()
     {
-        if (nullptr != unknown_10)
-        {
-            unknown_10->decRef();
-        }
+        unknown_10->decRef();
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // eTeleportCtrl serialization
+    // eTeleportCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eTeleportCtrl::createFromOtherObject(const eTeleportCtrl &other)
+    {
+        unknown_10 = other.unknown_10;
+
+        if (nullptr != unknown_10)
+        {
+            unknown_10->incRef();
+        }
+    }
+
+    eTeleportCtrl::eTeleportCtrl(const eTeleportCtrl &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eTeleportCtrl& eTeleportCtrl::operator = (const eTeleportCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            unknown_10->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eTeleportCtrl::cloneFromMe() const
+    {
+        return new eTeleportCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTeleportCtrl: serialization
     // <kao2.00430FD0>
     ////////////////////////////////////////////////////////////////
     void eTeleportCtrl::serialize(Archive &ar)

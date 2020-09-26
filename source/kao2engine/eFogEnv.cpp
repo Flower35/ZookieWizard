@@ -41,11 +41,54 @@ namespace ZookieWizard
         /*[0x1C]*/ fogMax = (-1.0f);
     }
 
-    eFogEnv::~eFogEnv() {}
+    eFogEnv::~eFogEnv()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eFogEnv serialization
+    // eFogEnv: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eFogEnv::createFromOtherObject(const eFogEnv &other)
+    {
+        color[0] = other.color[0];
+        color[1] = other.color[1];
+        color[2] = other.color[2];
+        color[3] = other.color[3];
+
+        fogStart = other.fogStart;
+        fogEnd = other.fogEnd;
+        fogMax = other.fogMax;
+    }
+
+    eFogEnv::eFogEnv(const eFogEnv &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eFogEnv& eFogEnv::operator = (const eFogEnv &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eFogEnv::cloneFromMe() const
+    {
+        return new eFogEnv(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eFogEnv: serialization
     // <kao2.0047E6F0>
     ////////////////////////////////////////////////////////////////
     void eFogEnv::serialize(Archive &ar)

@@ -31,8 +31,6 @@ namespace ZookieWizard
     eZone::eZone()
     : eNode()
     {
-        eALZoneSensor* test_sensor;
-
         /*[0x64] empty group */
         /*[0x68] empty group */
         /*[0x6C] empty group */
@@ -47,11 +45,7 @@ namespace ZookieWizard
             1.0f, 1.0f, 1.0f
         };
 
-        test_sensor = new eALZoneSensor(this, boxBound);
-
-        /* [0x18] replace "eALZoneSensor" */
-
-        setAxisListBox(test_sensor);
+        new eALZoneSensor(this, boxBound);
     }
 
     eZone::~eZone()
@@ -59,7 +53,46 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eZone serialization
+    // eZone: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eZone::createFromOtherObject(const eZone &other)
+    {
+        enterActions = other.enterActions;
+        leaveActions = other.leaveActions;
+
+        boxBoundMin = other.boxBoundMin;
+        boxBoundMax = other.boxBoundMax;
+    }
+
+    eZone::eZone(const eZone &other)
+    : eNode(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eZone& eZone::operator = (const eZone &other)
+    {
+        if ((&other) != this)
+        {
+            eNode::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eZone::cloneFromMe() const
+    {
+        return nullptr;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eZone: serialization
     // <kao2.0049DD20>
     ////////////////////////////////////////////////////////////////
     void eZone::serialize(Archive &ar)
@@ -98,12 +131,12 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eZone: export readable structure
     ////////////////////////////////////////////////////////////////
-    void eZone::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
+    void eZone::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
     {
         char bufor[64];
-        /* "eNode" parent class */
 
-        eNode::writeStructureToTextFile(file, indentation);
+        /* "eNode" parent class */
+        eNode::writeStructureToTextFile(file, indentation, true);
 
         /* "eZone" additional info */
 
@@ -123,13 +156,54 @@ namespace ZookieWizard
         file << " - enter actions:";
         ArFunctions::writeNewLine(file, 0);
 
-        enterActions.writeStructureToTextFile(file, indentation);
+        enterActions.writeStructureToTextFile(file, indentation, true);
 
         ArFunctions::writeIndentation(file, indentation);
         file << " - leave actions:";
         ArFunctions::writeNewLine(file, 0);
 
-        leaveActions.writeStructureToTextFile(file, indentation);
+        leaveActions.writeStructureToTextFile(file, indentation, true);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eZone: clear actions (zone could reference its own group)
+    ////////////////////////////////////////////////////////////////
+    void eZone::destroyNode()
+    {
+        enterActions.clearActions();
+
+        leaveActions.clearActions();
+
+        eNode::destroyNode();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eZone: find reference to some node when deleting it
+    ////////////////////////////////////////////////////////////////
+    void eZone::findAndDereference(eNode* target)
+    {
+        enterActions.findAndDeleteActionsWithNode(target);
+
+        leaveActions.findAndDeleteActionsWithNode(target);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eZone: create collision entry
+    ////////////////////////////////////////////////////////////////
+    bool eZone::createCollisionEntry()
+    {
+        float boundaries[6] =
+        {
+            boxBoundMin.x, boxBoundMin.y, boxBoundMin.z,
+            boxBoundMax.x, boxBoundMax.y, boxBoundMax.z
+        };
+
+        new eALZoneSensor(this, boundaries);
+
+        return true;
     }
 
 
@@ -175,6 +249,7 @@ namespace ZookieWizard
 
         eNode::editingNewNodeSetup();
     }
+
 
     ////////////////////////////////////////////////////////////////
     // eZone: custom TXT parser methods
@@ -413,47 +488,6 @@ namespace ZookieWizard
         boxBoundMax = new_max;
 
         createCollisionEntry();
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eZone: create collision entry
-    ////////////////////////////////////////////////////////////////
-    void eZone::createCollisionEntry()
-    {
-        eALZoneSensor* new_sensor = nullptr;
-
-        float boundaries[6] =
-        {
-            boxBoundMin.x, boxBoundMin.y, boxBoundMin.z,
-            boxBoundMax.x, boxBoundMax.y, boxBoundMax.z
-        };
-
-        new_sensor = new eALZoneSensor(this, boundaries);
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eZone: clear actions (zone could reference its own group)
-    ////////////////////////////////////////////////////////////////
-    void eZone::destroyNode()
-    {
-        enterActions.clearActions();
-
-        leaveActions.clearActions();
-
-        eNode::destroyNode();
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eZone: find reference to some node when deleting it
-    ////////////////////////////////////////////////////////////////
-    void eZone::findAndDereference(eNode* target)
-    {
-        enterActions.findAndDeleteActionsWithNode(target);
-
-        leaveActions.findAndDeleteActionsWithNode(target);
     }
 
 

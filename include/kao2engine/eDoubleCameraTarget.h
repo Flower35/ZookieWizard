@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eDoubleCameraTarget : public eCameraTarget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eDoubleCameraTarget();
             ~eDoubleCameraTarget();
 
+        private:
+
+            void createFromOtherObject(const eDoubleCameraTarget &other);
+
+        public:
+
+            eDoubleCameraTarget(const eDoubleCameraTarget &other);
+            eDoubleCameraTarget& operator = (const eDoubleCameraTarget &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eDoubleCameraTarget TypeInfo
-    // <kao2.00516720> (registration)
+    // <kao2.005166F0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_DOUBLECAMERATARGET_ID = 0xCA3E7A12;

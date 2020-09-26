@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eCtrlBase interface
+    // <kao2.005D1A60> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eCtrlBase : public eRefCounter
     {
-
         /*** Methods ***/
 
         public:
@@ -20,13 +20,25 @@ namespace ZookieWizard
             eCtrlBase();
             ~eCtrlBase();
 
+        private:
+
+            void createFromOtherObject(const eCtrlBase &other);
+
+        public:
+
+            eCtrlBase(const eCtrlBase &other);
+            eCtrlBase& operator = (const eCtrlBase &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCtrlBase TypeInfo
-    // <kao2.004A0760> (registration)
+    // <kao2.004A0730> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_CTRLBASE_ID = 0x9001;

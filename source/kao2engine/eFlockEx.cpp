@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eFlock()
     {}
 
-    eFlockEx::~eFlockEx() {}
+    eFlockEx::~eFlockEx()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eFlockEx: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eFlockEx::createFromOtherObject(const eFlockEx &other)
+    {}
+
+    eFlockEx::eFlockEx(const eFlockEx &other)
+    : eFlock(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eFlockEx& eFlockEx::operator = (const eFlockEx &other)
+    {
+        if ((&other) != this)
+        {
+            eFlock::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eFlockEx::cloneFromMe() const
+    {
+        return new eFlockEx(*this);
+    }
 
 }

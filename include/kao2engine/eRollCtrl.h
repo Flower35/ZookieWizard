@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eRollCtrl : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eRollCtrl();
             ~eRollCtrl();
 
+        private:
+
+            void createFromOtherObject(const eRollCtrl &other);
+
+        public:
+
+            eRollCtrl(const eRollCtrl &other);
+            eRollCtrl& operator = (const eRollCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eRollCtrl TypeInfo
-    // <kao2.0044B8C0> (registration)
+    // <kao2.0044B890> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ROLLCTRL_ID = 0xF001A031;

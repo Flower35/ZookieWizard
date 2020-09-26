@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eCinemaMode interface
+    // <kao2.005CF1A8> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eCinemaMode : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +28,25 @@ namespace ZookieWizard
             eCinemaMode();
             ~eCinemaMode();
 
+        private:
+
+            void createFromOtherObject(const eCinemaMode &other);
+
+        public:
+
+            eCinemaMode(const eCinemaMode &other);
+            eCinemaMode& operator = (const eCinemaMode &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCinemaMode TypeInfo
-    // <kao2.0043BD90> (registration)
+    // <kao2.0043BD60> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_CINEMAMODE_ID = 0x394321F4;

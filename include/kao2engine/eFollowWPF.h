@@ -19,7 +19,7 @@ namespace ZookieWizard
         protected:
 
             /*[0x50]*/ eObject* unknown_50;
-            
+
             /*[0x54]*/ float unknown_54;
             /*[0x58]*/ float unknown_58;
             /*[0x5C]*/ float unknown_5C;
@@ -36,14 +36,26 @@ namespace ZookieWizard
             eFollowWPF();
             ~eFollowWPF();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eFollowWPF &other);
+
+        public:
+
+            eFollowWPF(const eFollowWPF &other);
+            eFollowWPF& operator = (const eFollowWPF &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFollowWPF TypeInfo
-    // <kao2.004301A0> (registration)
+    // <kao2.00430170> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FOLLOWWPF_ID = 0xF0C1A029;

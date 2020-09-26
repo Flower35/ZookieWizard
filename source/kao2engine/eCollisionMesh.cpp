@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eCollision()
     {}
 
-    eCollisionMesh::~eCollisionMesh() {}
+    eCollisionMesh::~eCollisionMesh()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCollisionMesh: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eCollisionMesh::createFromOtherObject(const eCollisionMesh &other)
+    {}
+
+    eCollisionMesh::eCollisionMesh(const eCollisionMesh &other)
+    : eCollision(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eCollisionMesh& eCollisionMesh::operator = (const eCollisionMesh &other)
+    {
+        if ((&other) != this)
+        {
+            eCollision::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eCollisionMesh::cloneFromMe() const
+    {
+        return new eCollisionMesh(*this);
+    }
 
 }

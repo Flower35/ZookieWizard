@@ -35,7 +35,41 @@ namespace ZookieWizard
         /*[0x48]*/ diffuse[3] = 0;
     }
 
-    eAmbientLight::~eAmbientLight() {}
+    eAmbientLight::~eAmbientLight()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eAmbientLight: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eAmbientLight::createFromOtherObject(const eAmbientLight &other)
+    {}
+
+    eAmbientLight::eAmbientLight(const eAmbientLight &other)
+    : eLight(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eAmbientLight& eAmbientLight::operator = (const eAmbientLight &other)
+    {
+        if ((&other) != this)
+        {
+            eLight::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eAmbientLight::cloneFromMe() const
+    {
+        return new eAmbientLight(*this);
+    }
 
 
     ////////////////////////////////////////////////////////////////

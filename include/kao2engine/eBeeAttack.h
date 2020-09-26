@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eBeeAttack : public ePathCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -35,14 +34,26 @@ namespace ZookieWizard
             eBeeAttack();
             ~eBeeAttack();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eBeeAttack &other);
+
+        public:
+
+            eBeeAttack(const eBeeAttack &other);
+            eBeeAttack& operator = (const eBeeAttack &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eBeeAttack TypeInfo
-    // <kao2.0042ED80> (registration)
+    // <kao2.0042ED50> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_BEEATTACK_ID = 0xF0A2A029;

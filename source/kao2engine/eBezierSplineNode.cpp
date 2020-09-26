@@ -33,6 +33,8 @@ namespace ZookieWizard
     : eNode()
     {
         spline = nullptr;
+
+        /*[0x1C]*/ flags |= 0x40000000;
     }
 
     eBezierSplineNode::~eBezierSplineNode()
@@ -42,30 +44,87 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eBezierSplineNode serialization
+    // eBezierSplineNode: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eBezierSplineNode::createFromOtherObject(const eBezierSplineNode &other)
+    {
+        if (nullptr != other.spline)
+        {
+            spline = new eSpline3D(*(other.spline));
+            spline->incRef();
+        }
+        else
+        {
+            spline = nullptr;
+        }
+    }
+
+    eBezierSplineNode::eBezierSplineNode(const eBezierSplineNode &other)
+    : eNode(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eBezierSplineNode& eBezierSplineNode::operator = (const eBezierSplineNode &other)
+    {
+        if ((&other) != this)
+        {
+            eNode::operator = (other);
+
+            /****************/
+
+            spline->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eBezierSplineNode::cloneFromMe() const
+    {
+        return new eBezierSplineNode(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBezierSplineNode: serialization
     // <kao2.004A86C0>
     ////////////////////////////////////////////////////////////////
     void eBezierSplineNode::serialize(Archive &ar)
     {
+        int32_t a, b;
+        eSpline3D* dummy_spline;
+
+        /********************************/
+
         eNode::serialize(ar);
 
-        int32_t a = (nullptr != spline) ? 0x01 : 0x00;
-        ar.readOrWrite(&a, 0x04);
+        /********************************/
 
-        if (ar.isInReadMode() && (a > 1))
+        b = (nullptr != spline) ? 0x01 : 0x00;
+        ar.readOrWrite(&b, 0x04);
+
+        for (a = 0; a < b; a++)
         {
-            throw ErrorMessage
-            (
-                "eBezierSplineNode::serialize():\n" \
-                "Expected one \"eSpline3D\" object!"
-            );
+            if (0 == a)
+            {
+                ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&spline, &E_SPLINE3D_TYPEINFO);
+            }
+            else
+            {
+                ar.serialize((eObject**)&dummy_spline, &E_SPLINE3D_TYPEINFO);
 
-            return;
-        }
+                if ((nullptr != spline) && (nullptr != dummy_spline))
+                {
+                    spline->appendVerticesFromSpline(*dummy_spline);
 
-        if (1 == a)
-        {
-            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&spline, &E_SPLINE3D_TYPEINFO);
+                    delete (dummy_spline);
+                }
+            }
         }
     }
 

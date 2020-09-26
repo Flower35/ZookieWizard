@@ -498,4 +498,342 @@ namespace ZookieWizard
         }
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // ePhyTriMesh: COLLADA exporting
+    ////////////////////////////////////////////////////////////////
+    void ePhyTriMesh::writeNodeToXmlFile(ColladaExporter &exporter) const
+    {
+        int32_t i, j, k;
+        int32_t armature_id;
+        int32_t total_weights;
+        char bufor[64];
+
+        eMatrix4x4 parent_matrix;
+        eTransform* test_transform;
+
+        int32_t v_length = vertices->getLength();
+        ePhyVertex* v_data = vertices->getData();
+
+        if (exporter.objectRefAlreadyExists(COLLADA_EXPORTER_OBJ_ARMATURE, this))
+        {
+            /* Armature was already exported */
+            return;
+        }
+        exporter.openTag("controller");
+
+        armature_id = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_ARMATURE, this, true);
+        sprintf_s(bufor, 64, "Armature%d", armature_id);
+        exporter.insertTagAttrib("id", bufor);
+
+        exporter.openTag("skin");
+
+        i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_GEOMETRY, geo, false);
+        sprintf_s(bufor, 64, "#TriMesh%d", i);
+        exporter.insertTagAttrib("source", bufor);
+
+        /********************************/
+        /* Info about position and orientation of the base mesh before binding */
+
+        if (nullptr != tri)
+        {
+            test_transform = tri->getPreviousTransform();
+
+            if (nullptr != test_transform)
+            {
+                parent_matrix = test_transform->getXForm(true).getMatrix();
+
+                exporter.openTag("bind_shape_matrix");
+
+                for (i = 0; i < 4; i++)
+                {
+                    sprintf_s
+                    (
+                        bufor, 64, "%f %f %f %f",
+                        parent_matrix.m[i][0], parent_matrix.m[i][1],
+                        parent_matrix.m[i][2], parent_matrix.m[i][3]
+                    );
+
+                    exporter.writeInsideTag(bufor);
+                }
+
+                exporter.closeTag(); // "bind_shape_matrix"
+            }
+        }
+
+        /********************************/
+        /* List of joints */
+
+        exporter.openTag("source");
+
+        sprintf_s(bufor, 64, "Armature%d-joints", armature_id);
+        exporter.insertTagAttrib("id", bufor);
+
+        exporter.openTag("Name_array");
+
+        sprintf_s(bufor, 64, "Armature%d-joints-array", armature_id);
+        exporter.insertTagAttrib("id", bufor);
+        sprintf_s(bufor, 64, "%d", bonesCount);
+        exporter.insertTagAttrib("count", bufor);
+
+        for (i = 0; i < bonesCount; i++)
+        {
+            /* Upon instantiation of a skin controller, the <skeleton> elements define where to start the SID lookup */
+            j = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_NODE, bones[i].xform, true);
+            sprintf_s(bufor, 64, "Node%d", j);
+
+            exporter.writeInsideTag(bufor);
+        }
+
+        exporter.closeTag(); // "Name_array"
+
+        exporter.openTag("technique_common");
+        exporter.openTag("accessor");
+
+        sprintf_s(bufor, 64, "#Armature%d-joints-array", armature_id);
+        exporter.insertTagAttrib("source", bufor);
+        sprintf_s(bufor, 64, "%d", bonesCount);
+        exporter.insertTagAttrib("count", bufor);
+        exporter.insertTagAttrib("stride", "1");
+
+        exporter.openTag("param");
+        exporter.insertTagAttrib("name", "JOINT");
+        exporter.insertTagAttrib("type", "name");
+
+        exporter.closeTag(); // "param"
+        exporter.closeTag(); // "accessor"
+        exporter.closeTag(); // "technique_common"
+        exporter.closeTag(); // "source"
+
+        /********************************/
+        /* List of inverse bind matrices */
+
+        exporter.openTag("source");
+
+        sprintf_s(bufor, 64, "Armature%d-bind_poses", armature_id);
+        exporter.insertTagAttrib("id", bufor);
+
+        exporter.openTag("float_array");
+
+        sprintf_s(bufor, 64, "Armature%d-bind_poses-array", armature_id);
+        exporter.insertTagAttrib("id", bufor);
+        sprintf_s(bufor, 64, "%d", (16 * bonesCount));
+        exporter.insertTagAttrib("count", bufor);
+
+        for (i = 0; i < bonesCount; i++)
+        {
+            for (j = 0; j < 4; j++)
+            {
+                sprintf_s
+                (
+                    bufor, 64, "%f %f %f %f",
+                    bones[i].matrix.m[j][0], bones[i].matrix.m[j][1],
+                    bones[i].matrix.m[j][2], bones[i].matrix.m[j][3]
+                );
+
+                exporter.writeInsideTag(bufor);
+            }
+        }
+
+        exporter.closeTag(); // "float_array"
+
+        exporter.openTag("technique_common");
+        exporter.openTag("accessor");
+
+        sprintf_s(bufor, 64, "#Armature%d-bind_poses-array", armature_id);
+        exporter.insertTagAttrib("source", bufor);
+        sprintf_s(bufor, 64, "%d", bonesCount);
+        exporter.insertTagAttrib("count", bufor);
+        exporter.insertTagAttrib("stride", "16");
+
+        exporter.openTag("param");
+        exporter.insertTagAttrib("name", "TRANSFORM");
+        exporter.insertTagAttrib("type", "float4x4");
+
+        exporter.closeTag(); // "param"
+        exporter.closeTag(); // "accessor"
+        exporter.closeTag(); // "technique_common"
+        exporter.closeTag(); // "source"
+
+        /********************************/
+        /* List of weights */
+
+        total_weights = 0;
+
+        for (i = 0; i < v_length; i++)
+        {
+            for (j = 0; j < 3; j++)
+            {
+                if (0xFF != v_data[i].index[j])
+                {
+                    total_weights++;
+                }
+                else
+                {
+                    j = 3; // explicit break
+                }
+            }
+        }
+
+        exporter.openTag("source");
+
+        sprintf_s(bufor, 64, "Armature%d-weights", armature_id);
+        exporter.insertTagAttrib("id", bufor);
+
+        exporter.openTag("float_array");
+
+        sprintf_s(bufor, 64, "Armature%d-weights-array", armature_id);
+        exporter.insertTagAttrib("id", bufor);
+        sprintf_s(bufor, 64, "%d", total_weights);
+        exporter.insertTagAttrib("count", bufor);
+
+        for (i = 0; i < v_length; i++)
+        {
+            for (j = 0; j < 3; j++)
+            {
+                if (0xFF != v_data[i].index[j])
+                {
+                    sprintf_s(bufor, 64, "%f", v_data[i].weight[j]);
+
+                    exporter.writeInsideTag(bufor);
+                }
+                else
+                {
+                    j = 3; // explicit break
+                }
+            }
+        }
+
+        exporter.closeTag(); // "float_array"
+
+        exporter.openTag("technique_common");
+        exporter.openTag("accessor");
+
+        sprintf_s(bufor, 64, "#Armature%d-weights-array", armature_id);
+        exporter.insertTagAttrib("source", bufor);
+        sprintf_s(bufor, 64, "%d", total_weights);
+        exporter.insertTagAttrib("count", bufor);
+        exporter.insertTagAttrib("stride", "1");
+
+        exporter.openTag("param");
+        exporter.insertTagAttrib("name", "WEIGHT");
+        exporter.insertTagAttrib("type", "float");
+
+        exporter.closeTag(); // "param"
+        exporter.closeTag(); // "accessor"
+        exporter.closeTag(); // "technique_common"
+        exporter.closeTag(); // "source"
+
+        /********************************/
+        /* Association between joints and attribute data */
+
+        exporter.openTag("joints");
+
+        exporter.openTag("input");
+        exporter.insertTagAttrib("semantic", "JOINT");
+
+        sprintf_s(bufor, 64, "#Armature%d-joints", armature_id);
+        exporter.insertTagAttrib("source", bufor);
+
+        exporter.closeTag(); // "input"
+
+        exporter.openTag("input");
+        exporter.insertTagAttrib("semantic", "INV_BIND_MATRIX");
+
+        sprintf_s(bufor, 64, "#Armature%d-bind_poses", armature_id);
+        exporter.insertTagAttrib("source", bufor);
+
+        exporter.closeTag(); // "input"
+
+        exporter.closeTag(); // "joints"
+
+        /********************************/
+        /* Association between joints and attribute data */
+
+        exporter.openTag("vertex_weights");
+
+        sprintf_s(bufor, 64, "%d", v_length);
+        exporter.insertTagAttrib("count", bufor);
+
+        exporter.openTag("input");
+        exporter.insertTagAttrib("semantic", "JOINT");
+
+        sprintf_s(bufor, 64, "#Armature%d-joints", armature_id);
+        exporter.insertTagAttrib("source", bufor);
+        exporter.insertTagAttrib("offset", "0");
+
+        exporter.closeTag(); // "input"
+
+        exporter.openTag("input");
+        exporter.insertTagAttrib("semantic", "WEIGHT");
+
+        sprintf_s(bufor, 64, "#Armature%d-weights", armature_id);
+        exporter.insertTagAttrib("source", bufor);
+        exporter.insertTagAttrib("offset", "1");
+
+        exporter.closeTag(); // "input"
+
+        exporter.openTag("vcount");
+
+        for (i = 0; i < v_length; i++)
+        {
+            k = 0;
+
+            for (j = 0; j < 3; j++)
+            {
+                if (0xFF != v_data[i].index[j])
+                {
+                    k++;
+                }
+                else
+                {
+                    j = 3; // explicit break
+                }
+            }
+
+            sprintf_s(bufor, 64, "%d", k);
+
+            exporter.writeInsideTag(bufor);
+        }
+
+        exporter.closeTag(); // "vcount"
+
+        exporter.openTag("v");
+
+        k = 0;
+
+        for (i = 0; i < v_length; i++)
+        {
+            for (j = 0; j < 3; j++)
+            {
+                if (0xFF != v_data[i].index[j])
+                {
+                    sprintf_s
+                    (
+                        bufor, 64, "%d %d",
+                        v_data[i].index[j], k
+                    );
+
+                    k++;
+
+                    exporter.writeInsideTag(bufor);
+                }
+                else
+                {
+                    j = 3; // explicit break
+                }
+            }
+        }
+
+        exporter.closeTag(); // "v"
+
+        exporter.closeTag(); // "vertex_weights"
+
+        /********************************/
+        /* Close skinning elements */
+
+        exporter.closeTag(); // "skin"
+        exporter.closeTag(); // "controller"
+    }
+
 }

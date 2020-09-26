@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSetCollisionFlags : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,13 +26,25 @@ namespace ZookieWizard
             eSetCollisionFlags();
             ~eSetCollisionFlags();
 
+        private:
+
+            void createFromOtherObject(const eSetCollisionFlags &other);
+
+        public:
+
+            eSetCollisionFlags(const eSetCollisionFlags &other);
+            eSetCollisionFlags& operator = (const eSetCollisionFlags &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSetCollisionFlags TypeInfo
-    // <kao2.0059A2D0> (registration)
+    // <kao2.0059A2A0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SETCOLLISIONFLAGS_ID = 0x0002FCC2;

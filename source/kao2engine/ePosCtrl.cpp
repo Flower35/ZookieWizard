@@ -30,11 +30,49 @@ namespace ZookieWizard
     : eRefCounter()
     {}
 
-    ePosCtrl::~ePosCtrl() {}
+    ePosCtrl::~ePosCtrl()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // ePosCtrl serialization
+    // ePosCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePosCtrl::createFromOtherObject(const ePosCtrl &other)
+    {
+        unknown_08 = other.unknown_08;
+        unknown_50 = other.unknown_50;
+        unknown_98 = other.unknown_98;
+    }
+
+    ePosCtrl::ePosCtrl(const ePosCtrl &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePosCtrl& ePosCtrl::operator = (const ePosCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePosCtrl::cloneFromMe() const
+    {
+        return new ePosCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePosCtrl: serialization
     // <kao2.0055BE90>
     ////////////////////////////////////////////////////////////////
     void ePosCtrl::serialize(Archive &ar)

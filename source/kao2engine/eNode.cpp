@@ -381,7 +381,8 @@ namespace ZookieWizard
 
         if (nullptr != x)
         {
-            /* TODO: "kao2.00478B55 -- CALL 00478E00" */
+            /* (...) */
+            /* "kao2.00478B55 -- CALL 00478E00" */
         }
     }
 
@@ -410,6 +411,9 @@ namespace ZookieWizard
         /*[0x30]*/ flagsCollisionResponse = 0x00FF;
         /*[0x34]*/ visCtrl = nullptr;
         /*[0x38]*/ visRate = 1.0f;
+        sphBound[0] = 0;
+        sphBound[1] = 0;
+        sphBound[2] = 0;
         /*[0x2C]*/ sphBound[3] = -1.0f;
 
         visGroup = (-1);
@@ -452,7 +456,94 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eNode serialization
+    // eNode: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eNode::createFromOtherObject(const eNode &other)
+    {
+        /* << MUST BE RESOLVED! >> */
+        previousTransform = nullptr;
+
+        unknown_0C = other.unknown_0C;
+
+        /* << MUST BE RESOLVED! >> */
+        parent = nullptr;
+
+        name = other.name;
+
+        /* << MUST BE RESOLVED! >> */
+        axisListBox = nullptr;
+        if (nullptr != other.axisListBox)
+        {
+            nodesManager_InsertNodeWithMissingAxisListBox(this);
+        }
+
+        flags = other.flags;
+
+        sphBound[0] = other.sphBound[0];
+        sphBound[1] = other.sphBound[1];
+        sphBound[2] = other.sphBound[2];
+        sphBound[3] = other.sphBound[3];
+
+        flagsCollisionResponse = other.flagsCollisionResponse;
+
+        visCtrl = other.visCtrl;
+        if (nullptr != visCtrl)
+        {
+            visCtrl->incRef();
+        }
+
+        visRate = 1.0f;
+
+        visGroup = other.visGroup;
+    }
+
+    eNode::eNode(const eNode &other)
+    : ePrimitive(other)
+    {
+        theNodesCounter++;
+
+        /****************/
+
+        createFromOtherObject(other);
+    }
+
+    eNode& eNode::operator = (const eNode &other)
+    {
+        if ((&other) != this)
+        {
+            ePrimitive::operator = (other);
+
+            /****************/
+
+            eTransform* my_prev_xform = previousTransform;
+            eGroup* my_parent = parent;
+
+            axisListBox->decRef();
+
+            visCtrl->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+
+            /****************/
+
+            parent = my_parent;
+            previousTransform = my_prev_xform;
+        }
+
+        return (*this);
+    }
+
+    eObject* eNode::cloneFromMe() const
+    {
+        return new eNode(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: serialization
     // <kao2.00478FF0>
     ////////////////////////////////////////////////////////////////
     void eNode::serialize(Archive &ar)
@@ -552,57 +643,102 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eNode: print
+    ////////////////////////////////////////////////////////////////
+    eString eNode::getLogPrintMessage() const
+    {
+        eString result = eObject::getLogPrintMessage();
+
+        result += "\n - \"";
+        result += name;
+        result += "\"";
+
+        return result;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eNode::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    {
+        char bufor[1024];
+        TypeInfo* info = getType();
+
+        sprintf_s
+        (
+            bufor,
+            1024,
+            "[%08X] %s (\"%s\")",
+            info->id,
+            info->name,
+            name.getSubstring(0, 1024 - 64).getText()
+        );
+
+        ArFunctions::writeNewLine(file, indentation);
+        file << bufor;
+
+        sprintf_s
+        (
+            bufor,
+            512,
+            " - flags: %08X %08X %04X (visGroup: %d)",
+            unknown_0C,
+            flags,
+            flagsCollisionResponse,
+            visGroup
+        );
+
+        ArFunctions::writeNewLine(file, indentation);
+        file << bufor;
+
+        if (nullptr != parent)
+        {
+            info = parent->getType();
+
+            sprintf_s
+            (
+                bufor,
+                512,
+                " - parent: [%08X] %s (\"%s\")",
+                info->id,
+                info->name,
+                parent->getStringRepresentation().getText()
+            );
+
+            ArFunctions::writeNewLine(file, indentation);
+            file << bufor;
+        }
+
+        if (nullptr != axisListBox)
+        {
+            info = axisListBox->getType();
+
+            sprintf_s
+            (
+                bufor,
+                512,
+                " - albox: [%08X] %s (id=%08X)",
+                info->id,
+                info->name,
+                axisListBox->getCollisionId()
+            );
+
+            ArFunctions::writeNewLine(file, indentation);
+            file << bufor;
+        }
+
+        ArFunctions::writeNewLine(file, 0);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eNode: destroy before dereferencing
     ////////////////////////////////////////////////////////////////
     void eNode::destroyNode()
     {
         editingClearCollision();
     }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: empty function (for "eTransform" / "eTriMesh")
-    ////////////////////////////////////////////////////////////////
-    ePoint3 eNode::editingGetCenterPoint() const
-    {
-        return {0, 0, 0};
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: empty function (for "eGroup" / "eTriMesh")
-    ////////////////////////////////////////////////////////////////
-    void eNode::editingRebuildCollision()
-    {}
-
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: (editor function) clear collision
-    ////////////////////////////////////////////////////////////////
-    void eNode::editingClearCollision()
-    {
-        if (nullptr != axisListBox)
-        {
-            axisListBox->decRef();
-            axisListBox = nullptr;
-        }
-
-        flagsCollisionResponse = 0x00FF;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: empty function (for "eBoxZone" / "eTransform" / "eTriMesh")
-    ////////////////////////////////////////////////////////////////
-    void eNode::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
-    {}
-
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: empty function (for "eCamera" / "eGeometry" / "eNPCMap" / "ePivot" / "eZone")
-    ////////////////////////////////////////////////////////////////
-    void eNode::editingNewNodeSetup()
-    {}
 
 
     ////////////////////////////////////////////////////////////////
@@ -613,57 +749,26 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eNode: add empty animation track (if the node uses "eMultiCtrl")
+    // eNode: find node by name
+    // <kao2.00483900>
     ////////////////////////////////////////////////////////////////
-    void eNode::ctrlExpandAnimTracks(int32_t new_size)
+    eNode* eNode::findNode(eString &searched_name) const
     {
-        eMultiCtrl<float>* multi_ctrl;
-
-        if (nullptr != visCtrl)
+        if (name.compareExact(searched_name, true))
         {
-            /* We only want to modify the `visCtrl` that already has multiple tracks */
-
-            if (visCtrl->getType()->checkHierarchy(&E_MULTICTRL_FLOAT_TYPEINFO))
-            {
-                multi_ctrl = (eMultiCtrl<float>*)visCtrl;
-
-                multi_ctrl->multiCtrl_SetSize(new_size);
-            }
+            return (eNode*)this;
         }
+
+        return nullptr;
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // eNode: remove specific animation track (if the node uses "eMultiCtrl")
+    // eNode: set `previousTransform` gradually
     ////////////////////////////////////////////////////////////////
-    void eNode::ctrlRemoveAnimTrack(int32_t deleted_id)
+    void eNode::setPreviousTransformGradually(eTransform* last_xform)
     {
-        eMultiCtrl<float>* multi_ctrl;
-
-        if (nullptr != visCtrl)
-        {
-            if (visCtrl->getType()->checkHierarchy(&E_MULTICTRL_FLOAT_TYPEINFO))
-            {
-                multi_ctrl = (eMultiCtrl<float>*)visCtrl;
-
-                multi_ctrl->multiCtrl_DeleteTrack(deleted_id);
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: get or set the name
-    ////////////////////////////////////////////////////////////////
-
-    eString eNode::getStringRepresentation() const
-    {
-        return name;
-    }
-
-    void eNode::setName(eString new_name)
-    {
-        name = new_name;
+        previousTransform = last_xform;
     }
 
 
@@ -702,9 +807,79 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eNode: default message for "AxisList" rebuilding ("eGeometry" / "eZone")
+    ////////////////////////////////////////////////////////////////
+    bool eNode::createCollisionEntry()
+    {
+        char bufor[LARGE_BUFFER_SIZE];
+
+        sprintf_s
+        (
+            bufor, LARGE_BUFFER_SIZE,
+            "WARNING: Don't know how to create Collision Entry for \"%s\" (\"%s\")...",
+            getType()->name,
+            name.getText()
+        );
+
+        GUI::theWindowsManager.displayMessage
+        (
+            WINDOWS_MANAGER_MESSAGE_WARNING,
+            bufor
+        );
+
+        return false;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eNode: render this node
     ////////////////////////////////////////////////////////////////
     void eNode::renderNode(eDrawContext &draw_context) const
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eTransform" / "eTriMesh")
+    ////////////////////////////////////////////////////////////////
+    ePoint3 eNode::editingGetCenterPoint() const
+    {
+        return {0};
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eGroup" / "eTriMesh")
+    ////////////////////////////////////////////////////////////////
+    void eNode::editingRebuildCollision()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: (editor function) clear collision
+    ////////////////////////////////////////////////////////////////
+    void eNode::editingClearCollision()
+    {
+        if (nullptr != axisListBox)
+        {
+            axisListBox->decRef();
+            axisListBox = nullptr;
+        }
+
+        flagsCollisionResponse = 0x00FF;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eBoxZone" / "eTransform" / "eTriMesh")
+    ////////////////////////////////////////////////////////////////
+    void eNode::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eCamera" / "eGeometry" / "eNPCMap" / "ePivot" / "eZone")
+    ////////////////////////////////////////////////////////////////
+    void eNode::editingNewNodeSetup()
     {}
 
 
@@ -913,7 +1088,7 @@ namespace ZookieWizard
             visCtrlClear(test[0]);
             return 0;
         }
-        else if (message.compareExact("`visCtrlSetStatic", true))
+        else if (message.compareExact("visCtrlSetStatic", true))
         {
             if (1 != params_count)
             {
@@ -1039,6 +1214,79 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eNode: empty funcion (for "eGroup" / "Actor")
+    ////////////////////////////////////////////////////////////////
+    void eNode::exportScripts(const eString &media_dir) const
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty functions (for "eGroup" / "eProxy")
+    ////////////////////////////////////////////////////////////////
+
+    void eNode::reloadXRef(const eString &media_dir, int32_t engine_version)
+    {}
+
+    void eNode::exportXRef(const eString &media_dir, int32_t engine_version) const
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: add empty animation track (if the node uses "eMultiCtrl")
+    ////////////////////////////////////////////////////////////////
+    void eNode::ctrlExpandAnimTracks(int32_t new_size)
+    {
+        eMultiCtrl<float>* multi_ctrl;
+
+        if (nullptr != visCtrl)
+        {
+            /* We only want to modify the `visCtrl` that already has multiple tracks */
+
+            if (visCtrl->getType()->checkHierarchy(&E_MULTICTRL_FLOAT_TYPEINFO))
+            {
+                multi_ctrl = (eMultiCtrl<float>*)visCtrl;
+
+                multi_ctrl->multiCtrl_SetSize(new_size);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: remove specific animation track (if the node uses "eMultiCtrl")
+    ////////////////////////////////////////////////////////////////
+    void eNode::ctrlRemoveAnimTrack(int32_t deleted_id)
+    {
+        eMultiCtrl<float>* multi_ctrl;
+
+        if (nullptr != visCtrl)
+        {
+            if (visCtrl->getType()->checkHierarchy(&E_MULTICTRL_FLOAT_TYPEINFO))
+            {
+                multi_ctrl = (eMultiCtrl<float>*)visCtrl;
+
+                multi_ctrl->multiCtrl_DeleteTrack(deleted_id);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: get or set the name
+    ////////////////////////////////////////////////////////////////
+
+    eString eNode::getStringRepresentation() const
+    {
+        return name;
+    }
+
+    void eNode::setName(eString new_name)
+    {
+        name = new_name;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eNode: get or set parent node
     ////////////////////////////////////////////////////////////////
 
@@ -1065,6 +1313,56 @@ namespace ZookieWizard
     void eNode::setParentNode(eGroup* new_parent)
     {
         parent = new_parent;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: get or set previous transform
+    // <kao2.00477A20> (setup)
+    ////////////////////////////////////////////////////////////////
+
+    eTransform* eNode::getPreviousTransform() const
+    {
+        return previousTransform;
+    }
+
+    void eNode::setPreviousTransform()
+    {
+        eNode* test_node = parent;
+
+        while (nullptr != test_node)
+        {
+            if (test_node->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+            {
+                break;
+            }
+            else
+            {
+                test_node = test_node->parent;
+            }
+        }
+
+        previousTransform = (eTransform*)test_node;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: apply or erase flag bits
+    ////////////////////////////////////////////////////////////////
+
+    uint32_t eNode::getFlags() const
+    {
+        return flags;
+    }
+
+    void eNode::setFlags(uint32_t bits_to_apply)
+    {
+        flags |= bits_to_apply;
+    }
+
+    void eNode::unsetFlags(uint32_t bits_to_erase)
+    {
+        flags &= (~bits_to_erase);
     }
 
 
@@ -1209,161 +1507,6 @@ namespace ZookieWizard
 
             visCtrl->ctrlAddKeyframe(anim_id, time, opacity, 0x01);
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: get or set previous transform
-    // <kao2.00477A20> (setup)
-    ////////////////////////////////////////////////////////////////
-
-    eTransform* eNode::getPreviousTransform() const
-    {
-        return previousTransform;
-    }
-
-    void eNode::setPreviousTransform()
-    {
-        eNode* test_node = parent;
-
-        while (nullptr != test_node)
-        {
-            if (test_node->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
-            {
-                break;
-            }
-            else
-            {
-                test_node = test_node->parent;
-            }
-        }
-
-        previousTransform = (eTransform*)test_node;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: find node by name
-    // <kao2.00483900>
-    ////////////////////////////////////////////////////////////////
-    eNode* eNode::findNode(eString &searched_name) const
-    {
-        if (name.compareExact(searched_name, true))
-        {
-            return (eNode*)this;
-        }
-
-        return nullptr;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: apply or erase flag bits
-    ////////////////////////////////////////////////////////////////
-
-    uint32_t eNode::getFlags() const
-    {
-        return flags;
-    }
-
-    void eNode::setFlags(uint32_t bits_to_apply)
-    {
-        flags |= bits_to_apply;
-    }
-
-    void eNode::unsetFlags(uint32_t bits_to_erase)
-    {
-        flags &= (~bits_to_erase);
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: print
-    ////////////////////////////////////////////////////////////////
-    eString eNode::getLogPrintMessage() const
-    {
-        eString result = eObject::getLogPrintMessage();
-
-        result += "\n - \"";
-        result += name;
-        result += "\"";
-
-        return result;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eNode: export readable structure
-    ////////////////////////////////////////////////////////////////
-    void eNode::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
-    {
-        char bufor[1024];
-        TypeInfo* info = getType();
-
-        sprintf_s
-        (
-            bufor,
-            1024,
-            "[%08X] %s (\"%s\")",
-            info->id,
-            info->name,
-            name.getSubstring(0, 1024 - 64).getText()
-        );
-
-        ArFunctions::writeNewLine(file, indentation);
-        file << bufor;
-
-        sprintf_s
-        (
-            bufor,
-            512,
-            " - flags: %08X %08X %04X (visGroup: %d)",
-            unknown_0C,
-            flags,
-            flagsCollisionResponse,
-            visGroup
-        );
-
-        ArFunctions::writeNewLine(file, indentation);
-        file << bufor;
-
-        if (nullptr != parent)
-        {
-            info = parent->getType();
-
-            sprintf_s
-            (
-                bufor,
-                512,
-                " - parent: [%08X] %s (\"%s\")",
-                info->id,
-                info->name,
-                parent->getStringRepresentation().getText()
-            );
-
-            ArFunctions::writeNewLine(file, indentation);
-            file << bufor;
-        }
-
-        if (nullptr != axisListBox)
-        {
-            info = axisListBox->getType();
-
-            sprintf_s
-            (
-                bufor,
-                512,
-                " - albox: [%08X] %s (id=%08X)",
-                info->id,
-                info->name,
-                axisListBox->getCollisionId()
-            );
-
-            ArFunctions::writeNewLine(file, indentation);
-            file << bufor;
-        }
-
-        ArFunctions::writeNewLine(file, 0);
     }
 
 

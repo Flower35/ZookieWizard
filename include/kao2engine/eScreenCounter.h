@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eScreenCounter : public eTextWriterFields2
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eScreenCounter();
             ~eScreenCounter();
 
+        private:
+
+            void createFromOtherObject(const eScreenCounter &other);
+
+        public:
+
+            eScreenCounter(const eScreenCounter &other);
+            eScreenCounter& operator = (const eScreenCounter &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eScreenCounter TypeInfo
-    // <kao2.0051F140> (registration)
+    // <kao2.0051F110> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SCREENCOUNTER_ID = 0x3B258DF2;

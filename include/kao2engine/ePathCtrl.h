@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class ePathCtrl : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -41,8 +40,22 @@ namespace ZookieWizard
             ePathCtrl();
             ~ePathCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const ePathCtrl &other);
+
+        public:
+
+            ePathCtrl(const ePathCtrl &other);
+            ePathCtrl& operator = (const ePathCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << Gadget >> */
 
             eString getDefaultGadgetName() const override;
     };
@@ -50,7 +63,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // ePathCtrl TypeInfo
-    // <kao2.00424230> (registration)
+    // <kao2.00424200> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PATHCTRL_ID = 0xF0010020;

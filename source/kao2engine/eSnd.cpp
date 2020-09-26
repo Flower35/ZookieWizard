@@ -30,5 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eSnd::~eSnd() {}
+    eSnd::~eSnd()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSnd: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSnd::createFromOtherObject(const eSnd &other)
+    {}
+
+    eSnd::eSnd(const eSnd &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSnd& eSnd::operator = (const eSnd &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSnd::cloneFromMe() const
+    {
+        return new eSnd(*this);
+    }
+
 }

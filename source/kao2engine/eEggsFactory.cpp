@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eEggsFactory::~eEggsFactory() {}
+    eEggsFactory::~eEggsFactory()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eEggsFactory: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eEggsFactory::createFromOtherObject(const eEggsFactory &other)
+    {}
+
+    eEggsFactory::eEggsFactory(const eEggsFactory &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eEggsFactory& eEggsFactory::operator = (const eEggsFactory &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eEggsFactory::cloneFromMe() const
+    {
+        return new eEggsFactory(*this);
+    }
 
 }

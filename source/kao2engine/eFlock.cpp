@@ -39,7 +39,42 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eFlock serialization
+    // eFlock: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eFlock::createFromOtherObject(const eFlock &other)
+    {
+        unknown_50 = other.unknown_50;
+    }
+
+    eFlock::eFlock(const eFlock &other)
+    : ePathCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eFlock& eFlock::operator = (const eFlock &other)
+    {
+        if ((&other) != this)
+        {
+            ePathCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eFlock::cloneFromMe() const
+    {
+        return new eFlock(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eFlock: serialization
     // <kao2.0042DD60>
     ////////////////////////////////////////////////////////////////
     void eFlock::serialize(Archive &ar)

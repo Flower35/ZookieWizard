@@ -30,11 +30,47 @@ namespace ZookieWizard
     : eRefCounter()
     {}
 
-    eRotCtrl::~eRotCtrl() {}
+    eRotCtrl::~eRotCtrl()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eRotCtrl serialization
+    // eRotCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eRotCtrl::createFromOtherObject(const eRotCtrl &other)
+    {
+        unknown_08 = other.unknown_08;
+    }
+
+    eRotCtrl::eRotCtrl(const eRotCtrl &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eRotCtrl& eRotCtrl::operator = (const eRotCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eRotCtrl::cloneFromMe() const
+    {
+        return new eRotCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eRotCtrl: serialization
     // <kao2.0055C5C0>
     ////////////////////////////////////////////////////////////////
     void eRotCtrl::serialize(Archive &ar)

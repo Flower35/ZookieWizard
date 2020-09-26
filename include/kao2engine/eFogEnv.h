@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eFogEnv interface
+    // <kao2.005D0D08> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eFogEnv : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,8 +29,22 @@ namespace ZookieWizard
             eFogEnv();
             ~eFogEnv();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eFogEnv &other);
+
+        public:
+
+            eFogEnv(const eFogEnv &other);
+            eFogEnv& operator = (const eFogEnv &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eFogEnv >> */
 
             void getFogColor(float* values) const;
             float getFogStart() const;
@@ -46,7 +60,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eFogEnv TypeInfo
-    // <kao2.0047E7E0> (registration)
+    // <kao2.0047E7B0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FOGENV_ID = 0x3F800002;

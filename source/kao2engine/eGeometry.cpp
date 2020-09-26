@@ -35,16 +35,16 @@ namespace ZookieWizard
     : eNode(s, x)
     {
         /*[0x3C]*/ material = nullptr;
-        /*[0x40]*/ boxBoundMax.x = 1.0f;
-        /*[0x4C]*/ boxBoundMin.x = 0;
+        /*[0x40]*/ boxBoundMin.x = 1.0f;
+        /*[0x4C]*/ boxBoundMax.x = 0;
     }
 
     eGeometry::eGeometry()
     : eNode()
     {
         /*[0x3C]*/ material = nullptr;
-        /*[0x4C]*/ boxBoundMax.x = 0;
         /*[0x40]*/ boxBoundMin.x = 1.0f;
+        /*[0x4C]*/ boxBoundMax.x = 0;
     }
 
     eGeometry::~eGeometry()
@@ -54,7 +54,53 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eGeometry serialization
+    // eGeometry: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eGeometry::createFromOtherObject(const eGeometry &other)
+    {
+        material = other.material;
+        if (nullptr != material)
+        {
+            material->incRef();
+        }
+
+        boxBoundMin = other.boxBoundMin;
+        boxBoundMax = other.boxBoundMax;
+    }
+
+    eGeometry::eGeometry(const eGeometry &other)
+    : eNode(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eGeometry& eGeometry::operator = (const eGeometry &other)
+    {
+        if ((&other) != this)
+        {
+            eNode::operator = (other);
+
+            /****************/
+
+            material->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eGeometry::cloneFromMe() const
+    {
+        return nullptr;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeometry: serialization
     // <kao2.0046F1D0>
     ////////////////////////////////////////////////////////////////
     void eGeometry::serialize(Archive &ar)
@@ -79,15 +125,26 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eGeometry old serialization
-    // <kao2.0046F980>
+    // eGeometry: create collision entry
     ////////////////////////////////////////////////////////////////
-    void eGeometry::oldNodeSerialization(ePoint3* arg1)
+    bool eGeometry::createCollisionEntry()
     {
-        boxBoundMin = arg1[0];
-        boxBoundMax = arg1[1];
+        eALBox* new_albox = nullptr;
 
-        /*[0x1C]*/ flags &= 0xFFFFFFEF;
+        float boundaries[6] =
+        {
+            boxBoundMin.x, boxBoundMin.y, boxBoundMin.z,
+            boxBoundMax.x, boxBoundMax.y, boxBoundMax.z
+        };
+
+        new_albox = new eALBox();
+        new_albox->incRef();
+
+        new_albox->createAxisListEntry(this, boundaries);
+
+        new_albox->decRef();
+
+        return true;
     }
 
 
@@ -138,7 +195,7 @@ namespace ZookieWizard
 
             test[0] = (-1);
 
-            for (test[1] = 0; ((-1) == test[0]) && (test[1] < 16); test[1]++)
+            for (test[1] = 0; ((-1) == test[0]) && (test[1] < KAO2_MATERIAL_TYPES_COUNT); test[1]++)
             {
                 if (dummy_name.compareExact(theMaterialTypes[test[1]].name, true))
                 {
@@ -171,31 +228,17 @@ namespace ZookieWizard
 
             property.getValue(&dummy_name);
 
-            if (dummy_name.compareExact("GRASS", true))
+            test[0] = (-1);
+
+            for (test[1] = 0; ((-1) == test[0]) && (test[1] < KAO2_MATERIAL_SOUNDS_COUNT); test[1]++)
             {
-                test[0] = 0x00000;
+                if (dummy_name.compareExact(theMaterialSounds[test[1]].name, true))
+                {
+                    test[0] = theMaterialSounds[test[1]].id;
+                }
             }
-            else if (dummy_name.compareExact("WOOD", true))
-            {
-                test[0] = 0x1000;
-            }
-            else if (dummy_name.compareExact("METAL", true))
-            {
-                test[0] = 0x2000;
-            }
-            else if (dummy_name.compareExact("STONE", true))
-            {
-                test[0] = 0x4000;
-            }
-            else if (dummy_name.compareExact("SNOW", true))
-            {
-                test[0] = 0x8000;
-            }
-            else if (dummy_name.compareExact("SAND", true))
-            {
-                test[0] = 0x0001;
-            }
-            else
+
+            if ((-1) == test[0])
             {
                 sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Unknown sound type for \"materialSound\" property!");
                 return 2;
@@ -206,7 +249,7 @@ namespace ZookieWizard
                 setMaterial(new eMaterial(nullptr));
             }
 
-            material->setSoundType((int16_t)test[0]);
+            material->setSoundType((uint16_t)test[0]);
 
             return 0;
         }
@@ -242,17 +285,27 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eGeometry: get Material pointer
+    // eGeometry: old serialization
+    // <kao2.0046F980>
     ////////////////////////////////////////////////////////////////
+    void eGeometry::oldNodeSerialization(ePoint3* arg1)
+    {
+        boxBoundMin = arg1[0];
+        boxBoundMax = arg1[1];
+
+        /*[0x1C]*/ flags &= 0xFFFFFFEF;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeometry: get or set the Material
+    ////////////////////////////////////////////////////////////////
+
     eMaterial* eGeometry::getMaterial() const
     {
         return material;
     }
 
-
-    ////////////////////////////////////////////////////////////////
-    // eGeometry: set Material pointer
-    ////////////////////////////////////////////////////////////////
     void eGeometry::setMaterial(eMaterial* new_material)
     {
         if (material != new_material)
@@ -279,28 +332,6 @@ namespace ZookieWizard
     {
         boxBoundMin = new_min;
         boxBoundMax = new_max;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eGeometry: create collision entry
-    ////////////////////////////////////////////////////////////////
-    void eGeometry::createCollisionEntry()
-    {
-        eALBox* new_albox = nullptr;
-
-        float boundaries[6] =
-        {
-            boxBoundMin.x, boxBoundMin.y, boxBoundMin.z,
-            boxBoundMax.x, boxBoundMax.y, boxBoundMax.z
-        };
-
-        new_albox = new eALBox();
-        new_albox->incRef();
-
-        new_albox->createAxisListEntry(this, boundaries);
-
-        new_albox->decRef();
     }
 
 }

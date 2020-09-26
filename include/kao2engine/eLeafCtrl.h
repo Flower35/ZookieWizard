@@ -7,16 +7,24 @@ namespace ZookieWizard
 {
 
     ////////////////////////////////////////////////////////////////
-    // Keyframe
+    // eLeafCtrl Keyframe
     ////////////////////////////////////////////////////////////////
 
     template <typename T>
     struct eKeyBase
     {
-        float time;
-        T data[3];
+        /*** Properties ***/
 
-        void serializeKey(Archive &ar);
+        public:
+
+            float time;
+            T data[3];
+
+        /*** Methods ***/
+
+        public:
+
+            void serializeKey(Archive &ar);
     };
 
 
@@ -44,11 +52,25 @@ namespace ZookieWizard
 
         public:
 
-            eLeafCtrl<T>();
-            ~eLeafCtrl<T>();
+            eLeafCtrl();
+            ~eLeafCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eLeafCtrl<T> &other);
+
+        public:
+
+            eLeafCtrl(const eLeafCtrl<T> &other);
+            eLeafCtrl& operator = (const eLeafCtrl<T> &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eCtrl >> */
 
             /*[[vptr]+0x28]*/ void ctrlApplyTransform(T*, float) const override;
 
@@ -58,9 +80,13 @@ namespace ZookieWizard
             void ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param) override;
             void ctrlAddKeyframe(int32_t anim_id, float new_time, T &new_data, int32_t param) override;
 
+            /* << eLeafCtrl >> */
+
             void setDefaultValue(T new_value);
 
         private:
+
+            /* << eLeafCtrl >> */
 
             int getKeyframeId(float time) const;
             T interpolate(float ratio, T &first, T &second, T &other) const;
@@ -74,25 +100,27 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eLeafCtrl<eFloatKey> TypeInfo
-    // <kao2.004A2D50> (registration)
+    // <kao2.004A17D0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_LEAFCTRL_FLOAT_ID = 0xA001;
 
     extern TypeInfo E_LEAFCTRL_FLOAT_TYPEINFO;
 
+
     ////////////////////////////////////////////////////////////////
     // eLeafCtrl<ePoint3Key> TypeInfo
-    // <kao2.004A3550> (registration)
+    // <kao2.004A1840> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_LEAFCTRL_EPOINT3_ID = 0xA002;
 
     extern TypeInfo E_LEAFCTRL_EPOINT3_TYPEINFO;
 
+
     ////////////////////////////////////////////////////////////////
     // eLeafCtrl<eRotationKey> TypeInfo
-    // <kao2.004A3550> (registration)
+    // <kao2.004A18B0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_LEAFCTRL_EQUAT_ID = 0xA003;

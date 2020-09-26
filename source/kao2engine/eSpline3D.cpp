@@ -32,6 +32,7 @@ namespace ZookieWizard
         /*[0x08]*/ verticesCount = 0;
         /*[0x0C]*/ verticesMaxLength = 0;
         /*[0x10]*/ vertices = nullptr;
+
         /*[0x14]*/ unknown_14 = 0;
     }
 
@@ -41,6 +42,67 @@ namespace ZookieWizard
         {
             delete[](vertices);
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSpline3D: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSpline3D::createFromOtherObject(const eSpline3D &other)
+    {
+        if (other.verticesCount > 0)
+        {
+            verticesMaxLength = other.verticesCount;
+
+            vertices = new eSplineVertexBase [verticesMaxLength];
+
+            for (verticesCount = 0; verticesCount < verticesMaxLength; verticesCount++)
+            {
+                vertices[verticesCount] = other.vertices[verticesCount];
+            }
+        }
+        else
+        {
+            verticesCount = 0;
+            verticesMaxLength = 0;
+            vertices = nullptr;
+        }
+
+        unknown_14 = other.unknown_14;
+    }
+
+    eSpline3D::eSpline3D(const eSpline3D &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSpline3D& eSpline3D::operator = (const eSpline3D &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            if (nullptr != vertices)
+            {
+                delete[](vertices);
+                vertices = nullptr;
+            }
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSpline3D::cloneFromMe() const
+    {
+        return new eSpline3D(*this);
     }
 
 
@@ -65,7 +127,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eSpline3D serialization
+    // eSpline3D: serialization
     // <kao2.004A70B0>
     ////////////////////////////////////////////////////////////////
     void eSpline3D::serialize(Archive &ar)
@@ -173,63 +235,120 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eSpline3D: get best matching point
-    // <kao2.004A6F00>
+    // eSpline3D: clear all vertices
     ////////////////////////////////////////////////////////////////
-    void eSpline3D::splineGetPoint(ePoint3 &result, float time) const
+    void eSpline3D::clearVertices()
     {
-        ePoint3 test_pts[4];
-        float f[2];
-        int32_t id[2];
-
-        if ((nullptr == vertices) || (verticesCount < 2))
+        if (nullptr != vertices)
         {
-            result = {0};
-            return;
+            delete[](vertices);
         }
 
-        /****************/
+        verticesCount = 0;
+        verticesMaxLength = 0;
+    }
 
-        if (time < 0)
-        {
-            time = 0;
-        }
-        else if (time > 1.0f)
-        {
-            time = 1.0f;
-        }
 
-        /****************/
+    ////////////////////////////////////////////////////////////////
+    // eSpline3D: add a new vertex
+    ////////////////////////////////////////////////////////////////
+    void eSpline3D::addVertex(ePoint3 new_pos_a, ePoint3 new_pos_b, ePoint3 new_pos_c, eString new_name)
+    {
+        eSplineVertexBase* temp;
+        int32_t a = (verticesCount - 1);;
 
-        if (time >= 1.0f)
+        if ((verticesCount >= 1) && (vertices[a].position[0] == new_pos_a))
         {
-            id[0] = (verticesCount - 2);
-            f[0] = 1.0f;
+            vertices[a].position[1] = (vertices[a].position[1] + new_pos_b) * 0.5f;
+            vertices[a].position[2] = (vertices[a].position[2] + new_pos_c) * 0.5f;
+
+            if (new_name.getLength() > 0)
+            {
+                vertices[a].name = new_name;
+            }
         }
         else
         {
-            id[1] = (verticesCount - 1);
-            id[0] = (int32_t)(time * id[1]);
-            f[0] = (time - (float)id[0] / id[1]) * id[1] / 1.0f;
+            if ((verticesCount + 1) > verticesMaxLength)
+            {
+                verticesMaxLength++;
+                temp = new eSplineVertexBase [verticesMaxLength];
+
+                if (nullptr != vertices)
+                {
+                    for (a = 0; a < verticesCount; a++)
+                    {
+                        temp[a] = vertices[a];
+                    }
+
+                    delete[](vertices);
+                }
+
+                vertices = temp;
+            }
+
+            vertices[verticesCount].position[0] = new_pos_a;
+            vertices[verticesCount].position[1] = new_pos_b;
+            vertices[verticesCount].position[2] = new_pos_c;
+            vertices[verticesCount].name = new_name;
+
+            verticesCount++;
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSpline3D: append vertices from another spline
+    ////////////////////////////////////////////////////////////////
+    void eSpline3D::appendVerticesFromSpline(const eSpline3D &other_spline)
+    {
+        for (int32_t a = 0; a < other_spline.verticesCount; a++)
+        {
+            eSplineVertexBase* test_vertex = &(other_spline.vertices[a]);
+
+            addVertex
+            (
+                test_vertex->position[0],
+                test_vertex->position[1],
+                test_vertex->position[2],
+                test_vertex->name
+            );
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSpline3D: get vertices count
+    ////////////////////////////////////////////////////////////////
+    int32_t eSpline3D::getVerticesCount() const
+    {
+        return verticesCount;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSpline3D: get default position of some vertex
+    ////////////////////////////////////////////////////////////////
+    ePoint3 eSpline3D::getVertexPosition(int32_t vertex_id, int32_t param_id) const
+    {
+        if ((nullptr != vertices) && (vertex_id >= 0) && (vertex_id < verticesCount) && (param_id >= 0) && (param_id < 3))
+        {
+            return vertices[vertex_id].position[param_id];
         }
 
-        /****************/
+        return {0};
+    }
 
-        f[1] = f[0] * f[0];
 
-        test_pts[0] = vertices[id[0] + 1].position[0] * (3.0f * f[1]);
-
-        test_pts[1] = vertices[id[0] + 1].position[2] * ((6.0f * f[0]) - (9.0f * f[1]));
-
-        test_pts[2] = vertices[id[0]].position[1] * (3.0f * ((1.0f - 4.0f * f[0]) + (3.0f * f[1])));
-
-        f[0] = (1.0f - f[0]);
-
-        test_pts[3] = vertices[id[0]].position[0] * ((-3.0f) * f[0] * f[0]);
-
-        /****************/
-
-        result = test_pts[0] + test_pts[1] + test_pts[2] + test_pts[3];
+    ////////////////////////////////////////////////////////////////
+    // eSpline3D: set default position of some vertex
+    ////////////////////////////////////////////////////////////////
+    void eSpline3D::setVertexPosition(int32_t vertex_id, int32_t param_id, ePoint3 new_position)
+    {
+        if ((nullptr != vertices) && (vertex_id >= 0) && (vertex_id < verticesCount) && (param_id >= 0) && (param_id < 3))
+        {
+            vertices[vertex_id].position[param_id] = new_position;
+        }
     }
 
 
@@ -293,87 +412,63 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eSpline3D: clear all vertices
+    // eSpline3D: get best matching point
+    // <kao2.004A6F00>
     ////////////////////////////////////////////////////////////////
-    void eSpline3D::clearVertices()
+    void eSpline3D::splineGetPoint(ePoint3 &result, float time) const
     {
-        if (nullptr != vertices)
+        ePoint3 test_pts[4];
+        float f[2];
+        int32_t id[2];
+
+        if ((nullptr == vertices) || (verticesCount < 2))
         {
-            delete[](vertices);
+            result = {0};
+            return;
         }
 
-        verticesCount = 0;
-        verticesMaxLength = 0;
-    }
+        /****************/
 
-
-    ////////////////////////////////////////////////////////////////
-    // eSpline3D: add a new vertex
-    ////////////////////////////////////////////////////////////////
-    void eSpline3D::addVertex(ePoint3 new_pos_a, ePoint3 new_pos_b, ePoint3 new_pos_c, eString new_name)
-    {
-        eSplineVertexBase* temp;
-        int32_t a;
-
-        if ((verticesCount + 1) > verticesMaxLength)
+        if (time < 0)
         {
-            verticesMaxLength++;
-            temp = new eSplineVertexBase [verticesMaxLength];
-
-            if (nullptr != vertices)
-            {
-                for (a = 0; a < verticesCount; a++)
-                {
-                    temp[a] = vertices[a];
-                }
-
-                delete[](vertices);
-            }
-
-            vertices = temp;
+            time = 0;
+        }
+        else if (time > 1.0f)
+        {
+            time = 1.0f;
         }
 
-        vertices[verticesCount].position[0] = new_pos_a;
-        vertices[verticesCount].position[1] = new_pos_b;
-        vertices[verticesCount].position[2] = new_pos_c;
-        vertices[verticesCount].name = new_name;
+        /****************/
 
-        verticesCount++;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eSpline3D get vertices count
-    ////////////////////////////////////////////////////////////////
-    int32_t eSpline3D::getVerticesCount() const
-    {
-        return verticesCount;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eSpline3D: get default position of some vertex
-    ////////////////////////////////////////////////////////////////
-    ePoint3 eSpline3D::getVertexPosition(int32_t vertex_id, int32_t param_id) const
-    {
-        if ((nullptr != vertices) && (vertex_id >= 0) && (vertex_id < verticesCount) && (param_id >= 0) && (param_id < 3))
+        if (time >= 1.0f)
         {
-            return vertices[vertex_id].position[param_id];
+            id[0] = (verticesCount - 2);
+            f[0] = 1.0f;
+        }
+        else
+        {
+            id[1] = (verticesCount - 1);
+            id[0] = (int32_t)(time * id[1]);
+            f[0] = (time - (float)id[0] / id[1]) * id[1] / 1.0f;
         }
 
-        return {0};
-    }
+        /****************/
 
+        f[1] = f[0] * f[0];
 
-    ////////////////////////////////////////////////////////////////
-    // eSpline3D: set default position of some vertex
-    ////////////////////////////////////////////////////////////////
-    void eSpline3D::setVertexPosition(int32_t vertex_id, int32_t param_id, ePoint3 new_position)
-    {
-        if ((nullptr != vertices) && (vertex_id >= 0) && (vertex_id < verticesCount) && (param_id >= 0) && (param_id < 3))
-        {
-            vertices[vertex_id].position[param_id] = new_position;
-        }
+        test_pts[0] = vertices[id[0] + 1].position[0] * (3.0f * f[1]);
+
+        test_pts[1] = vertices[id[0] + 1].position[2] * ((6.0f * f[0]) - (9.0f * f[1]));
+
+        test_pts[2] = vertices[id[0]].position[1] * (3.0f * ((1.0f - 4.0f * f[0]) + (3.0f * f[1])));
+
+        f[0] = (1.0f - f[0]);
+
+        test_pts[3] = vertices[id[0]].position[0] * ((-3.0f) * f[0] * f[0]);
+
+        /****************/
+
+        result = test_pts[0] + test_pts[1] + test_pts[2] + test_pts[3];
     }
 
 }

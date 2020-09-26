@@ -56,6 +56,61 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eMultiCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    template <typename T>
+    void eMultiCtrl<T>::createFromOtherObject(const eMultiCtrl<T> &other)
+    {
+        controllers = other.controllers;
+    }
+
+    template <typename T>
+    eMultiCtrl<T>::eMultiCtrl(const eMultiCtrl<T> &other)
+    : eCtrl<T>(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    template <typename T>
+    eMultiCtrl<T>& eMultiCtrl<T>::operator = (const eMultiCtrl<T> &other)
+    {
+        if ((&other) != this)
+        {
+            eCtrl<T>::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    template <typename T>
+    eObject* eMultiCtrl<T>::cloneFromMe() const
+    {
+        return new eMultiCtrl<T>(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMultiCtrl: serialization
+    // <kao2.????????>
+    ////////////////////////////////////////////////////////////////
+
+    void eMultiCtrl<eSRP>::serialize(Archive &ar)
+    {
+        controllers.serialize(ar, &E_SRPCOMBINECTRL_TYPEINFO);
+    }
+
+    void eMultiCtrl<float>::serialize(Archive &ar)
+    {
+        controllers.serialize(ar, &E_LEAFCTRL_FLOAT_TYPEINFO);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eMultiCtrl: animation function
     // [[vptr]+0x24] Modify [scale/rotation/position] based on given "eAnimate"
     // <kao2.004A19C0>: "eMultiCtrl<eSRPCtrl>"
@@ -109,22 +164,6 @@ namespace ZookieWizard
                 (*e) = {0};
             }
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eMultiCtrl serialization
-    // <kao2.????????>
-    ////////////////////////////////////////////////////////////////
-
-    void eMultiCtrl<eSRP>::serialize(Archive &ar)
-    {
-        controllers.serialize(ar, &E_SRPCOMBINECTRL_TYPEINFO);
-    }
-
-    void eMultiCtrl<float>::serialize(Archive &ar)
-    {
-        controllers.serialize(ar, &E_LEAFCTRL_FLOAT_TYPEINFO);
     }
 
 

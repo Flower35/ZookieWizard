@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eLightBlinker : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eLightBlinker();
             ~eLightBlinker();
 
+        private:
+
+            void createFromOtherObject(const eLightBlinker &other);
+
+        public:
+
+            eLightBlinker(const eLightBlinker &other);
+            eLightBlinker& operator = (const eLightBlinker &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eLightBlinker TypeInfo
-    // <kao2.00529400> (registration)
+    // <kao2.005293D0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_LIGHTBLINKER_ID = 0x12344321;

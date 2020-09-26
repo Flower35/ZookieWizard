@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eHeroParent : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eHeroParent();
             ~eHeroParent();
 
+        private:
+
+            void createFromOtherObject(const eHeroParent &other);
+
+        public:
+
+            eHeroParent(const eHeroParent &other);
+            eHeroParent& operator = (const eHeroParent &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eHeroParent TypeInfo
-    // <kao2.00518140> (registration)
+    // <kao2.00518110> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_HEROPARENT_ID = 0x00002CDE;

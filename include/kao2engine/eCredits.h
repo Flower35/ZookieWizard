@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eCredits : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eCredits();
             ~eCredits();
 
+        private:
+
+            void createFromOtherObject(const eCredits &other);
+
+        public:
+
+            eCredits(const eCredits &other);
+            eCredits& operator = (const eCredits &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCredits TypeInfo
-    // <kao2.00461340> (registration)
+    // <kao2.00461310> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_CREDITS_ID = 0x3B601778;

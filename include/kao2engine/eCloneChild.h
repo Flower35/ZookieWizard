@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eCloneChild : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,13 +26,25 @@ namespace ZookieWizard
             eCloneChild();
             ~eCloneChild();
 
+        private:
+
+            void createFromOtherObject(const eCloneChild &other);
+
+        public:
+
+            eCloneChild(const eCloneChild &other);
+            eCloneChild& operator = (const eCloneChild &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCloneChild TypeInfo
-    // <kao2.005A5500> (registration)
+    // <kao2.005A54D0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_CLONECHILD_ID = 0x3D819CF1;

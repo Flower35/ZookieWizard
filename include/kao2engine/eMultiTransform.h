@@ -13,6 +13,8 @@ namespace ZookieWizard
     {
         /*** Properties ***/
 
+        public:
+
             /*[0x00-0x08]*/ float unknown_00[3];
             /*[0x0C]*/ uint8_t unknown_0C[4];
             /*[0x10-0x18]*/ float unknown_10[3];
@@ -23,17 +25,19 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
+        public:
+
             void serializeTransform(Archive &ar);
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eMultiTransform interface
+    // <kao2.005D2068> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eMultiTransform : public eGroup
     {
-
         /*** Properties ***/
 
         protected:
@@ -55,14 +59,26 @@ namespace ZookieWizard
             eMultiTransform();
             ~eMultiTransform();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eMultiTransform &other);
+
+        public:
+
+            eMultiTransform(const eMultiTransform &other);
+            eMultiTransform& operator = (const eMultiTransform &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eMultiTransform TypeInfo
-    // <kao2.004B12C0> (registration)
+    // <kao2.004B1290> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_MULTITRANSFORM_ID = 0x81128112;

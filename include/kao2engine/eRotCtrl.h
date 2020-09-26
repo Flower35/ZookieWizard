@@ -9,11 +9,11 @@ namespace ZookieWizard
 {
     ////////////////////////////////////////////////////////////////
     // eRotCtrl interface
+    // <kao2.005D6CB0> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eRotCtrl : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,14 +27,26 @@ namespace ZookieWizard
             eRotCtrl();
             ~eRotCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eRotCtrl &other);
+
+        public:
+
+            eRotCtrl(const eRotCtrl &other);
+            eRotCtrl& operator = (const eRotCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eRotCtrl TypeInfo
-    // <kao2.0055CD70> (registration)
+    // <kao2.0055CD40> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ROTCTRL_ID = 0x0F0F125B;

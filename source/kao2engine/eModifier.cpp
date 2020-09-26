@@ -28,6 +28,40 @@ namespace ZookieWizard
     : eRefCounter()
     {}
 
-    eModifier::~eModifier() {}
+    eModifier::~eModifier()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eModifier: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eModifier::createFromOtherObject(const eModifier &other)
+    {}
+
+    eModifier::eModifier(const eModifier &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eModifier& eModifier::operator = (const eModifier &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eModifier::cloneFromMe() const
+    {
+        return nullptr;
+    }
 
 }

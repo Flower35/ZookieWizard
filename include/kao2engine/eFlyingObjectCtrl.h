@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eFlyingObjectCtrl : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eFlyingObjectCtrl();
             ~eFlyingObjectCtrl();
 
+        private:
+
+            void createFromOtherObject(const eFlyingObjectCtrl &other);
+
+        public:
+
+            eFlyingObjectCtrl(const eFlyingObjectCtrl &other);
+            eFlyingObjectCtrl& operator = (const eFlyingObjectCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFlyingObjectCtrl TypeInfo
-    // <kao2.004FE020> (registration)
+    // <kao2.004FDFF0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FLYINGOBJECTCTRL_ID = 0x0002F0F1;

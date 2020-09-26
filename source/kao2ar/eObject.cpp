@@ -29,14 +29,44 @@ namespace ZookieWizard
     eObject::eObject()
     {}
 
-    eObject::~eObject() {}
+    eObject::~eObject()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eObject serialization
+    // eObject: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eObject::createFromOtherObject(const eObject &other)
+    {}
+
+    eObject::eObject(const eObject &other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eObject& eObject::operator = (const eObject &other)
+    {
+        if ((&other) != this)
+        {
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eObject::cloneFromMe() const
+    {
+        return new eObject(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eObject: serialization
     // <kao2.004050F0>
     ////////////////////////////////////////////////////////////////
-    void eObject::serialize(Archive &ar) {}
+    void eObject::serialize(Archive &ar)
+    {}
 
 
     ////////////////////////////////////////////////////////////////
@@ -74,7 +104,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eObject: export readable structure
     ////////////////////////////////////////////////////////////////
-    void eObject::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
+    void eObject::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
     {
         char bufor[64];
         TypeInfo* info = getType();

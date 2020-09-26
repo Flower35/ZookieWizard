@@ -32,11 +32,56 @@ namespace ZookieWizard
         unknown_7C = 1;
     }
 
-    eColorCtrl::~eColorCtrl() {}
+    eColorCtrl::~eColorCtrl()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eColorCtrl serialization
+    // eColorCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eColorCtrl::createFromOtherObject(const eColorCtrl &other)
+    {
+        unknown_08 = other.unknown_08;
+
+        unknown_50 = other.unknown_50;
+
+        unknown_7C = other.unknown_7C;
+        unknown_80 = other.unknown_80;
+        unknown_84 = other.unknown_84;
+        unknown_88 = other.unknown_88;
+        unknown_8C = other.unknown_8C;
+        unknown_90 = other.unknown_90;
+    }
+
+    eColorCtrl::eColorCtrl(const eColorCtrl &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eColorCtrl& eColorCtrl::operator = (const eColorCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eColorCtrl::cloneFromMe() const
+    {
+        return new eColorCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eColorCtrl: serialization
     // <kao2.0055C290>
     ////////////////////////////////////////////////////////////////
     void eColorCtrl::serialize(Archive &ar)

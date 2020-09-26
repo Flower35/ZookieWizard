@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eFloatCtrlObject : public eFloatObject
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eFloatCtrlObject();
             ~eFloatCtrlObject();
 
+        private:
+
+            void createFromOtherObject(const eFloatCtrlObject &other);
+
+        public:
+
+            eFloatCtrlObject(const eFloatCtrlObject &other);
+            eFloatCtrlObject& operator = (const eFloatCtrlObject &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFloatCtrlObject TypeInfo
-    // <kao2.0043DC20> (registration)
+    // <kao2.0043DBF0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FLOATCTRLOBJECT_ID = 0x3A5612B8;

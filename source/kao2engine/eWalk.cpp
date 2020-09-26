@@ -30,6 +30,40 @@ namespace ZookieWizard
     : ePathCtrl()
     {}
 
-    eWalk::~eWalk() {}
+    eWalk::~eWalk()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eWalk: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eWalk::createFromOtherObject(const eWalk &other)
+    {}
+
+    eWalk::eWalk(const eWalk &other)
+    : ePathCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eWalk& eWalk::operator = (const eWalk &other)
+    {
+        if ((&other) != this)
+        {
+            ePathCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eWalk::cloneFromMe() const
+    {
+        return new eWalk(*this);
+    }
 
 }

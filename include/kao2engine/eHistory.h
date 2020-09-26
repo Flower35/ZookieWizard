@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eHistory : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,7 +28,21 @@ namespace ZookieWizard
             eHistory();
             ~eHistory();
 
+        private:
+
+            void createFromOtherObject(const eHistory &other);
+
+        public:
+
+            eHistory(const eHistory &other);
+            eHistory& operator = (const eHistory &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+
+            /* << Gadget >> */
 
             eString getDefaultGadgetName() const override;
     };
@@ -37,7 +50,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eHistory TypeInfo
-    // <kao2.004D2100> (registration)
+    // <kao2.004D20D0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_HISTORY_ID = 0x0002DFC4;

@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eXYZPoint3Ctrl interface
+    // <kao2.0051D1A84> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eXYZPoint3Ctrl : public eCtrl<ePoint3>
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,8 +29,22 @@ namespace ZookieWizard
             eXYZPoint3Ctrl();
             ~eXYZPoint3Ctrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eXYZPoint3Ctrl &other);
+
+        public:
+
+            eXYZPoint3Ctrl(const eXYZPoint3Ctrl &other);
+            eXYZPoint3Ctrl& operator = (const eXYZPoint3Ctrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eCtrl >> */
 
             /*[[vptr]+0x28]*/ void ctrlApplyTransform(ePoint3*, float) const override;
 
@@ -44,7 +58,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eXYZPoint3Ctrl TypeInfo
-    // <kao2.004A0C30> (registration)
+    // <kao2.004A0C00> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_XYZPOINT3CTRL_ID = 0x9030;

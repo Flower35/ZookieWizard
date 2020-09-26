@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eMotorowki : public eSplineWalk
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eMotorowki();
             ~eMotorowki();
 
+        private:
+
+            void createFromOtherObject(const eMotorowki &other);
+
+        public:
+
+            eMotorowki(const eMotorowki &other);
+            eMotorowki& operator = (const eMotorowki &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eMotorowki TypeInfo
-    // <kao2.0045EEE0> (registration)
+    // <kao2.0045EEB0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_MOTOROWKI_ID = 0x3A173F0E;

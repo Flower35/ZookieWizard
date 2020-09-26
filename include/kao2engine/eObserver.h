@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eObserver interface
+    // <kao2.005D0E98> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eObserver : public eTransform
     {
-
         /*** Properties ***/
 
         protected:
@@ -36,13 +36,29 @@ namespace ZookieWizard
             eObserver();
             ~eObserver();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eObserver &other);
+
+        public:
+
+            eObserver(const eObserver &other);
+            eObserver& operator = (const eObserver &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eNode >> */
 
             void editingNewNodeSetup() override;
 
             int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
+
+            /* << eObserver >> */
 
             float getFieldOfView() const;
             float getNearPlane() const;
@@ -59,7 +75,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eObserver TypeInfo
-    // <kao2.004822A0> (registration)
+    // <kao2.00482270> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_OBSERVER_ID = 0x5000;

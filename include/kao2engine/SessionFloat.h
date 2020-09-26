@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class SessionFloat : public Float
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             SessionFloat();
             ~SessionFloat();
 
+        private:
+
+            void createFromOtherObject(const SessionFloat &other);
+
+        public:
+
+            SessionFloat(const SessionFloat &other);
+            SessionFloat& operator = (const SessionFloat &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // SessionFloat TypeInfo
-    // <kao2.0059CC50> (registration)
+    // <kao2.0059CC20> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SESSIONFLOAT_ID = 0x0002000E;

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eEggsFactory()
     {}
 
-    eEggsNotStatic::~eEggsNotStatic() {}
+    eEggsNotStatic::~eEggsNotStatic()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eEggsNotStatic: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eEggsNotStatic::createFromOtherObject(const eEggsNotStatic &other)
+    {}
+
+    eEggsNotStatic::eEggsNotStatic(const eEggsNotStatic &other)
+    : eEggsFactory(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eEggsNotStatic& eEggsNotStatic::operator = (const eEggsNotStatic &other)
+    {
+        if ((&other) != this)
+        {
+            eEggsFactory::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eEggsNotStatic::cloneFromMe() const
+    {
+        return new eEggsNotStatic(*this);
+    }
 
 }

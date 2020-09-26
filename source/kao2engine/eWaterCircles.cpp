@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eWaterCircles::~eWaterCircles() {}
+    eWaterCircles::~eWaterCircles()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eWaterCircles: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eWaterCircles::createFromOtherObject(const eWaterCircles &other)
+    {}
+
+    eWaterCircles::eWaterCircles(const eWaterCircles &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eWaterCircles& eWaterCircles::operator = (const eWaterCircles &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eWaterCircles::cloneFromMe() const
+    {
+        return new eWaterCircles(*this);
+    }
 
 }

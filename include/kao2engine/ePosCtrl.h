@@ -9,11 +9,11 @@ namespace ZookieWizard
 {
     ////////////////////////////////////////////////////////////////
     // ePosCtrl interface
+    // <kao2.005D6C7C> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class ePosCtrl : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -31,14 +31,26 @@ namespace ZookieWizard
             ePosCtrl();
             ~ePosCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const ePosCtrl &other);
+
+        public:
+
+            ePosCtrl(const ePosCtrl &other);
+            ePosCtrl& operator = (const ePosCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // ePosCtrl TypeInfo
-    // <kao2.0055CCA0> (registration)
+    // <kao2.0055CC70> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_POSCTRL_ID = 0x0F0F122D;

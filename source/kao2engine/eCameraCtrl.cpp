@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eRefCounter()
     {}
 
-    eCameraCtrl::~eCameraCtrl() {}
+    eCameraCtrl::~eCameraCtrl()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCameraCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eCameraCtrl::createFromOtherObject(const eCameraCtrl &other)
+    {}
+
+    eCameraCtrl::eCameraCtrl(const eCameraCtrl &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eCameraCtrl& eCameraCtrl::operator = (const eCameraCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eCameraCtrl::cloneFromMe() const
+    {
+        return nullptr;
+    }
 
 }

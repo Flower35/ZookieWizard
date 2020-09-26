@@ -39,11 +39,54 @@ namespace ZookieWizard
         /*[0x1C]*/ unknown_1C = 0;
     }
 
-    eCameraZonePacket::~eCameraZonePacket() {}
+    eCameraZonePacket::~eCameraZonePacket()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eCameraZonePacket serialization
+    // eCameraZonePacket: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eCameraZonePacket::createFromOtherObject(const eCameraZonePacket &other)
+    {
+        unknown_08 = other.unknown_08;
+
+        unknown_0C = other.unknown_0C;
+        unknown_10 = other.unknown_10;
+
+        unknown_14 = other.unknown_14;
+        unknown_18 = other.unknown_18;
+        unknown_1C = other.unknown_1C;
+    }
+
+    eCameraZonePacket::eCameraZonePacket(const eCameraZonePacket &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eCameraZonePacket& eCameraZonePacket::operator = (const eCameraZonePacket &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eCameraZonePacket::cloneFromMe() const
+    {
+        return new eCameraZonePacket(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCameraZonePacket: serialization
     // <kao2.00514990>
     ////////////////////////////////////////////////////////////////
     void eCameraZonePacket::serialize(Archive &ar)

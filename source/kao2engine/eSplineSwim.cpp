@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eSplineBase()
     {}
 
-    eSplineSwim::~eSplineSwim() {}
+    eSplineSwim::~eSplineSwim()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSplineSwim: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSplineSwim::createFromOtherObject(const eSplineSwim &other)
+    {}
+
+    eSplineSwim::eSplineSwim(const eSplineSwim &other)
+    : eSplineBase(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSplineSwim& eSplineSwim::operator = (const eSplineSwim &other)
+    {
+        if ((&other) != this)
+        {
+            eSplineBase::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSplineSwim::cloneFromMe() const
+    {
+        return new eSplineSwim(*this);
+    }
 
 }

@@ -30,7 +30,41 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eKaoKiller::~eKaoKiller() {}
+    eKaoKiller::~eKaoKiller()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eKaoKiller: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eKaoKiller::createFromOtherObject(const eKaoKiller &other)
+    {}
+
+    eKaoKiller::eKaoKiller(const eKaoKiller &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eKaoKiller& eKaoKiller::operator = (const eKaoKiller &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eKaoKiller::cloneFromMe() const
+    {
+        return new eKaoKiller(*this);
+    }
 
 
     ////////////////////////////////////////////////////////////////

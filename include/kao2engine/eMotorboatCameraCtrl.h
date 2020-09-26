@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eMotorboatCameraCtrl : public eFollowCameraCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,14 +28,26 @@ namespace ZookieWizard
             eMotorboatCameraCtrl();
             ~eMotorboatCameraCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eMotorboatCameraCtrl &other);
+
+        public:
+
+            eMotorboatCameraCtrl(const eMotorboatCameraCtrl &other);
+            eMotorboatCameraCtrl& operator = (const eMotorboatCameraCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eMotorboatCameraCtrl TypeInfo
-    // <kao2.004D6810> (registration)
+    // <kao2.004D67E0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_MOTORBOATCAMERACTRL_ID = 0x123400CC;

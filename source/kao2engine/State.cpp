@@ -36,22 +36,10 @@ namespace ZookieWizard
     State::State(eString s, State* x)
     : eRefCounter()
     {
-        /*[0x08]*/ isDefault = false;
-        /*[0x09]*/ isTerminal = false;
+        clearNewState();
+
         /*[0x0C]*/ name = s;
         /*[0x10]*/ ownerState = x;
-        /*[0x20]*/ defaultState = nullptr;
-
-        /*[0x3C-0x44]*/
-        instructions[0] = nullptr;
-        instructions[1] = nullptr;
-        instructions[2] = nullptr;
-
-        /*[0x70]*/ unknown_70 = (-1);
-
-        newGadgets_count = 0;
-        newGadgets_maxLength = 0;
-        newGadgets = nullptr;
     }
 
     State::~State()
@@ -66,6 +54,49 @@ namespace ZookieWizard
         }
 
         defaultState->decRef();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // State: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void State::createFromOtherObject(const State &other)
+    {
+        throw ErrorMessage
+        (
+            "CRITICAL ERROR while cloning the \"State\" object:\n" \
+            "cloning << states >> without context is not supported!!!"
+        );
+    }
+
+    State::State(const State &other)
+    : eRefCounter(other)
+    {
+        clearNewState();
+
+        /****************/
+
+        createFromOtherObject(other);
+    }
+
+    State& State::operator = (const State &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* State::cloneFromMe() const
+    {
+        return new State(*this);
     }
 
 
@@ -105,14 +136,43 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // State serialization
+    // State: get name
+    ////////////////////////////////////////////////////////////////
+    eString State::getStringRepresentation() const
+    {
+        return name;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // State: print
+    ////////////////////////////////////////////////////////////////
+    eString State::getLogPrintMessage() const
+    {
+        eString result = eObject::getLogPrintMessage();
+
+        result += "\n - \"";
+        result += name;
+        result += "\"";
+
+        if (anim.getLength() > 0)
+        {
+            result += " (\"";
+            result += anim;
+            result += "\")";
+        }
+
+        return result;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // State: serialization
     // <kao2.005951C0>
     ////////////////////////////////////////////////////////////////
     void State::serialize(Archive &ar)
     {
-        int32_t i, j;
-        Gadget* test_gadget[2];
-        eString test_names[2];
+        int32_t a;
 
         /* [0x08] Is this state a `default state`? */
         ar.readOrWrite(&isDefault, 0x01);
@@ -160,45 +220,6 @@ namespace ZookieWizard
         {
             /* [0x54] `gadget A ("B")` lines */
             gadgets.serialize(ar, &E_GADGET_TYPEINFO);
-
-            if (ar.isInReadMode())
-            {
-                /* Sanity check: different gadget names */
-
-                for (i = 1; i < gadgets.getSize(); i++)
-                {
-                    test_gadget[0] = (Gadget*)(gadgets.getIthChild(i));
-                    test_names[0] = test_gadget[0]->getStringRepresentation();
-
-                    for (j = 0; j < i; j++)
-                    {
-                        test_gadget[1] = (Gadget*)(gadgets.getIthChild(j));
-                        test_names[1] = test_gadget[1]->getStringRepresentation();
-
-                        if (test_names[0].compareExact(test_names[1], true))
-                        {
-                            try
-                            {
-                                throw ErrorMessage
-                                (
-                                    "State::serialize():\n" \
-                                    "duplicate gadget names!\n" \
-                                    " - \"%s\" [%s]\n" \
-                                    " - \"%s\" [%s]\n" \
-                                    "(state: \"%s\")",
-                                    test_names[0].getText(), test_gadget[0]->getType()->name,
-                                    test_names[1].getText(), test_gadget[1]->getType()->name,
-                                    name.getText()
-                                );
-                            }
-                            catch (ErrorMessage &e)
-                            {
-                                e.display();
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         /* [0x60] `node A ("B")` lines */
@@ -238,32 +259,23 @@ namespace ZookieWizard
 
                 newGadgets = new NewGadgetBase [newGadgets_maxLength];
 
-                for (i = 0; i < newGadgets_maxLength; i++)
+                for (a = 0; a < newGadgets_maxLength; a++)
                 {
-                    newGadgets[i].serialize(ar);
+                    newGadgets[a].serialize(ar);
 
-                    newGadgets_count = (i+1);
+                    newGadgets_count = (a+1);
                 }
             }
             else
             {
                 ar.readOrWrite(&newGadgets_count, 0x04);
 
-                for (i = 0; i < newGadgets_count; i++)
+                for (a = 0; a < newGadgets_count; a++)
                 {
-                    newGadgets[i].serialize(ar);
+                    newGadgets[a].serialize(ar);
                 }
             }
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // State: get name
-    ////////////////////////////////////////////////////////////////
-    eString State::getStringRepresentation() const
-    {
-        return name;
     }
 
 
@@ -564,33 +576,35 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // State: print
-    ////////////////////////////////////////////////////////////////
-    eString State::getLogPrintMessage() const
-    {
-        eString result = eObject::getLogPrintMessage();
-
-        result += "\n - \"";
-        result += name;
-        result += "\"";
-
-        if (anim.getLength() > 0)
-        {
-            result += " (\"";
-            result += anim;
-            result += "\")";
-        }
-
-        return result;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // State: get owner (used with "ShiftInstruction")
     ////////////////////////////////////////////////////////////////
     State* State::getOwner() const
     {
         return ownerState;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // State: clear this object
+    ////////////////////////////////////////////////////////////////
+    void State::clearNewState()
+    {
+        /*[0x08]*/ isDefault = false;
+        /*[0x09]*/ isTerminal = false;
+
+        /*[0x10]*/ ownerState = nullptr;
+        /*[0x20]*/ defaultState = nullptr;
+
+        /*[0x3C-0x44]*/
+        instructions[0] = nullptr;
+        instructions[1] = nullptr;
+        instructions[2] = nullptr;
+
+        /*[0x70]*/ unknown_70 = (-1);
+
+        newGadgets_count = 0;
+        newGadgets_maxLength = 0;
+        newGadgets = nullptr;
     }
 
 }

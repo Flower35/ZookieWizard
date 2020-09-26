@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eLisajoux::~eLisajoux() {}
+    eLisajoux::~eLisajoux()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLisajoux: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eLisajoux::createFromOtherObject(const eLisajoux &other)
+    {}
+
+    eLisajoux::eLisajoux(const eLisajoux &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eLisajoux& eLisajoux::operator = (const eLisajoux &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eLisajoux::cloneFromMe() const
+    {
+        return new eLisajoux(*this);
+    }
 
 }

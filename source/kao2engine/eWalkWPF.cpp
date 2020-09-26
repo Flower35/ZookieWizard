@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eWalk()
     {}
 
-    eWalkWPF::~eWalkWPF() {}
+    eWalkWPF::~eWalkWPF()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eWalkWPF: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eWalkWPF::createFromOtherObject(const eWalkWPF &other)
+    {}
+
+    eWalkWPF::eWalkWPF(const eWalkWPF &other)
+    : eWalk(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eWalkWPF& eWalkWPF::operator = (const eWalkWPF &other)
+    {
+        if ((&other) != this)
+        {
+            eWalk::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eWalkWPF::cloneFromMe() const
+    {
+        return new eWalkWPF(*this);
+    }
 
 }

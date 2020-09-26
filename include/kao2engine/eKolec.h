@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eKolec : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eKolec();
             ~eKolec();
 
+        private:
+
+            void createFromOtherObject(const eKolec &other);
+
+        public:
+
+            eKolec(const eKolec &other);
+            eKolec& operator = (const eKolec &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eKolec TypeInfo
-    // <kao2.00451AE0> (registration)
+    // <kao2.00451AB0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_KOLEC_ID = 0x3D0FB836;

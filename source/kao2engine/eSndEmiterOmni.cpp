@@ -33,11 +33,48 @@ namespace ZookieWizard
         /*[0xCC]*/ unknown_CC = 1.0f;
     }
 
-    eSndEmiterOmni::~eSndEmiterOmni() {}
+    eSndEmiterOmni::~eSndEmiterOmni()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eSndEmiterOmni serialization
+    // eSndEmiterOmni: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSndEmiterOmni::createFromOtherObject(const eSndEmiterOmni &other)
+    {
+        unknown_C8 = other.unknown_C8;
+        unknown_CC = other.unknown_CC;
+    }
+
+    eSndEmiterOmni::eSndEmiterOmni(const eSndEmiterOmni &other)
+    : eSndEmiter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSndEmiterOmni& eSndEmiterOmni::operator = (const eSndEmiterOmni &other)
+    {
+        if ((&other) != this)
+        {
+            eSndEmiter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSndEmiterOmni::cloneFromMe() const
+    {
+        return new eSndEmiterOmni(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSndEmiterOmni: serialization
     // <kao2.0056C600>
     ////////////////////////////////////////////////////////////////
     void eSndEmiterOmni::serialize(Archive &ar)
@@ -45,11 +82,9 @@ namespace ZookieWizard
         eSndEmiter::serialize(ar);
 
         /* [0xC8] unknown */
-
         ar.readOrWrite(&unknown_C8, 0x04);
 
         /* [0xCC] unknown */
-
         ar.readOrWrite(&unknown_CC, 0x04);
     }
 

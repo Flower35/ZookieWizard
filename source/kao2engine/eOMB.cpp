@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eOMB::~eOMB() {}
+    eOMB::~eOMB()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eOMB: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eOMB::createFromOtherObject(const eOMB &other)
+    {}
+
+    eOMB::eOMB(const eOMB &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eOMB& eOMB::operator = (const eOMB &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eOMB::cloneFromMe() const
+    {
+        return new eOMB(*this);
+    }
 
 }

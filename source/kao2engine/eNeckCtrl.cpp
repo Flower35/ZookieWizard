@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eLookAtCtrl()
     {}
 
-    eNeckCtrl::~eNeckCtrl() {}
+    eNeckCtrl::~eNeckCtrl()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNeckCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eNeckCtrl::createFromOtherObject(const eNeckCtrl &other)
+    {}
+
+    eNeckCtrl::eNeckCtrl(const eNeckCtrl &other)
+    : eLookAtCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eNeckCtrl& eNeckCtrl::operator = (const eNeckCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eLookAtCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eNeckCtrl::cloneFromMe() const
+    {
+        return new eNeckCtrl(*this);
+    }
 
 }

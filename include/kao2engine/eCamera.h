@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eCamera interface
+    // <kao2.005D4A20> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eCamera : public eObserver
     {
-
         /*** Properties ***/
 
         protected:
@@ -32,15 +32,31 @@ namespace ZookieWizard
             eCamera();
             ~eCamera();
 
-            void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+        private:
 
-            void renderNode(eDrawContext &draw_context) const override;
+            void createFromOtherObject(const eCamera &other);
+
+        public:
+
+            eCamera(const eCamera &other);
+            eCamera& operator = (const eCamera &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
+            TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eNode >> */
 
             void findAndDereference(eNode* target) override;
 
+            void renderNode(eDrawContext &draw_context) const override;
+
             int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
+
+            /* << eCamera >> */
 
             eTransform* getCameraTarget() const;
             void setCameraTarget(eTransform* new_target);
@@ -51,7 +67,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eCamera TypeInfo
-    // <kao2.0050EC50> (registration)
+    // <kao2.0050EC20> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_CAMERA_ID = 0x0CA4E7A1;

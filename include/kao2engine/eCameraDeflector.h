@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eCameraDeflector : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,14 +28,26 @@ namespace ZookieWizard
             eCameraDeflector();
             ~eCameraDeflector();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eCameraDeflector &other);
+
+        public:
+
+            eCameraDeflector(const eCameraDeflector &other);
+            eCameraDeflector& operator = (const eCameraDeflector &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCameraDeflector TypeInfo
-    // <kao_tw.005DDC70> (registration)
+    // <kao_tw.005DDC40> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_CAMERADEFLECTOR_ID = 0x0C3A0002;

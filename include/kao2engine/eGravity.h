@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eGravity : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eGravity();
             ~eGravity();
 
+        private:
+
+            void createFromOtherObject(const eGravity &other);
+
+        public:
+
+            eGravity(const eGravity &other);
+            eGravity& operator = (const eGravity &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eGravity TypeInfo
-    // <kao2.0052FC60> (registration)
+    // <kao2.0052FC30> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_GRAVITY_ID = 0xAAAABBBD;

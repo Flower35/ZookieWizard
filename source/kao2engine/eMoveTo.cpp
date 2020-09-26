@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eMoveTo::~eMoveTo() {}
+    eMoveTo::~eMoveTo()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMoveTo: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eMoveTo::createFromOtherObject(const eMoveTo &other)
+    {}
+
+    eMoveTo::eMoveTo(const eMoveTo &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eMoveTo& eMoveTo::operator = (const eMoveTo &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eMoveTo::cloneFromMe() const
+    {
+        return new eMoveTo(*this);
+    }
 
 }

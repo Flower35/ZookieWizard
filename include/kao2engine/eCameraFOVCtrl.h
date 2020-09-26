@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eCameraFOVCtrl : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eCameraFOVCtrl();
             ~eCameraFOVCtrl();
 
+        private:
+
+            void createFromOtherObject(const eCameraFOVCtrl &other);
+
+        public:
+
+            eCameraFOVCtrl(const eCameraFOVCtrl &other);
+            eCameraFOVCtrl& operator = (const eCameraFOVCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCameraFOVCtrl TypeInfo
-    // <kao2.004D5B90> (registration)
+    // <kao2.004D5B60> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_CAMERAFOVCTRL_ID = 0xCA3E7A0F;

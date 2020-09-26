@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eKaoKiller : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,7 +28,21 @@ namespace ZookieWizard
             eKaoKiller();
             ~eKaoKiller();
 
+        private:
+
+            void createFromOtherObject(const eKaoKiller &other);
+
+        public:
+
+            eKaoKiller(const eKaoKiller &other);
+            eKaoKiller& operator = (const eKaoKiller &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+
+            /* << Gadget >> */
 
             eString getDefaultGadgetName() const override;
     };
@@ -37,7 +50,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eKaoKiller TypeInfo
-    // <kao2.0050BC70> (registration)
+    // <kao2.0050BC40> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_KAOKILLER_ID = 0x0002F552;

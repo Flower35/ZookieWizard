@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eSnd()
     {}
 
-    eStaticSnd::~eStaticSnd() {}
+    eStaticSnd::~eStaticSnd()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eStaticSnd: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eStaticSnd::createFromOtherObject(const eStaticSnd &other)
+    {}
+
+    eStaticSnd::eStaticSnd(const eStaticSnd &other)
+    : eSnd(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eStaticSnd& eStaticSnd::operator = (const eStaticSnd &other)
+    {
+        if ((&other) != this)
+        {
+            eSnd::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eStaticSnd::cloneFromMe() const
+    {
+        return new eStaticSnd(*this);
+    }
 
 }

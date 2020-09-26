@@ -15,7 +15,6 @@ namespace ZookieWizard
 
     class eCollisionMgr : public eObject
     {
-
         /*** Properties ***/
 
         protected:
@@ -47,28 +46,48 @@ namespace ZookieWizard
             eCollisionMgr();
             ~eCollisionMgr();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eCollisionMgr &other);
+
+        public:
+
+            eCollisionMgr(const eCollisionMgr &other);
+            eCollisionMgr& operator = (const eCollisionMgr &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eCollisionMgr >> */
 
             void prepare_ALBox_links();
             int32_t function_004993D0(int8_t arg1);
             void function_00499390(AxisList arg1[3][2]);
-            void save_ALBox(int32_t offset, eALBox* pointer);
             void function_004994E0(int32_t offset);
+
+            void save_ALBox(int32_t offset, eALBox* pointer);
+            int32_t get_ALBoxes_array_size() const;
+            eALBox** get_ALBoxes_array() const;
 
             void insertNewItem_seriesA(int32_t item);
             void insertNewItem_seriesB(eALBox* item);
 
-            int32_t get_ALBoxes_array_size() const;
-            eALBox** get_ALBoxes_array() const;
-
             void reset();
+
+        private:
+
+            /* << eCollisionMgr >> */
+
+            void clearNewCollisionMgr();
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCollisionMgr TypeInfo
-    // <kao2.0049A060> (registration)
+    // <kao2.0049A030> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_COLLISIONMGR_ID = 0x0C700000;

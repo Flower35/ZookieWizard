@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eKasztanCtrl : public eEmptyCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,14 +27,26 @@ namespace ZookieWizard
             eKasztanCtrl();
             ~eKasztanCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eKasztanCtrl &other);
+
+        public:
+
+            eKasztanCtrl(const eKasztanCtrl &other);
+            eKasztanCtrl& operator = (const eKasztanCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eKasztanCtrl TypeInfo
-    // <kao2.00428220> (registration)
+    // <kao2.004281F0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_KASZTANCTRL_ID = 0xF0A10029;

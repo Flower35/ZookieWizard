@@ -11,11 +11,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eMorpherMod interface
+    // <kao2.005D1A1C> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eMorpherMod : public eModifier
     {
-
         /*** Properties ***/
 
         protected:
@@ -30,14 +30,26 @@ namespace ZookieWizard
             eMorpherMod();
             ~eMorpherMod();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eMorpherMod &other);
+
+        public:
+
+            eMorpherMod(const eMorpherMod &other);
+            eMorpherMod& operator = (const eMorpherMod &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eMorpherMod TypeInfo
-    // <kao2.0049F810> (registration)
+    // <kao2.0049F7E0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_MORPHERMOD_ID = 0x3018;

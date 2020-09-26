@@ -30,11 +30,48 @@ namespace ZookieWizard
     : ePathCtrl()
     {}
 
-    eEmptyCtrl::~eEmptyCtrl() {}
+    eEmptyCtrl::~eEmptyCtrl()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eEmptyCtrl serialization
+    // eEmptyCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eEmptyCtrl::createFromOtherObject(const eEmptyCtrl &other)
+    {
+        unknown_50 = other.unknown_50;
+        unknown_51 = other.unknown_51;
+    }
+
+    eEmptyCtrl::eEmptyCtrl(const eEmptyCtrl &other)
+    : ePathCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eEmptyCtrl& eEmptyCtrl::operator = (const eEmptyCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            ePathCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eEmptyCtrl::cloneFromMe() const
+    {
+        return new eEmptyCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eEmptyCtrl: serialization
     // <kao2.004275C0>
     ////////////////////////////////////////////////////////////////
     void eEmptyCtrl::serialize(Archive &ar)

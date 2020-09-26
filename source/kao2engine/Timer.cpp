@@ -32,11 +32,48 @@ namespace ZookieWizard
         name = "timer";
     }
 
-    Timer::~Timer() {}
+    Timer::~Timer()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // Timer serialization
+    // Timer: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void Timer::createFromOtherObject(const Timer &other)
+    {
+        unknown_10 = other.unknown_10;
+        unknown_14 = other.unknown_14;
+    }
+
+    Timer::Timer(const Timer &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    Timer& Timer::operator = (const Timer &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* Timer::cloneFromMe() const
+    {
+        return new Timer(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Timer: serialization
     // <kao2.0059C8D0>
     ////////////////////////////////////////////////////////////////
     void Timer::serialize(Archive &ar)

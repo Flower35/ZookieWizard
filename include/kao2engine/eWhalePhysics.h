@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eWhalePhysics : public ePhysics
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +27,25 @@ namespace ZookieWizard
             eWhalePhysics();
             ~eWhalePhysics();
 
+        private:
+
+            void createFromOtherObject(const eWhalePhysics &other);
+
+        public:
+
+            eWhalePhysics(const eWhalePhysics &other);
+            eWhalePhysics& operator = (const eWhalePhysics &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eWhalePhysics TypeInfo
-    // <kao2.004FBB00> (registration)
+    // <kao2.004FBAD0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_WHALEPHYSICS_ID = 0x0002DF21;

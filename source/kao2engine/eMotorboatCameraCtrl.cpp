@@ -30,11 +30,45 @@ namespace ZookieWizard
     : eFollowCameraCtrl()
     {}
 
-    eMotorboatCameraCtrl::~eMotorboatCameraCtrl() {}
+    eMotorboatCameraCtrl::~eMotorboatCameraCtrl()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eMotorboatCameraCtrl serialization
+    // eMotorboatCameraCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eMotorboatCameraCtrl::createFromOtherObject(const eMotorboatCameraCtrl &other)
+    {}
+
+    eMotorboatCameraCtrl::eMotorboatCameraCtrl(const eMotorboatCameraCtrl &other)
+    : eFollowCameraCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eMotorboatCameraCtrl& eMotorboatCameraCtrl::operator = (const eMotorboatCameraCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eFollowCameraCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eMotorboatCameraCtrl::cloneFromMe() const
+    {
+        return new eMotorboatCameraCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMotorboatCameraCtrl: serialization
     ////////////////////////////////////////////////////////////////
     void eMotorboatCameraCtrl::serialize(Archive &ar)
     {

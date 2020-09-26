@@ -30,11 +30,45 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eParticleCtrl::~eParticleCtrl() {}
+    eParticleCtrl::~eParticleCtrl()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eParticleCtrl serialization
+    // eParticleCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eParticleCtrl::createFromOtherObject(const eParticleCtrl &other)
+    {}
+
+    eParticleCtrl::eParticleCtrl(const eParticleCtrl &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eParticleCtrl& eParticleCtrl::operator = (const eParticleCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eParticleCtrl::cloneFromMe() const
+    {
+        return new eParticleCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eParticleCtrl: serialization
     // <kao2.00430C40>
     ////////////////////////////////////////////////////////////////
     void eParticleCtrl::serialize(Archive &ar)

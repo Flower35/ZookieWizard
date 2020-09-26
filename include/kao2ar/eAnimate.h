@@ -10,12 +10,14 @@ namespace ZookieWizard
     class Archive;
 
     ////////////////////////////////////////////////////////////////
-    //
+    // Animation sub-class for "ePivot"
     ////////////////////////////////////////////////////////////////
 
     struct eAnimate
     {
         /*** Properties ***/
+
+        public:
 
             /*[0x04-0x0C]*/ Collection<ArFunctions::serialize_eRefCounter> tracks;
             /*[0x10]*/ eAnimState** animStateA;
@@ -29,8 +31,19 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
+        public:
+
             eAnimate();
             ~eAnimate();
+
+        private:
+
+            void createFromOtherObject(const eAnimate &other);
+
+        public:
+
+            eAnimate(const eAnimate &other);
+            eAnimate& operator = (const eAnimate &other);
 
             void clearAnimStateContainers();
 

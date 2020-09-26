@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eButterfly::~eButterfly() {}
+    eButterfly::~eButterfly()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eButterfly: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eButterfly::createFromOtherObject(const eButterfly &other)
+    {}
+
+    eButterfly::eButterfly(const eButterfly &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eButterfly& eButterfly::operator = (const eButterfly &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eButterfly::cloneFromMe() const
+    {
+        return new eButterfly(*this);
+    }
 
 }

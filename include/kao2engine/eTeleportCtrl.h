@@ -14,7 +14,6 @@ namespace ZookieWizard
 
     class eTeleportCtrl : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -30,8 +29,22 @@ namespace ZookieWizard
             eTeleportCtrl();
             ~eTeleportCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eTeleportCtrl &other);
+
+        public:
+
+            eTeleportCtrl(const eTeleportCtrl &other);
+            eTeleportCtrl& operator = (const eTeleportCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << Gadget >> */
 
             eString getDefaultGadgetName() const override;
     };
@@ -39,7 +52,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eTeleportCtrl TypeInfo
-    // <kao2.00431060> (registration)
+    // <kao2.00431030> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TELEPORTCTRL_ID = 0xFAC13022;

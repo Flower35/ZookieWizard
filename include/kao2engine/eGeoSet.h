@@ -11,11 +11,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eGeoSet interface
+    // <kao2.005D0610> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eGeoSet : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -38,23 +38,33 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
-        private:
-
-            void displayVertexBufferObject(int32_t texID, bool use_color) const;
-
         public:
 
             eGeoSet();
             ~eGeoSet();
 
-            void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+        private:
 
-            int32_t getTextureCoordsCount() const;
-            int32_t getTextureId(int32_t i) const;
+            void createFromOtherObject(const eGeoSet &other);
+
+        public:
+
+            eGeoSet(const eGeoSet &other);
+            eGeoSet& operator = (const eGeoSet &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
+            TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eGeoSet >> */
 
             void draw(int32_t draw_flags, int32_t texID) const;
             void prepareForDrawing();
+
+            int32_t getTextureCoordsCount() const;
+            int32_t getTextureId(int32_t i) const;
 
             void setVerticesArray(eGeoArray<ePoint4>* new_vertices_array);
             void setNormalsArray(eGeoArray<ePoint4>* new_normals_array);
@@ -75,12 +85,20 @@ namespace ZookieWizard
             void transformVertices(eSRP &new_transform, eString &mesh_name, ePoint3 &box_min, ePoint3 &box_max);
             void buildAabbTree(eString &mesh_name);
             void clearAabbTree();
+
+        private:
+
+            /* << eGeoSet >> */
+
+            void clearExistingGeoSet();
+
+            void displayVertexBufferObject(int32_t texID, bool use_color) const;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eGeoSet TypeInfo
-    // <kao2.0046D7C0> (registration)
+    // <kao2.0046D790> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_GEOSET_ID = 0x3004;

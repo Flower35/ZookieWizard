@@ -13,13 +13,24 @@ namespace ZookieWizard
 
     class e3fXArray : public eGeoArray<ePoint4>
     {
-
         /*** Methods ***/
 
         public:
 
             e3fXArray();
             ~e3fXArray();
+
+        private:
+
+            void createFromOtherObject(const e3fXArray &other);
+
+        public:
+
+            e3fXArray(const e3fXArray &other);
+            e3fXArray& operator = (const e3fXArray &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
 
             TypeInfo* getType() const override;
     };
@@ -31,7 +42,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // e3fXArray TypeInfo
-    // <kao_tw.004348D0> (registration)
+    // <kao_tw.004348A0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_3FXARRAY_ID = 0xEEEEEEDF;

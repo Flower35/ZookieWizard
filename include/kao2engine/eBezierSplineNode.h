@@ -11,11 +11,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eBezierSplineNode interface
+    // <kao2.005D1CE8> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eBezierSplineNode : public eNode
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,8 +29,22 @@ namespace ZookieWizard
             eBezierSplineNode();
             ~eBezierSplineNode();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eBezierSplineNode &other);
+
+        public:
+
+            eBezierSplineNode(const eBezierSplineNode &other);
+            eBezierSplineNode& operator = (const eBezierSplineNode &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eNode >> */
 
             void renderNode(eDrawContext &draw_context) const override;
 
@@ -39,13 +53,15 @@ namespace ZookieWizard
 
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
 
+            /* << eBezierSplineNode >> */
+
             void bezierSplineGetSegment(ePoint3 &result, float time) const;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eBezierSplineNode TypeInfo
-    // <kao2.004A8820> (registration)
+    // <kao2.004A87F0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_BEZIERSPLINENODE_ID = 0x00398884;

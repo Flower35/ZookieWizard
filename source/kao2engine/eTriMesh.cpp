@@ -48,7 +48,54 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTriMesh serialization
+    // eTriMesh: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eTriMesh::createFromOtherObject(const eTriMesh &other)
+    {
+        if (nullptr != other.geo)
+        {
+            geo = new eGeoSet(*(other.geo));
+            geo->incRef();
+        }
+        else
+        {
+            geo = nullptr;
+        }
+    }
+
+    eTriMesh::eTriMesh(const eTriMesh &other)
+    : eGeometry(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eTriMesh& eTriMesh::operator = (const eTriMesh &other)
+    {
+        if ((&other) != this)
+        {
+            eGeometry::operator = (other);
+
+            /****************/
+
+            geo->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eTriMesh::cloneFromMe() const
+    {
+        return new eTriMesh(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTriMesh: serialization
     // <kao2.0046A880>
     ////////////////////////////////////////////////////////////////
     void eTriMesh::serialize(Archive &ar)
@@ -109,71 +156,6 @@ namespace ZookieWizard
         }
 
         eNode::destroyNode();
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTriMesh: (editor option) rebuild collision
-    ////////////////////////////////////////////////////////////////
-    void eTriMesh::editingRebuildCollision()
-    {
-        eGeometry::editingRebuildCollision();
-
-        flagsCollisionResponse = 0x00FF;
-
-        if (nullptr != geo)
-        {
-            try
-            {
-                geo->buildAabbTree(name);
-
-                flagsCollisionResponse = 0;
-            }
-            catch (ErrorMessage &err)
-            {
-                err.display();
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTriMesh: (editor function) clear collision
-    ////////////////////////////////////////////////////////////////
-    void eTriMesh::editingClearCollision()
-    {
-        if (nullptr != geo)
-        {
-            geo->clearAabbTree();
-        }
-
-        eGeometry::editingClearCollision();
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTriMesh: (editor option) apply new transformation
-    ////////////////////////////////////////////////////////////////
-    void eTriMesh::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
-    {
-        ePhyTriMesh* test_phy;
-
-        if (nullptr != geo)
-        {
-            geo->transformVertices(new_transform, name, boxBoundMin, boxBoundMax);
-
-            if (nullptr != axisListBox)
-            {
-                eGeometry::editingRebuildCollision();
-            }
-
-            test_phy = geo->getPhyTriMesh();
-
-            if (nullptr != test_phy)
-            {
-                test_phy->transformVertices(new_transform);
-            }
-        }
     }
 
 
@@ -271,17 +253,79 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTriMesh: get GeoSet pointer (used with ePhyTriMesh)
+    // eTriMesh: (editor option) rebuild collision
     ////////////////////////////////////////////////////////////////
+    void eTriMesh::editingRebuildCollision()
+    {
+        eGeometry::editingRebuildCollision();
+
+        flagsCollisionResponse = 0x00FF;
+
+        if (nullptr != geo)
+        {
+            try
+            {
+                geo->buildAabbTree(name);
+
+                flagsCollisionResponse = 0;
+            }
+            catch (ErrorMessage &err)
+            {
+                err.display();
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTriMesh: (editor function) clear collision
+    ////////////////////////////////////////////////////////////////
+    void eTriMesh::editingClearCollision()
+    {
+        if (nullptr != geo)
+        {
+            geo->clearAabbTree();
+        }
+
+        eGeometry::editingClearCollision();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTriMesh: (editor option) apply new transformation
+    ////////////////////////////////////////////////////////////////
+    void eTriMesh::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
+    {
+        ePhyTriMesh* test_phy;
+
+        if (nullptr != geo)
+        {
+            geo->transformVertices(new_transform, name, boxBoundMin, boxBoundMax);
+
+            if (nullptr != axisListBox)
+            {
+                eGeometry::editingRebuildCollision();
+            }
+
+            test_phy = geo->getPhyTriMesh();
+
+            if (nullptr != test_phy)
+            {
+                test_phy->transformVertices(new_transform);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTriMesh: get or set the GeoSet
+    ////////////////////////////////////////////////////////////////
+
     eGeoSet* eTriMesh::getGeoset() const
     {
         return geo;
     }
 
-
-    ////////////////////////////////////////////////////////////////
-    // eTriMesh: set GeoSet pointer
-    ////////////////////////////////////////////////////////////////
     void eTriMesh::setGeoset(eGeoSet* new_geo)
     {
         if (geo != new_geo)

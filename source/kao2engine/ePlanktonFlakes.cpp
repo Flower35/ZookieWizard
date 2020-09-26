@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eForrestFlakes()
     {}
 
-    ePlanktonFlakes::~ePlanktonFlakes() {}
+    ePlanktonFlakes::~ePlanktonFlakes()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePlanktonFlakes: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePlanktonFlakes::createFromOtherObject(const ePlanktonFlakes &other)
+    {}
+
+    ePlanktonFlakes::ePlanktonFlakes(const ePlanktonFlakes &other)
+    : eForrestFlakes(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePlanktonFlakes& ePlanktonFlakes::operator = (const ePlanktonFlakes &other)
+    {
+        if ((&other) != this)
+        {
+            eForrestFlakes::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePlanktonFlakes::cloneFromMe() const
+    {
+        return new ePlanktonFlakes(*this);
+    }
 
 }

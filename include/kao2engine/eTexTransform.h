@@ -10,11 +10,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eTexTransform interface
+    // <kao2.005D0748> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eTexTransform : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -31,8 +31,22 @@ namespace ZookieWizard
             eTexTransform();
             ~eTexTransform();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eTexTransform &other);
+
+        public:
+
+            eTexTransform(const eTexTransform &other);
+            eTexTransform& operator = (const eTexTransform &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eTexTransform >> */
 
             void updateTextureMatrix(eAnimate* anim) const;
     };
@@ -40,7 +54,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eTexTransform TypeInfo
-    // <kao2.00472DB0> (registration)
+    // <kao2.00472D80> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TEXTRANSFORM_ID = 0x1004;

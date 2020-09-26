@@ -32,14 +32,41 @@ namespace ZookieWizard
         name = "key";
     }
 
-    Key::~Key() {}
+    Key::~Key()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // Static Gadget
+    // Key: cloning the object
     ////////////////////////////////////////////////////////////////
 
-    Key theKey;
+    void Key::createFromOtherObject(const Key &other)
+    {}
+
+    Key::Key(const Key &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    Key& Key::operator = (const Key &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* Key::cloneFromMe() const
+    {
+        return new Key(*this);
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -49,5 +76,13 @@ namespace ZookieWizard
     {
         return "key";
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Static Gadget
+    ////////////////////////////////////////////////////////////////
+
+    Key theKey;
+
 
 }

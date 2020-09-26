@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eTextWriterFields2::~eTextWriterFields2() {}
+    eTextWriterFields2::~eTextWriterFields2()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTextWriterFields2: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eTextWriterFields2::createFromOtherObject(const eTextWriterFields2 &other)
+    {}
+
+    eTextWriterFields2::eTextWriterFields2(const eTextWriterFields2 &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eTextWriterFields2& eTextWriterFields2::operator = (const eTextWriterFields2 &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eTextWriterFields2::cloneFromMe() const
+    {
+        return new eTextWriterFields2(*this);
+    }
 
 }

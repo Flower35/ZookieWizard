@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eVisibilityCtrl::~eVisibilityCtrl() {}
+    eVisibilityCtrl::~eVisibilityCtrl()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eVisibilityCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eVisibilityCtrl::createFromOtherObject(const eVisibilityCtrl &other)
+    {}
+
+    eVisibilityCtrl::eVisibilityCtrl(const eVisibilityCtrl &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eVisibilityCtrl& eVisibilityCtrl::operator = (const eVisibilityCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eVisibilityCtrl::cloneFromMe() const
+    {
+        return new eVisibilityCtrl(*this);
+    }
 
 }

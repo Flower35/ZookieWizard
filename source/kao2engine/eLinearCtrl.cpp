@@ -38,7 +38,7 @@ namespace ZookieWizard
 
         /*[0x28]*/ unknown_28 = 1.0f;
         /*[0x34]*/ unknown_34 = 1.0f;
-        
+
         /*[0x1C]*/ unknown_1C = 0;
         /*[0x24]*/ unknown_24 = 0;
 
@@ -72,6 +72,120 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eLinearCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eLinearCtrl::createFromOtherObject(const eLinearCtrl &other)
+    {
+        if (other.groupA_Count > 0)
+        {
+            groupA_MaxLength = other.groupA_Count;
+            groupA = new eLinearCtrlBaseA [groupA_MaxLength];
+
+            for (groupA_Count = 0; groupA_Count < groupA_MaxLength; groupA_Count++)
+            {
+                groupA[groupA_Count] = other.groupA[groupA_Count];
+            }
+        }
+        else
+        {
+            groupA_Count = 0;
+            groupA_MaxLength = 0;
+            groupA = nullptr;
+        }
+
+        /****************/
+
+        if (other.groupB_Count > 0)
+        {
+            groupB_MaxLength = other.groupB_Count;
+            groupB = new eLinearCtrlBaseB [groupB_MaxLength];
+
+            for (groupB_Count = 0; groupB_Count < groupB_MaxLength; groupB_Count++)
+            {
+                groupB[groupB_Count] = other.groupB[groupB_Count];
+            }
+        }
+        else
+        {
+            groupB_Count = 0;
+            groupB_MaxLength = 0;
+            groupB = nullptr;
+        }
+
+        /****************/
+
+        unknown_1C = other.unknown_1C;
+        unknown_20 = other.unknown_20;
+        unknown_24 = other.unknown_24;
+        unknown_28 = other.unknown_28;
+        unknown_2C = other.unknown_2C;
+        unknown_30 = other.unknown_30;
+        unknown_34 = other.unknown_34;
+        unknown_38 = other.unknown_38;
+
+        /****************/
+
+        if (other.seriesLength > 0)
+        {
+            series = new float [other.seriesLength];
+
+            for (seriesLength = 0; seriesLength < other.seriesLength; seriesLength++)
+            {
+                series[seriesLength] = other.series[seriesLength];
+            }
+        }
+        else
+        {
+            seriesLength = 0;
+            series = nullptr;
+        }
+    }
+
+    eLinearCtrl::eLinearCtrl(const eLinearCtrl &other)
+    : eObject(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eLinearCtrl& eLinearCtrl::operator = (const eLinearCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eObject::operator = (other);
+
+            /****************/
+
+            if (nullptr != groupA)
+            {
+                delete[](groupA);
+            }
+
+            if (nullptr != groupB)
+            {
+                delete[](groupB);
+            }
+
+            if (nullptr != series)
+            {
+                delete[](series);
+            }
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eLinearCtrl::cloneFromMe() const
+    {
+        return new eLinearCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Unknown structures
     // <kao2.0055E670> (first group serialization)
     // <kao2.0055E810> (second group serialization)
@@ -96,7 +210,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eLinearCtrl serialization
+    // eLinearCtrl: serialization
     // <kao2.0055D7C0>
     ////////////////////////////////////////////////////////////////
     void eLinearCtrl::serialize(Archive &ar)

@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Namespace interface
+    // <kao2.005D85D4> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class Namespace : public State
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,6 +28,8 @@ namespace ZookieWizard
             /*[0x94]*/ int32_t nodeRefNames_maxLength;
             /*[0x98]*/ eString* nodeRefNames;
 
+            bool exportable;
+
         /*** Methods ***/
 
         public:
@@ -35,14 +37,36 @@ namespace ZookieWizard
             Namespace();
             ~Namespace();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const Namespace &other);
+
+        public:
+
+            Namespace(const Namespace &other);
+            Namespace& operator = (const Namespace &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << Namespace >> */
+
+            bool canBeExported() const;
+
+        private:
+
+            /* << Namespace >> */
+
+            void clearNewNamespace();
     };
 
 
     ////////////////////////////////////////////////////////////////
     // Namespace TypeInfo
-    // <kao2.0059D820> (registration)
+    // <kao2.0059D7F0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_NAMESPACE_ID = 0x07EA0001;

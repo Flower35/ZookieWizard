@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eMaterialState interface
+    // <kao2.005D0F68> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eMaterialState : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -31,8 +31,22 @@ namespace ZookieWizard
             eMaterialState();
             ~eMaterialState();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eMaterialState &other);
+
+        public:
+
+            eMaterialState(const eMaterialState &other);
+            eMaterialState& operator = (const eMaterialState &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eMaterialState >> */
 
             void getAmbientColor(float* values) const;
             void getDiffuseColor(float* values) const;
@@ -48,7 +62,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eMaterialState TypeInfo
-    // <kao2.00482B50> (registration)
+    // <kao2.00482B20> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_MATERIALSTATE_ID = 0x1005;

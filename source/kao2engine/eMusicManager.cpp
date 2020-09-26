@@ -32,7 +32,41 @@ namespace ZookieWizard
         name = "musicManager";
     }
 
-    eMusicManager::~eMusicManager() {}
+    eMusicManager::~eMusicManager()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMusicManager: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eMusicManager::createFromOtherObject(const eMusicManager &other)
+    {}
+
+    eMusicManager::eMusicManager(const eMusicManager &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eMusicManager& eMusicManager::operator = (const eMusicManager &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eMusicManager::cloneFromMe() const
+    {
+        return new eMusicManager(*this);
+    }
 
 
     ////////////////////////////////////////////////////////////////

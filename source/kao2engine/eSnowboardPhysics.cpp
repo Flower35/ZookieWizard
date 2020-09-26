@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eBasePhysics()
     {}
 
-    eSnowboardPhysics::~eSnowboardPhysics() {}
+    eSnowboardPhysics::~eSnowboardPhysics()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSnowboardPhysics: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSnowboardPhysics::createFromOtherObject(const eSnowboardPhysics &other)
+    {}
+
+    eSnowboardPhysics::eSnowboardPhysics(const eSnowboardPhysics &other)
+    : eBasePhysics(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSnowboardPhysics& eSnowboardPhysics::operator = (const eSnowboardPhysics &other)
+    {
+        if ((&other) != this)
+        {
+            eBasePhysics::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSnowboardPhysics::cloneFromMe() const
+    {
+        return new eSnowboardPhysics(*this);
+    }
 
 }

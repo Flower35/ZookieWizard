@@ -199,6 +199,7 @@ namespace ZookieWizard
         int32_t test_value = 0;
         bool prepared_special_models = false;
         bool prepared_materials_viewer = false;
+        bool prepared_nodes_mgr = false;
 
         /********************************/
         /* Prepare Kao2 engine! */
@@ -260,6 +261,26 @@ namespace ZookieWizard
             }
         }
 
+        /********************************/
+        /* Prepare special managers */
+
+        if (0 == test_value)
+        {
+            if (!prepareNodesManager())
+            {
+                ErrorMessage
+                (
+                    "FATAL ERROR!\n" \
+                    "Could not prepare thr \"Nodes Manager\"."
+                )
+                .display();
+
+                test_value = (-1);
+            }
+
+            prepared_nodes_mgr = true;
+        }
+
         if (0 == test_value)
         {
             if (!GUI::prepareMaterialsManager())
@@ -267,9 +288,9 @@ namespace ZookieWizard
                 ErrorMessage
                 (
                     "FATAL ERROR!\n" \
-                    "Could not prepare materials manager."
+                    "Could not prepare the \"Materials Manager\"."
                 )
-                    .display();
+                .display();
 
                 test_value = (-1);
             }
@@ -284,9 +305,9 @@ namespace ZookieWizard
                 ErrorMessage
                 (
                     "FATAL ERROR!\n" \
-                    "Could not prepare special models."
+                    "Could not prepare \"Special 3D Models\"."
                 )
-                    .display();
+                .display();
 
                 test_value = (-1);
             }
@@ -321,6 +342,11 @@ namespace ZookieWizard
 
         /********************************/
         /* Close application */
+
+        if (prepared_nodes_mgr)
+        {
+            clearNodesManager();
+        }
 
         if (prepared_materials_viewer)
         {

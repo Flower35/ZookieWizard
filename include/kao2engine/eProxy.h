@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eProxy interface
+    // <kao2.005D1090> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eProxy : public eTransform
     {
-
         /*** Properties ***/
 
         protected:
@@ -38,33 +38,48 @@ namespace ZookieWizard
             eProxy();
             ~eProxy();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eProxy &other);
+
+        public:
+
+            eProxy(const eProxy &other);
+            eProxy& operator = (const eProxy &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
 
-            void findAndDereference(eNode* target) override;
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
-
-            void renderNode(eDrawContext &draw_context) const override;
+            /* << eNode >> */
 
             void destroyNode() override;
+            void findAndDereference(eNode* target) override;
+
+            void renderNode(eDrawContext &draw_context) const override;
 
             void editingNewNodeSetup() override;
 
             int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
 
-            void reloadXRef(eString media_dir, int32_t engine_version);
-            void exportXRef(eString media_dir, int32_t engine_version);
+            void reloadXRef(const eString &media_dir, int32_t engine_version) override;
+            void exportXRef(const eString &media_dir, int32_t engine_version) const override;
 
-            void setTargetName(eString new_target);
+            /* << eProxy >> */
+
             void setCategory(int32_t new_category);
+            void setTargetName(eString new_target_name);
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eProxy TypeInfo
-    // <kao2.00485610> (registration)
+    // <kao2.004855E0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PROXY_ID = 0x13454032;

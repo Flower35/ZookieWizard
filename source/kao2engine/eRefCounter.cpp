@@ -32,24 +32,43 @@ namespace ZookieWizard
         /*[0x04]*/ referenceCount = 0;
     }
 
-    eRefCounter::~eRefCounter() {}
+    eRefCounter::~eRefCounter()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eRefCounter: decrease reference
-    // <kao2.00402950>
+    // eRefCounter: cloning the object
     ////////////////////////////////////////////////////////////////
-    void eRefCounter::decRef()
+
+    void eRefCounter::createFromOtherObject(const eRefCounter &other)
     {
-        if (nullptr != this)
-        {
-            referenceCount--;
+        /* << MUST BE RESOLVED! >> */
+        referenceCount = 0;
+    }
 
-            if (0 == referenceCount)
-            {
-                delete this;
-            }
+    eRefCounter::eRefCounter(const eRefCounter &other)
+    : eObject(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eRefCounter& eRefCounter::operator = (const eRefCounter &other)
+    {
+        if ((&other) != this)
+        {
+            eObject::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
         }
+
+        return (*this);
+    }
+
+    eObject* eRefCounter::cloneFromMe() const
+    {
+        return new eRefCounter(*this);
     }
 
 
@@ -74,6 +93,24 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eRefCounter: decrease reference
+    // <kao2.00402950>
+    ////////////////////////////////////////////////////////////////
+    void eRefCounter::decRef()
+    {
+        if (nullptr != this)
+        {
+            referenceCount--;
+
+            if (0 == referenceCount)
+            {
+                delete this;
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eRefCounter: get reference count
     ////////////////////////////////////////////////////////////////
     int32_t eRefCounter::getReferenceCount() const
@@ -83,7 +120,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // ARchive: macro for objects with reference counters
+    // Archive: macro for objects with reference counters
     ////////////////////////////////////////////////////////////////
     void ArFunctions::serialize_eRefCounter(Archive &ar, eRefCounter** o, TypeInfo* t)
     {

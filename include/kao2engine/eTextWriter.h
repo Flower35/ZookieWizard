@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eTextWriter interface
+    // <kao2.005CDF50> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eTextWriter : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +28,25 @@ namespace ZookieWizard
             eTextWriter();
             ~eTextWriter();
 
+        private:
+
+            void createFromOtherObject(const eTextWriter &other);
+
+        public:
+
+            eTextWriter(const eTextWriter &other);
+            eTextWriter& operator = (const eTextWriter &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eTextWriter TypeInfo
-    // <kao2.0041EB50> (registration)
+    // <kao2.0041EB20> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TEXTWRITER_ID = 0x3B238DF2;

@@ -22,20 +22,32 @@ namespace ZookieWizard
             eObject();
             /*[[vptr]+0x0C]*/ virtual ~eObject();
 
-            /*[[vptr]+0x08]*/ virtual void serialize(Archive &ar);
+        private:
+
+            void createFromOtherObject(const eObject &other);
+
+        public:
+
+            eObject(const eObject &other);
+            eObject& operator = (const eObject &other);
+            virtual eObject* cloneFromMe() const;
+
+            /* << eObject >> */
+
             /*[[vptr]+0x00]*/ virtual TypeInfo* getType() const;
+            /*[[vptr]+0x08]*/ virtual void serialize(Archive &ar);
 
             virtual eString getStringRepresentation() const;
             virtual eString generateScriptText() const;
             virtual eString getLogPrintMessage() const;
-            virtual void writeStructureToTextFile(FileOperator &file, int32_t indentation) const;
+            virtual void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const;
             virtual void writeNodeToXmlFile(ColladaExporter &exporter) const;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eObject TypeInfo
-    // <kao2.00463210> (registration)
+    // <kao2.004631F0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_OBJECT_ID = 0x01;

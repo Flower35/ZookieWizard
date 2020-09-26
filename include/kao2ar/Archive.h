@@ -18,16 +18,27 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // KAO2 HELPER FUNCTIONS
+    ////////////////////////////////////////////////////////////////
+
+    namespace ArFunctions
+    {
+        eString getFullArchivePath(const eString &filename, const eString &media_dir, int32_t engine_version, int32_t flags);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // KAO2 ARCHIVE CLASS
     ////////////////////////////////////////////////////////////////
 
     #define AR_MODE_READ (1 << 0)
     #define AR_MODE_WRITE (1 << 1)
-    #define AR_MODE_EXPORT_SCRIPTS (1 << 2)
-    #define AR_MODE_EXPORT_PROXIES (1 << 3)
-    #define AR_MODE_DEBUG (1 << 4)
+    #define AR_MODE_DEBUG (1 << 2)
+    #define AR_MODE_IS_PROXY (1 << 3)
+    #define AR_MODE_SKIP_PROXIES (1 << 4)
     #define AR_MODE_ABSOLUTE_PATH (1 << 5)
-    #define AR_MODE_XREF_PATH (1 << 6)
+    #define AR_MODE_PARTICLES_PATH (1 << 6)
+    #define AR_MODE_XREF_PATH (1 << 7)
 
     #define AR_MAX_ITEMS 65536
     #define AR_MAX_TEMPSTR 192
@@ -57,6 +68,9 @@ namespace ZookieWizard
     #define NODES_EDITING_INSERT (-19)
     #define NODES_EDITING_RESET_TRANSFORM (-20)
     #define NODES_EDITING_APPLY_TRANSFORM (-21)
+    #define NODES_EDITING_CLONE_CURRENT (-22)
+    #define NODES_EDITING_CLONE_SELECTED (-23)
+    #define NODES_EDITING_CLONE_PASTING (-24)
 
     class Archive
     {
@@ -89,19 +103,7 @@ namespace ZookieWizard
             int32_t engineOpenedWith;
             int32_t engineSavedWith;
 
-            bool isLoadedAsProxy;
-
         /*** Methods ***/
-
-        private:
-
-            eString getFullArchivePath(eString filename, int32_t current_engine) const;
-
-            void deleteTempStrPtrs();
-
-            void changeGlobalScene() const;
-
-            void destroyParent();
 
         public:
 
@@ -109,29 +111,36 @@ namespace ZookieWizard
             Archive(eString new_media_dir);
             ~Archive();
 
-            bool open(eString filename, int32_t mode, int32_t engine_version, bool is_proxy, int32_t ver_max_override);
+        private:
+
+            Archive(const Archive &other);
+            Archive& operator = (const Archive &other);
+
+        public:
+
+            bool isNotEmpty() const;
+
+            bool open(eString path, int32_t mode, int32_t engine_version, int32_t ver_max_override);
             void close(bool hide);
 
-            /* State determining */
+            /* << State determining >> */
 
             bool isInReadMode() const;
             bool isInWriteMode() const;
-            bool isInExportScriptsMode() const;
-            bool isInExportProxiesMode() const;
             bool isInDebugMode() const;
 
-            /* Serialization (reading/writing archives) */
+            /* << Serialization (reading from archives, writing to archives) >> */
 
             int32_t getVersion() const;
             bool checkGameEngine(int32_t opened, int32_t saved) const;
             int32_t getCurrentEngineVersion() const;
-            void readOrWrite(void* pointer, int size);
 
             bool addItem(void* item, int type);
             void* getItem(int id, int type) const;
             int findItem(void* item) const;
             bool addTempStr(eStringBase<char>* str);
 
+            void readOrWrite(void* pointer, int size);
             void serialize(eObject** o, TypeInfo* t);
             void serializeString(eString &s);
             void replaceStringDuringSerialization(eString &oldStr, eString newStr);
@@ -139,17 +148,20 @@ namespace ZookieWizard
 
             void checkTypeInfo(TypeInfo** t);
 
-            /* Other */
+            /* << Other functions >> */
 
             eString getMediaDir() const;
             void setMediaDir(eString new_media_dir);
 
+            void changeGlobalScene() const;
             void renderScene(uint32_t draw_flags) const;
             void changeSelectedObject(int32_t child_id, void* param);
 
             void copySceneFromMe(eScene** target) const;
             void setMyParentScene(eScene* pointer);
 
+            void exportScripts() const;
+            void exportProxies() const;
             void writeStructureToTextFile(const char* output_path) const;
             void writeStructureToXmlFile(eString filename) const;
             void writeSelectedObjectToObjFile(eString filename) const;
@@ -157,6 +169,11 @@ namespace ZookieWizard
             int32_t appendNodesFromTxtFile(const char* filename);
             int32_t changeNodesWithTxtFile(const char* filename);
 
+        private:
+
+            void deleteTempStrPtrs();
+
+            void destroyParent();
     };
 
 }

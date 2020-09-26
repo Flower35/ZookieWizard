@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eBoids interface
+    // <kao2.005CEBF0> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eBoids : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +28,25 @@ namespace ZookieWizard
             eBoids();
             ~eBoids();
 
+        private:
+
+            void createFromOtherObject(const eBoids &other);
+
+        public:
+
+            eBoids(const eBoids &other);
+            eBoids& operator = (const eBoids &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eBoids TypeInfo
-    // <kao2.00435980> (registration)
+    // <kao2.00435950> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_BOIDS_ID = 0x3B061261;

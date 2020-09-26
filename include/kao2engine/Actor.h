@@ -10,11 +10,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Actor interface
+    // <kao2.005D7530> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class Actor : public ePivot
     {
-
         /*** Properties ***/
 
         protected:
@@ -31,23 +31,37 @@ namespace ZookieWizard
             Actor();
             ~Actor();
 
-            void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+        private:
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
+            void createFromOtherObject(const Actor &other);
+
+        public:
+
+            Actor(const Actor &other);
+            Actor& operator = (const Actor &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
+            TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
+
+            /* << eNode >> */
 
             void destroyNode() override;
 
             int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
 
-            void saveMyScript(Archive &ar) const;
+            void exportScripts(const eString &media_dir) const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // Actor TypeInfo
-    // <kao2.00572890> (registration)
+    // <kao2.00572860> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ACTOR_ID = 0x07EA0000;

@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eDemoPlayer interface
+    // <kao2.005CFF28> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eDemoPlayer : public Gadget
     {
-
         /*** Methods ***/
 
         public:
@@ -20,13 +20,25 @@ namespace ZookieWizard
             eDemoPlayer();
             ~eDemoPlayer();
 
+        private:
+
+            void createFromOtherObject(const eDemoPlayer &other);
+
+        public:
+
+            eDemoPlayer(const eDemoPlayer &other);
+            eDemoPlayer& operator = (const eDemoPlayer &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eDemoPlayer TypeInfo
-    // <kao2.00458EB0> (registration)
+    // <kao2.00458E80> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_DEMOPLAYER_ID = 0x3D3B21E9;

@@ -10,11 +10,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eGlobalCtrl interface
+    // <kao2.005D6CC8> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eGlobalCtrl : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -48,14 +48,26 @@ namespace ZookieWizard
             eGlobalCtrl();
             ~eGlobalCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eGlobalCtrl &other);
+
+        public:
+
+            eGlobalCtrl(const eGlobalCtrl &other);
+            eGlobalCtrl& operator = (const eGlobalCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eGlobalCtrl TypeInfo
-    // <kao2.0055CBD0> (registration)
+    // <kao2.0055CBA0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_GLOBALCTRL_ID = 0x0F0F120A;

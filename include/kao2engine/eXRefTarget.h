@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eXRefTarget interface
+    // <kao2.005D1F34> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eXRefTarget : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -32,13 +32,27 @@ namespace ZookieWizard
             eXRefTarget();
             ~eXRefTarget();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eXRefTarget &other);
+
+        public:
+
+            eXRefTarget(const eXRefTarget &other);
+            eXRefTarget& operator = (const eXRefTarget &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eXRefTarget >> */
 
             void renderXRefScene(eDrawContext &draw_context) const;
 
-            bool loadTarget(eString media_dir, int32_t engine_version, int32_t ar_flags, eString model_name);
-            void exportTarget(eString media_dir, int32_t engine_version, int32_t ar_flags) const;
+            eXRefTarget* loadTarget(const eString &media_dir, const eString &model_name, int32_t engine_version, int32_t ar_flags);
+            void exportTarget(const eString &media_dir, int32_t engine_version, int32_t ar_flags) const;
 
             eScene* getLocalScene() const;
     };
@@ -46,7 +60,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eXRefTarget TypeInfo
-    // <kao2.004AD1B0> (registration)
+    // <kao2.004AD180> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_XREFTARGET_ID = 0x87EF0001;

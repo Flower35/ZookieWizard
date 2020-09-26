@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eWhaleManager : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eWhaleManager();
             ~eWhaleManager();
 
+        private:
+
+            void createFromOtherObject(const eWhaleManager &other);
+
+        public:
+
+            eWhaleManager(const eWhaleManager &other);
+            eWhaleManager& operator = (const eWhaleManager &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eWhaleManager TypeInfo
-    // <kao2.004FACE0> (registration)
+    // <kao2.004FACB0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_WHALEMANAGER_ID = 0x0002DF22;

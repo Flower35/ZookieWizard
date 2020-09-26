@@ -13,12 +13,12 @@ namespace ZookieWizard
 
     /*** Variables ***/
 
-        static const int MAX_OPEN_ARCHIVES = 2;
-        extern int archivesInUse;
+        static const int MAX_OPEN_ARCHIVES = 5;
+        extern int currentArId;
         extern Archive myARs[MAX_OPEN_ARCHIVES];
 
         static const int MAX_OPEN_DENISLEVELS = 1;
-        extern int denisLevelsInUse;
+        extern int currentDenisLevelId;
         extern DenisLevelMap myDenisLevels[MAX_OPEN_DENISLEVELS];
 
         extern OPENFILENAME ofn;
@@ -35,20 +35,24 @@ namespace ZookieWizard
 
         const char* getEditorString(int32_t id, bool silent);
 
-        void openOrSaveAr(int);
-        void setGameVersion(int);
-        void writeArStructureToTextFile();
-        void bulkArchiveConverter();
+        void setGameVersion(int32_t engine_version);
 
-        void openDenisLevel();
-        void convertDenisLevel();
+        bool checkArFilenameExtensions(const char* name, int32_t length);
 
-        void generateEmptyScene();
+        void ArMenuOptions_OpenOrSaveAr(int32_t mode);
+        void ArMenuOptions_CloseAr();
+        void ArMenuOptions_GenerateEmptyScene();
+        void ArMenuOptions_ExportScripts();
+        void ArMenuOptions_ExportProxies();
+        void ArMenuOptions_BulkArchiveConverter();
+        void ArMenuOptions_WriteStructureToTextFile();
+        void ArMenuOptions_ExportArToCollada();
+        void ArMenuOptions_ExportTrimeshToObj();
+        void ArMenuOptions_ImportTrimeshFromObj();
+        void ArMenuOptions_ChangeNodesWithTxt();
 
-        void exportArToCollada();
-        void exportTrimeshToObj();
-        void importTrimeshFromObj();
-        void changeNodesWithTxt();
+        void DenisMenuOptions_OpenDenisLevel();
+        void DenisMenuOptions_ConvertDenisLevel();
 }
 
 #endif

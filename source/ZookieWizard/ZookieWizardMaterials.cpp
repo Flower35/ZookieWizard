@@ -448,52 +448,16 @@ namespace ZookieWizard
 
                 if (nullptr != current_material)
                 {
-                    if ((new_collision_type >= 0) && (new_collision_type < 16))
+                    if ((new_collision_type >= 0) && (new_collision_type < KAO2_MATERIAL_TYPES_COUNT))
                     {
                         resulting_id = theMaterialTypes[new_collision_type].id;
 
                         current_material->setCollisionType(resulting_id);
                     }
 
-                    if (new_sound_type >= 0)
+                    if ((new_sound_type >= 0) && (new_sound_type < KAO2_MATERIAL_SOUNDS_COUNT))
                     {
-                        switch (new_sound_type)
-                        {
-                            case 1: // <WOOD>
-                            {
-                                resulting_id = 0x1000;
-                                break;
-                            }
-
-                            case 2: // <METAL>
-                            {
-                                resulting_id = 0x2000;
-                                break;
-                            }
-
-                            case 3: // <STONE>
-                            {
-                                resulting_id = 0x4000;
-                                break;
-                            }
-
-                            case 4: // <SNOW>
-                            {
-                                resulting_id = 0x8000;
-                                break;
-                            }
-
-                            case 5: // <SAND>
-                            {
-                                resulting_id = 0x0001;
-                                break;
-                            }
-
-                            default:
-                            {
-                                resulting_id = 0;
-                            }
-                        }
+                        resulting_id = theMaterialSounds[new_sound_type].id;
 
                         current_material->setSoundType(resulting_id);
                     }
@@ -1343,14 +1307,11 @@ namespace ZookieWizard
 
                             dummy_ar.open
                             (
-                                keywords[0],
-                                (AR_MODE_ABSOLUTE_PATH | AR_MODE_XREF_PATH | AR_MODE_READ),
+                                dummy_ar.getMediaDir() + keywords[0],
+                                (AR_MODE_SKIP_PROXIES | AR_MODE_READ),
                                 engine_version,
-                                false,
                                 0
                             );
-
-                            dummy_ar.close(false);
 
                             /* Export all bitmaps */
 
@@ -1383,7 +1344,7 @@ namespace ZookieWizard
 
                 GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
             }
-            catch (ErrorMessage &e)
+            catch (ErrorMessage &err)
             {
                 theLog.print
                 (
@@ -1393,7 +1354,7 @@ namespace ZookieWizard
                     "================================\n"
                 );
 
-                e.display();
+                err.display();
             }
         }
 
@@ -1507,6 +1468,8 @@ namespace ZookieWizard
 
                         if ((keywords[0].getLength() > 3) && ('#' != keywords[0].getText()[0]))
                         {
+                            keywords[0] = dummy_ar.getMediaDir() + keywords[0];
+
                             /* Source archive */
 
                             test_id = matMgr_BmpList_Count;
@@ -1514,9 +1477,8 @@ namespace ZookieWizard
                             dummy_ar.open
                             (
                                 keywords[0],
-                                (AR_MODE_ABSOLUTE_PATH | AR_MODE_XREF_PATH | AR_MODE_READ),
+                                (AR_MODE_SKIP_PROXIES | AR_MODE_READ),
                                 engine_version,
-                                false,
                                 0
                             );
 
@@ -1531,9 +1493,8 @@ namespace ZookieWizard
                             dummy_ar.open
                             (
                                 keywords[0],
-                                (AR_MODE_ABSOLUTE_PATH | AR_MODE_XREF_PATH | AR_MODE_WRITE),
+                                (AR_MODE_WRITE),
                                 engine_version,
-                                false,
                                 archive_version
                             );
 
@@ -1564,7 +1525,7 @@ namespace ZookieWizard
 
                 GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
             }
-            catch (ErrorMessage &e)
+            catch (ErrorMessage &err)
             {
                 theLog.print
                 (
@@ -1574,7 +1535,7 @@ namespace ZookieWizard
                     "================================\n"
                 );
 
-                e.display();
+                err.display();
             }
         }
 
@@ -1869,7 +1830,7 @@ namespace ZookieWizard
                 return false;
             }
 
-            for (a = 0; a < 16; a++)
+            for (a = 0; a < KAO2_MATERIAL_TYPES_COUNT; a++)
             {
                 sprintf_s(bufor, 32, "%02d: \"%s\"", a, theMaterialTypes[a].name);
                 SendMessage(matMgr_Windows[1], LB_ADDSTRING, 0, (LPARAM)bufor);
@@ -1908,9 +1869,9 @@ namespace ZookieWizard
                 return false;
             }
 
-            for (a = 0; a < 6; a++)
+            for (a = 0; a < KAO2_MATERIAL_SOUNDS_COUNT; a++)
             {
-                sprintf_s(bufor, 32, "%02d: \"%s\"", a, theMaterialSound[a]);
+                sprintf_s(bufor, 32, "%02d: \"%s\"", a, theMaterialSounds[a].name);
                 SendMessage(matMgr_Windows[2], LB_ADDSTRING, 0, (LPARAM)bufor);
             }
 

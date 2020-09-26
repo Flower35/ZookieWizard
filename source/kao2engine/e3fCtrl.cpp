@@ -89,7 +89,115 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // e3fCtrl serialization
+    // e3fCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void e3fCtrl::createFromOtherObject(const e3fCtrl &other)
+    {
+        if (other.groupA_Count > 0)
+        {
+            groupA_MaxLength = other.groupA_Count;
+            groupA = new e3fCtrlBaseA [groupA_MaxLength];
+
+            for (groupA_Count = 0; groupA_Count < groupA_MaxLength; groupA_Count++)
+            {
+                groupA[groupA_Count] = other.groupA[groupA_Count];
+            }
+        }
+        else
+        {
+            groupA_Count = 0;
+            groupA_MaxLength = 0;
+            groupA = nullptr;
+        }
+
+        /****************/
+
+        if (other.groupB_Count > 0)
+        {
+            groupB_MaxLength = other.groupB_Count;
+            groupB = new e3fCtrlBaseB [groupB_MaxLength];
+
+            for (groupB_Count = 0; groupB_Count < groupB_MaxLength; groupB_Count++)
+            {
+                groupB[groupB_Count] = other.groupB[groupB_Count];
+            }
+        }
+        else
+        {
+            groupB_Count = 0;
+            groupB_MaxLength = 0;
+            groupB = nullptr;
+        }
+
+        /****************/
+
+        unknown_1C = other.unknown_1C;
+        unknown_20 = other.unknown_20;
+
+        /****************/
+
+        if (other.seriesLength > 0)
+        {
+            series = new ePoint4 [other.seriesLength];
+
+            for (seriesLength = 0; seriesLength < other.seriesLength; seriesLength++)
+            {
+                series[seriesLength] = other.series[seriesLength];
+            }
+        }
+        else
+        {
+            seriesLength = 0;
+            series = nullptr;
+        }
+    }
+
+    e3fCtrl::e3fCtrl(const e3fCtrl &other)
+    : eObject(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    e3fCtrl& e3fCtrl::operator = (const e3fCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eObject::operator = (other);
+
+            /****************/
+
+            if (nullptr != series)
+            {
+                delete[](series);
+            }
+
+            if (nullptr != groupB)
+            {
+                delete[](groupB);
+            }
+
+            if (nullptr != groupA)
+            {
+                delete[](groupA);
+            }
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* e3fCtrl::cloneFromMe() const
+    {
+        return new e3fCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // e3fCtrl: serialization
     // <kao2.0055E080>
     ////////////////////////////////////////////////////////////////
     void e3fCtrl::serialize(Archive &ar)

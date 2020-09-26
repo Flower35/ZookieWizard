@@ -36,10 +36,51 @@ namespace ZookieWizard
 
     eSplineBase::~eSplineBase()
     {
+        unknown_10->decRef();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSplineBase: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSplineBase::createFromOtherObject(const eSplineBase &other)
+    {
+        unknown_10 = other.unknown_10;
+
         if (nullptr != unknown_10)
         {
-            unknown_10->decRef();
+            unknown_10->incRef();
         }
+    }
+
+    eSplineBase::eSplineBase(const eSplineBase &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSplineBase& eSplineBase::operator = (const eSplineBase &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            unknown_10->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSplineBase::cloneFromMe() const
+    {
+        return new eSplineBase(*this);
     }
 
 }

@@ -32,11 +32,47 @@ namespace ZookieWizard
         value = 0;
     }
 
-    Float::~Float() {}
+    Float::~Float()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // Float serialization
+    // Float: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void Float::createFromOtherObject(const Float &other)
+    {
+        value = other.value;
+    }
+
+    Float::Float(const Float &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    Float& Float::operator = (const Float &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* Float::cloneFromMe() const
+    {
+        return new Float(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Float: serialization
     // <kao2.0059ACC0>
     ////////////////////////////////////////////////////////////////
     void Float::serialize(Archive &ar)

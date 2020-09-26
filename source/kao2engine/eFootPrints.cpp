@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eFootPrints::~eFootPrints() {}
+    eFootPrints::~eFootPrints()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eFootPrints: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eFootPrints::createFromOtherObject(const eFootPrints &other)
+    {}
+
+    eFootPrints::eFootPrints(const eFootPrints &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eFootPrints& eFootPrints::operator = (const eFootPrints &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eFootPrints::cloneFromMe() const
+    {
+        return new eFootPrints(*this);
+    }
 
 }

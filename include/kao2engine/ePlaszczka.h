@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class ePlaszczka : public eWalk
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             ePlaszczka();
             ~ePlaszczka();
 
+        private:
+
+            void createFromOtherObject(const ePlaszczka &other);
+
+        public:
+
+            ePlaszczka(const ePlaszczka &other);
+            ePlaszczka& operator = (const ePlaszczka &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // ePlaszczka TypeInfo
-    // <kao2.0044DB20> (registration)
+    // <kao2.0044DAF0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PLASZCZKA_ID = 0xF0C1A024;

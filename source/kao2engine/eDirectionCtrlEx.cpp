@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eDirectionCtrl()
     {}
 
-    eDirectionCtrlEx::~eDirectionCtrlEx() {}
+    eDirectionCtrlEx::~eDirectionCtrlEx()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eDirectionCtrlEx: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eDirectionCtrlEx::createFromOtherObject(const eDirectionCtrlEx &other)
+    {}
+
+    eDirectionCtrlEx::eDirectionCtrlEx(const eDirectionCtrlEx &other)
+    : eDirectionCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eDirectionCtrlEx& eDirectionCtrlEx::operator = (const eDirectionCtrlEx &other)
+    {
+        if ((&other) != this)
+        {
+            eDirectionCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eDirectionCtrlEx::cloneFromMe() const
+    {
+        return new eDirectionCtrlEx(*this);
+    }
 
 }

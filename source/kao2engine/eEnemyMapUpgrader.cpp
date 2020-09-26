@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eEnemyMapUpgrader::~eEnemyMapUpgrader() {}
+    eEnemyMapUpgrader::~eEnemyMapUpgrader()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eEnemyMapUpgrader: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eEnemyMapUpgrader::createFromOtherObject(const eEnemyMapUpgrader &other)
+    {}
+
+    eEnemyMapUpgrader::eEnemyMapUpgrader(const eEnemyMapUpgrader &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eEnemyMapUpgrader& eEnemyMapUpgrader::operator = (const eEnemyMapUpgrader &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eEnemyMapUpgrader::cloneFromMe() const
+    {
+        return new eEnemyMapUpgrader(*this);
+    }
 
 }

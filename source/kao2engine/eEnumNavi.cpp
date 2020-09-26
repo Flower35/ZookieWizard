@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eNaviCtrl()
     {}
 
-    eEnumNavi::~eEnumNavi() {}
+    eEnumNavi::~eEnumNavi()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eEnumNavi: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eEnumNavi::createFromOtherObject(const eEnumNavi &other)
+    {}
+
+    eEnumNavi::eEnumNavi(const eEnumNavi &other)
+    : eNaviCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eEnumNavi& eEnumNavi::operator = (const eEnumNavi &other)
+    {
+        if ((&other) != this)
+        {
+            eNaviCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eEnumNavi::cloneFromMe() const
+    {
+        return new eEnumNavi(*this);
+    }
 
 }

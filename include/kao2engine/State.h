@@ -17,27 +17,31 @@ namespace ZookieWizard
     {
         /*** Properties ***/
 
-        /*[0x00]*/ eString name;
-        /*[0x04]*/ TypeInfo* gadgetType;
-        /*[0x08]*/ eRefCounter* unknown;
-        /*[0x0C]*/ int32_t id;
+        public:
+
+            /*[0x00]*/ eString name;
+            /*[0x04]*/ TypeInfo* gadgetType;
+            /*[0x08]*/ eRefCounter* unknown;
+            /*[0x0C]*/ int32_t id;
 
         /*** Methods ***/
 
-        NewGadgetBase();
-        ~NewGadgetBase();
+        public:
 
-        void serialize(Archive &ar);
+            NewGadgetBase();
+            ~NewGadgetBase();
+
+            void serialize(Archive &ar);
     };
 
 
     ////////////////////////////////////////////////////////////////
     // State interface
+    // <kao2.005D8088>
     ////////////////////////////////////////////////////////////////
 
     class State : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -70,21 +74,41 @@ namespace ZookieWizard
             State(eString s, State* x);
             ~State();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const State &other);
+
+        public:
+
+            State(const State &other);
+            State& operator = (const State &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
 
             eString getStringRepresentation() const override;
             eString getLogPrintMessage() const override;
 
+            /* << State >> */
+
             void saveStateToTextFile(FileOperator &file, int32_t indentation) const;
 
             State* getOwner() const;
+
+        private:
+
+            /* << State >> */
+
+            void clearNewState();
     };
 
 
     ////////////////////////////////////////////////////////////////
     // State TypeInfo
-    // <kao2.00595D10> (registration)
+    // <kao2.00595CE0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_STATE_ID = 0x0AA34563;

@@ -36,11 +36,48 @@ namespace ZookieWizard
         /*[0x14]*/ flags |= 0x40000000;
     }
 
-    eCylNode::~eCylNode() {}
+    eCylNode::~eCylNode()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eCylNode serialization
+    // eCylNode: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eCylNode::createFromOtherObject(const eCylNode &other)
+    {
+        radius = other.radius;
+        height = other.height;
+    }
+
+    eCylNode::eCylNode(const eCylNode &other)
+    : eGeometry(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eCylNode& eCylNode::operator = (const eCylNode &other)
+    {
+        if ((&other) != this)
+        {
+            eGeometry::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eCylNode::cloneFromMe() const
+    {
+        return new eCylNode(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCylNode: serialization
     // <kao2.004ABE00>
     ////////////////////////////////////////////////////////////////
     void eCylNode::serialize(Archive &ar)

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eWalkWPF : public eWalk
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eWalkWPF();
             ~eWalkWPF();
 
+        private:
+
+            void createFromOtherObject(const eWalkWPF &other);
+
+        public:
+
+            eWalkWPF(const eWalkWPF &other);
+            eWalkWPF& operator = (const eWalkWPF &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eWalkWPF TypeInfo
-    // <kao2.00425750> (registration)
+    // <kao2.00425720> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_WALKWPF_ID = 0xF0C10024;

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eGroupMsgForward : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -30,13 +29,25 @@ namespace ZookieWizard
             eGroupMsgForward();
             ~eGroupMsgForward();
 
+        private:
+
+            void createFromOtherObject(const eGroupMsgForward &other);
+
+        public:
+
+            eGroupMsgForward(const eGroupMsgForward &other);
+            eGroupMsgForward& operator = (const eGroupMsgForward &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eGroupMsgForward TypeInfo
-    // <kao2.00528280> (registration)
+    // <kao2.00528250> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_GROUPMSGFORWARD_ID = 0x3F1A9215;

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eEnumNavi : public eNaviCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eEnumNavi();
             ~eEnumNavi();
 
+        private:
+
+            void createFromOtherObject(const eEnumNavi &other);
+
+        public:
+
+            eEnumNavi(const eEnumNavi &other);
+            eEnumNavi& operator = (const eEnumNavi &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eEnumNavi TypeInfo
-    // <kao2.00429F60> (registration)
+    // <kao2.00429F30> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ENUMNAVI_ID = 0xFEC10030;

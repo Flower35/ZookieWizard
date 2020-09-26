@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eLookAtCtrl()
     {}
 
-    eSetRotation::~eSetRotation() {}
+    eSetRotation::~eSetRotation()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSetRotation: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSetRotation::createFromOtherObject(const eSetRotation &other)
+    {}
+
+    eSetRotation::eSetRotation(const eSetRotation &other)
+    : eLookAtCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSetRotation& eSetRotation::operator = (const eSetRotation &other)
+    {
+        if ((&other) != this)
+        {
+            eLookAtCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSetRotation::cloneFromMe() const
+    {
+        return new eSetRotation(*this);
+    }
 
 }

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eStrafeCtrl : public ePathCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eStrafeCtrl();
             ~eStrafeCtrl();
 
+        private:
+
+            void createFromOtherObject(const eStrafeCtrl &other);
+
+        public:
+
+            eStrafeCtrl(const eStrafeCtrl &other);
+            eStrafeCtrl& operator = (const eStrafeCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eStrafeCtrl TypeInfo
-    // <kao2.0044D0E0> (registration)
+    // <kao2.0044D0B0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_STRAFECTRL_ID = 0x3A8C5FC6;

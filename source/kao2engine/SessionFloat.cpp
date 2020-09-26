@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Float()
     {}
 
-    SessionFloat::~SessionFloat() {}
+    SessionFloat::~SessionFloat()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // SessionFloat: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void SessionFloat::createFromOtherObject(const SessionFloat &other)
+    {}
+
+    SessionFloat::SessionFloat(const SessionFloat &other)
+    : Float(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    SessionFloat& SessionFloat::operator = (const SessionFloat &other)
+    {
+        if ((&other) != this)
+        {
+            Float::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* SessionFloat::cloneFromMe() const
+    {
+        return new SessionFloat(*this);
+    }
 
 }

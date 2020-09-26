@@ -44,6 +44,85 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eXYZEulerRotation: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eXYZEulerRotation::createFromOtherObject(const eXYZEulerRotation &other)
+    {
+        xCtrl = other.xCtrl;
+        if (nullptr != xCtrl)
+        {
+            xCtrl->incRef();
+        }
+
+        yCtrl = other.yCtrl;
+        if (nullptr != yCtrl)
+        {
+            yCtrl->incRef();
+        }
+
+        zCtrl = other.zCtrl;
+        if (nullptr != zCtrl)
+        {
+            zCtrl->incRef();
+        }
+
+        unknown_14 = other.unknown_14;
+    }
+
+    eXYZEulerRotation::eXYZEulerRotation(const eXYZEulerRotation &other)
+    : eCtrl<eQuat>(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eXYZEulerRotation& eXYZEulerRotation::operator = (const eXYZEulerRotation &other)
+    {
+        if ((&other) != this)
+        {
+            eCtrl<eQuat>::operator = (other);
+
+            /****************/
+
+            xCtrl->decRef();
+            yCtrl->decRef();
+            zCtrl->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eXYZEulerRotation::cloneFromMe() const
+    {
+        return new eXYZEulerRotation(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eXYZEulerRotation: serialization
+    // <kao2.004A1370>
+    ////////////////////////////////////////////////////////////////
+    void eXYZEulerRotation::serialize(Archive &ar)
+    {
+        /* X-controller */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&xCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
+
+        /* Y-controller */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&yCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
+
+        /* Z-controller */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&zCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
+
+        /* [0x14] unknown */
+        ar.readOrWrite(&unknown_14, 0x04);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eXYZEulerRotation: animation function
     // [[vptr]+0x28] Modify "eQuat" based on current time
     // <kao2.0049FE70>
@@ -91,26 +170,6 @@ namespace ZookieWizard
 
             e->fromEulerAngles(true, x, y, z);
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eXYZEulerRotation serialization
-    // <kao2.004A1370>
-    ////////////////////////////////////////////////////////////////
-    void eXYZEulerRotation::serialize(Archive &ar)
-    {
-        /* X-controller */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&xCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
-
-        /* Y-controller */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&yCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
-
-        /* Z-controller */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&zCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
-
-        /* [0x14] unknown */
-        ar.readOrWrite(&unknown_14, 0x04);
     }
 
 
@@ -164,6 +223,28 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eXYZEulerRotation: clear keyframes for specific animation
+    ////////////////////////////////////////////////////////////////
+    void eXYZEulerRotation::ctrlClearKeyframes(int32_t anim_id)
+    {
+        if (nullptr != xCtrl)
+        {
+            xCtrl->ctrlClearKeyframes(anim_id);
+        }
+
+        if (nullptr != yCtrl)
+        {
+            yCtrl->ctrlClearKeyframes(anim_id);
+        }
+
+        if (nullptr != zCtrl)
+        {
+            zCtrl->ctrlClearKeyframes(anim_id);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eXYZEulerRotation: set loop type
     ////////////////////////////////////////////////////////////////
     void eXYZEulerRotation::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
@@ -184,28 +265,6 @@ namespace ZookieWizard
             {
                 zCtrl->ctrlSetLoopType(anim_id, loop_type, 0x01);
             }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eXYZEulerRotation: clear keyframes for specific animation
-    ////////////////////////////////////////////////////////////////
-    void eXYZEulerRotation::ctrlClearKeyframes(int32_t anim_id)
-    {
-        if (nullptr != xCtrl)
-        {
-            xCtrl->ctrlClearKeyframes(anim_id);
-        }
-
-        if (nullptr != yCtrl)
-        {
-            yCtrl->ctrlClearKeyframes(anim_id);
-        }
-
-        if (nullptr != zCtrl)
-        {
-            zCtrl->ctrlClearKeyframes(anim_id);
         }
     }
 

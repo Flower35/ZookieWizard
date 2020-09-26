@@ -7,9 +7,11 @@ namespace ZookieWizard
 {
 
     ////////////////////////////////////////////////////////////////
-    // Structure constructor
-    // <kao2.004B68E0>
+    // eAnimate: Constructor and destructor
+    // <kao2.004B68E0> (constructor)
+    // <kao2.004B6920> (desrutror)
     ////////////////////////////////////////////////////////////////
+
     eAnimate::eAnimate()
     {
         /*[0x10]*/ animStateA = nullptr;
@@ -20,14 +22,57 @@ namespace ZookieWizard
         /*(kao3)[0x0120]*/ animStatesCount = 0;
     }
 
-
-    ////////////////////////////////////////////////////////////////
-    // Structure destructor
-    // <kao2.004B6920>
-    ////////////////////////////////////////////////////////////////
     eAnimate::~eAnimate()
     {
         clearAnimStateContainers();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eAnimate: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eAnimate::createFromOtherObject(const eAnimate &other)
+    {
+        tracks = other.tracks;
+
+        isPaused = other.isPaused;
+
+        unknown_34 = other.unknown_34;
+
+        unknown_38 = other.unknown_38;
+
+        /****************/
+
+        animStatesCount = other.animStatesCount;
+
+        currentAnimState[0] = other.currentAnimState[0];
+    }
+
+    eAnimate::eAnimate(const eAnimate &other)
+    {
+        animStateA = nullptr;
+        animStateB = nullptr;
+
+        rebuildEmptyAnimState(false);
+
+        /****************/
+
+        createFromOtherObject(other);
+    }
+
+    eAnimate& eAnimate::operator = (const eAnimate &other)
+    {
+        if ((&other) != this)
+        {
+            clearAnimStateContainers();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
     }
 
 
@@ -180,7 +225,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Structure serialization
+    // eAnimate: serialization
     // <kao2.004B6F50> <kao_tw.00450E90>
     ////////////////////////////////////////////////////////////////
     void eAnimate::serialize(Archive &ar)
@@ -221,16 +266,32 @@ namespace ZookieWizard
                     animStateB = animStateA = new (eAnimState*);
                     (*animStateA) = new eAnimState;
 
+                    (**animStateA) = currentAnimState[0];
+
+                    /* Copy assigment resets the Reference Count for "eAnimState" */
+
                     (**animStateA).incRef();
                     (**animStateB).incRef();
-
-                    (**animStateA) = currentAnimState[0];
                 }
             }
         }
         else
         {
             /* Kao2, older verion */
+
+            if (ar.isInWriteMode() && (nullptr != animStateA) && (nullptr != (*animStateA)))
+            {
+                (**animStateA) = currentAnimState[0];
+
+                /* Copy assigment resets the Reference Count for "eAnimState" */
+
+                (**animStateA).incRef();
+
+                if (animStateB == animStateA)
+                {
+                    (**animStateB).incRef();
+                }
+            }
 
             ArFunctions::serialize_AnimStates(ar, animStateA);
             ArFunctions::serialize_AnimStates(ar, animStateB);
@@ -239,17 +300,14 @@ namespace ZookieWizard
             {
                 /* Kao3, forwards compatibility */
 
-                if (nullptr != animStateA)
+                if ((nullptr != animStateA) && (nullptr != (*animStateA)))
                 {
-                    if (nullptr != (*animStateA))
-                    {
-                        currentAnimState[0] = (**animStateA);
+                    currentAnimState[0] = (**animStateA);
 
-                        /* DO NOT increase refCount this time */
-                        /* We copied from pointer to direct/internal structure */
+                    /* DO NOT increase refCount this time */
+                    /* We copied from pointer to direct/internal structure */
 
-                        animStatesCount = 1;
-                    }
+                    animStatesCount = 1;
                 }
             }
         }
@@ -276,14 +334,15 @@ namespace ZookieWizard
         {
             currentAnimState[0].setAnimId(anim_id);
 
-            test_track = (eTrack*)tracks.getIthChild(anim_id);
-
-            if (nullptr != test_track)
+            if (nullptr != (test_track = (eTrack*)tracks.getIthChild(anim_id)))
             {
-                first_frame = test_track->getStartFrame();
-                length_in_frames = test_track->getEndFrame() - first_frame;
-                time = first_frame + ((length_in_frames > 0) ? fmod(time, length_in_frames) : 0);
+                currentAnimState[0].setStartFrame(test_track->getStartFrame());
+                currentAnimState[0].setEndFrame(test_track->getEndFrame());
             }
+
+            first_frame = currentAnimState[0].getStartFrame();
+            length_in_frames = currentAnimState[0].getEndFrame() - first_frame;
+            time = first_frame + ((length_in_frames > 0) ? fmod(time, length_in_frames) : 0);
         }
 
         /* Always update the animation timer, regardless if there are any animations in the Scene */

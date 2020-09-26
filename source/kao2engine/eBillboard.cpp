@@ -32,12 +32,48 @@ namespace ZookieWizard
         /*[0xAC]*/ billboarded = true;
     }
 
-    eBillboard::~eBillboard() {}
+    eBillboard::~eBillboard()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eBillboard serialization
-    // <kao2.????????>
+    // eBillboard: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eBillboard::createFromOtherObject(const eBillboard &other)
+    {
+        billboarded = other.billboarded;
+    }
+
+    eBillboard::eBillboard(const eBillboard &other)
+    : eTransform(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eBillboard& eBillboard::operator = (const eBillboard &other)
+    {
+        if ((&other) != this)
+        {
+            eTransform::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eBillboard::cloneFromMe() const
+    {
+        return new eBillboard(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBillboard: serialization
+    // <kao2.004AC7A0>
     ////////////////////////////////////////////////////////////////
     void eBillboard::serialize(Archive &ar)
     {

@@ -94,16 +94,37 @@ namespace ZookieWizard
             eNode();
             ~eNode();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eNode &other);
+
+        public:
+
+            eNode(const eNode &other);
+            eNode& operator = (const eNode &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
 
             eString getStringRepresentation() const override;
             eString getLogPrintMessage() const override;
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
 
+            /* << eNode >> */
+
+            virtual void destroyNode();
+            virtual void findAndDereference(eNode* target);
+            virtual eNode* findNode(eString &searched_name) const;
+
+            virtual void setPreviousTransformGradually(eTransform* last_xform);
             virtual void updateDrawPassFlags(uint32_t* parent_flags);
             virtual void updateBeforeRendering(eDrawContext &draw_context);
             virtual void renderNode(eDrawContext &draw_context) const;
+
+            virtual bool createCollisionEntry();
 
             virtual ePoint3 editingGetCenterPoint() const;
             virtual void editingRebuildCollision();
@@ -114,8 +135,10 @@ namespace ZookieWizard
             virtual int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property);
             virtual int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params);
 
-            virtual void destroyNode();
-            virtual void findAndDereference(eNode* target);
+            virtual void exportScripts(const eString &media_dir) const;
+
+            virtual void reloadXRef(const eString &media_dir, int32_t engine_version);
+            virtual void exportXRef(const eString &media_dir, int32_t engine_version) const;
 
             virtual void ctrlExpandAnimTracks(int32_t new_size);
             virtual void ctrlRemoveAnimTrack(int32_t deleted_id);
@@ -125,8 +148,6 @@ namespace ZookieWizard
             eGroup* getRootNode() const;
             eGroup* getParentNode() const;
             void setParentNode(eGroup* new_parent);
-
-            virtual eNode* findNode(eString &searched_name) const;
 
             eTransform* getPreviousTransform() const;
             void setPreviousTransform();
@@ -149,7 +170,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eNode TypeInfo
-    // <kao2.047A490> (registration)
+    // <kao2.0047A460> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_NODE_ID = 0x8000;

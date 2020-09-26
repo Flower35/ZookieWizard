@@ -39,29 +39,59 @@ namespace ZookieWizard
     ePhyTriMesh::ePhyTriMesh(eTriMesh* x, eGeoSet* y)
     : eModifier()
     {
-        /*[0x10]*/ vertices = nullptr;
-        /*[0x14]*/ bonesCount = 0;
-        /*[0x18]*/ bonesMaxLength = 0;
-        /*[0x1C]*/ bones = nullptr;
-        /*[0x20]*/ defaultVertices = nullptr;
-        /*[0x24]*/ defaultNormals = nullptr;
-        /*[0x28]*/ morph = nullptr;
-
-        /*[0x08]*/ tri = x;
-        /*[0x0C]*/ geo = y;
+        clearNewPhyTriMesh(x, y);
     }
 
     ePhyTriMesh::~ePhyTriMesh()
     {
-        morph->decRef();
+        clearExistingPhyTriMesh();
+    }
 
-        defaultNormals->decRef();
 
-        defaultVertices->decRef();
+    ////////////////////////////////////////////////////////////////
+    // ePhyTriMesh: cloning the object
+    ////////////////////////////////////////////////////////////////
 
-        deleteBones();
+    void ePhyTriMesh::createFromOtherObject(const ePhyTriMesh &other)
+    {
+        throw ErrorMessage
+        (
+            "CRITICAL ERROR while cloning the \"ePhyTriMesh\" object:\n" \
+            "cloning << physical triangular meshes >> without context is not supported!!!"
+        );
+    }
 
-        vertices->decRef();
+    ePhyTriMesh::ePhyTriMesh(const ePhyTriMesh &other)
+    : eModifier(other)
+    {
+        clearNewPhyTriMesh(nullptr, nullptr);
+
+        /****************/
+
+        createFromOtherObject(other);
+    }
+
+    ePhyTriMesh& ePhyTriMesh::operator = (const ePhyTriMesh &other)
+    {
+        if ((&other) != this)
+        {
+            eModifier::operator = (other);
+
+            /****************/
+
+            clearExistingPhyTriMesh();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePhyTriMesh::cloneFromMe() const
+    {
+        return new ePhyTriMesh(*this);
     }
 
 
@@ -88,7 +118,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // ePhyTriMesh serialization
+    // ePhyTriMesh: serialization
     // <kao2.004B1CE0>
     ////////////////////////////////////////////////////////////////
     void ePhyTriMesh::serialize(Archive &ar)
@@ -214,15 +244,36 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // ePhyTriMesh: print
+    ////////////////////////////////////////////////////////////////
+    eString ePhyTriMesh::getLogPrintMessage() const
+    {
+        int32_t i;
+
+        eString result = eObject::getLogPrintMessage();
+
+        result += "\n";
+
+        for (i = 0; i < bonesCount; i++)
+        {
+            result += "\n bone: ";
+
+            result += bones[i].xform->getStringRepresentation();
+        }
+
+        return result;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // ePhyTriMesh: destroy bones (required for correct "eTransform" dereferencing)
     ////////////////////////////////////////////////////////////////
     void ePhyTriMesh::deleteBones()
     {
-        int32_t i;
-
-        for (i = 0; i < bonesCount; i++)
+        for (int32_t a = 0; a < bonesCount; a++)
         {
-            bones[i].xform->decRef();
+            bones[a].xform->decRef();
+            bones[a].xform = nullptr;
         }
 
         if (nullptr != bones)
@@ -266,366 +317,6 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // ePhyTriMesh: COLLADA exporting
-    ////////////////////////////////////////////////////////////////
-    void ePhyTriMesh::writeNodeToXmlFile(ColladaExporter &exporter) const
-    {
-        int32_t i, j, k;
-        int32_t armature_id;
-        int32_t total_weights;
-        char bufor[64];
-
-        eMatrix4x4 parent_matrix;
-        eTransform* test_transform;
-
-        int32_t v_length = vertices->getLength();
-        ePhyVertex* v_data = vertices->getData();
-
-        if (exporter.objectRefAlreadyExists(COLLADA_EXPORTER_OBJ_ARMATURE, this))
-        {
-            /* Armature was already exported */
-            return;
-        }
-        exporter.openTag("controller");
-
-        armature_id = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_ARMATURE, this, true);
-        sprintf_s(bufor, 64, "Armature%d", armature_id);
-        exporter.insertTagAttrib("id", bufor);
-
-        exporter.openTag("skin");
-
-        i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_GEOMETRY, geo, false);
-        sprintf_s(bufor, 64, "#TriMesh%d", i);
-        exporter.insertTagAttrib("source", bufor);
-
-        /********************************/
-        /* Info about position and orientation of the base mesh before binding */
-
-        if (nullptr != tri)
-        {
-            test_transform = tri->getPreviousTransform();
-
-            if (nullptr != test_transform)
-            {
-                parent_matrix = test_transform->getXForm(true).getMatrix();
-
-                exporter.openTag("bind_shape_matrix");
-
-                for (i = 0; i < 4; i++)
-                {
-                    sprintf_s
-                    (
-                        bufor, 64, "%f %f %f %f",
-                        parent_matrix.m[i][0], parent_matrix.m[i][1],
-                        parent_matrix.m[i][2], parent_matrix.m[i][3]
-                    );
-
-                    exporter.writeInsideTag(bufor);
-                }
-
-                exporter.closeTag(); // "bind_shape_matrix"
-            }
-        }
-
-        /********************************/
-        /* List of joints */
-
-        exporter.openTag("source");
-
-        sprintf_s(bufor, 64, "Armature%d-joints", armature_id);
-        exporter.insertTagAttrib("id", bufor);
-
-        exporter.openTag("Name_array");
-
-        sprintf_s(bufor, 64, "Armature%d-joints-array", armature_id);
-        exporter.insertTagAttrib("id", bufor);
-        sprintf_s(bufor, 64, "%d", bonesCount);
-        exporter.insertTagAttrib("count", bufor);
-
-        for (i = 0; i < bonesCount; i++)
-        {
-            /* Upon instantiation of a skin controller, the <skeleton> elements define where to start the SID lookup */
-            j = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_NODE, bones[i].xform, true);
-            sprintf_s(bufor, 64, "Node%d", j);
-
-            exporter.writeInsideTag(bufor);
-        }
-
-        exporter.closeTag(); // "Name_array"
-
-        exporter.openTag("technique_common");
-        exporter.openTag("accessor");
-
-        sprintf_s(bufor, 64, "#Armature%d-joints-array", armature_id);
-        exporter.insertTagAttrib("source", bufor);
-        sprintf_s(bufor, 64, "%d", bonesCount);
-        exporter.insertTagAttrib("count", bufor);
-        exporter.insertTagAttrib("stride", "1");
-
-        exporter.openTag("param");
-        exporter.insertTagAttrib("name", "JOINT");
-        exporter.insertTagAttrib("type", "name");
-
-        exporter.closeTag(); // "param"
-        exporter.closeTag(); // "accessor"
-        exporter.closeTag(); // "technique_common"
-        exporter.closeTag(); // "source"
-
-        /********************************/
-        /* List of inverse bind matrices */
-
-        exporter.openTag("source");
-
-        sprintf_s(bufor, 64, "Armature%d-bind_poses", armature_id);
-        exporter.insertTagAttrib("id", bufor);
-
-        exporter.openTag("float_array");
-
-        sprintf_s(bufor, 64, "Armature%d-bind_poses-array", armature_id);
-        exporter.insertTagAttrib("id", bufor);
-        sprintf_s(bufor, 64, "%d", (16 * bonesCount));
-        exporter.insertTagAttrib("count", bufor);
-
-        for (i = 0; i < bonesCount; i++)
-        {
-            for (j = 0; j < 4; j++)
-            {
-                sprintf_s
-                (
-                    bufor, 64, "%f %f %f %f",
-                    bones[i].matrix.m[j][0], bones[i].matrix.m[j][1],
-                    bones[i].matrix.m[j][2], bones[i].matrix.m[j][3]
-                );
-
-                exporter.writeInsideTag(bufor);
-            }
-        }
-
-        exporter.closeTag(); // "float_array"
-
-        exporter.openTag("technique_common");
-        exporter.openTag("accessor");
-
-        sprintf_s(bufor, 64, "#Armature%d-bind_poses-array", armature_id);
-        exporter.insertTagAttrib("source", bufor);
-        sprintf_s(bufor, 64, "%d", bonesCount);
-        exporter.insertTagAttrib("count", bufor);
-        exporter.insertTagAttrib("stride", "16");
-
-        exporter.openTag("param");
-        exporter.insertTagAttrib("name", "TRANSFORM");
-        exporter.insertTagAttrib("type", "float4x4");
-
-        exporter.closeTag(); // "param"
-        exporter.closeTag(); // "accessor"
-        exporter.closeTag(); // "technique_common"
-        exporter.closeTag(); // "source"
-
-        /********************************/
-        /* List of weights */
-
-        total_weights = 0;
-
-        for (i = 0; i < v_length; i++)
-        {
-            for (j = 0; j < 3; j++)
-            {
-                if (0xFF != v_data[i].index[j])
-                {
-                    total_weights++;
-                }
-                else
-                {
-                    j = 3; // explicit break
-                }
-            }
-        }
-
-        exporter.openTag("source");
-
-        sprintf_s(bufor, 64, "Armature%d-weights", armature_id);
-        exporter.insertTagAttrib("id", bufor);
-
-        exporter.openTag("float_array");
-
-        sprintf_s(bufor, 64, "Armature%d-weights-array", armature_id);
-        exporter.insertTagAttrib("id", bufor);
-        sprintf_s(bufor, 64, "%d", total_weights);
-        exporter.insertTagAttrib("count", bufor);
-
-        for (i = 0; i < v_length; i++)
-        {
-            for (j = 0; j < 3; j++)
-            {
-                if (0xFF != v_data[i].index[j])
-                {
-                    sprintf_s(bufor, 64, "%f", v_data[i].weight[j]);
-
-                    exporter.writeInsideTag(bufor);
-                }
-                else
-                {
-                    j = 3; // explicit break
-                }
-            }
-        }
-
-        exporter.closeTag(); // "float_array"
-
-        exporter.openTag("technique_common");
-        exporter.openTag("accessor");
-
-        sprintf_s(bufor, 64, "#Armature%d-weights-array", armature_id);
-        exporter.insertTagAttrib("source", bufor);
-        sprintf_s(bufor, 64, "%d", total_weights);
-        exporter.insertTagAttrib("count", bufor);
-        exporter.insertTagAttrib("stride", "1");
-
-        exporter.openTag("param");
-        exporter.insertTagAttrib("name", "WEIGHT");
-        exporter.insertTagAttrib("type", "float");
-
-        exporter.closeTag(); // "param"
-        exporter.closeTag(); // "accessor"
-        exporter.closeTag(); // "technique_common"
-        exporter.closeTag(); // "source"
-
-        /********************************/
-        /* Association between joints and attribute data */
-
-        exporter.openTag("joints");
-
-        exporter.openTag("input");
-        exporter.insertTagAttrib("semantic", "JOINT");
-
-        sprintf_s(bufor, 64, "#Armature%d-joints", armature_id);
-        exporter.insertTagAttrib("source", bufor);
-
-        exporter.closeTag(); // "input"
-
-        exporter.openTag("input");
-        exporter.insertTagAttrib("semantic", "INV_BIND_MATRIX");
-
-        sprintf_s(bufor, 64, "#Armature%d-bind_poses", armature_id);
-        exporter.insertTagAttrib("source", bufor);
-
-        exporter.closeTag(); // "input"
-
-        exporter.closeTag(); // "joints"
-
-        /********************************/
-        /* Association between joints and attribute data */
-
-        exporter.openTag("vertex_weights");
-
-        sprintf_s(bufor, 64, "%d", v_length);
-        exporter.insertTagAttrib("count", bufor);
-
-        exporter.openTag("input");
-        exporter.insertTagAttrib("semantic", "JOINT");
-
-        sprintf_s(bufor, 64, "#Armature%d-joints", armature_id);
-        exporter.insertTagAttrib("source", bufor);
-        exporter.insertTagAttrib("offset", "0");
-
-        exporter.closeTag(); // "input"
-
-        exporter.openTag("input");
-        exporter.insertTagAttrib("semantic", "WEIGHT");
-
-        sprintf_s(bufor, 64, "#Armature%d-weights", armature_id);
-        exporter.insertTagAttrib("source", bufor);
-        exporter.insertTagAttrib("offset", "1");
-
-        exporter.closeTag(); // "input"
-
-        exporter.openTag("vcount");
-
-        for (i = 0; i < v_length; i++)
-        {
-            k = 0;
-
-            for (j = 0; j < 3; j++)
-            {
-                if (0xFF != v_data[i].index[j])
-                {
-                    k++;
-                }
-                else
-                {
-                    j = 3; // explicit break
-                }
-            }
-
-            sprintf_s(bufor, 64, "%d", k);
-
-            exporter.writeInsideTag(bufor);
-        }
-
-        exporter.closeTag(); // "vcount"
-
-        exporter.openTag("v");
-
-        k = 0;
-
-        for (i = 0; i < v_length; i++)
-        {
-            for (j = 0; j < 3; j++)
-            {
-                if (0xFF != v_data[i].index[j])
-                {
-                    sprintf_s
-                    (
-                        bufor, 64, "%d %d",
-                        v_data[i].index[j], k
-                    );
-
-                    k++;
-
-                    exporter.writeInsideTag(bufor);
-                }
-                else
-                {
-                    j = 3; // explicit break
-                }
-            }
-        }
-
-        exporter.closeTag(); // "v"
-
-        exporter.closeTag(); // "vertex_weights"
-
-        /********************************/
-        /* Close skinning elements */
-
-        exporter.closeTag(); // "skin"
-        exporter.closeTag(); // "controller"
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // ePhyTriMesh: print
-    ////////////////////////////////////////////////////////////////
-    eString ePhyTriMesh::getLogPrintMessage() const
-    {
-        int32_t i;
-
-        eString result = eObject::getLogPrintMessage();
-
-        result += "\n";
-
-        for (i = 0; i < bonesCount; i++)
-        {
-            result += "\n bone: ";
-
-            result += bones[i].xform->getStringRepresentation();
-        }
-
-        return result;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // ePhyTriMesh: prepare matrices
     // <kao2.004B1F70>
     ////////////////////////////////////////////////////////////////
@@ -633,22 +324,20 @@ namespace ZookieWizard
     {
         int32_t i;
 
-        eMatrix4x4 xform_matrix;
+        eMatrix4x4 bone_xform_matrix;
         eMatrix4x4 parent_matrix;
 
-        eTransform* test_transform;
+        eTransform* test_xform;
 
         /* (--dsp--) check "eMorpherMod" <kao2.006030C0> */
 
         /* Load prior transformation with inverse matrix */
 
-        if (update && (nullptr != tri))
+        if (nullptr != tri)
         {
-            test_transform = tri->getPreviousTransform();
-
-            if (nullptr != test_transform)
+            if (nullptr != (test_xform = tri->getPreviousTransform()))
             {
-                parent_matrix = test_transform->getXForm(true).getInverseMatrix();
+                parent_matrix = test_xform->getXForm(true).getInverseMatrix();
             }
         }
 
@@ -658,13 +347,13 @@ namespace ZookieWizard
         {
             if (update)
             {
-                xform_matrix = bones[i].xform->getXForm(true).getMatrix();
+                bone_xform_matrix = bones[i].xform->getXForm(true).getMatrix();
 
-                theBonesMatrices[i] = parent_matrix * (xform_matrix * bones[i].matrix);
+                theBonesMatrices[i] = parent_matrix * (bone_xform_matrix * bones[i].matrix);
             }
             else
             {
-                theBonesMatrices[i] = xform_matrix;
+                theBonesMatrices[i] = parent_matrix;
             }
         }
     }
@@ -818,170 +507,41 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // ePhyTriMesh: sort bones array in correct order
+    // ePhyTriMesh: clear this object
     ////////////////////////////////////////////////////////////////
-    void ePhyTriMesh::sortBoneIndices()
+    void ePhyTriMesh::clearNewPhyTriMesh(eTriMesh* x, eGeoSet* y)
     {
-        int32_t i, j, k;
-        eTransform* test_xform;
-        ePhyVertex* test_phyvertex;
+        /*[0x10]*/ vertices = nullptr;
+        /*[0x14]*/ bonesCount = 0;
+        /*[0x18]*/ bonesMaxLength = 0;
+        /*[0x1C]*/ bones = nullptr;
+        /*[0x20]*/ defaultVertices = nullptr;
+        /*[0x24]*/ defaultNormals = nullptr;
+        /*[0x28]*/ morph = nullptr;
 
-        eTransform* xforms_parents[100];
-        eTransform* xforms_queue[100];
-        int32_t indices[100];
+        /*[0x08]*/ tri = x;
+        /*[0x0C]*/ geo = y;
+    }
 
-        eBoneBase bones_queue[40];
 
-        /********************************/
-        /* First bone in queue is the Root Bone */
+    ////////////////////////////////////////////////////////////////
+    // ePhyTriMesh: clear already existing object
+    ////////////////////////////////////////////////////////////////
+    void ePhyTriMesh::clearExistingPhyTriMesh()
+    {
+        morph->decRef();
+        morph = nullptr;
 
-        xforms_parents[0] = xforms_queue[0] = getArmatureParent();
-        xforms_parents[0]->setTypeToJoint(true);
+        defaultNormals->decRef();
+        defaultNormals = nullptr;
 
-        /********************************/
-        /* Itterate bones and place then in hierarchical order */
+        defaultVertices->decRef();
+        defaultVertices = nullptr;
 
-        i = 0; // parent counter [0 -> ? -> (-1)]
-        k = 0; // queue counter [0 -> 40]
-        indices[0] = 0; // children counter for i-th parent
+        deleteBones();
 
-        while (i >= 0)
-        {
-            while (indices[i] < xforms_parents[i]->getNodesCount())
-            {
-                test_xform = (eTransform*)xforms_parents[i]->getIthChild(indices[i]);
-
-                indices[i]++;
-
-                if (test_xform->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
-                {
-                    if (false == test_xform->isJointNode())
-                    {
-                        test_xform->setTypeToJoint(true);
-                    }
-
-                    i++;
-                    k++;
-
-                    if ((i >= 100) || (k >= 100))
-                    {
-                        throw ErrorMessage
-                        (
-                            "ePhyTriMesh::sortBoneIndices():\n" \
-                            "too many eTransforms found! (max 100)"
-                        );
-                    }
-
-                    indices[i] = 0;
-                    xforms_parents[i] = test_xform;
-                    xforms_queue[k] = test_xform;
-                }
-            }
-
-            i--;
-        }
-
-        /********************************/
-        /* Set new indices */
-
-        k++; // number of xforms stored in hierarchical queue
-
-        /* Deleting items from queue that don't exist in matrices array */
-        i = 0;
-        while (i < k)
-        {
-            for (j = 0; j < bonesCount; j++)
-            {
-                if (bones[j].xform == xforms_queue[i])
-                {
-                    j = bonesCount; // explicit break
-                }
-            }
-
-            if (j <= bonesCount) // "eTransform" from queue not found
-            {
-                for (j = (i + 1); j < k; j++)
-                {
-                    xforms_queue[j - 1] = xforms_queue[j];
-                }
-
-                k--;
-            }
-            else
-            {
-                i++;
-            }
-        }
-
-        if (k != bonesCount)
-        {
-            /* (--dsp--) "02_korzenie.ar" -> "dynia_³odyga_itd." */
-            return;
-
-            throw ErrorMessage
-            (
-                "ePhyTriMesh::sortBoneIndices():\n" \
-                "bones count mismatch!"
-            );
-        }
-
-        // i = current bone order
-        // j = new index for i-th bone
-        for (i = 0; i < bonesCount; i++)
-        {
-            indices[i] = (-1);
-
-            for (j = 0; j < k; j++)
-            {
-                if (xforms_queue[j] == bones[i].xform)
-                {
-                    indices[i] = j;
-
-                    j = k; // break
-                }
-            }
-
-            if ((-1) == indices[i])
-            {
-                throw ErrorMessage
-                (
-                    "ePhyTriMesh::sortBoneIndices():\n" \
-                    "bone \"%s\" not found!",
-                    bones[i].xform->getStringRepresentation().getText()
-                );
-            }
-        }
-
-        /********************************/
-        /* Shuffle actual bones */
-
-        for (i = 0; i < bonesCount; i++)
-        {
-            bones_queue[indices[i]] = bones[i];
-        }
-
-        for (i = 0; i < bonesCount; i++)
-        {
-            bones[i] = bones_queue[i];
-        }
-
-        /********************************/
-        /* Update "ePhyVertex" joint indices */
-
-        for (i = 0; i < vertices->getLength(); i++)
-        {
-            test_phyvertex = &(vertices->getData()[i]);
-
-            for (k = 0; k < 3; k++)
-            {
-                j = test_phyvertex->index[k];
-
-                if (j >= 0)
-                {
-                    test_phyvertex->index[k] = indices[j];
-                }
-            }
-        }
+        vertices->decRef();
+        vertices = nullptr;
     }
 
 }

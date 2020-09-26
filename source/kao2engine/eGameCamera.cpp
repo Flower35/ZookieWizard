@@ -32,11 +32,45 @@ namespace ZookieWizard
         /*[0x14]*/ name = x;
     }
 
-    eGameCamera::~eGameCamera() {}
+    eGameCamera::~eGameCamera()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eGameCamera serialization
+    // eGameCamera: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eGameCamera::createFromOtherObject(const eGameCamera &other)
+    {}
+
+    eGameCamera::eGameCamera(const eGameCamera &other)
+    : eCamera(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eGameCamera& eGameCamera::operator = (const eGameCamera &other)
+    {
+        if ((&other) != this)
+        {
+            eCamera::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eGameCamera::cloneFromMe() const
+    {
+        return new eGameCamera(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGameCamera: serialization
     // <kao2.004D9190>
     ////////////////////////////////////////////////////////////////
     void eGameCamera::serialize(Archive &ar)

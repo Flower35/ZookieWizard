@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eAddPowerUp::~eAddPowerUp() {}
+    eAddPowerUp::~eAddPowerUp()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eAddPowerUp: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eAddPowerUp::createFromOtherObject(const eAddPowerUp &other)
+    {}
+
+    eAddPowerUp::eAddPowerUp(const eAddPowerUp &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eAddPowerUp& eAddPowerUp::operator = (const eAddPowerUp &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eAddPowerUp::cloneFromMe() const
+    {
+        return new eAddPowerUp(*this);
+    }
 
 }

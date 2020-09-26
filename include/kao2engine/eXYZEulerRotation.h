@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eXYZEulerRotation interface
+    // <kao2.005D1AB8> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eXYZEulerRotation : public eCtrl<eQuat>
     {
-
         /*** Properties ***/
 
         protected:
@@ -30,8 +30,22 @@ namespace ZookieWizard
             eXYZEulerRotation();
             ~eXYZEulerRotation();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eXYZEulerRotation &other);
+
+        public:
+
+            eXYZEulerRotation(const eXYZEulerRotation &other);
+            eXYZEulerRotation& operator = (const eXYZEulerRotation &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eCtrl >> */
 
             /*[[vptr]+0x28]*/ void ctrlApplyTransform(eQuat*, float) const override;
 
@@ -45,7 +59,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eXYZEulerRotation TypeInfo
-    // <kao2.004A11C0> (registration)
+    // <kao2.004A1190> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_XYZEULERROTATION_ID = 0x9040;

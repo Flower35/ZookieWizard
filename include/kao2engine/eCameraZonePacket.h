@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eCameraZonePacket : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -32,14 +31,26 @@ namespace ZookieWizard
             eCameraZonePacket();
             ~eCameraZonePacket();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eCameraZonePacket &other);
+
+        public:
+
+            eCameraZonePacket(const eCameraZonePacket &other);
+            eCameraZonePacket& operator = (const eCameraZonePacket &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCameraZonePacket TypeInfo
-    // <kao2.00514820> (registration)
+    // <kao2.005147F0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_CAMERAZONEPACKET_ID = 0xCA3E7A05;

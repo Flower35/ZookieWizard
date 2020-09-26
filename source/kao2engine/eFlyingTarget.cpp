@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eFlyingTarget::~eFlyingTarget() {}
+    eFlyingTarget::~eFlyingTarget()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eFlyingTarget: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eFlyingTarget::createFromOtherObject(const eFlyingTarget &other)
+    {}
+
+    eFlyingTarget::eFlyingTarget(const eFlyingTarget &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eFlyingTarget& eFlyingTarget::operator = (const eFlyingTarget &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eFlyingTarget::cloneFromMe() const
+    {
+        return new eFlyingTarget(*this);
+    }
 
 }

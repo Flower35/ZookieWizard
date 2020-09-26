@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eGameCamera : public eCamera
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,14 +28,26 @@ namespace ZookieWizard
             eGameCamera(eString x);
             ~eGameCamera();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eGameCamera &other);
+
+        public:
+
+            eGameCamera(const eGameCamera &other);
+            eGameCamera& operator = (const eGameCamera &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eGameCamera TypeInfo
-    // <kao2.004D9810> (registration)
+    // <kao2.004D97E0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_GAMECAMERA_ID = 0x0CA4E7A2;

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eShadowCaster : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eShadowCaster();
             ~eShadowCaster();
 
+        private:
+
+            void createFromOtherObject(const eShadowCaster &other);
+
+        public:
+
+            eShadowCaster(const eShadowCaster &other);
+            eShadowCaster& operator = (const eShadowCaster &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eShadowCaster TypeInfo
-    // <kao2.00556ED0> (registration)
+    // <kao2.00556EA0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SHADOWCASTER_ID = 0x54AD0300;

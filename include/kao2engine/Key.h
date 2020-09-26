@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Key interface
+    // <kao2.005D8378> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class Key : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -26,7 +26,21 @@ namespace ZookieWizard
             Key();
             ~Key();
 
+        private:
+
+            void createFromOtherObject(const Key &other);
+
+        public:
+
+            Key(const Key &other);
+            Key& operator = (const Key &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+
+            /* << Gadget >> */
 
             eString getDefaultGadgetName() const override;
     };
@@ -34,7 +48,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Key TypeInfo
-    // <kao2.0059B000> (registration)
+    // <kao2.0059AFD0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_KEY_ID = 0x00020003;

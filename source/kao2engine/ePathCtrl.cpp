@@ -45,25 +45,91 @@ namespace ZookieWizard
 
     ePathCtrl::~ePathCtrl()
     {
-        if (nullptr != unknown_24)
-        {
-            unknown_24->decRef();
-        }
+        unknown_24->decRef();
 
-        if (nullptr != unknown_20)
-        {
-            unknown_20->decRef();
-        }
+        unknown_20->decRef();
 
-        if (nullptr != unknown_10)
-        {
-            unknown_10->decRef();
-        }
+        unknown_10->decRef();
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // ePathCtrl serialization
+    // ePathCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePathCtrl::createFromOtherObject(const ePathCtrl &other)
+    {
+        unknown_10 = other.unknown_10;
+        if (nullptr != unknown_10)
+        {
+            unknown_10->incRef();
+        }
+
+        unknown_14 = other.unknown_14;
+        unknown_18 = other.unknown_18;
+        unknown_1C = other.unknown_1C;
+
+        unknown_20 = other.unknown_20;
+        if (nullptr != unknown_20)
+        {
+            unknown_20->incRef();
+        }
+
+        unknown_24 = other.unknown_24;
+        if (nullptr != unknown_24)
+        {
+            unknown_24->incRef();
+        }
+
+        unknown_28 = other.unknown_28;
+        unknown_2C = other.unknown_2C;
+
+        unknown_30 = other.unknown_30;
+        unknown_34 = other.unknown_34;
+        unknown_38 = other.unknown_38;
+        unknown_40 = other.unknown_40;
+    }
+
+    ePathCtrl::ePathCtrl(const ePathCtrl &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePathCtrl& ePathCtrl::operator = (const ePathCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            unknown_24->decRef();
+
+            unknown_20->decRef();
+
+            unknown_10->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+
+            /****************/
+
+            // << AFTER >>
+        }
+
+        return (*this);
+    }
+
+    eObject* ePathCtrl::cloneFromMe() const
+    {
+        return nullptr;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePathCtrl: serialization
     // <kao2.004240B0>
     ////////////////////////////////////////////////////////////////
     void ePathCtrl::serialize(Archive &ar)

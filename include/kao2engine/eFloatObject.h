@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eFloatObject : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eFloatObject();
             ~eFloatObject();
 
+        private:
+
+            void createFromOtherObject(const eFloatObject &other);
+
+        public:
+
+            eFloatObject(const eFloatObject &other);
+            eFloatObject& operator = (const eFloatObject &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFloatObject TypeInfo
-    // <kao2.00432B70> (registration)
+    // <kao2.00432B40> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FLOATOBJECT_ID = 0x3A5611B7;

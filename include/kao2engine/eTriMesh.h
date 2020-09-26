@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eTriMesh interface
+    // <kao2.005D0568> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eTriMesh : public eGeometry
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,10 +27,26 @@ namespace ZookieWizard
             eTriMesh();
             ~eTriMesh();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eTriMesh &other);
+
+        public:
+
+            eTriMesh(const eTriMesh &other);
+            eTriMesh& operator = (const eTriMesh &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
 
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
+
+            /* << eNode >> */
+
+            void destroyNode() override;
 
             void renderNode(eDrawContext &draw_context) const override;
 
@@ -38,7 +54,7 @@ namespace ZookieWizard
             void editingClearCollision() override;
             void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id) override;
 
-            void destroyNode() override;
+            /* << eTriMesh >> */
 
             eGeoSet* getGeoset() const;
             void setGeoset(eGeoSet* new_geo);
@@ -47,7 +63,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eTriMesh TypeInfo
-    // <kao2.0046D6F0> (registration)
+    // <kao2.0046D6C0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TRIMESH_ID = 0x3005;

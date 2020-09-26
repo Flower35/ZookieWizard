@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eEggTarget()
     {}
 
-    eWaterTarget::~eWaterTarget() {}
+    eWaterTarget::~eWaterTarget()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eWaterTarget: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eWaterTarget::createFromOtherObject(const eWaterTarget &other)
+    {}
+
+    eWaterTarget::eWaterTarget(const eWaterTarget &other)
+    : eEggTarget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eWaterTarget& eWaterTarget::operator = (const eWaterTarget &other)
+    {
+        if ((&other) != this)
+        {
+            eEggTarget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eWaterTarget::cloneFromMe() const
+    {
+        return new eWaterTarget(*this);
+    }
 
 }

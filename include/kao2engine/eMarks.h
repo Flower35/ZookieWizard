@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eMarks : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eMarks();
             ~eMarks();
 
+        private:
+
+            void createFromOtherObject(const eMarks &other);
+
+        public:
+
+            eMarks(const eMarks &other);
+            eMarks& operator = (const eMarks &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eMarks TypeInfo
-    // <kao2.0055B0D0> (registration)
+    // <kao2.0055B0A0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_MARKS_ID = 0x3B3E6951;

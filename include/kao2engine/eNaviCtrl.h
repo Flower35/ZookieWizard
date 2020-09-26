@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eNaviCtrl : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,7 +28,21 @@ namespace ZookieWizard
             eNaviCtrl();
             ~eNaviCtrl();
 
+        private:
+
+            void createFromOtherObject(const eNaviCtrl &other);
+
+        public:
+
+            eNaviCtrl(const eNaviCtrl &other);
+            eNaviCtrl& operator = (const eNaviCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+
+            /* << Gadget >> */
 
             eString getDefaultGadgetName() const override;
     };
@@ -37,7 +50,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eNaviCtrl TypeInfo
-    // <kao2.004287A0> (registration)
+    // <kao2.00428770> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_NAVICTRL_ID = 0xFE010020;

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eExtraAlbox : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +27,25 @@ namespace ZookieWizard
             eExtraAlbox();
             ~eExtraAlbox();
 
+        private:
+
+            void createFromOtherObject(const eExtraAlbox &other);
+
+        public:
+
+            eExtraAlbox(const eExtraAlbox &other);
+            eExtraAlbox& operator = (const eExtraAlbox &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eExtraAlbox TypeInfo
-    // <kao2.004EEAD0> (registration)
+    // <kao2.004EEAA0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_EXTRAALBOX_ID = 0x00021343;

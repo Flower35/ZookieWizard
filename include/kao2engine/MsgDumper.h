@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class MsgDumper : public Gadget
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             MsgDumper();
             ~MsgDumper();
 
+        private:
+
+            void createFromOtherObject(const MsgDumper &other);
+
+        public:
+
+            MsgDumper(const MsgDumper &other);
+            MsgDumper& operator = (const MsgDumper &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // MsgDumper TypeInfo
-    // <kao2.005B00A0> (registration)
+    // <kao2.005B0070> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_MSGDUMPER_ID = 0x07EA1005;

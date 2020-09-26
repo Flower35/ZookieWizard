@@ -11,11 +11,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eTexture interface
+    // <kao2.005D0760> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eTexture : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -32,10 +32,24 @@ namespace ZookieWizard
             eTexture(eBitmap* x);
             ~eTexture();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eTexture &other);
+
+        public:
+
+            eTexture(const eTexture &other);
+            eTexture& operator = (const eTexture &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
 
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
+
+            /* << eTexture >> */
 
             bool matchesPath(eString &searched_path) const;
 
@@ -49,7 +63,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eTexture TypeInfo
-    // <kao2.004735A0> (registration)
+    // <kao2.00473570> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TEXTURE_ID = 0x1002;

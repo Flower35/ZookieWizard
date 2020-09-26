@@ -49,11 +49,65 @@ namespace ZookieWizard
         /*[0x38]*/ unknown_38 = 0;
     }
 
-    ePathCamCtrl::~ePathCamCtrl() {}
+    ePathCamCtrl::~ePathCamCtrl()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // ePathCamCtrl serialization
+    // ePathCamCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePathCamCtrl::createFromOtherObject(const ePathCamCtrl &other)
+    {
+        /* << MUST BE RESOLVED! >> */
+        camera = nullptr;
+
+        bezier = other.bezier;
+
+        position = other.position;
+
+        unknown_1C = other.unknown_1C;
+
+        unknown_20[0] = other.unknown_20[0];
+        unknown_20[1] = other.unknown_20[1];
+        unknown_20[2] = other.unknown_20[2];
+        unknown_20[3] = other.unknown_20[3];
+
+        unknown_24 = other.unknown_24;
+
+        unknown_28 = other.unknown_28;
+
+        unknown_38 = other.unknown_38;
+    }
+
+    ePathCamCtrl::ePathCamCtrl(const ePathCamCtrl &other)
+    : eCameraCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePathCamCtrl& ePathCamCtrl::operator = (const ePathCamCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eCameraCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePathCamCtrl::cloneFromMe() const
+    {
+        return new ePathCamCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePathCamCtrl: serialization
     // <kao2.0052A780>
     ////////////////////////////////////////////////////////////////
     void ePathCamCtrl::serialize(Archive &ar)

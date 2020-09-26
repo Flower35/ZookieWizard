@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eBubbleFlakes : public eForrestFlakes
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             eBubbleFlakes();
             ~eBubbleFlakes();
 
+        private:
+
+            void createFromOtherObject(const eBubbleFlakes &other);
+
+        public:
+
+            eBubbleFlakes(const eBubbleFlakes &other);
+            eBubbleFlakes& operator = (const eBubbleFlakes &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eBubbleFlakes TypeInfo
-    // <kao2.005662E0> (registration)
+    // <kao2.005662B0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_BUBBLEFLAKES_ID = 0x0323A7E8;

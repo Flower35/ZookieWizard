@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eFSOp interface
+    // <kao2.005D6B38> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eFSOp : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +28,25 @@ namespace ZookieWizard
             eFSOp();
             ~eFSOp();
 
+        private:
+
+            void createFromOtherObject(const eFSOp &other);
+
+        public:
+
+            eFSOp(const eFSOp &other);
+            eFSOp& operator = (const eFSOp &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFSOp TypeInfo
-    // <kao2.0055A030> (registration)
+    // <kao2.0055A000> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FSOP_ID = 0xFF777789;

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eDzwig::~eDzwig() {}
+    eDzwig::~eDzwig()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eDzwig: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eDzwig::createFromOtherObject(const eDzwig &other)
+    {}
+
+    eDzwig::eDzwig(const eDzwig &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eDzwig& eDzwig::operator = (const eDzwig &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eDzwig::cloneFromMe() const
+    {
+        return new eDzwig(*this);
+    }
 
 }

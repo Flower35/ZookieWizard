@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eCylinderIsectGadget : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +27,25 @@ namespace ZookieWizard
             eCylinderIsectGadget();
             ~eCylinderIsectGadget();
 
+        private:
+
+            void createFromOtherObject(const eCylinderIsectGadget &other);
+
+        public:
+
+            eCylinderIsectGadget(const eCylinderIsectGadget &other);
+            eCylinderIsectGadget& operator = (const eCylinderIsectGadget &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCylinderIsectGadget TypeInfo
-    // <kao2.005213E0> (registration)
+    // <kao2.005213B0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_CYLINDERISECTGADGET_ID = 0x2DC4FFFF;

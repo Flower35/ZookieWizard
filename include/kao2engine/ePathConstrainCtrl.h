@@ -11,11 +11,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // ePathConstrainCtrl interface
+    // <kao2.005D1C78> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class ePathConstrainCtrl : public eCtrl<ePoint3>
     {
-
         /*** Properties ***/
 
         protected:
@@ -30,8 +30,22 @@ namespace ZookieWizard
             ePathConstrainCtrl();
             ~ePathConstrainCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const ePathConstrainCtrl &other);
+
+        public:
+
+            ePathConstrainCtrl(const ePathConstrainCtrl &other);
+            ePathConstrainCtrl& operator = (const ePathConstrainCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eCtrl >> */
 
             /*[[vptr]+0x28]*/ void ctrlApplyTransform(ePoint3*, float) const override;
 
@@ -45,7 +59,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // ePathConstrainCtrl TypeInfo
-    // <kao2.004A78D0> (registration)
+    // <kao2.004A78A0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PATHCONSTRAINCTRL_ID = 0x9001FFF0;

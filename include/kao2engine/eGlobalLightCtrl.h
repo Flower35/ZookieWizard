@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eGlobalLightCtrl : public eGroup
     {
-
         /*** Methods ***/
 
         public:
@@ -21,14 +20,26 @@ namespace ZookieWizard
             eGlobalLightCtrl();
             ~eGlobalLightCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eGlobalLightCtrl &other);
+
+        public:
+
+            eGlobalLightCtrl(const eGlobalLightCtrl &other);
+            eGlobalLightCtrl& operator = (const eGlobalLightCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eGlobalLightCtrl TypeInfo
-    // <kao_tw.0052FA80> (registration)
+    // <kao_tw.0052FA50> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_GLOBALLIGHTCTRL_ID = 0x05102509;

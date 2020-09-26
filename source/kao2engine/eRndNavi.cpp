@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eNaviCtrl()
     {}
 
-    eRndNavi::~eRndNavi() {}
+    eRndNavi::~eRndNavi()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eRndNavi: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eRndNavi::createFromOtherObject(const eRndNavi &other)
+    {}
+
+    eRndNavi::eRndNavi(const eRndNavi &other)
+    : eNaviCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eRndNavi& eRndNavi::operator = (const eRndNavi &other)
+    {
+        if ((&other) != this)
+        {
+            eNaviCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eRndNavi::cloneFromMe() const
+    {
+        return new eRndNavi(*this);
+    }
 
 }

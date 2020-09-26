@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eCollisionSphere interface
+    // <kao2.005D8170> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eCollisionSphere : public eCollisionPrimitive
     {
-
         /*** Properties ***/
 
         protected:
@@ -26,13 +26,25 @@ namespace ZookieWizard
             eCollisionSphere();
             ~eCollisionSphere();
 
+        private:
+
+            void createFromOtherObject(const eCollisionSphere &other);
+
+        public:
+
+            eCollisionSphere(const eCollisionSphere &other);
+            eCollisionSphere& operator = (const eCollisionSphere &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCollisionSphere TypeInfo
-    // <kao2.00598E50> (registration)
+    // <kao2.00598E20> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_COLLISIONSPHERE_ID = 0x0002FC01;

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eStaticSnd : public eSnd
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             eStaticSnd();
             ~eStaticSnd();
 
+        private:
+
+            void createFromOtherObject(const eStaticSnd &other);
+
+        public:
+
+            eStaticSnd(const eStaticSnd &other);
+            eStaticSnd& operator = (const eStaticSnd &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eStaticSnd TypeInfo
-    // <kao2.00439E50> (registration)
+    // <kao2.00439E20> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_STATICSND_ID = 0x39D5A029;

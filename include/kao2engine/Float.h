@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Float interface
+    // <kao2.005D8328> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class Float : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -26,14 +26,26 @@ namespace ZookieWizard
             Float();
             ~Float();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const Float &other);
+
+        public:
+
+            Float(const Float &other);
+            Float& operator = (const Float &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // Float TypeInfo
-    // <kao2.0059AD20> (registration)
+    // <kao2.0059ACF0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FLOAT_GADGET_ID = 0x0002000D;

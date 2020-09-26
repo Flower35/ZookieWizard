@@ -43,6 +43,80 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eSRPCombineCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSRPCombineCtrl::createFromOtherObject(const eSRPCombineCtrl &other)
+    {
+        sclCtrl = other.sclCtrl;
+        if (nullptr != sclCtrl)
+        {
+            sclCtrl->incRef();
+        }
+
+        rotCtrl = other.rotCtrl;
+        if (nullptr != rotCtrl)
+        {
+            rotCtrl->incRef();
+        }
+
+        posCtrl = other.posCtrl;
+        if (nullptr != posCtrl)
+        {
+            posCtrl->incRef();
+        }
+    }
+
+    eSRPCombineCtrl::eSRPCombineCtrl(const eSRPCombineCtrl &other)
+    : eCtrl<eSRP>(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSRPCombineCtrl& eSRPCombineCtrl::operator = (const eSRPCombineCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eCtrl<eSRP>::operator = (other);
+
+            /****************/
+
+            sclCtrl->decRef();
+            rotCtrl->decRef();
+            posCtrl->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSRPCombineCtrl::cloneFromMe() const
+    {
+        return new eSRPCombineCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSRPCombineCtrl: serialization
+    // <kao2.0044B550>
+    ////////////////////////////////////////////////////////////////
+    void eSRPCombineCtrl::serialize(Archive &ar)
+    {
+        /* Scale conroller */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&sclCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
+
+        /* Rotation controller */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&rotCtrl, &E_CTRL_EQUAT_TYPEINFO);
+
+        /* Position controller */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&posCtrl, &E_CTRL_EPOINT3_TYPEINFO);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eSRPCombineCtrl: animation function
     // [[vptr]+0x28] Modify "eSRP" based on current time
     // <kao2.0044B480>
@@ -84,23 +158,6 @@ namespace ZookieWizard
                 e->scale = 1.0f;
             }
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eSRPCombineCtrl serialization
-    // <kao2.0044B550>
-    ////////////////////////////////////////////////////////////////
-    void eSRPCombineCtrl::serialize(Archive &ar)
-    {
-        /* Scale conroller */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&sclCtrl, &E_LEAFCTRL_FLOAT_TYPEINFO);
-
-        /* Rotation controller */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&rotCtrl, &E_CTRL_EQUAT_TYPEINFO);
-
-        /* Position controller */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&posCtrl, &E_CTRL_EPOINT3_TYPEINFO);
     }
 
 
@@ -158,6 +215,28 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eSRPCombineCtrl: clear keyframes for specific animation
+    ////////////////////////////////////////////////////////////////
+    void eSRPCombineCtrl::ctrlClearKeyframes(int32_t anim_id)
+    {
+        if (nullptr != sclCtrl)
+        {
+            sclCtrl->ctrlClearKeyframes(anim_id);
+        }
+
+        if (nullptr != rotCtrl)
+        {
+            rotCtrl->ctrlClearKeyframes(anim_id);
+        }
+
+        if (nullptr != posCtrl)
+        {
+            posCtrl->ctrlClearKeyframes(anim_id);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eSRPCombineCtrl: set loop type
     ////////////////////////////////////////////////////////////////
     void eSRPCombineCtrl::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
@@ -184,28 +263,6 @@ namespace ZookieWizard
             {
                 posCtrl->ctrlSetLoopType(anim_id, loop_type, 0x01);
             }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eSRPCombineCtrl: clear keyframes for specific animation
-    ////////////////////////////////////////////////////////////////
-    void eSRPCombineCtrl::ctrlClearKeyframes(int32_t anim_id)
-    {
-        if (nullptr != sclCtrl)
-        {
-            sclCtrl->ctrlClearKeyframes(anim_id);
-        }
-
-        if (nullptr != rotCtrl)
-        {
-            rotCtrl->ctrlClearKeyframes(anim_id);
-        }
-
-        if (nullptr != posCtrl)
-        {
-            posCtrl->ctrlClearKeyframes(anim_id);
         }
     }
 

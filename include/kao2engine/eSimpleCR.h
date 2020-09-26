@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSimpleCR : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eSimpleCR();
             ~eSimpleCR();
 
+        private:
+
+            void createFromOtherObject(const eSimpleCR &other);
+
+        public:
+
+            eSimpleCR(const eSimpleCR &other);
+            eSimpleCR& operator = (const eSimpleCR &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSimpleCR TypeInfo
-    // <kao2.0051C770> (registration)
+    // <kao2.0051C740> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SIMPLECR_ID = 0x3C4B9205;

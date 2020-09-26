@@ -15,14 +15,13 @@ namespace ZookieWizard
 
     class ePathFinder : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
 
-            /*[0x10]*/ int32_t group_Count;
-            /*[0x14]*/ int32_t group_MaxLength;
-            /*[0x18]*/ ePoint3* group;
+            /*[0x10]*/ int32_t points_Count;
+            /*[0x14]*/ int32_t points_MaxLength;
+            /*[0x18]*/ ePoint3* points;
 
             /*[0x1C]*/ eRefCounter* unknown_1C; // "eAStar"
 
@@ -44,8 +43,22 @@ namespace ZookieWizard
             ePathFinder();
             ~ePathFinder();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const ePathFinder &other);
+
+        public:
+
+            ePathFinder(const ePathFinder &other);
+            ePathFinder& operator = (const ePathFinder &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << Gadget >> */
 
             eString getDefaultGadgetName() const override;
     };
@@ -53,7 +66,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // ePathFinder TypeInfo
-    // <kao2.00427250> (registration)
+    // <kao2.00427220> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PATHFINDER_ID = 0xF0012020;

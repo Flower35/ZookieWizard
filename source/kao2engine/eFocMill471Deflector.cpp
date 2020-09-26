@@ -30,11 +30,45 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eFocMill471Deflector::~eFocMill471Deflector() {}
+    eFocMill471Deflector::~eFocMill471Deflector()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eFocMill471Deflector serialization
+    // eFocMill471Deflector: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eFocMill471Deflector::createFromOtherObject(const eFocMill471Deflector &other)
+    {}
+
+    eFocMill471Deflector::eFocMill471Deflector(const eFocMill471Deflector &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eFocMill471Deflector& eFocMill471Deflector::operator = (const eFocMill471Deflector &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eFocMill471Deflector::cloneFromMe() const
+    {
+        return new eFocMill471Deflector(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eFocMill471Deflector: serialization
     ////////////////////////////////////////////////////////////////
     void eFocMill471Deflector::serialize(Archive &ar)
     {

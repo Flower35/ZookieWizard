@@ -9,11 +9,11 @@ namespace ZookieWizard
 {
     ////////////////////////////////////////////////////////////////
     // eOscilationCtrl interface
+    // <kao2.005D6C60> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eOscilationCtrl : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -32,14 +32,26 @@ namespace ZookieWizard
             eOscilationCtrl();
             ~eOscilationCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eOscilationCtrl &other);
+
+        public:
+
+            eOscilationCtrl(const eOscilationCtrl &other);
+            eOscilationCtrl& operator = (const eOscilationCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eOscilationCtrl TypeInfo
-    // <kao2.0055CF10> (registration)
+    // <kao2.0055CEE0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_OSCILATIONCTRL_ID = 0x0F0F12ED;

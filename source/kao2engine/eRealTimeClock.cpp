@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eRealTimeClock::~eRealTimeClock() {}
+    eRealTimeClock::~eRealTimeClock()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eRealTimeClock: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eRealTimeClock::createFromOtherObject(const eRealTimeClock &other)
+    {}
+
+    eRealTimeClock::eRealTimeClock(const eRealTimeClock &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eRealTimeClock& eRealTimeClock::operator = (const eRealTimeClock &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eRealTimeClock::cloneFromMe() const
+    {
+        return new eRealTimeClock(*this);
+    }
 
 }

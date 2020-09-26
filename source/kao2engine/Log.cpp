@@ -32,14 +32,41 @@ namespace ZookieWizard
         name = "log";
     }
 
-    Log::~Log() {}
+    Log::~Log()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // Static Gadget
+    // Log: cloning the object
     ////////////////////////////////////////////////////////////////
 
-    Log theLog;
+    void Log::createFromOtherObject(const Log &other)
+    {}
+
+    Log::Log(const Log &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    Log& Log::operator = (const Log &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* Log::cloneFromMe() const
+    {
+        return new Log(*this);
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -77,5 +104,12 @@ namespace ZookieWizard
 
         std::printf("\n");
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Static Gadget
+    ////////////////////////////////////////////////////////////////
+
+    Log theLog;
 
 }

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eRain : public eSnow
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eRain();
             ~eRain();
 
+        private:
+
+            void createFromOtherObject(const eRain &other);
+
+        public:
+
+            eRain(const eRain &other);
+            eRain& operator = (const eRain &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eRain TypeInfo
-    // <kao2.00564110> (registration)
+    // <kao2.005640E0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_RAIN_ID = 0x0323A7F8;

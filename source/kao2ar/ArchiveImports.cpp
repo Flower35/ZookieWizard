@@ -10,7 +10,30 @@ namespace ZookieWizard
 {
 
     ////////////////////////////////////////////////////////////////
-    // Ar: show scene as a structured text file
+    // Archive: export all scripts
+    ////////////////////////////////////////////////////////////////
+    void Archive::exportScripts() const
+    {
+        if ((nullptr != parentObject) && parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
+        {
+            ((eNode*)parentObject)->exportScripts(getMediaDir());
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // Archive: export all proxies
+    ////////////////////////////////////////////////////////////////
+    void Archive::exportProxies() const
+    {
+        if ((nullptr != parentObject) && parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
+        {
+            ((eNode*)parentObject)->exportXRef(getMediaDir(), engineOpenedWith);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Archive: show scene as a structured text file
     ////////////////////////////////////////////////////////////////
     void Archive::writeStructureToTextFile(const char* output_path) const
     {
@@ -31,13 +54,13 @@ namespace ZookieWizard
                 );
             }
 
-            parentObject->writeStructureToTextFile(text_file, 0);
+            parentObject->writeStructureToTextFile(text_file, 0, false);
         }
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: show scene as XML file
+    // Archive: show scene as XML file
     ////////////////////////////////////////////////////////////////
     void Archive::writeStructureToXmlFile(eString filename) const
     {
@@ -62,7 +85,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: export selected TriMesh to OBJ file
+    // Archive: export selected TriMesh to OBJ file
     ////////////////////////////////////////////////////////////////
     void Archive::writeSelectedObjectToObjFile(eString filename) const
     {
@@ -79,7 +102,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: import TriMesh to selected Group from OBJ file
+    // Archive: import TriMesh to selected Group from OBJ file
     ////////////////////////////////////////////////////////////////
     void Archive::appendToSelectedObjectFromObjFile(eString filename)
     {
@@ -98,11 +121,13 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: change Nodes with specific instructions from a TXT file
+    // Archive: change Nodes with specific instructions from a TXT file
     ////////////////////////////////////////////////////////////////
     int32_t Archive::changeNodesWithTxtFile(const char* filename)
     {
         ArCustomParser parser;
+
+        int32_t result = (-1);
         eGroup* dummy_group = nullptr;
 
         if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
@@ -112,10 +137,13 @@ namespace ZookieWizard
 
         if (parser.openFile(filename, dummy_group))
         {
-            return parser.beginParsing();
+            result = parser.beginParsing();
+
+            selectedObject = parser.getDefaultParent();
+            changeSelectedObject(NODES_LISTBOX_UPDATE_CURRENT, nullptr);
         }
 
-        return (-1);
+        return result;
     }
 
 }

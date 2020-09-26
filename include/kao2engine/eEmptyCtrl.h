@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eEmptyCtrl : public ePathCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -30,14 +29,26 @@ namespace ZookieWizard
             eEmptyCtrl();
             ~eEmptyCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eEmptyCtrl &other);
+
+        public:
+
+            eEmptyCtrl(const eEmptyCtrl &other);
+            eEmptyCtrl& operator = (const eEmptyCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eEmptyCtrl TypeInfo
-    // <kao2.00428070> (registration)
+    // <kao2.00428040> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_EMPTYCTRL_ID = 0xF0010029;

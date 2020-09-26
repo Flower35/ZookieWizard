@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eBombaExplodujaca::~eBombaExplodujaca() {}
+    eBombaExplodujaca::~eBombaExplodujaca()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBombaExplodujaca: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eBombaExplodujaca::createFromOtherObject(const eBombaExplodujaca &other)
+    {}
+
+    eBombaExplodujaca::eBombaExplodujaca(const eBombaExplodujaca &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eBombaExplodujaca& eBombaExplodujaca::operator = (const eBombaExplodujaca &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eBombaExplodujaca::cloneFromMe() const
+    {
+        return new eBombaExplodujaca(*this);
+    }
 
 }

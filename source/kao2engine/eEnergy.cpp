@@ -30,6 +30,40 @@ namespace ZookieWizard
     : ePowerBar()
     {}
 
-    eEnergy::~eEnergy() {}
+    eEnergy::~eEnergy()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eEnergy: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eEnergy::createFromOtherObject(const eEnergy &other)
+    {}
+
+    eEnergy::eEnergy(const eEnergy &other)
+    : ePowerBar(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eEnergy& eEnergy::operator = (const eEnergy &other)
+    {
+        if ((&other) != this)
+        {
+            ePowerBar::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eEnergy::cloneFromMe() const
+    {
+        return new eEnergy(*this);
+    }
 
 }

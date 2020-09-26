@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eParentListener::~eParentListener() {}
+    eParentListener::~eParentListener()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eParentListener: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eParentListener::createFromOtherObject(const eParentListener &other)
+    {}
+
+    eParentListener::eParentListener(const eParentListener &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eParentListener& eParentListener::operator = (const eParentListener &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eParentListener::cloneFromMe() const
+    {
+        return new eParentListener(*this);
+    }
 
 }

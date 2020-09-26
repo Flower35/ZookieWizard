@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eLinkToObject interface
+    // <kao2.005CF848> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eLinkToObject : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +28,25 @@ namespace ZookieWizard
             eLinkToObject();
             ~eLinkToObject();
 
+        private:
+
+            void createFromOtherObject(const eLinkToObject &other);
+
+        public:
+
+            eLinkToObject(const eLinkToObject &other);
+            eLinkToObject& operator = (const eLinkToObject &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eLinkToObject TypeInfo
-    // <kao2.0044AAE0> (registration)
+    // <kao2.0044AAB0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_LINKTOOBJECT_ID = 0x3BA2CFFF;

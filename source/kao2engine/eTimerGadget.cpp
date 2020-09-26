@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eTextWriterFields2()
     {}
 
-    eTimerGadget::~eTimerGadget() {}
+    eTimerGadget::~eTimerGadget()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTimerGadget: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eTimerGadget::createFromOtherObject(const eTimerGadget &other)
+    {}
+
+    eTimerGadget::eTimerGadget(const eTimerGadget &other)
+    : eTextWriterFields2(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eTimerGadget& eTimerGadget::operator = (const eTimerGadget &other)
+    {
+        if ((&other) != this)
+        {
+            eTextWriterFields2::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eTimerGadget::cloneFromMe() const
+    {
+        return new eTimerGadget(*this);
+    }
 
 }

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eSimpleCR::~eSimpleCR() {}
+    eSimpleCR::~eSimpleCR()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSimpleCR: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSimpleCR::createFromOtherObject(const eSimpleCR &other)
+    {}
+
+    eSimpleCR::eSimpleCR(const eSimpleCR &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSimpleCR& eSimpleCR::operator = (const eSimpleCR &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSimpleCR::cloneFromMe() const
+    {
+        return new eSimpleCR(*this);
+    }
 
 }

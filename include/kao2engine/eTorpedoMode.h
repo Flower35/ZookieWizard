@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eTorpedoMode : public eFSOp
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eTorpedoMode();
             ~eTorpedoMode();
 
+        private:
+
+            void createFromOtherObject(const eTorpedoMode &other);
+
+        public:
+
+            eTorpedoMode(const eTorpedoMode &other);
+            eTorpedoMode& operator = (const eTorpedoMode &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eTorpedoMode TypeInfo
-    // <kao2.004CD0D0> (registration)
+    // <kao2.004CD0A0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TORPEDOMODE_ID = 0x7074ED01;

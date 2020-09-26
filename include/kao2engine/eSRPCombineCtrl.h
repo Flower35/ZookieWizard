@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eSRPCombineCtrl interface
+    // <kao2.005CF8A4> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eSRPCombineCtrl : public eCtrl<eSRP>
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,8 +29,22 @@ namespace ZookieWizard
             eSRPCombineCtrl();
             ~eSRPCombineCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eSRPCombineCtrl &other);
+
+        public:
+
+            eSRPCombineCtrl(const eSRPCombineCtrl &other);
+            eSRPCombineCtrl& operator = (const eSRPCombineCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eCtrl >> */
 
             /*[[vptr]+0x28]*/ void ctrlApplyTransform(eSRP*, float) const override;
 
@@ -44,7 +58,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eSRPCombineCtrl TypeInfo
-    // <kao2.004A1720> (registration)
+    // <kao2.004A16F0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SRPCOMBINECTRL_ID = 0x9020;

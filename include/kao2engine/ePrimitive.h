@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // ePrimitive interface
+    // <kao2.005D0920> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class ePrimitive : public eRefCounter
     {
-
         /*** Methods ***/
 
         public:
@@ -20,13 +20,25 @@ namespace ZookieWizard
             ePrimitive();
             ~ePrimitive();
 
+        private:
+
+            void createFromOtherObject(const ePrimitive &other);
+
+        public:
+
+            ePrimitive(const ePrimitive &other);
+            ePrimitive& operator = (const ePrimitive &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // ePrimitive TypeInfo
-    // <kao2.004B92A0> (registration)
+    // <kao2.004B9270> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PRIMITIVE_ID = 0x00123456;

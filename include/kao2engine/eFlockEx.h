@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eFlockEx : public eFlock
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eFlockEx();
             ~eFlockEx();
 
+        private:
+
+            void createFromOtherObject(const eFlockEx &other);
+
+        public:
+
+            eFlockEx(const eFlockEx &other);
+            eFlockEx& operator = (const eFlockEx &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFlockEx TypeInfo
-    // <kao2.0044A3B0> (registration)
+    // <kao2.0044A380> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FLOCKEX_ID = 0xF001A030;

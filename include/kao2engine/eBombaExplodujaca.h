@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eBombaExplodujaca : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eBombaExplodujaca();
             ~eBombaExplodujaca();
 
+        private:
+
+            void createFromOtherObject(const eBombaExplodujaca &other);
+
+        public:
+
+            eBombaExplodujaca(const eBombaExplodujaca &other);
+            eBombaExplodujaca& operator = (const eBombaExplodujaca &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eBombaExplodujaca TypeInfo
-    // <kao2.00453B00> (registration)
+    // <kao2.00453AD0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_BOMBAEXPLODUJACA_ID = 0x3DEC4BC6;

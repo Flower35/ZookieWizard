@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eAskYesNo::~eAskYesNo() {}
+    eAskYesNo::~eAskYesNo()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eAskYesNo: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eAskYesNo::createFromOtherObject(const eAskYesNo &other)
+    {}
+
+    eAskYesNo::eAskYesNo(const eAskYesNo &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eAskYesNo& eAskYesNo::operator = (const eAskYesNo &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eAskYesNo::cloneFromMe() const
+    {
+        return new eAskYesNo(*this);
+    }
 
 }

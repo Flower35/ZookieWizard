@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eWalk : public ePathCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eWalk();
             ~eWalk();
 
+        private:
+
+            void createFromOtherObject(const eWalk &other);
+
+        public:
+
+            eWalk(const eWalk &other);
+            eWalk& operator = (const eWalk &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eWalk TypeInfo
-    // <kao2.00425680> (registration)
+    // <kao2.00425650> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_WALK_ID = 0xF0010024;

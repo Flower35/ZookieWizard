@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eParticleManager::~eParticleManager() {}
+    eParticleManager::~eParticleManager()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eParticleManager: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eParticleManager::createFromOtherObject(const eParticleManager &other)
+    {}
+
+    eParticleManager::eParticleManager(const eParticleManager &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eParticleManager& eParticleManager::operator = (const eParticleManager &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eParticleManager::cloneFromMe() const
+    {
+        return new eParticleManager(*this);
+    }
 
 }

@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eFSSprite interface
+    // <kao2.005D67F0> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eFSSprite : public eFSOp
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,13 +27,25 @@ namespace ZookieWizard
             eFSSprite();
             ~eFSSprite();
 
+        private:
+
+            void createFromOtherObject(const eFSSprite &other);
+
+        public:
+
+            eFSSprite(const eFSSprite &other);
+            eFSSprite& operator = (const eFSSprite &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFSSprite TypeInfo
-    // <kao2.00553EE0> (registration)
+    // <kao2.00553EB0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FSSPRITE_ID = 0xFF777790;

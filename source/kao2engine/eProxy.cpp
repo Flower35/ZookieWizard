@@ -45,7 +45,64 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eProxy serialization
+    // eProxy: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eProxy::createFromOtherObject(const eProxy &other)
+    {
+        targetFile = other.targetFile;
+
+        category = other.category;
+
+        /****************/
+
+        externalContentLink = nullptr;
+
+        if (nullptr != other.externalContentLink)
+        {
+            for (int32_t a = 0; (nullptr == externalContentLink) && (a < other.nodes.getSize()); a++)
+            {
+                if (other.nodes.getIthChild(a) == other.externalContentLink)
+                {
+                    eRefCounter* dummy_child = nodes.getIthChild(a);
+
+                    if ((nullptr != dummy_child) && (dummy_child->getType()->checkHierarchy(&E_XREFPROXY_TYPEINFO)))
+                    {
+                        nodes.deleteIthChild(a);
+                    }
+                }
+            }
+        }
+    }
+
+    eProxy::eProxy(const eProxy &other)
+    : eTransform(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eProxy& eProxy::operator = (const eProxy &other)
+    {
+        if ((&other) != this)
+        {
+            eTransform::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eProxy::cloneFromMe() const
+    {
+        return new eProxy(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eProxy: serialization
     // <kao2.004846C0>
     ////////////////////////////////////////////////////////////////
     void eProxy::serialize(Archive &ar)
@@ -110,21 +167,54 @@ namespace ZookieWizard
         ar.serializeString(targetFile);
 
         ar.readOrWrite(&category, 0x04);
+    }
 
-        /********************************/
-        /* Loading external models... */
 
-        if (ar.isInReadMode())
+    ////////////////////////////////////////////////////////////////
+    // eProxy: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eProxy::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    {
+        int32_t a;
+        eNode* test_node;
+
+        char bufor[128];
+
+        /* "eNode" parent class */
+
+        eGroup::writeStructureToTextFile(file, indentation, true);
+
+        /* "eProxy" additional info */
+
+        if (targetFile.getLength() > 0)
         {
-            reloadXRef(ar.getMediaDir(), ar.getCurrentEngineVersion());
+            if ('?' != targetFile.getText()[0])
+            {
+                sprintf_s
+                (
+                    bufor, 128,
+                    " - proxy target: [%d] \"%s\"",
+                    category,
+                    targetFile.getText()
+                );
+
+                ArFunctions::writeIndentation(file, indentation);
+                file << bufor;
+                ArFunctions::writeNewLine(file, 0);
+            }
         }
 
-        /********************************/
-        /* Saving external models... */
+        /* "eGroup" parent class */
 
-        if (ar.isInExportProxiesMode())
+        if (!group_written)
         {
-            exportXRef(ar.getMediaDir(), ar.getCurrentEngineVersion());
+            for (a = 0; a < nodes.getSize(); a++)
+            {
+                if (nullptr != (test_node = (eNode*)nodes.getIthChild(a)))
+                {
+                    test_node->writeStructureToTextFile(file, (indentation + 1), false);
+                }
+            }
         }
     }
 
@@ -167,12 +257,76 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eProxy::findAndDereference(eNode* target)
     {
-        if (target == externalContentLink)
+        if ((nullptr != externalContentLink) && (target == externalContentLink))
         {
             externalContentLink = nullptr;
         }
 
         eGroup::findAndDereference(target);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eProxy: render this node
+    ////////////////////////////////////////////////////////////////
+    void eProxy::renderNode(eDrawContext &draw_context) const
+    {
+        const float CUBE_HALF_WIDTH = (64.0f / 2);
+
+        int32_t draw_flags = draw_context.getDrawFlags();
+
+        if (GUI::drawFlags::DRAW_FLAG_PROXIES & draw_flags)
+        {
+            eTransform::renderNode(draw_context);
+
+            /* Inactive color (blue) */
+            float color[3] = {0, 0, 1.0f};
+
+            bool is_selected_or_marked = draw_context.isNodeSelectedOrMarked();
+            bool use_outline = draw_context.isNodeOutlined();
+
+            glPushMatrix();
+
+            if (is_selected_or_marked)
+            {
+                GUI::multiplyBySelectedObjectTransform(true);
+            }
+            else
+            {
+                glMultMatrixf(transposedMatrix[1]);
+            }
+
+            if ((GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_flags) && (1 == category))
+            {
+                if (use_outline)
+                {
+                    glColor3f(0, 1.0f, 0);
+                }
+
+                draw_context.useMaterial(nullptr, 0);
+                GUI::renderSpecialModel(true, ZOOKIEWIZARD_SPECIALMODEL_KAO);
+            }
+
+            if (use_outline)
+            {
+                /* Active color */
+                GUI::colorOfMarkedObject(color[0], color[1], color[2]);
+            }
+
+            GUI::renderBoundingBox
+            (
+                2.0f,
+                color[0], color[1], color[2],
+                (0 - CUBE_HALF_WIDTH),
+                (0 - CUBE_HALF_WIDTH),
+                (0 - CUBE_HALF_WIDTH),
+                (0 + CUBE_HALF_WIDTH),
+                (0 + CUBE_HALF_WIDTH),
+                (0 + CUBE_HALF_WIDTH)
+            );
+
+            glPopMatrix();
+        }
     }
 
 
@@ -354,20 +508,21 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eProxy: reload XRef
+    // eProxy: loading or exporting Proxies
     ////////////////////////////////////////////////////////////////
-    void eProxy::reloadXRef(eString media_dir, int32_t engine_version)
+
+    void eProxy::reloadXRef(const eString &media_dir, int32_t engine_version)
     {
         int32_t ar_flags;
 
-        eXRefTarget* test_xref_taget;
+        eXRefTarget* test_xref_taget[2];
         eXRefProxy* test_xref_proxy;
 
         /* The category must be "particle" or "geoproxy" */
 
         if (0 == category)
         {
-            ar_flags = AR_MODE_XREF_PATH;
+            ar_flags = AR_MODE_PARTICLES_PATH;
         }
         else if (5 == category)
         {
@@ -382,12 +537,12 @@ namespace ZookieWizard
 
         if ((0 == (0x00010000 & flags)) && (nullptr == externalContentLink))
         {
-            test_xref_taget = new eXRefTarget;
-            test_xref_taget->incRef();
+            test_xref_taget[0] = new eXRefTarget;
+            test_xref_taget[0]->incRef();
 
-            if (test_xref_taget->loadTarget(media_dir, engine_version, ar_flags, targetFile))
+            if (test_xref_taget[1] = test_xref_taget[0]->loadTarget(media_dir, targetFile, engine_version, ar_flags))
             {
-                test_xref_proxy = new eXRefProxy(test_xref_taget);
+                test_xref_proxy = new eXRefProxy(test_xref_taget[1]);
                 test_xref_proxy->incRef();
 
                 nodes.appendChild(test_xref_proxy);
@@ -396,15 +551,15 @@ namespace ZookieWizard
                 test_xref_proxy->decRef();
             }
 
-            test_xref_taget->decRef();
+            test_xref_taget[0]->decRef();
         }
+
+        /********************************/
+
+        eGroup::reloadXRef(media_dir, engine_version);
     }
 
-
-    ////////////////////////////////////////////////////////////////
-    // eProxy: export XRef
-    ////////////////////////////////////////////////////////////////
-    void eProxy::exportXRef(eString media_dir, int32_t engine_version)
+    void eProxy::exportXRef(const eString &media_dir, int32_t engine_version) const
     {
         int32_t ar_flags, a, b = nodes.getSize();
 
@@ -415,7 +570,7 @@ namespace ZookieWizard
 
         if (0 == category)
         {
-            ar_flags = AR_MODE_XREF_PATH;
+            ar_flags = AR_MODE_PARTICLES_PATH;
         }
         else if (5 == category)
         {
@@ -428,32 +583,23 @@ namespace ZookieWizard
 
         for (a = 0; a < b; a++)
         {
-            test_xref_proxy = (eXRefProxy*)nodes.getIthChild(a);
-
-            if (nullptr != test_xref_proxy)
+            if (nullptr != (test_xref_proxy = (eXRefProxy*)nodes.getIthChild(a)))
             {
                 /* Child node could be "eTriMesh" */
 
                 if (test_xref_proxy->getType()->checkHierarchy(&E_XREFPROXY_TYPEINFO))
                 {
-                    test_xref_taget = test_xref_proxy->getXRefTarget();
-
-                    if (nullptr != test_xref_taget)
+                    if (nullptr != (test_xref_taget = test_xref_proxy->getXRefTarget()))
                     {
                         test_xref_taget->exportTarget(media_dir, engine_version, ar_flags);
                     }
                 }
             }
         }
-    }
 
+        /********************************/
 
-    ////////////////////////////////////////////////////////////////
-    // eProxy: set target name
-    ////////////////////////////////////////////////////////////////
-    void eProxy::setTargetName(eString new_target)
-    {
-        targetFile = new_target;
+        eGroup::exportXRef(media_dir, engine_version);
     }
 
 
@@ -464,162 +610,19 @@ namespace ZookieWizard
     {
         category = new_category;
 
-        /* For now, set this collision-related flag */
-        /* when the category is set to "geoproxy" */
-
-        flagsCollisionResponse = (5 == category) ? 0x0000 : 0x00FF;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eProxy: export readable structure
-    ////////////////////////////////////////////////////////////////
-    void eProxy::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
-    {
-        int32_t i;
-        eNode* test_node;
-
-        char bufor[128];
-
-        /* "eNode" parent class */
-
-        eNode::writeStructureToTextFile(file, indentation);
-
-        /* "eProxy" additional info */
-
-        if (targetFile.getLength() > 0)
+        if ((category < 0) || (category > 6))
         {
-            if ('?' != targetFile.getText()[0])
-            {
-                sprintf_s
-                (
-                    bufor, 128,
-                    " - proxy target: [%d] \"%s\"",
-                    category,
-                    targetFile.getText()
-                );
-
-                ArFunctions::writeIndentation(file, indentation);
-                file << bufor;
-                ArFunctions::writeNewLine(file, 0);
-            }
-        }
-
-        /* "eTransform" parent class */
-
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform pos: (%f, %f, %f)",
-            defaultTransform.pos.x,
-            defaultTransform.pos.y,
-            defaultTransform.pos.z
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
-
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform rot: (%f, %f, %f, %f)",
-            defaultTransform.rot.x,
-            defaultTransform.rot.y,
-            defaultTransform.rot.z,
-            defaultTransform.rot.w
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
-
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform scl: (%f)",
-            defaultTransform.scale
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
-
-        /* "eGroup" parent class */
-
-        for (i = 0; i < nodes.getSize(); i++)
-        {
-            test_node = (eNode*)nodes.getIthChild(i);
-
-            if (nullptr != test_node)
-            {
-                test_node->writeStructureToTextFile(file, (indentation + 1));
-            }
+            category = 0;
         }
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // eProxy: render this node
+    // eProxy: set target name
     ////////////////////////////////////////////////////////////////
-    void eProxy::renderNode(eDrawContext &draw_context) const
+    void eProxy::setTargetName(eString new_target_name)
     {
-        const float CUBE_HALF_WIDTH = (64.0f / 2);
-
-        int32_t draw_flags = draw_context.getDrawFlags();
-
-        if (GUI::drawFlags::DRAW_FLAG_PROXIES & draw_flags)
-        {
-            eTransform::renderNode(draw_context);
-
-            /* Inactive color (blue) */
-            float color[3] = {0, 0, 1.0f};
-
-            bool is_selected_or_marked = draw_context.isNodeSelectedOrMarked();
-            bool use_outline = draw_context.isNodeOutlined();
-
-            glPushMatrix();
-
-            if (is_selected_or_marked)
-            {
-                GUI::multiplyBySelectedObjectTransform(true);
-            }
-            else
-            {
-                glMultMatrixf(transposedMatrix[1]);
-            }
-
-            if ((GUI::drawFlags::DRAW_FLAG_SPECIAL & draw_flags) && (1 == category))
-            {
-                if (use_outline)
-                {
-                    glColor3f(0, 1.0f, 0);
-                }
-
-                draw_context.useMaterial(nullptr, 0);
-                GUI::renderSpecialModel(true, ZOOKIEWIZARD_SPECIALMODEL_KAO);
-            }
-
-            if (use_outline)
-            {
-                /* Active color */
-                GUI::colorOfMarkedObject(color[0], color[1], color[2]);
-            }
-
-            GUI::renderBoundingBox
-            (
-                2.0f,
-                color[0], color[1], color[2],
-                (0 - CUBE_HALF_WIDTH),
-                (0 - CUBE_HALF_WIDTH),
-                (0 - CUBE_HALF_WIDTH),
-                (0 + CUBE_HALF_WIDTH),
-                (0 + CUBE_HALF_WIDTH),
-                (0 + CUBE_HALF_WIDTH)
-            );
-
-            glPopMatrix();
-        }
+        targetFile = new_target_name;
     }
 
 }

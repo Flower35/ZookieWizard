@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Timer interface
+    // <kao2.005D84C0> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class Timer : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,8 +27,22 @@ namespace ZookieWizard
             Timer();
             ~Timer();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const Timer &other);
+
+        public:
+
+            Timer(const Timer &other);
+            Timer& operator = (const Timer &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << Gadget >> */
 
             eString getDefaultGadgetName() const override;
     };
@@ -36,7 +50,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Timer TypeInfo
-    // <kao2.0059CB80> (registration)
+    // <kao2.0059CB50> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TIMER_ID = 0x00020006;

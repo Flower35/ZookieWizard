@@ -32,8 +32,7 @@ namespace ZookieWizard
     eDirectionalLight::eDirectionalLight()
     : eLight()
     {
-        /*[0x6C-0x74]*/
-        position.x = 1.0f;
+        /*[0x6C-0x74]*/ position.x = 1.0f;
 
         /*[0x78]*/ target = nullptr;
     }
@@ -45,7 +44,52 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eDirectionalLight serialization
+    // eDirectionalLight: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eDirectionalLight::createFromOtherObject(const eDirectionalLight &other)
+    {
+        position = other.position;
+
+        target = other.target;
+        if (nullptr != target)
+        {
+            target->incRef();
+        }
+    }
+
+    eDirectionalLight::eDirectionalLight(const eDirectionalLight &other)
+    : eLight(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eDirectionalLight& eDirectionalLight::operator = (const eDirectionalLight &other)
+    {
+        if ((&other) != this)
+        {
+            eLight::operator = (other);
+
+            /****************/
+
+            target->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eDirectionalLight::cloneFromMe() const
+    {
+        return new eDirectionalLight(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eDirectionalLight: serialization
     // <kao2.0047FBC0>
     ////////////////////////////////////////////////////////////////
     void eDirectionalLight::serialize(Archive &ar)
@@ -315,6 +359,7 @@ namespace ZookieWizard
     {
         position = new_position;
     }
+
 
     ////////////////////////////////////////////////////////////////
     // eDirectionalLight: get or set target point

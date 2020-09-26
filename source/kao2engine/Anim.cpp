@@ -36,11 +36,49 @@ namespace ZookieWizard
         /*[0x18]*/ unknown_18 = 1.0f;
     }
 
-    Anim::~Anim() {}
+    Anim::~Anim()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // Anim serialization
+    // Anim: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void Anim::createFromOtherObject(const Anim &other)
+    {
+        unknown_10 = other.unknown_10;
+        unknown_14 = other.unknown_14;
+        unknown_18 = other.unknown_18;
+    }
+
+    Anim::Anim(const Anim &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    Anim& Anim::operator = (const Anim &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* Anim::cloneFromMe() const
+    {
+        return new Anim(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Anim: serialization
     // <kao2.0059C660>
     ////////////////////////////////////////////////////////////////
     void Anim::serialize(Archive &ar)

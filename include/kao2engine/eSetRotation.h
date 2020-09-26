@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSetRotation : public eLookAtCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eSetRotation();
             ~eSetRotation();
 
+        private:
+
+            void createFromOtherObject(const eSetRotation &other);
+
+        public:
+
+            eSetRotation(const eSetRotation &other);
+            eSetRotation& operator = (const eSetRotation &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSetRotation TypeInfo
-    // <kao2.005234E0> (registration)
+    // <kao2.005234B0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SETROTATION_ID = 0x3C1A9145;

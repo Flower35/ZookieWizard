@@ -58,11 +58,68 @@ namespace ZookieWizard
 
     }
 
-    eMaterialState::~eMaterialState() {}
+    eMaterialState::~eMaterialState()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eMaterialState serialization
+    // eMaterialState: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eMaterialState::createFromOtherObject(const eMaterialState &other)
+    {
+        ambient[0] = other.ambient[0];
+        ambient[1] = other.ambient[1];
+        ambient[2] = other.ambient[2];
+        ambient[3] = other.ambient[3];
+
+        diffuse[0] = other.diffuse[0];
+        diffuse[1] = other.diffuse[1];
+        diffuse[2] = other.diffuse[2];
+        diffuse[3] = other.diffuse[3];
+
+        emissive[0] = other.emissive[0];
+        emissive[1] = other.emissive[1];
+        emissive[2] = other.emissive[2];
+        emissive[3] = other.emissive[3];
+
+        specular[0] = other.specular[0];
+        specular[1] = other.specular[1];
+        specular[2] = other.specular[2];
+        specular[3] = other.specular[3];
+
+        shininess = other.shininess;
+        unknown_4C = other.unknown_4C;
+    }
+
+    eMaterialState::eMaterialState(const eMaterialState &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eMaterialState& eMaterialState::operator = (const eMaterialState &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eMaterialState::cloneFromMe() const
+    {
+        return new eMaterialState(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterialState: serialization
     // <kao2.00482500>
     ////////////////////////////////////////////////////////////////
     void eMaterialState::serialize(Archive &ar)

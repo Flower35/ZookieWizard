@@ -30,7 +30,41 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eDirectionCtrl::~eDirectionCtrl() {}
+    eDirectionCtrl::~eDirectionCtrl()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eDirectionCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eDirectionCtrl::createFromOtherObject(const eDirectionCtrl &other)
+    {}
+
+    eDirectionCtrl::eDirectionCtrl(const eDirectionCtrl &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eDirectionCtrl& eDirectionCtrl::operator = (const eDirectionCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eDirectionCtrl::cloneFromMe() const
+    {
+        return new eDirectionCtrl(*this);
+    }
 
 
     ////////////////////////////////////////////////////////////////

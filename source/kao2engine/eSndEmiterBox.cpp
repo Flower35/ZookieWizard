@@ -29,37 +29,65 @@ namespace ZookieWizard
     eSndEmiterBox::eSndEmiterBox()
     : eSndEmiter()
     {
-        /*[0xC8]*/ unknown_C8 = 1.0f;
-        /*[0xCC]*/ unknown_CC = 1.0f;
-        /*[0xD0]*/ unknown_D0 = 1.0f;
+        /*[0xC8]*/ boxBoundMin.x = 1.0f;
+        /*[0xCC]*/ boxBoundMin.y = 1.0f;
+        /*[0xD0]*/ boxBoundMin.z = 1.0f;
 
-        /*[0xD4]*/ unknown_D4 = 2.0f;
-        /*[0xD8]*/ unknown_D8 = 2.0f;
-        /*[0xDC]*/ unknown_DC = 2.0f;
+        /*[0xD4]*/ boxBoundMax.x = 2.0f;
+        /*[0xD8]*/ boxBoundMax.y = 2.0f;
+        /*[0xDC]*/ boxBoundMax.z = 2.0f;
     }
 
-    eSndEmiterBox::~eSndEmiterBox() {}
+    eSndEmiterBox::~eSndEmiterBox()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eSndEmiterBox serialization
+    // eSndEmiterBox: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSndEmiterBox::createFromOtherObject(const eSndEmiterBox &other)
+    {
+        boxBoundMin = other.boxBoundMin;
+        boxBoundMax = other.boxBoundMax;
+    }
+
+    eSndEmiterBox::eSndEmiterBox(const eSndEmiterBox &other)
+    : eSndEmiter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSndEmiterBox& eSndEmiterBox::operator = (const eSndEmiterBox &other)
+    {
+        if ((&other) != this)
+        {
+            eSndEmiter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSndEmiterBox::cloneFromMe() const
+    {
+        return new eSndEmiterBox(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSndEmiterBox: serialization
     // <kao2.005AE750>
     ////////////////////////////////////////////////////////////////
     void eSndEmiterBox::serialize(Archive &ar)
     {
         eSndEmiter::serialize(ar);
 
-        /* [0xC8] unknown values */
-
-        ar.readOrWrite(&unknown_C8, 0x04);
-        ar.readOrWrite(&unknown_CC, 0x04);
-        ar.readOrWrite(&unknown_D0, 0x04);
-
-        /* [0xD4] unknown values */
-
-        ar.readOrWrite(&unknown_D4, 0x04);
-        ar.readOrWrite(&unknown_D8, 0x04);
-        ar.readOrWrite(&unknown_DC, 0x04);
+        boxBoundMin.serialize(ar);
+        boxBoundMax.serialize(ar);
     }
 
 }

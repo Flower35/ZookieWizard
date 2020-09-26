@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eHitForceCtrl::~eHitForceCtrl() {}
+    eHitForceCtrl::~eHitForceCtrl()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eHitForceCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eHitForceCtrl::createFromOtherObject(const eHitForceCtrl &other)
+    {}
+
+    eHitForceCtrl::eHitForceCtrl(const eHitForceCtrl &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eHitForceCtrl& eHitForceCtrl::operator = (const eHitForceCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eHitForceCtrl::cloneFromMe() const
+    {
+        return new eHitForceCtrl(*this);
+    }
 
 }

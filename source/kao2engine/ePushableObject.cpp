@@ -30,7 +30,41 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    ePushableObject::~ePushableObject() {}
+    ePushableObject::~ePushableObject()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePushableObject: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePushableObject::createFromOtherObject(const ePushableObject &other)
+    {}
+
+    ePushableObject::ePushableObject(const ePushableObject &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePushableObject& ePushableObject::operator = (const ePushableObject &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePushableObject::cloneFromMe() const
+    {
+        return new ePushableObject(*this);
+    }
 
 
     ////////////////////////////////////////////////////////////////

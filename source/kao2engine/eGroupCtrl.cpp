@@ -35,15 +35,57 @@ namespace ZookieWizard
 
     eGroupCtrl::~eGroupCtrl()
     {
-        if (nullptr != unknown_10)
-        {
-            unknown_10->decRef();
-        }
+        unknown_10->decRef();
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // eGroupCtrl serialization
+    // eGroupCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eGroupCtrl::createFromOtherObject(const eGroupCtrl &other)
+    {
+        unknown_10 = other.unknown_10;
+        if (nullptr != unknown_10)
+        {
+            unknown_10->incRef();
+        }
+
+        unknown_14 = other.unknown_14;
+    }
+
+    eGroupCtrl::eGroupCtrl(const eGroupCtrl &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eGroupCtrl& eGroupCtrl::operator = (const eGroupCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            unknown_10->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eGroupCtrl::cloneFromMe() const
+    {
+        return new eGroupCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroupCtrl: serialization
     // <kao2.0042D2A0>
     ////////////////////////////////////////////////////////////////
     void eGroupCtrl::serialize(Archive &ar)

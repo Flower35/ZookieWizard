@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    ePowerBar::~ePowerBar() {}
+    ePowerBar::~ePowerBar()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePowerBar: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePowerBar::createFromOtherObject(const ePowerBar &other)
+    {}
+
+    ePowerBar::ePowerBar(const ePowerBar &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePowerBar& ePowerBar::operator = (const ePowerBar &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePowerBar::cloneFromMe() const
+    {
+        return new ePowerBar(*this);
+    }
 
 }

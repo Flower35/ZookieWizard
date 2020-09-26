@@ -31,20 +31,59 @@ namespace ZookieWizard
     Gadget::Gadget()
     : eRefCounter()
     {
-        unknown_08 = nullptr;
+        parentActor = nullptr;
     }
 
-    Gadget::~Gadget() {}
+    Gadget::~Gadget()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // Gadget serialization
+    // Gadget: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void Gadget::createFromOtherObject(const Gadget &other)
+    {
+        /* << MUST BE RESOLVED! >> */
+        parentActor = nullptr;
+
+        name = other.name;
+    }
+
+    Gadget::Gadget(const Gadget &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    Gadget& Gadget::operator = (const Gadget &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* Gadget::cloneFromMe() const
+    {
+        return nullptr;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Gadget: serialization
     // <kao2.00597BF0>
     ////////////////////////////////////////////////////////////////
     void Gadget::serialize(Archive &ar)
     {
         /* [0x08] Actor link */
-        ar.serialize((eObject**)&unknown_08, &E_ACTOR_TYPEINFO);
+        ar.serialize((eObject**)&parentActor, &E_ACTOR_TYPEINFO);
 
         /* [0x0C] Gadget name */
         ar.serializeString(name);

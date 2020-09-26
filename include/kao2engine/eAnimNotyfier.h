@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eAnimNotyfier : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eAnimNotyfier();
             ~eAnimNotyfier();
 
+        private:
+
+            void createFromOtherObject(const eAnimNotyfier &other);
+
+        public:
+
+            eAnimNotyfier(const eAnimNotyfier &other);
+            eAnimNotyfier& operator = (const eAnimNotyfier &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eAnimNotyfier TypeInfo
-    // <kao2.00444E60> (registration)
+    // <kao2.00444E30> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ANIMNOTYFIER_ID = 0x3B272876;

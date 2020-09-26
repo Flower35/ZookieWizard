@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eSpeaking interface
+    // <kao2.005CFEC0> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eSpeaking : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -31,13 +31,25 @@ namespace ZookieWizard
             eSpeaking();
             ~eSpeaking();
 
+        private:
+
+            void createFromOtherObject(const eSpeaking &other);
+
+        public:
+
+            eSpeaking(const eSpeaking &other);
+            eSpeaking& operator = (const eSpeaking &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSpeaking TypeInfo
-    // <kao2.00458AF0> (registration)
+    // <kao2.00458AC0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SPEAKING_ID = 0x3BF132FA;

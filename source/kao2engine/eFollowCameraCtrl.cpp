@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eCameraTarget()
     {}
 
-    eFollowCameraCtrl::~eFollowCameraCtrl() {}
+    eFollowCameraCtrl::~eFollowCameraCtrl()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eFollowCameraCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eFollowCameraCtrl::createFromOtherObject(const eFollowCameraCtrl &other)
+    {}
+
+    eFollowCameraCtrl::eFollowCameraCtrl(const eFollowCameraCtrl &other)
+    : eCameraTarget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eFollowCameraCtrl& eFollowCameraCtrl::operator = (const eFollowCameraCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eCameraTarget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eFollowCameraCtrl::cloneFromMe() const
+    {
+        return new eFollowCameraCtrl(*this);
+    }
 
 }

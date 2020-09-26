@@ -33,6 +33,40 @@ namespace ZookieWizard
         /*[0x0050]*/ unknown_0050 = 5.0f;
     }
 
-    ePointEmiter::~ePointEmiter() {}
+    ePointEmiter::~ePointEmiter()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePointEmiter: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePointEmiter::createFromOtherObject(const ePointEmiter &other)
+    {}
+
+    ePointEmiter::ePointEmiter(const ePointEmiter &other)
+    : eParticleEmiter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePointEmiter& ePointEmiter::operator = (const ePointEmiter &other)
+    {
+        if ((&other) != this)
+        {
+            eParticleEmiter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePointEmiter::cloneFromMe() const
+    {
+        return new ePointEmiter(*this);
+    }
 
 }

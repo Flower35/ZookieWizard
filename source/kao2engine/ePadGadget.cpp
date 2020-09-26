@@ -30,7 +30,41 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    ePadGadget::~ePadGadget() {}
+    ePadGadget::~ePadGadget()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePadGadget: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePadGadget::createFromOtherObject(const ePadGadget &other)
+    {}
+
+    ePadGadget::ePadGadget(const ePadGadget &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePadGadget& ePadGadget::operator = (const ePadGadget &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePadGadget::cloneFromMe() const
+    {
+        return new ePadGadget(*this);
+    }
 
 
     ////////////////////////////////////////////////////////////////

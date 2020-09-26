@@ -5,7 +5,6 @@
 
 namespace ZookieWizard
 {
-
     class Archive;
     class eRefCounter;
     struct TypeInfo;
@@ -30,8 +29,20 @@ namespace ZookieWizard
 
         public:
 
-            Collection<Func>();
-            ~Collection<Func>();
+            Collection(int32_t new_size = 0);
+            ~Collection();
+
+        private:
+
+            void createFromOtherObject(const Collection<Func> &other);
+
+        public:
+
+            Collection(const Collection<Func> &other);
+            Collection<Func>& operator = (const Collection<Func> &other);
+            Collection<Func>& deepCopy(const Collection<Func> &other);
+
+            /* << Collection >> */
 
             void clear();
 

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eAddPowerUp : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eAddPowerUp();
             ~eAddPowerUp();
 
+        private:
+
+            void createFromOtherObject(const eAddPowerUp &other);
+
+        public:
+
+            eAddPowerUp(const eAddPowerUp &other);
+            eAddPowerUp& operator = (const eAddPowerUp &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eAddPowerUp TypeInfo
-    // <kao2.005A4910> (registration)
+    // <kao2.005A48E0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ADDPOWERUP_ID = 0x3E1CA1FD;

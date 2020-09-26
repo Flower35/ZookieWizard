@@ -51,7 +51,60 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTransform serialization
+    // eTransform: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eTransform::createFromOtherObject(const eTransform &other)
+    {
+        defaultTransform = other.defaultTransform;
+
+        ctrl = other.ctrl;
+        if (nullptr != ctrl)
+        {
+            ctrl->incRef();
+        }
+
+        jointType = other.jointType;
+
+        getTransposedMatrices(defaultTransform);
+    }
+
+    eTransform::eTransform(const eTransform &other)
+    : eGroup(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eTransform& eTransform::operator = (const eTransform &other)
+    {
+        if ((&other) != this)
+        {
+            eGroup::operator = (other);
+
+            /****************/
+
+            ctrl->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+
+            /****************/
+
+            worldTransform = defaultTransform;
+        }
+
+        return (*this);
+    }
+
+    eObject* eTransform::cloneFromMe() const
+    {
+        return new eTransform(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: serialization
     // <kao2.0047BE00>
     ////////////////////////////////////////////////////////////////
     void eTransform::serialize(Archive &ar)
@@ -76,105 +129,179 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTransform: setting the correct "global" transformation during deserialization
+    // eTransform: export readable structure
     ////////////////////////////////////////////////////////////////
-    void eTransform::deserializationCorrection()
+    void eTransform::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
     {
-        const int SETTING_XFORM_MAX_PARENTS = 64;
-        eTransform* parents_list[SETTING_XFORM_MAX_PARENTS];
-        eTransform* test_parent;
-        int32_t parents_index = 0;
+        int32_t a;
+        eNode* test_node;
 
-        worldTransform = eSRP();
+        char bufor[128];
 
-        /* Finding the parents with "eTransform" type, to set the second version of `defaultTransform` */
+        /* "eNode" parent class */
 
-        test_parent = (eTransform*)parent;
+        eGroup::writeStructureToTextFile(file, indentation, true);
 
-        while ((nullptr != test_parent) && (parents_index < SETTING_XFORM_MAX_PARENTS))
+        /* "eTransform" additional info */
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform pos: (%f, %f, %f)",
+            defaultTransform.pos.x,
+            defaultTransform.pos.y,
+            defaultTransform.pos.z
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform rot: (%f, %f, %f, %f)",
+            defaultTransform.rot.x,
+            defaultTransform.rot.y,
+            defaultTransform.rot.z,
+            defaultTransform.rot.w
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - xform scl: (%f)",
+            defaultTransform.scale
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        /* "eGroup" parent class */
+
+        if (!group_written)
         {
-            if (test_parent->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+            for (a = 0; a < nodes.getSize(); a++)
             {
-                parents_list[parents_index] = test_parent;
-                parents_index++;
+                if (nullptr != (test_node = (eNode*)nodes.getIthChild(a)))
+                {
+                    test_node->writeStructureToTextFile(file, (indentation + 1), false);
+                }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: COLLADA exporting
+    ////////////////////////////////////////////////////////////////
+    void eTransform::writeNodeToXmlFile(ColladaExporter &exporter) const
+    {
+        int32_t i;
+        float alpha, beta, gamma;
+        char bufor[64];
+        eNode* test_node;
+
+        switch (exporter.getState())
+        {
+            case COLLADA_EXPORTER_STATE_LIGHTS:
+            case COLLADA_EXPORTER_STATE_CAMERAS:
+            case COLLADA_EXPORTER_STATE_EFFECTS:
+            case COLLADA_EXPORTER_STATE_IMAGES:
+            case COLLADA_EXPORTER_STATE_MATERIALS:
+            case COLLADA_EXPORTER_STATE_GEOMETRIES:
+            case COLLADA_EXPORTER_STATE_CONTROLLERS:
+            case COLLADA_EXPORTER_STATE_ANIMATIONS:
+            {
+                /* Collecting objects for COLLADA libraries... */
+
+                eGroup::writeNodeToXmlFile(exporter);
+
+                break;
             }
 
-            test_parent = (eTransform*)(test_parent->parent);
-        }
+            case COLLADA_EXPORTER_STATE_VISUAL_SCENES:
+            {
+                exporter.openTag("node");
 
-        for (int32_t i = parents_index - 1; i >= 0; i--)
-        {
-            worldTransform = worldTransform.applyAnotherSRP(parents_list[i]->getXForm(false));
-        }
+                i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_NODE, this, true);
+                sprintf_s(bufor, 64, "Node%d", i);
+                exporter.insertTagAttrib("id", bufor);
+                exporter.insertTagAttrib("name", name);
 
-        if ((0 == (flags & 0x00001000)) && (nullptr != ctrl))
-        {
-            ctrl->ctrlApplyTransform(&defaultTransform, 0);
-        }
+                if (jointType)
+                {
+                    exporter.insertTagAttrib("sid", bufor);
+                    exporter.insertTagAttrib("type", "JOINT");
+                }
+                else
+                {
+                    exporter.insertTagAttrib("type", "NODE");
+                }
 
-        worldTransform = defaultTransform.applyAnotherSRP(worldTransform);
+                alpha = defaultTransform.scale;
+                sprintf_s(bufor, 64, "%f %f %f", alpha, alpha, alpha);
+                exporter.openTag("scale");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag();
+
+                defaultTransform.rot.toEulerAngles(true, alpha, beta, gamma);
+
+                sprintf_s(bufor, 64, "0 0 1 %f", (gamma / 180.0 * M_PI));
+                exporter.openTag("rotate");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag();
+
+                sprintf_s(bufor, 64, "0 1 0 %f", (beta / 180.0 * M_PI));
+                exporter.openTag("rotate");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag();
+
+                sprintf_s(bufor, 64, "1 0 0 %f", (alpha / 180.0 * M_PI));
+                exporter.openTag("rotate");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag();
+
+                alpha = defaultTransform.pos.x;
+                beta = defaultTransform.pos.y;
+                gamma = defaultTransform.pos.z;
+                sprintf_s(bufor, 64, "%f %f %f", alpha, beta, gamma);
+                exporter.openTag("translate");
+                exporter.writeInsideTag(bufor);
+                exporter.closeTag();
+
+                /* "eGroup" could exist as independent node (without parent "eTransform") */
+                /* That's why we are not calling `eGroup::writeNodeToXmlFile()` */
+
+                for (i = 0; i < nodes.getSize(); i++)
+                {
+                    if (nullptr != (test_node = (eNode*)nodes.getIthChild(i)))
+                    {
+                        test_node->writeNodeToXmlFile(exporter);
+                    }
+                }
+
+                exporter.closeTag(); // "node"
+
+                break;
+            }
+        }
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // eTransform: set current matrix and create a matrix with no scaling
+    // eTransform: set `previousTransform` gradually
     ////////////////////////////////////////////////////////////////
-    void eTransform::getTransposedMatrices(eSRP some_srp)
+    void eTransform::setPreviousTransformGradually(eTransform* last_xform)
     {
-        currentMatrix = some_srp.getMatrix();
-        currentMatrix.transpose(transposedMatrix[0]);
+        eGroup::setPreviousTransformGradually(this);
 
-        some_srp.scale = 1.0f;
-        some_srp.getMatrix().transpose(transposedMatrix[1]);
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTransform: set xform
-    ////////////////////////////////////////////////////////////////
-    void eTransform::setXForm(eSRP &new_xform)
-    {
-        if ((0 == (flags & 0x00001000)) && (nullptr != ctrl))
-        {
-            /* If "eTransform" has an animation controller attached, */
-            /* then any changes to the default "SRP" are discarded. */
-
-            ctrl->ctrlApplyTransform(&defaultTransform, 0);
-        }
-        else
-        {
-            defaultTransform = new_xform;
-        }
-
-        /* Create a matrix that represents current transformation */
-
-        getTransposedMatrices(defaultTransform);
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTransform: get current xform
-    ////////////////////////////////////////////////////////////////
-    eSRP eTransform::getXForm(bool animated) const
-    {
-        /* animated: [0] = current transformation,
-            [1] = all transformations applied (world transform). */
-
-        if (animated)
-        {
-            return worldTransform;
-        }
-
-        if ((0 == (flags & 0x00001000)) && (nullptr != ctrl))
-        {
-            eSRP dummy_srp;
-
-            ctrl->ctrlApplyTransform(&dummy_srp, 0);
-
-            return dummy_srp;
-        }
-
-        return defaultTransform;
+        previousTransform = last_xform;
     }
 
 
@@ -332,6 +459,58 @@ namespace ZookieWizard
 
         draw_context.setParentMatrix(previous_parent_matrix);
         draw_context.setParentSRP(previous_parent_srp);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: (editor option) rebuild collision
+    ////////////////////////////////////////////////////////////////
+    void eTransform::editingRebuildCollision()
+    {
+        if ((nullptr != ctrl) || jointType)
+        {
+            /* Don't update animated objects */
+
+            return;
+        }
+
+        eGroup::editingRebuildCollision();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: (editor option) find object in 3D space
+    ////////////////////////////////////////////////////////////////
+    ePoint3 eTransform::editingGetCenterPoint() const
+    {
+        return defaultTransform.pos;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: (editor option) apply new transformation
+    ////////////////////////////////////////////////////////////////
+    void eTransform::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
+    {
+        if (marked_id >= 0)
+        {
+            eGroup::editingApplyNewTransform(new_transform, marked_id);
+        }
+        else
+        {
+            setXForm(new_transform);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: preparing just-created node
+    ////////////////////////////////////////////////////////////////
+    void eTransform::editingNewNodeSetup()
+    {
+        getTransposedMatrices(defaultTransform);
+
+        eGroup::editingNewNodeSetup();
     }
 
 
@@ -753,58 +932,6 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTransform: (editor option) rebuild collision
-    ////////////////////////////////////////////////////////////////
-    void eTransform::editingRebuildCollision()
-    {
-        if ((nullptr != ctrl) || jointType)
-        {
-            /* Don't update animated objects */
-
-            return;
-        }
-
-        eGroup::editingRebuildCollision();
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTransform: (editor option) find object in 3D space
-    ////////////////////////////////////////////////////////////////
-    ePoint3 eTransform::editingGetCenterPoint() const
-    {
-        return defaultTransform.pos;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTransform: (editor option) apply new transformation
-    ////////////////////////////////////////////////////////////////
-    void eTransform::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
-    {
-        if (marked_id >= 0)
-        {
-            eGroup::editingApplyNewTransform(new_transform, marked_id);
-        }
-        else
-        {
-            setXForm(new_transform);
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTransform: preparing just-created node
-    ////////////////////////////////////////////////////////////////
-    void eTransform::editingNewNodeSetup()
-    {
-        getTransposedMatrices(defaultTransform);
-
-        eGroup::editingNewNodeSetup();
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // eTransform: add empty animation track (if the node uses "eMultiCtrl")
     ////////////////////////////////////////////////////////////////
     void eTransform::ctrlExpandAnimTracks(int32_t new_size)
@@ -849,169 +976,51 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTransform: export readable structure
+    // eTransform: get current xform
     ////////////////////////////////////////////////////////////////
-    void eTransform::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
+    eSRP eTransform::getXForm(bool animated) const
     {
-        int32_t i;
-        eNode* test_node;
+        /* animated: [0] = current transformation,
+            [1] = all transformations applied (world transform). */
 
-        char bufor[128];
-
-        /* "eNode" parent class */
-
-        eNode::writeStructureToTextFile(file, indentation);
-
-        /* "eTransform" additional info */
-
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform pos: (%f, %f, %f)",
-            defaultTransform.pos.x,
-            defaultTransform.pos.y,
-            defaultTransform.pos.z
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
-
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform rot: (%f, %f, %f, %f)",
-            defaultTransform.rot.x,
-            defaultTransform.rot.y,
-            defaultTransform.rot.z,
-            defaultTransform.rot.w
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
-
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform scl: (%f)",
-            defaultTransform.scale
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
-
-        /* "eGroup" parent class */
-
-        for (i = 0; i < nodes.getSize(); i++)
+        if (animated)
         {
-            test_node = (eNode*)nodes.getIthChild(i);
-
-            if (nullptr != test_node)
-            {
-                test_node->writeStructureToTextFile(file, (indentation + 1));
-            }
+            return worldTransform;
         }
+
+        if ((0 == (flags & 0x00001000)) && (nullptr != ctrl))
+        {
+            eSRP dummy_srp;
+
+            ctrl->ctrlApplyTransform(&dummy_srp, 0);
+
+            return dummy_srp;
+        }
+
+        return defaultTransform;
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // eTransform: COLLADA exporting
+    // eTransform: set xform
     ////////////////////////////////////////////////////////////////
-    void eTransform::writeNodeToXmlFile(ColladaExporter &exporter) const
+    void eTransform::setXForm(eSRP &new_xform)
     {
-        int32_t i;
-        float alpha, beta, gamma;
-        char bufor[64];
-        eNode* test_node;
-
-        switch (exporter.getState())
+        if ((0 == (flags & 0x00001000)) && (nullptr != ctrl))
         {
-            case COLLADA_EXPORTER_STATE_LIGHTS:
-            case COLLADA_EXPORTER_STATE_CAMERAS:
-            case COLLADA_EXPORTER_STATE_EFFECTS:
-            case COLLADA_EXPORTER_STATE_IMAGES:
-            case COLLADA_EXPORTER_STATE_MATERIALS:
-            case COLLADA_EXPORTER_STATE_GEOMETRIES:
-            case COLLADA_EXPORTER_STATE_CONTROLLERS:
-            case COLLADA_EXPORTER_STATE_ANIMATIONS:
-            {
-                /* Collecting objects for COLLADA libraries... */
+            /* If "eTransform" has an animation controller attached, */
+            /* then any changes to the default "SRP" are discarded. */
 
-                eGroup::writeNodeToXmlFile(exporter);
-
-                break;
-            }
-
-            case COLLADA_EXPORTER_STATE_VISUAL_SCENES:
-            {
-                exporter.openTag("node");
-
-                i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_NODE, this, true);
-                sprintf_s(bufor, 64, "Node%d", i);
-                exporter.insertTagAttrib("id", bufor);
-                exporter.insertTagAttrib("name", name);
-
-                if (jointType)
-                {
-                    exporter.insertTagAttrib("sid", bufor);
-                    exporter.insertTagAttrib("type", "JOINT");
-                }
-                else
-                {
-                    exporter.insertTagAttrib("type", "NODE");
-                }
-
-                alpha = defaultTransform.scale;
-                sprintf_s(bufor, 64, "%f %f %f", alpha, alpha, alpha);
-                exporter.openTag("scale");
-                exporter.writeInsideTag(bufor);
-                exporter.closeTag();
-
-                defaultTransform.rot.toEulerAngles(true, alpha, beta, gamma);
-
-                sprintf_s(bufor, 64, "0 0 1 %f", (gamma / 180.0 * M_PI));
-                exporter.openTag("rotate");
-                exporter.writeInsideTag(bufor);
-                exporter.closeTag();
-
-                sprintf_s(bufor, 64, "0 1 0 %f", (beta / 180.0 * M_PI));
-                exporter.openTag("rotate");
-                exporter.writeInsideTag(bufor);
-                exporter.closeTag();
-
-                sprintf_s(bufor, 64, "1 0 0 %f", (alpha / 180.0 * M_PI));
-                exporter.openTag("rotate");
-                exporter.writeInsideTag(bufor);
-                exporter.closeTag();
-
-                alpha = defaultTransform.pos.x;
-                beta = defaultTransform.pos.y;
-                gamma = defaultTransform.pos.z;
-                sprintf_s(bufor, 64, "%f %f %f", alpha, beta, gamma);
-                exporter.openTag("translate");
-                exporter.writeInsideTag(bufor);
-                exporter.closeTag();
-
-                /* "eGroup" could exist as independent node (without parent "eTransform") */
-                /* That's why we are not calling `eGroup::writeNodeToXmlFile()` */
-
-                for (i = 0; i < nodes.getSize(); i++)
-                {
-                    test_node = (eNode*)nodes.getIthChild(i);
-
-                    if (nullptr != test_node)
-                    {
-                        test_node->writeNodeToXmlFile(exporter);
-                    }
-                }
-
-                exporter.closeTag(); // "node"
-
-                break;
-            }
+            ctrl->ctrlApplyTransform(&defaultTransform, 0);
         }
+        else
+        {
+            defaultTransform = new_xform;
+        }
+
+        /* Create a matrix that represents current transformation */
+
+        getTransposedMatrices(defaultTransform);
     }
 
 
@@ -1148,6 +1157,60 @@ namespace ZookieWizard
 
             ctrl->ctrlAddKeyframe(anim_id, new_time, new_data, param);
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: setting the correct "global" transformation during deserialization
+    ////////////////////////////////////////////////////////////////
+    void eTransform::deserializationCorrection()
+    {
+        const int SETTING_XFORM_MAX_PARENTS = 64;
+        eTransform* parents_list[SETTING_XFORM_MAX_PARENTS];
+        eTransform* test_parent;
+        int32_t parents_index = 0;
+
+        worldTransform = eSRP();
+
+        /* Finding the parents with "eTransform" type, to set the second version of `defaultTransform` */
+
+        test_parent = (eTransform*)parent;
+
+        while ((nullptr != test_parent) && (parents_index < SETTING_XFORM_MAX_PARENTS))
+        {
+            if (test_parent->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+            {
+                parents_list[parents_index] = test_parent;
+                parents_index++;
+            }
+
+            test_parent = (eTransform*)(test_parent->parent);
+        }
+
+        for (int32_t i = parents_index - 1; i >= 0; i--)
+        {
+            worldTransform = worldTransform.applyAnotherSRP(parents_list[i]->getXForm(false));
+        }
+
+        if ((0 == (flags & 0x00001000)) && (nullptr != ctrl))
+        {
+            ctrl->ctrlApplyTransform(&defaultTransform, 0);
+        }
+
+        worldTransform = defaultTransform.applyAnotherSRP(worldTransform);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTransform: set current matrix and create a matrix with no scaling
+    ////////////////////////////////////////////////////////////////
+    void eTransform::getTransposedMatrices(eSRP some_srp)
+    {
+        currentMatrix = some_srp.getMatrix();
+        currentMatrix.transpose(transposedMatrix[0]);
+
+        some_srp.scale = 1.0f;
+        some_srp.getMatrix().transpose(transposedMatrix[1]);
     }
 
 }

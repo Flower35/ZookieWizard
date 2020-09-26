@@ -8,12 +8,14 @@ namespace ZookieWizard
     class eALBox;
 
     ////////////////////////////////////////////////////////////////
-    //
+    // AXIS LIST STRUCTURE for "eALBox"
     ////////////////////////////////////////////////////////////////
 
     struct AxisList
     {
         /*** Properties ***/
+
+        public:
 
             /*[0x00]*/ AxisList* previous;
             /*[0x04]*/ AxisList* next;
@@ -27,8 +29,21 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
+        public:
+
             AxisList();
             ~AxisList();
+
+        private:
+
+            void createFromOtherObject(const AxisList &other);
+
+        public:
+
+            AxisList(const AxisList &other);
+            AxisList& operator = (const AxisList &other);
+
+            /* << AxisList >> */
 
             void serialize(Archive &ar);
             void serializePointer(Archive &ar) const;
@@ -37,6 +52,10 @@ namespace ZookieWizard
             AxisList* getPointerFromCollisionManager_B(eALBox** group, AxisList* arg2, AxisList* arg3, int32_t arg4) const;
             void function_004BCF30(AxisList arg1[2]) const;
             void function_004BADA0(AxisList* arg1) const;
+
+        private:
+
+            void clearNewAxisList();
     };
 
     namespace ArFunctions

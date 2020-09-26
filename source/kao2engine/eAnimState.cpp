@@ -29,7 +29,7 @@ namespace ZookieWizard
     eAnimState::eAnimState()
     : eRefCounter()
     {
-        /*[0x0C]*/ unknown0C = 1.0f;
+        /*[0x0C]*/ unknown_0C = 1.0f;
         /*[0x30]*/ w = 1.0f;
 
         /*[0x08]*/ aID = 0;
@@ -38,7 +38,7 @@ namespace ZookieWizard
         /*[0x44]*/ bet = 0;
         /*[0x40]*/ bef = 0;
         /*[0x10]*/ time = 0;
-        /*[0x14]*/ unknown14 = 0;
+        /*[0x14]*/ unknown_14 = 0;
         /*[0x18]*/ citt = 0;
         /*[0x1C]*/ pitt = 0;
         /*[0x20]*/ cott = 0;
@@ -49,17 +49,68 @@ namespace ZookieWizard
         /*[0x3C]*/ loopType = loopTypeEnum::REPEAT;
     }
 
-    eAnimState::~eAnimState() {}
+    eAnimState::~eAnimState()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eAnimState serialization
+    // eAnimState: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eAnimState::createFromOtherObject(const eAnimState &other)
+    {
+        aID = other.aID;
+        unknown_0C = other.unknown_0C;
+        time = other.time;
+        unknown_14 = other.unknown_14;
+        citt = other.citt;
+        pitt = other.pitt;
+        cott = other.cott;
+        pott = other.pott;
+        bt = other.bt;
+        bs = other.bs;
+        w = other.w;
+        startFrame = other.startFrame;
+        endFrame = other.endFrame;
+        loopType = other.loopType;
+        bef = other.bef;
+        bet = other.bet;
+    }
+
+    eAnimState::eAnimState(const eAnimState &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eAnimState& eAnimState::operator = (const eAnimState &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eAnimState::cloneFromMe() const
+    {
+        return new eAnimState(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eAnimState: serialization
     // <kao2.004B6040>
     ////////////////////////////////////////////////////////////////
     void eAnimState::serialize(Archive &ar)
     {
         ar.readOrWrite(&aID, 0x04);
-        ar.readOrWrite(&unknown0C, 0x04);
+        ar.readOrWrite(&unknown_0C, 0x04);
         ar.readOrWrite(&time, 0x04);
         ar.readOrWrite(&citt, 0x04);
         ar.readOrWrite(&pitt, 0x04);
@@ -71,7 +122,7 @@ namespace ZookieWizard
         ar.readOrWrite(&startFrame, 0x04);
         ar.readOrWrite(&endFrame, 0x04);
 
-        ar.readOrWrite(&unknown14, 0x04);
+        ar.readOrWrite(&unknown_14, 0x04);
 
         ar.readOrWrite(&cott, 0x04);
         ar.readOrWrite(&pott, 0x04);

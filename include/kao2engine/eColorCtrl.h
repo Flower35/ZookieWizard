@@ -10,15 +10,15 @@ namespace ZookieWizard
 {
     ////////////////////////////////////////////////////////////////
     // eColorCtrl interface
+    // <kao2.005D6C98> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eColorCtrl : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
-            
+
             /*[0x08-0x4C]*/ eLinearCtrl unknown_08;
             /*[0x50-0x78]*/ e3fCtrl unknown_50;
             /*(...)*/
@@ -36,14 +36,26 @@ namespace ZookieWizard
             eColorCtrl();
             ~eColorCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eColorCtrl &other);
+
+        public:
+
+            eColorCtrl(const eColorCtrl &other);
+            eColorCtrl& operator = (const eColorCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eColorCtrl TypeInfo
-    // <kao2.0055CE40> (registration)
+    // <kao2.0055CE10> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_COLORCTRL_ID = 0x0F0F123C;

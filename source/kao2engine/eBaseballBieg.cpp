@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eSplineWalk()
     {}
 
-    eBaseballBieg::~eBaseballBieg() {}
+    eBaseballBieg::~eBaseballBieg()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBaseballBieg: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eBaseballBieg::createFromOtherObject(const eBaseballBieg &other)
+    {}
+
+    eBaseballBieg::eBaseballBieg(const eBaseballBieg &other)
+    : eSplineWalk(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eBaseballBieg& eBaseballBieg::operator = (const eBaseballBieg &other)
+    {
+        if ((&other) != this)
+        {
+            eSplineWalk::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eBaseballBieg::cloneFromMe() const
+    {
+        return new eBaseballBieg(*this);
+    }
 
 }

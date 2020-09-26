@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eGroundTest interface
+    // <kao2.005D2790> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eGroundTest : public eNode
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,14 +27,26 @@ namespace ZookieWizard
             eGroundTest(eString s, float x, float y);
             ~eGroundTest();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eGroundTest &other);
+
+        public:
+
+            eGroundTest(const eGroundTest &other);
+            eGroundTest& operator = (const eGroundTest &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eGroundTest TypeInfo
-    // <kao2.004CDA90> (registration)
+    // <kao2.004CDA60> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_GROUNDTEST_ID = 0x8888FFFF;

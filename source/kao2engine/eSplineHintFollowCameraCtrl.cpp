@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eFollowCameraCtrl()
     {}
 
-    eSplineHintFollowCameraCtrl::~eSplineHintFollowCameraCtrl() {}
+    eSplineHintFollowCameraCtrl::~eSplineHintFollowCameraCtrl()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSplineHintFollowCameraCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSplineHintFollowCameraCtrl::createFromOtherObject(const eSplineHintFollowCameraCtrl &other)
+    {}
+
+    eSplineHintFollowCameraCtrl::eSplineHintFollowCameraCtrl(const eSplineHintFollowCameraCtrl &other)
+    : eFollowCameraCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSplineHintFollowCameraCtrl& eSplineHintFollowCameraCtrl::operator = (const eSplineHintFollowCameraCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eFollowCameraCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSplineHintFollowCameraCtrl::cloneFromMe() const
+    {
+        return new eSplineHintFollowCameraCtrl(*this);
+    }
 
 }

@@ -8,16 +8,16 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eSndEmiterAmb interface
+    // <kao2.005CEF28> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eSndEmiterAmb : public eSndEmiter
     {
-
         /*** Properties ***/
 
         protected:
 
-            /*[0x08]*/ int32_t unknown08;
+            /*[0x08]*/ int32_t unknown_08;
 
         /*** Methods ***/
 
@@ -26,13 +26,25 @@ namespace ZookieWizard
             eSndEmiterAmb();
             ~eSndEmiterAmb();
 
+        private:
+
+            void createFromOtherObject(const eSndEmiterAmb &other);
+
+        public:
+
+            eSndEmiterAmb(const eSndEmiterAmb &other);
+            eSndEmiterAmb& operator = (const eSndEmiterAmb &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSndEmiterAmb TypeInfo
-    // <kao2.0056C4C0> (registration)
+    // <kao2.0056C490> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SNDEMITERAMB_ID = 0x09994523;

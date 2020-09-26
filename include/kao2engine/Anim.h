@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Anim interface
+    // <kao2.005D8468> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class Anim : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,8 +28,22 @@ namespace ZookieWizard
             Anim();
             ~Anim();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const Anim &other);
+
+        public:
+
+            Anim(const Anim &other);
+            Anim& operator = (const Anim &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << Gadget >> */
 
             eString getDefaultGadgetName() const override;
     };
@@ -37,7 +51,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Anim TypeInfo
-    // <kao2.0059C760> (registration)
+    // <kao2.0059C730> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ANIM_ID = 0x00020001;

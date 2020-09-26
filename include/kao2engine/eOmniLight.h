@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eOmniLight interface
+    // <kao2.005D0DA0> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eOmniLight : public eLight
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,8 +29,22 @@ namespace ZookieWizard
             eOmniLight();
             ~eOmniLight();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eOmniLight &other);
+
+        public:
+
+            eOmniLight(const eOmniLight &other);
+            eOmniLight& operator = (const eOmniLight &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eNode >> */
 
             void renderNode(eDrawContext &draw_context) const override;
 
@@ -40,7 +54,11 @@ namespace ZookieWizard
             int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
 
-            /*[vptr]+0x74]*/ void bindLight(int32_t light_id) const override;
+            /* << eLight >> */
+
+            /*[[vptr]+0x74]*/ void bindLight(int32_t light_id) const override;
+
+            /* << eOmniLight >> */
 
             ePoint3 getPosition() const;
             void setPosition(ePoint3 &new_position);
@@ -49,7 +67,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eOmniLight TypeInfo
-    // <kao2.0047F5D0> (registration)
+    // <kao2.0047F5A0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_OMNILIGHT_ID = 0x03454502;

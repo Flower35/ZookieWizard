@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eALZoneSensor interface
+    // <kao2.005D17B0> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eALZoneSensor : public eALBox
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,14 +28,26 @@ namespace ZookieWizard
             eALZoneSensor(eZone* zone, float* boxBound);
             ~eALZoneSensor();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eALZoneSensor &other);
+
+        public:
+
+            eALZoneSensor(const eALZoneSensor &other);
+            eALZoneSensor& operator = (const eALZoneSensor &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eALZoneSensor TypeInfo
-    // <kao2.0049D460> (registration)
+    // <kao2.0049D430> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ALZONESENSOR_ID = 0xFE10;

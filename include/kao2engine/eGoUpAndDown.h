@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eGoUpAndDown : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,14 +28,26 @@ namespace ZookieWizard
             eGoUpAndDown();
             ~eGoUpAndDown();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eGoUpAndDown &other);
+
+        public:
+
+            eGoUpAndDown(const eGoUpAndDown &other);
+            eGoUpAndDown& operator = (const eGoUpAndDown &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eGoUpAndDown TypeInfo
-    // <kao_tw.0056E6C0> (registration)
+    // <kao_tw.0056E690> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_GOUPANDDOWN_ID = 0x4DE45EE0;

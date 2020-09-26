@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eTurnCollisionOff : public Gadget
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             eTurnCollisionOff();
             ~eTurnCollisionOff();
 
+        private:
+
+            void createFromOtherObject(const eTurnCollisionOff &other);
+
+        public:
+
+            eTurnCollisionOff(const eTurnCollisionOff &other);
+            eTurnCollisionOff& operator = (const eTurnCollisionOff &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eTurnCollisionOff TypeInfo
-    // <kao2.0059A1B0> (registration)
+    // <kao2.0059A180> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TURNCOLLISIONOFF_ID = 0x0002FCC1;

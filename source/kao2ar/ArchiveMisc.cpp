@@ -13,7 +13,7 @@ namespace ZookieWizard
 {
 
     ////////////////////////////////////////////////////////////////
-    // Ar: destroy parent (if it is "eNode")
+    // Archive: destroy parent (if it is "eNode")
     ////////////////////////////////////////////////////////////////
     void Archive::destroyParent()
     {
@@ -24,7 +24,7 @@ namespace ZookieWizard
 
         if (nullptr != parentObject)
         {
-            if (!isLoadedAsProxy)
+            if (0 == (AR_MODE_IS_PROXY & modeFlags))
             {
                 if (parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
                 {
@@ -48,7 +48,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: change global scene
+    // Archive: change global scene
     ////////////////////////////////////////////////////////////////
     void Archive::changeGlobalScene() const
     {
@@ -90,9 +90,24 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: render scene, starting from selected object
+    // Archive: Dereference string copies
     ////////////////////////////////////////////////////////////////
+    void Archive::deleteTempStrPtrs()
+    {
+        int32_t i;
 
+        for (i = 0; i < tempStrCount; i++)
+        {
+            tempStrList[i]->decRef();
+        }
+
+        tempStrCount = 0;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Archive: render scene, starting from selected object
+    ////////////////////////////////////////////////////////////////
     void Archive::renderScene(uint32_t draw_flags) const
     {
         if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
@@ -138,7 +153,7 @@ namespace ZookieWizard
         bool reset_editable_transform = false;
         uint8_t change_camera = 0;
         bool change_scene = false;
-        char bufor[128];
+        char bufor[LARGE_BUFFER_SIZE];
 
         eString test_string;
         eSRP test_srp;
@@ -237,7 +252,7 @@ namespace ZookieWizard
 
                                         sprintf_s
                                         (
-                                            bufor, 128,
+                                            bufor, LARGE_BUFFER_SIZE,
                                             "Node (type \"%s\") added to group \"%s\".",
                                             (char*)param,
                                             test_group->getStringRepresentation().getText()
@@ -247,7 +262,7 @@ namespace ZookieWizard
                                     {
                                         sprintf_s
                                         (
-                                            bufor, 128,
+                                            bufor, LARGE_BUFFER_SIZE,
                                             "Cannot create a node of selected type. Class \"%s\" is abstract.",
                                             test_typeinfo->name
                                         );
@@ -370,6 +385,21 @@ namespace ZookieWizard
 
                         if (NODES_LISTBOX_DELETE_CURRENT == c)
                         {
+                            sprintf_s
+                            (
+                                bufor, LARGE_BUFFER_SIZE,
+                                    "You are about to delete this node:\n\n" \
+                                    "(%s) \"%s\"\n\n" \
+                                    "This operation cannot be undone! Are you sure you want to continue?",
+                                test_node->getType()->name,
+                                test_node->getStringRepresentation().getSubstring(0, 64).getText()
+                            );
+
+                            if (false == GUI::theWindowsManager.askQuestion(bufor))
+                            {
+                                return;
+                            }
+
                             theLog.print
                             (
                                 "================================\n" \
@@ -378,21 +408,7 @@ namespace ZookieWizard
                                 "================================\n"
                             );
 
-                            if (test_group->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
-                            {
-                                if (test_node->getReferenceCount() >= 2)
-                                {
-                                    test_root = test_group->getRootNode();
-
-                                    if (nullptr != test_root)
-                                    {
-                                        test_root->findAndDereference(test_node);
-                                        /* (--dsp--) delete from scripts as well! */
-                                    }
-                                }
-
-                                test_group->findAndDeleteChild(test_node);
-                            }
+                            nodesManager_RemoveChild(test_group, child_id, nullptr);
 
                             theLog.print
                             (
@@ -439,16 +455,26 @@ namespace ZookieWizard
 
                     if (NODES_LISTBOX_DELETE_CHILDREN == child_id)
                     {
-                        while (nullptr != (test_node = test_group->getIthChild(0)))
+                        sprintf_s
+                        (
+                            bufor, LARGE_BUFFER_SIZE,
+                                "You are about to delete ALL of the children of this group:\n\n" \
+                                "(%s) \"%s\"\n\n" \
+                                "This operation cannot be undone! Are you sure you want to continue?",
+                            test_group->getType()->name,
+                            test_group->getStringRepresentation().getSubstring(0, 64).getText()
+                        );
+
+                        if (false == GUI::theWindowsManager.askQuestion(bufor))
                         {
-                            test_root = test_node->getRootNode();
+                            return;
+                        }
 
-                            if (nullptr == test_root)
-                            {
-                                test_root = test_group->getRootNode();
-                            }
+                        test_root = test_group->getRootNode();
 
-                            if (nullptr != test_root)
+                        while (test_group->getNodesCount() > 0)
+                        {
+                            if ((nullptr != test_root) && (nullptr != (test_node = test_group->getIthChild(0))))
                             {
                                 test_root->findAndDereference(test_node);
                             }
@@ -458,18 +484,31 @@ namespace ZookieWizard
 
                         child_id = (-1);
                     }
-                    else if (nullptr != (test_node = test_group->getIthChild(markedChildId)))
+                    else if ((markedChildId >= 0) && (markedChildId < test_group->getNodesCount()))
                     {
-                        test_root = test_node->getRootNode();
+                        test_node = test_group->getIthChild(markedChildId);
 
-                        if (nullptr == test_root)
+                        if (nullptr != test_node)
                         {
-                            test_root = test_group->getRootNode();
-                        }
+                            sprintf_s
+                            (
+                                bufor, LARGE_BUFFER_SIZE,
+                                    "You are about to delete this node:\n\n" \
+                                    "(%s) \"%s\"\n\n" \
+                                    "This operation cannot be undone! Are you sure you want to continue?",
+                                test_node->getType()->name,
+                                test_node->getStringRepresentation().getSubstring(0, 64).getText()
+                            );
 
-                        if (nullptr != test_root)
-                        {
-                            test_root->findAndDereference(test_node);
+                            if (false == GUI::theWindowsManager.askQuestion(bufor))
+                            {
+                                return;
+                            }
+
+                            if (nullptr != (test_root = test_group->getRootNode()))
+                            {
+                                test_root->findAndDereference(test_node);
+                            }
                         }
 
                         test_group->deleteIthChild(markedChildId);
@@ -604,6 +643,87 @@ namespace ZookieWizard
                         }
                     }
                 }
+
+                break;
+            }
+
+            case NODES_EDITING_CLONE_CURRENT:
+            {
+                if (nodesManager_CloneChild(test_node, (-1)))
+                {
+                    sprintf_s
+                    (
+                        bufor, LARGE_BUFFER_SIZE,
+                            "Successfully cloned this node:\n\n" \
+                            "(%s) \"%s\"",
+                        test_node->getType()->name,
+                        test_node->getStringRepresentation().getSubstring(0, 64).getText()
+                    );
+
+                    GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+                }
+
+                child_id = (-1);
+
+                break;
+            }
+
+            case NODES_EDITING_CLONE_SELECTED:
+            {
+                test_group = (eGroup*)test_node;
+
+                if (nodesManager_CloneChild(test_group, markedChildId))
+                {
+                    test_node = test_group->getIthChild(markedChildId);
+
+                    if (nullptr == test_node)
+                    {
+                        sprintf_s
+                        (
+                            bufor, LARGE_BUFFER_SIZE,
+                            "Successfully cloned a child node of this group:\n\n" \
+                            "(%s) \"%s\"",
+                            test_group->getType()->name,
+                            test_group->getStringRepresentation().getSubstring(0, 64).getText()
+                        );
+                    }
+                    else
+                    {
+                        sprintf_s
+                        (
+                            bufor, LARGE_BUFFER_SIZE,
+                            "Successfully cloned this node:\n\n" \
+                            "(%s) \"%s\"",
+                            test_node->getType()->name,
+                            test_node->getStringRepresentation().getSubstring(0, 64).getText()
+                        );
+                    }
+
+                    GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+                }
+
+                child_id = (-1);
+
+                break;
+            }
+
+            case NODES_EDITING_CLONE_PASTING:
+            {
+                nodesManager_PasteLastClone(test_node);
+
+                if ((nullptr != test_node) && test_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                {
+                    child_id = ((eGroup*)test_node)->getNodesCount() - 1;
+                }
+                else
+                {
+                    child_id = (-1);
+                }
+
+                /* updating editable transform (before updating the list) */
+                markedChildId = child_id;
+
+                update_list = true;
 
                 break;
             }
@@ -811,11 +931,11 @@ namespace ZookieWizard
 
             /* Send back label text */
 
-            sprintf_s(bufor, 128, "< total nodes: %d >\n", theNodesCounter);
+            sprintf_s(bufor, LARGE_BUFFER_SIZE, "< total nodes: %d >\n", theNodesCounter);
 
             test_string = bufor;
 
-            sprintf_s(bufor, 128, "(%s)", selectedObject->getType()->name);
+            sprintf_s(bufor, LARGE_BUFFER_SIZE, "(%s)", selectedObject->getType()->name);
 
             test_string += "Selected: ";
             test_string += bufor;
@@ -827,7 +947,7 @@ namespace ZookieWizard
             {
                 a = test_node->getFlags();
 
-                sprintf_s(bufor, 128, "\n0x%08X [", a);
+                sprintf_s(bufor, LARGE_BUFFER_SIZE, "\n0x%08X [", a);
                 test_string += bufor;
 
                 if (0x01 & a)
@@ -855,14 +975,14 @@ namespace ZookieWizard
 
                 for (a = 0; a < b; a++)
                 {
-                    sprintf_s(bufor, 128, "[%d] ", a);
+                    sprintf_s(bufor, LARGE_BUFFER_SIZE, "[%d] ", a);
                     test_string = bufor;
 
                     test_node = test_group->getIthChild(a);
 
                     if (nullptr != test_node)
                     {
-                        sprintf_s(bufor, 128, "(%s) ", test_node->getType()->name);
+                        sprintf_s(bufor, LARGE_BUFFER_SIZE, "(%s) ", test_node->getType()->name);
                         test_string += bufor;
                         test_string += test_node->getStringRepresentation();
                     }

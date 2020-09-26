@@ -1396,5 +1396,14 @@ namespace ZookieWizard
             MessageBox(getMainWindow(), text, box_title, box_type);
         }
 
+
+        ////////////////////////////////////////////////////////////////
+        // WindowsManager: display a message box with a question and get the answer
+        ////////////////////////////////////////////////////////////////
+        bool WindowsManager::askQuestion(const char* text) const
+        {
+            return (IDYES == MessageBox(getMainWindow(), text, MESSAGE_TITLE_INFO, (MB_ICONQUESTION | MB_YESNO)));
+        }
+
     }
 }

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSwitelikKao : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eSwitelikKao();
             ~eSwitelikKao();
 
+        private:
+
+            void createFromOtherObject(const eSwitelikKao &other);
+
+        public:
+
+            eSwitelikKao(const eSwitelikKao &other);
+            eSwitelikKao& operator = (const eSwitelikKao &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSwitelikKao TypeInfo
-    // <kao2.004513C0> (registration)
+    // <kao2.00451390> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SWITELIKKAO_ID = 0x3D50E749;

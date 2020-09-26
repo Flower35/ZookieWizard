@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eMarks::~eMarks() {}
+    eMarks::~eMarks()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMarks: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eMarks::createFromOtherObject(const eMarks &other)
+    {}
+
+    eMarks::eMarks(const eMarks &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eMarks& eMarks::operator = (const eMarks &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eMarks::cloneFromMe() const
+    {
+        return new eMarks(*this);
+    }
 
 }

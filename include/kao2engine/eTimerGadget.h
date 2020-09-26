@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eTimerGadget : public eTextWriterFields2
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eTimerGadget();
             ~eTimerGadget();
 
+        private:
+
+            void createFromOtherObject(const eTimerGadget &other);
+
+        public:
+
+            eTimerGadget(const eTimerGadget &other);
+            eTimerGadget& operator = (const eTimerGadget &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eTimerGadget TypeInfo
-    // <kao2.0051E900> (registration)
+    // <kao2.0051E8D0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TIMERGADGET_ID = 0x3B248DF2;

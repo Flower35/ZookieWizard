@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class ePhysics : public eBasePhysics
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,13 +26,25 @@ namespace ZookieWizard
             ePhysics();
             ~ePhysics();
 
+        private:
+
+            void createFromOtherObject(const ePhysics &other);
+
+        public:
+
+            ePhysics(const ePhysics &other);
+            ePhysics& operator = (const ePhysics &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // ePhysics TypeInfo
-    // <kao2.004DE0F0> (registration)
+    // <kao2.004DE0C0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PHYSICS_ID = 0x0002DF01;

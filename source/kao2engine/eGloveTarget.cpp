@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eEggTarget()
     {}
 
-    eGloveTarget::~eGloveTarget() {}
+    eGloveTarget::~eGloveTarget()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGloveTarget: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eGloveTarget::createFromOtherObject(const eGloveTarget &other)
+    {}
+
+    eGloveTarget::eGloveTarget(const eGloveTarget &other)
+    : eEggTarget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eGloveTarget& eGloveTarget::operator = (const eGloveTarget &other)
+    {
+        if ((&other) != this)
+        {
+            eEggTarget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eGloveTarget::cloneFromMe() const
+    {
+        return new eGloveTarget(*this);
+    }
 
 }

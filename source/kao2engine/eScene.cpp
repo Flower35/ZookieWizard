@@ -76,8 +76,78 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eScene: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eScene::createFromOtherObject(const eScene &other)
+    {
+        throw ErrorMessage
+        (
+            "CRITICAL ERROR while cloning the \"eScene\" object:\n" \
+            "cloning << scenes >> without context is not supported!!!"
+        );
+    }
+
+    eScene::eScene(const eScene &other)
+    : ePivot(other)
+    {
+        visSetA_count = 0;
+        visSetA_maxLength = 0;
+        visSetA = nullptr;
+
+        visSetB_count = 0;
+        visSetB_maxLength = 0;
+        visSetB = nullptr;
+
+        /****************/
+
+        createFromOtherObject(other);
+    }
+
+    eScene& eScene::operator = (const eScene &other)
+    {
+        if ((&other) != this)
+        {
+            ePivot::operator = (other);
+
+            /****************/
+
+            if (nullptr != visSetB)
+            {
+                delete[](visSetB);
+                visSetB = nullptr;
+            }
+
+            visSetB_count = 0;
+            visSetB_maxLength = 0;
+
+            if (nullptr != visSetA)
+            {
+                delete[](visSetA);
+                visSetA = nullptr;
+            }
+
+            visSetA_count = 0;
+            visSetA_maxLength = 0;
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eScene::cloneFromMe() const
+    {
+        /* Disable cloning (memory-leak friendly) */
+        return nullptr;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eScene portal structures
-    // <kao_tw.004BF0E0> (first struct, contsructor)
+    // <kao_tw.004BF0E0> (first struct, constructor)
     // <kao_tw.004BF500> (first struct, serialization)
     // <kao_tw.00486C79> (second struct, constructor)
     // <kao_tw.004BFA80> (second struct, serialization)
@@ -205,24 +275,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    //
-    // <kao2.00498B20>
-    ////////////////////////////////////////////////////////////////
-    void eScene::function_00498B20()
-    {
-        int32_t i;
-
-        for (i = 0; i < nodes.getSize(); i++)
-        {
-            //// (--dsp--) eScene::[[vptr]+0x74](arg1 = nodes.getChild[i]);
-        }
-
-        collision.reset();
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eScene serialization
+    // eScene: serialization
     // <kao2.00498FB0>
     ////////////////////////////////////////////////////////////////
     void eScene::serialize(Archive &ar)
@@ -376,6 +429,71 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eScene: COLLADA exporting
+    ////////////////////////////////////////////////////////////////
+    void eScene::writeNodeToXmlFile(ColladaExporter &exporter) const
+    {
+        int32_t i;
+        char bufor[16];
+        eNode* test_node;
+
+        switch (exporter.getState())
+        {
+            case COLLADA_EXPORTER_STATE_LIGHTS:
+            case COLLADA_EXPORTER_STATE_CAMERAS:
+            case COLLADA_EXPORTER_STATE_EFFECTS:
+            case COLLADA_EXPORTER_STATE_IMAGES:
+            case COLLADA_EXPORTER_STATE_MATERIALS:
+            case COLLADA_EXPORTER_STATE_GEOMETRIES:
+            case COLLADA_EXPORTER_STATE_CONTROLLERS:
+            case COLLADA_EXPORTER_STATE_ANIMATIONS:
+            {
+                eGroup::writeNodeToXmlFile(exporter);
+
+                break;
+            }
+
+            case COLLADA_EXPORTER_STATE_VISUAL_SCENES:
+            {
+                exporter.openTag("visual_scene");
+
+                i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_SCENE, this, true);
+                sprintf_s(bufor, 16, "Scene%d", i);
+                exporter.insertTagAttrib("id", bufor);
+                exporter.insertTagAttrib("name", name);
+
+                /* "eGroup" could exist as independent node (without parent "eTransform") */
+                /* That's why we are not calling `eGroup::writeNodeToXmlFile()` */
+
+                for (i = 0; i < nodes.getSize(); i++)
+                {
+                    if (nullptr != (test_node = (eNode*)nodes.getIthChild(i)))
+                    {
+                        test_node->writeNodeToXmlFile(exporter);
+                    }
+                }
+
+                exporter.closeTag(); // "visual_scene"
+
+                break;
+            }
+
+            case COLLADA_EXPORTER_STATE_SCENE:
+            {
+                i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_SCENE, this, false);
+                sprintf_s(bufor, 16, "#Scene%d", i);
+
+                exporter.openTag("instance_visual_scene");
+                exporter.insertTagAttrib("url", bufor);
+                exporter.closeTag();
+
+                break;
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eScene: find reference to some node when deleting it
     ////////////////////////////////////////////////////////////////
     void eScene::findAndDereference(eNode* target)
@@ -495,73 +613,6 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eScene: COLLADA exporting
-    ////////////////////////////////////////////////////////////////
-    void eScene::writeNodeToXmlFile(ColladaExporter &exporter) const
-    {
-        int32_t i;
-        char bufor[16];
-        eNode* test_node;
-
-        switch (exporter.getState())
-        {
-            case COLLADA_EXPORTER_STATE_LIGHTS:
-            case COLLADA_EXPORTER_STATE_CAMERAS:
-            case COLLADA_EXPORTER_STATE_EFFECTS:
-            case COLLADA_EXPORTER_STATE_IMAGES:
-            case COLLADA_EXPORTER_STATE_MATERIALS:
-            case COLLADA_EXPORTER_STATE_GEOMETRIES:
-            case COLLADA_EXPORTER_STATE_CONTROLLERS:
-            case COLLADA_EXPORTER_STATE_ANIMATIONS:
-            {
-                eGroup::writeNodeToXmlFile(exporter);
-
-                break;
-            }
-
-            case COLLADA_EXPORTER_STATE_VISUAL_SCENES:
-            {
-                exporter.openTag("visual_scene");
-
-                i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_SCENE, this, true);
-                sprintf_s(bufor, 16, "Scene%d", i);
-                exporter.insertTagAttrib("id", bufor);
-                exporter.insertTagAttrib("name", name);
-
-                /* "eGroup" could exist as independent node (without parent "eTransform") */
-                /* That's why we are not calling `eGroup::writeNodeToXmlFile()` */
-
-                for (i = 0; i < nodes.getSize(); i++)
-                {
-                    test_node = (eNode*)nodes.getIthChild(i);
-
-                    if (nullptr != test_node)
-                    {
-                        test_node->writeNodeToXmlFile(exporter);
-                    }
-                }
-
-                exporter.closeTag(); // "visual_scene"
-
-                break;
-            }
-
-            case COLLADA_EXPORTER_STATE_SCENE:
-            {
-                i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_SCENE, this, false);
-                sprintf_s(bufor, 16, "#Scene%d", i);
-
-                exporter.openTag("instance_visual_scene");
-                exporter.insertTagAttrib("url", bufor);
-                exporter.closeTag();
-
-                break;
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // eScene: set background color
     ////////////////////////////////////////////////////////////////
     void eScene::setBackgroundColor(GLfloat new_color[3])
@@ -600,6 +651,23 @@ namespace ZookieWizard
     eCollisionMgr* eScene::getCollisionManager() const
     {
         return (eCollisionMgr*)&collision;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eScene: unknown function
+    // <kao2.00498B20>
+    ////////////////////////////////////////////////////////////////
+    void eScene::function_00498B20()
+    {
+        int32_t i;
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            //// (--dsp--) eScene::[[vptr]+0x74](arg1 = nodes.getChild[i]);
+        }
+
+        collision.reset();
     }
 
 

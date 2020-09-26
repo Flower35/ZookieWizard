@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eFSOp()
     {}
 
-    eTorpedoMode::~eTorpedoMode() {}
+    eTorpedoMode::~eTorpedoMode()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTorpedoMode: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eTorpedoMode::createFromOtherObject(const eTorpedoMode &other)
+    {}
+
+    eTorpedoMode::eTorpedoMode(const eTorpedoMode &other)
+    : eFSOp(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eTorpedoMode& eTorpedoMode::operator = (const eTorpedoMode &other)
+    {
+        if ((&other) != this)
+        {
+            eFSOp::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eTorpedoMode::cloneFromMe() const
+    {
+        return new eTorpedoMode(*this);
+    }
 
 }

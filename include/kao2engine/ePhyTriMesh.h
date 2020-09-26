@@ -33,11 +33,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // ePhyTriMesh interface
+    // <kao2.005D210C> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class ePhyTriMesh : public eModifier
     {
-
         /*** Properties ***/
 
         protected:
@@ -61,14 +61,28 @@ namespace ZookieWizard
             ePhyTriMesh(eTriMesh* x, eGeoSet* y);
             ~ePhyTriMesh();
 
-            void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+        private:
 
-            void writeNodeToXmlFile(ColladaExporter &exporter) const override;
+            void createFromOtherObject(const ePhyTriMesh &other);
+
+        public:
+
+            ePhyTriMesh(const ePhyTriMesh &other);
+            ePhyTriMesh& operator = (const ePhyTriMesh &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
+            TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
 
             eString getLogPrintMessage() const override;
+            void writeNodeToXmlFile(ColladaExporter &exporter) const override;
+
+            /* << ePhyTriMesh >> */
 
             void deleteBones();
+
             void transformVertices(eSRP &new_transform);
 
             void prepareMatrices(bool update) const;
@@ -78,13 +92,16 @@ namespace ZookieWizard
 
         private:
 
-            void sortBoneIndices();
+            /* << ePhyTriMesh >> */
+
+            void clearNewPhyTriMesh(eTriMesh* x, eGeoSet* y);
+            void clearExistingPhyTriMesh();
     };
 
 
     ////////////////////////////////////////////////////////////////
     // ePhyTriMesh TypeInfo
-    // <kao2.004B1710> (registration)
+    // <kao2.004B16E0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PHYTRIMESH_ID = 0x3003;

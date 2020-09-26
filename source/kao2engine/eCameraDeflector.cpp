@@ -30,11 +30,45 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eCameraDeflector::~eCameraDeflector() {}
+    eCameraDeflector::~eCameraDeflector()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eCameraDeflector serialization
+    // eCameraDeflector: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eCameraDeflector::createFromOtherObject(const eCameraDeflector &other)
+    {}
+
+    eCameraDeflector::eCameraDeflector(const eCameraDeflector &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eCameraDeflector& eCameraDeflector::operator = (const eCameraDeflector &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eCameraDeflector::cloneFromMe() const
+    {
+        return new eCameraDeflector(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCameraDeflector: serialization
     ////////////////////////////////////////////////////////////////
     void eCameraDeflector::serialize(Archive &ar)
     {

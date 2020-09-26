@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eFollowCameraCtrl interface
+    // <kao2.005D4BA8> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eFollowCameraCtrl : public eCameraTarget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +28,25 @@ namespace ZookieWizard
             eFollowCameraCtrl();
             ~eFollowCameraCtrl();
 
+        private:
+
+            void createFromOtherObject(const eFollowCameraCtrl &other);
+
+        public:
+
+            eFollowCameraCtrl(const eFollowCameraCtrl &other);
+            eFollowCameraCtrl& operator = (const eFollowCameraCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFollowCameraCtrl TypeInfo
-    // <kao2.00514750> (registration)
+    // <kao2.00514720> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FOLLOWCAMERACTRL_ID = 0x12455672;

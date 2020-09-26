@@ -129,7 +129,7 @@ namespace ZookieWizard
 
             if (myLength <= 0)
             {
-                return false;
+                return (otherLength <= 0);
             }
 
             if (pos < 0)

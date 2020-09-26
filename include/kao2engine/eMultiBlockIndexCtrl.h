@@ -11,11 +11,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eMultiBlockIndexCtrl interface
+    // <kao2.005D1A48> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eMultiBlockIndexCtrl : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -30,14 +30,26 @@ namespace ZookieWizard
             eMultiBlockIndexCtrl();
             ~eMultiBlockIndexCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eMultiBlockIndexCtrl &other);
+
+        public:
+
+            eMultiBlockIndexCtrl(const eMultiBlockIndexCtrl &other);
+            eMultiBlockIndexCtrl& operator = (const eMultiBlockIndexCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eMultiBlockIndexCtrl TypeInfo
-    // <kao2.004BD7E0> (registration)
+    // <kao2.004BD7B0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_MULTIBLOCKINDEXCTRL_ID = 0xFFFFFFFF;

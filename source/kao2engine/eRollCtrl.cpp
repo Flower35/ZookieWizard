@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eRollCtrl::~eRollCtrl() {}
+    eRollCtrl::~eRollCtrl()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eRollCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eRollCtrl::createFromOtherObject(const eRollCtrl &other)
+    {}
+
+    eRollCtrl::eRollCtrl(const eRollCtrl &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eRollCtrl& eRollCtrl::operator = (const eRollCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eRollCtrl::cloneFromMe() const
+    {
+        return new eRollCtrl(*this);
+    }
 
 }

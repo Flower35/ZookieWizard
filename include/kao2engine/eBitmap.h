@@ -20,11 +20,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eBitmap interface
+    // <kao2.005D0718> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eBitmap : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -43,7 +43,53 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
+        public:
+
+            eBitmap();
+            ~eBitmap();
+
         private:
+
+            void createFromOtherObject(const eBitmap &other);
+
+        public:
+
+            eBitmap(const eBitmap &other);
+            eBitmap& operator = (const eBitmap &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
+            TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            void writeNodeToXmlFile(ColladaExporter &exporter) const override;
+
+            /* << eBitmap >> */
+
+            void generateTexture();
+
+            void loadRaw(const uint8_t* other_pixels, const uint32_t* other_palette, int32_t new_width, int32_t new_height);
+            bool loadFromFile(eString directory, bool silent_if_not_exists);
+            void exportImageFile(eString directory) const;
+
+            void setTransparencyColor(uint32_t color);
+            bool isTransparent() const;
+            void changeAlphaChannel(float factor);
+
+            float getAspectRatio() const;
+
+            GLuint getTextureId() const;
+
+            eString getPath() const;
+            void setPath(eString new_path);
+
+            bool getLoadedFromExternalFileFlag() const;
+            void setLoadedFromExternalFileFlag(bool new_flag);
+
+        private:
+
+            /* << eBitmap >> */
 
             bool isUsingPalette() const;
             int getBytesPerPixel() const;
@@ -51,44 +97,12 @@ namespace ZookieWizard
             const char* getTypeName() const;
 
             void deleteTexture();
-
-        public:
-
-            eBitmap();
-            ~eBitmap();
-
-            void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
-
-            void writeNodeToXmlFile(ColladaExporter &exporter) const override;
-
-            void copyBitmap(const eBitmap* source);
-
-            void generateTexture();
-
-            void setPath(eString new_path);
-            eString getPath() const;
-
-            void loadRaw(const uint8_t* other_pixels, const uint32_t* other_palette, int32_t new_width, int32_t new_height);
-            bool loadFromFile(eString directory, bool silent_if_not_exists);
-            void exportImageFile(eString directory) const;
-
-            GLuint getTextureId() const;
-
-            bool getLoadedFromExternalFileFlag() const;
-            void setLoadedFromExternalFileFlag(bool new_flag);
-
-            void setTransparencyColor(uint32_t color);
-            bool isTransparent() const;
-            void changeAlphaChannel(float factor);
-
-            float getAspectRatio() const;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eBitmap TypeInfo
-    // <kao2.00472B70> (registration)
+    // <kao2.00472B40> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_BITMAP_ID = 0x1001;

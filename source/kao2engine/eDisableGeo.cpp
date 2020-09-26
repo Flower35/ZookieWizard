@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eDisableGeo::~eDisableGeo() {}
+    eDisableGeo::~eDisableGeo()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eDisableGeo: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eDisableGeo::createFromOtherObject(const eDisableGeo &other)
+    {}
+
+    eDisableGeo::eDisableGeo(const eDisableGeo &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eDisableGeo& eDisableGeo::operator = (const eDisableGeo &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eDisableGeo::cloneFromMe() const
+    {
+        return new eDisableGeo(*this);
+    }
 
 }

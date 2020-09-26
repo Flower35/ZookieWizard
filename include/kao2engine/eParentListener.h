@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eParentListener : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eParentListener();
             ~eParentListener();
 
+        private:
+
+            void createFromOtherObject(const eParentListener &other);
+
+        public:
+
+            eParentListener(const eParentListener &other);
+            eParentListener& operator = (const eParentListener &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eParentListener TypeInfo
-    // <kao2.00517410> (registration)
+    // <kao2.005173E0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PARENTLISTENER_ID = 0x00002CDF;

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class ePowerBar : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             ePowerBar();
             ~ePowerBar();
 
+        private:
+
+            void createFromOtherObject(const ePowerBar &other);
+
+        public:
+
+            ePowerBar(const ePowerBar &other);
+            ePowerBar& operator = (const ePowerBar &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // ePowerBar TypeInfo
-    // <kao2.00455BA0> (registration)
+    // <kao2.00455B70> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_POWERBAR_ID = 0x3C6F95AA;

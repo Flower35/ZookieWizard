@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eButterfly : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eButterfly();
             ~eButterfly();
 
+        private:
+
+            void createFromOtherObject(const eButterfly &other);
+
+        public:
+
+            eButterfly(const eButterfly &other);
+            eButterfly& operator = (const eButterfly &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eButterfly TypeInfo
-    // <kao2.004367B0> (registration)
+    // <kao2.00436780> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_BUTTERFLY_ID = 0x3BF56DDF;

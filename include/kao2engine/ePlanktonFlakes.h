@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class ePlanktonFlakes : public eForrestFlakes
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             ePlanktonFlakes();
             ~ePlanktonFlakes();
 
+        private:
+
+            void createFromOtherObject(const ePlanktonFlakes &other);
+
+        public:
+
+            ePlanktonFlakes(const ePlanktonFlakes &other);
+            ePlanktonFlakes& operator = (const ePlanktonFlakes &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // ePlanktonFlakes TypeInfo
-    // <kao2.00565DD0> (registration)
+    // <kao2.00565DA0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PLANKTONFLAKES_ID = 0x0323A7E7;

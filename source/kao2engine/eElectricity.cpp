@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eElectricity::~eElectricity() {}
+    eElectricity::~eElectricity()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eElectricity: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eElectricity::createFromOtherObject(const eElectricity &other)
+    {}
+
+    eElectricity::eElectricity(const eElectricity &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eElectricity& eElectricity::operator = (const eElectricity &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eElectricity::cloneFromMe() const
+    {
+        return new eElectricity(*this);
+    }
 
 }

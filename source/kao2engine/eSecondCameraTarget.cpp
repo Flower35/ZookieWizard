@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eSecondCameraTarget::~eSecondCameraTarget() {}
+    eSecondCameraTarget::~eSecondCameraTarget()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSecondCameraTarget: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSecondCameraTarget::createFromOtherObject(const eSecondCameraTarget &other)
+    {}
+
+    eSecondCameraTarget::eSecondCameraTarget(const eSecondCameraTarget &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSecondCameraTarget& eSecondCameraTarget::operator = (const eSecondCameraTarget &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSecondCameraTarget::cloneFromMe() const
+    {
+        return new eSecondCameraTarget(*this);
+    }
 
 }

@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eXRefProxy interface
+    // <kao2.005D1F50> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eXRefProxy : public eNode
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,11 +27,27 @@ namespace ZookieWizard
             eXRefProxy(eXRefTarget* x);
             ~eXRefProxy();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eXRefProxy &other);
+
+        public:
+
+            eXRefProxy(const eXRefProxy &other);
+            eXRefProxy& operator = (const eXRefProxy &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eNode >> */
 
             void updateDrawPassFlags(uint32_t* parent_flags) override;
             void renderNode(eDrawContext &draw_context) const override;
+
+            /* << eXRefProxy >> */
 
             eXRefTarget* getXRefTarget() const;
     };
@@ -39,7 +55,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eXRefProxy TypeInfo
-    // <kao2.004AD740> (registration)
+    // <kao2.004AD710> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_XREFPROXY_ID = 0x87EF0002;

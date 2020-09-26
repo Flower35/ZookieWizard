@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eNeckCtrl : public eLookAtCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eNeckCtrl();
             ~eNeckCtrl();
 
+        private:
+
+            void createFromOtherObject(const eNeckCtrl &other);
+
+        public:
+
+            eNeckCtrl(const eNeckCtrl &other);
+            eNeckCtrl& operator = (const eNeckCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eNeckCtrl TypeInfo
-    // <kao2.004382A0> (registration)
+    // <kao2.00438270> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_NECKCTRL_ID = 0x3BB4EFBE;

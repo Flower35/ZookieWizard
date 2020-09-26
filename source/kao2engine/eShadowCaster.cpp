@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eShadowCaster::~eShadowCaster() {}
+    eShadowCaster::~eShadowCaster()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eShadowCaster: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eShadowCaster::createFromOtherObject(const eShadowCaster &other)
+    {}
+
+    eShadowCaster::eShadowCaster(const eShadowCaster &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eShadowCaster& eShadowCaster::operator = (const eShadowCaster &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eShadowCaster::cloneFromMe() const
+    {
+        return new eShadowCaster(*this);
+    }
 
 }

@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eTextWriterEx interface
+    // <kao2.005D0038> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eTextWriterEx : public eTextWriter
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +28,25 @@ namespace ZookieWizard
             eTextWriterEx();
             ~eTextWriterEx();
 
+        private:
+
+            void createFromOtherObject(const eTextWriterEx &other);
+
+        public:
+
+            eTextWriterEx(const eTextWriterEx &other);
+            eTextWriterEx& operator = (const eTextWriterEx &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eTextWriterEx TypeInfo
-    // <kao2.0045B300> (registration)
+    // <kao2.0045B2D0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TEXTWRITEREX_ID = 0x3F39AC2F;

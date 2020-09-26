@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eWhaleManager::~eWhaleManager() {}
+    eWhaleManager::~eWhaleManager()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eWhaleManager: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eWhaleManager::createFromOtherObject(const eWhaleManager &other)
+    {}
+
+    eWhaleManager::eWhaleManager(const eWhaleManager &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eWhaleManager& eWhaleManager::operator = (const eWhaleManager &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eWhaleManager::cloneFromMe() const
+    {
+        return new eWhaleManager(*this);
+    }
 
 }

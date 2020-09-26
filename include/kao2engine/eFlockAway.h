@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eFlockAway : public eFlock
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             eFlockAway();
             ~eFlockAway();
 
+        private:
+
+            void createFromOtherObject(const eFlockAway &other);
+
+        public:
+
+            eFlockAway(const eFlockAway &other);
+            eFlockAway& operator = (const eFlockAway &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFlockAway TypeInfo
-    // <kao2.00431AE0> (registration)
+    // <kao2.00431AB0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FLOCKAWAY_ID = 0x3CE70E18;

@@ -32,7 +32,41 @@ namespace ZookieWizard
         name = "fsSprite";
     }
 
-    eFSSprite::~eFSSprite() {}
+    eFSSprite::~eFSSprite()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eFSSprite: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eFSSprite::createFromOtherObject(const eFSSprite &other)
+    {}
+
+    eFSSprite::eFSSprite(const eFSSprite &other)
+    : eFSOp(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eFSSprite& eFSSprite::operator = (const eFSSprite &other)
+    {
+        if ((&other) != this)
+        {
+            eFSOp::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eFSSprite::cloneFromMe() const
+    {
+        return new eFSSprite(*this);
+    }
 
 
     ////////////////////////////////////////////////////////////////

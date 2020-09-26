@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eLightBlinker::~eLightBlinker() {}
+    eLightBlinker::~eLightBlinker()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLightBlinker: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eLightBlinker::createFromOtherObject(const eLightBlinker &other)
+    {}
+
+    eLightBlinker::eLightBlinker(const eLightBlinker &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eLightBlinker& eLightBlinker::operator = (const eLightBlinker &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eLightBlinker::cloneFromMe() const
+    {
+        return new eLightBlinker(*this);
+    }
 
 }

@@ -42,7 +42,54 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eGeoEdge serialization
+    // eGeoEdge: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eGeoEdge::createFromOtherObject(const eGeoEdge &other)
+    {
+        if (nullptr != other.edges)
+        {
+            edges = new eGeoArray<ePoint4>(*(other.edges));
+            edges->incRef();
+        }
+        else
+        {
+            edges = nullptr;
+        }
+    }
+
+    eGeoEdge::eGeoEdge(const eGeoEdge &other)
+    : eGeometry(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eGeoEdge& eGeoEdge::operator = (const eGeoEdge &other)
+    {
+        if ((&other) != this)
+        {
+            eGeometry::operator = (other);
+
+            /****************/
+
+            edges->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eGeoEdge::cloneFromMe() const
+    {
+        return new eGeoEdge(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoEdge: serialization
     // <kao2.005AE000>
     ////////////////////////////////////////////////////////////////
     void eGeoEdge::serialize(Archive &ar)

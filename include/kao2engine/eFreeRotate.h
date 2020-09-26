@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eFreeRotate : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eFreeRotate();
             ~eFreeRotate();
 
+        private:
+
+            void createFromOtherObject(const eFreeRotate &other);
+
+        public:
+
+            eFreeRotate(const eFreeRotate &other);
+            eFreeRotate& operator = (const eFreeRotate &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFreeRotate TypeInfo
-    // <kao2.00527F20> (registration)
+    // <kao2.00527EF0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FREEROTATE_ID = 0x01234322;

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eCameraTarget()
     {}
 
-    eDoubleCameraTarget::~eDoubleCameraTarget() {}
+    eDoubleCameraTarget::~eDoubleCameraTarget()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eDoubleCameraTarget: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eDoubleCameraTarget::createFromOtherObject(const eDoubleCameraTarget &other)
+    {}
+
+    eDoubleCameraTarget::eDoubleCameraTarget(const eDoubleCameraTarget &other)
+    : eCameraTarget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eDoubleCameraTarget& eDoubleCameraTarget::operator = (const eDoubleCameraTarget &other)
+    {
+        if ((&other) != this)
+        {
+            eCameraTarget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eDoubleCameraTarget::cloneFromMe() const
+    {
+        return new eDoubleCameraTarget(*this);
+    }
 
 }

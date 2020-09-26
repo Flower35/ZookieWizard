@@ -19,7 +19,7 @@ namespace ZookieWizard
         &E_TRANSFORM_TYPEINFO,
         []() -> eObject*
         {
-            return new eObserver;
+            return nullptr;
         }
     );
 
@@ -72,7 +72,83 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eObserver serialization
+    // eObserver: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eObserver::createFromOtherObject(const eObserver &other)
+    {
+        pathCtrl = new ePathCamCtrl;
+
+        if (nullptr != other.pathCtrl)
+        {
+            (*pathCtrl) = (*(other.pathCtrl));
+        }
+        else
+        {
+            pathCtrl->setPosition(defaultTransform.pos);
+        }
+
+        pathCtrl->incRef();
+        pathCtrl->setCameraLink((eCamera*)this);
+
+        unknown_0150 = other.unknown_0150;
+        unknown_0151 = other.unknown_0151;
+
+        unknown_0154[0] = other.unknown_0154[0];
+        unknown_0154[1] = other.unknown_0154[1];
+        unknown_0154[2] = other.unknown_0154[2];
+        unknown_0154[3] = other.unknown_0154[3];
+
+        fov = other.fov;
+        nearPlane = other.nearPlane;
+        farPlane = other.farPlane;
+
+        look[0][0] = other.look[0][0];
+        look[0][1] = other.look[0][1];
+        look[0][2] = other.look[0][2];
+        look[1][0] = other.look[1][0];
+        look[1][1] = other.look[1][1];
+        look[1][2] = other.look[1][2];
+        look[2][0] = other.look[2][0];
+        look[2][1] = other.look[2][1];
+        look[2][2] = other.look[2][2];
+
+        unknown_0194 = other.unknown_0194;
+        unknown_0198 = other.unknown_0198;
+    }
+
+    eObserver::eObserver(const eObserver &other)
+    : eTransform(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eObserver& eObserver::operator = (const eObserver &other)
+    {
+        if ((&other) != this)
+        {
+            eTransform::operator = (other);
+
+            /****************/
+
+            pathCtrl->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eObserver::cloneFromMe() const
+    {
+        return nullptr;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eObserver: serialization
     // <kao2.004807C0>
     ////////////////////////////////////////////////////////////////
     void eObserver::serialize(Archive &ar)

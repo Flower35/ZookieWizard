@@ -9,7 +9,7 @@ namespace ZookieWizard
     // <kao2.004A00E0> (constructor)
     // <kao2.004A0150> (destructor)
     ////////////////////////////////////////////////////////////////
-    
+
     TypeInfo E_CTRLBASE_TYPEINFO
     (
         E_CTRLBASE_ID,
@@ -29,6 +29,40 @@ namespace ZookieWizard
     : eRefCounter()
     {}
 
-    eCtrlBase::~eCtrlBase() {}
+    eCtrlBase::~eCtrlBase()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCtrlBase: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eCtrlBase::createFromOtherObject(const eCtrlBase &other)
+    {}
+
+    eCtrlBase::eCtrlBase(const eCtrlBase &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eCtrlBase& eCtrlBase::operator = (const eCtrlBase &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eCtrlBase::cloneFromMe() const
+    {
+        return new eCtrlBase(*this);
+    }
 
 }

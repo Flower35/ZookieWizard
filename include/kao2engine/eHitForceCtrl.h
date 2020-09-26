@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eHitForceCtrl : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eHitForceCtrl();
             ~eHitForceCtrl();
 
+        private:
+
+            void createFromOtherObject(const eHitForceCtrl &other);
+
+        public:
+
+            eHitForceCtrl(const eHitForceCtrl &other);
+            eHitForceCtrl& operator = (const eHitForceCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eHitForceCtrl TypeInfo
-    // <kao2.0044FA90> (registration)
+    // <kao2.0044FA60> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_HITFORCECTRL_ID = 0x3D33D5B7;

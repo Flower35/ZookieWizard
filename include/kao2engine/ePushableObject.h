@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class ePushableObject : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -31,7 +30,21 @@ namespace ZookieWizard
             ePushableObject();
             ~ePushableObject();
 
+        private:
+
+            void createFromOtherObject(const ePushableObject &other);
+
+        public:
+
+            ePushableObject(const ePushableObject &other);
+            ePushableObject& operator = (const ePushableObject &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+
+            /* << Gadget >> */
 
             eString getDefaultGadgetName() const override;
     };
@@ -39,7 +52,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // ePushableObject TypeInfo
-    // <kao2.004EB3E0> (registration)
+    // <kao2.004EB3B0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PUSHABLEOBJECT_ID = 0x00020831;

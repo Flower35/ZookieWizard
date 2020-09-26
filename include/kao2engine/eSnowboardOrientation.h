@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSnowboardOrientation : public eBasePhysics
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +27,25 @@ namespace ZookieWizard
             eSnowboardOrientation();
             ~eSnowboardOrientation();
 
+        private:
+
+            void createFromOtherObject(const eSnowboardOrientation &other);
+
+        public:
+
+            eSnowboardOrientation(const eSnowboardOrientation &other);
+            eSnowboardOrientation& operator = (const eSnowboardOrientation &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSnowboardOrientation TypeInfo
-    // <kao2.004E1140> (registration)
+    // <kao2.004E1110> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SNOWBOARDORIENTATION_ID = 0x3B950C41;

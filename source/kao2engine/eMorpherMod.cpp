@@ -42,7 +42,53 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eMorpherMod serialization
+    // eMorpherMod: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eMorpherMod::createFromOtherObject(const eMorpherMod &other)
+    {
+        controller = nullptr;
+
+        throw ErrorMessage
+        (
+            "CRITICAL ERROR while cloning the \"eMorpherMod\" object:\n" \
+            "cloning << morpher modifiers >> without context is not supported!!!"
+        );
+    }
+
+    eMorpherMod::eMorpherMod(const eMorpherMod &other)
+    : eModifier(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eMorpherMod& eMorpherMod::operator = (const eMorpherMod &other)
+    {
+        if ((&other) != this)
+        {
+            eModifier::operator = (other);
+
+            /****************/
+
+            targets.clear();
+            controller->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eMorpherMod::cloneFromMe() const
+    {
+        return new eMorpherMod(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMorpherMod: serialization
     // <kao2.0049F410>
     ////////////////////////////////////////////////////////////////
     void eMorpherMod::serialize(Archive &ar)

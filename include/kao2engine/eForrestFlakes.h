@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eForrestFlakes : public eSnow
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             eForrestFlakes();
             ~eForrestFlakes();
 
+        private:
+
+            void createFromOtherObject(const eForrestFlakes &other);
+
+        public:
+
+            eForrestFlakes(const eForrestFlakes &other);
+            eForrestFlakes& operator = (const eForrestFlakes &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eForrestFlakes TypeInfo
-    // <kao2.00561200> (registration)
+    // <kao2.005611D0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FORRESTFLAKES_ID = 0x0323A7F7;

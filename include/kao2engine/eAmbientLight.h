@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eAmbientLight interface
+    // <kao2.005E10B8> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eAmbientLight : public eLight
     {
-
         /*** Methods ***/
 
         public:
@@ -20,15 +20,29 @@ namespace ZookieWizard
             eAmbientLight();
             ~eAmbientLight();
 
+        private:
+
+            void createFromOtherObject(const eAmbientLight &other);
+
+        public:
+
+            eAmbientLight(const eAmbientLight &other);
+            eAmbientLight& operator = (const eAmbientLight &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
 
-            /*[vptr]+0x74]*/ void bindLight(int32_t light_id) const override;
+            /* << eLight >> */
+
+            /*[[vptr]+0x74]*/ void bindLight(int32_t light_id) const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eAmbientLight TypeInfo
-    // <kao2.005AE670> (registration)
+    // <kao2.005AE640> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_AMBIENTLIGHT_ID = 0x03454503;

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eBoids::~eBoids() {}
+    eBoids::~eBoids()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBoids: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eBoids::createFromOtherObject(const eBoids &other)
+    {}
+
+    eBoids::eBoids(const eBoids &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eBoids& eBoids::operator = (const eBoids &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eBoids::cloneFromMe() const
+    {
+        return new eBoids(*this);
+    }
 
 }

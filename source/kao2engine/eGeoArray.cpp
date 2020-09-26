@@ -123,7 +123,71 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eGeoArray serialization
+    // eGeoArray: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    template <typename T>
+    void eGeoArray<T>::createFromOtherObject(const eGeoArray<T> &other)
+    {
+        if (other.length > 0)
+        {
+            length = other.length;
+
+            data = new T [length];
+
+            for (int32_t a = 0; a < length; a++)
+            {
+                data[a] = other.data[a];
+            }
+        }
+        else
+        {
+            length = 0;
+            data = nullptr;
+        }
+    }
+
+    template <typename T>
+    eGeoArray<T>::eGeoArray(const eGeoArray<T> &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    template <typename T>
+    eGeoArray<T>& eGeoArray<T>::operator = (const eGeoArray<T> &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            if (nullptr != data)
+            {
+                delete[](data);
+                data = nullptr;
+            }
+
+            length = 0;
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    template <typename T>
+    eObject* eGeoArray<T>::cloneFromMe() const
+    {
+        return new eGeoArray<T>(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGeoArray: serialization
     ////////////////////////////////////////////////////////////////
     template <typename T>
     void eGeoArray<T>::serialize(Archive &ar)

@@ -32,9 +32,9 @@ namespace ZookieWizard
     ePathFinder::ePathFinder()
     : Gadget()
     {
-        /*[0x10]*/ group_Count = 0;
-        /*[0x14]*/ group_MaxLength = 0;
-        /*[0x18]*/ group = nullptr;
+        /*[0x10]*/ points_Count = 0;
+        /*[0x14]*/ points_MaxLength = 0;
+        /*[0x18]*/ points = nullptr;
 
         /*[0x1C]*/ unknown_1C = nullptr;
         /*[0x28]*/ unknown_28 = nullptr;
@@ -44,25 +44,98 @@ namespace ZookieWizard
 
     ePathFinder::~ePathFinder()
     {
-        if (nullptr != unknown_28)
-        {
-            unknown_28->decRef();
-        }
+        unknown_28->decRef();
 
-        if (nullptr != unknown_1C)
-        {
-            unknown_1C->decRef();
-        }
+        unknown_1C->decRef();
 
-        if (nullptr != group)
+        if (nullptr != points)
         {
-            delete[](group);
+            delete[](points);
         }
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // ePathFinder serialization
+    // ePathFinder: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePathFinder::createFromOtherObject(const ePathFinder &other)
+    {
+        if (other.points_Count > 0)
+        {
+            points_MaxLength = other.points_Count;
+            points = new ePoint3 [points_MaxLength];
+
+            for (points_Count = 0; points_Count < points_MaxLength; points_Count++)
+            {
+                points[points_Count] = other.points[points_Count];
+            }
+        }
+        else
+        {
+            points_Count = 0;
+            points_MaxLength = 0;
+            points = nullptr;
+        }
+
+        /****************/
+
+        unknown_1C = other.unknown_1C;
+        if (nullptr != unknown_1C)
+        {
+            unknown_1C->incRef();
+        }
+
+        map = other.map;
+
+        unknown_24 = other.unknown_24;
+
+        unknown_28 = other.unknown_28;
+        if (nullptr != unknown_28)
+        {
+            unknown_28->incRef();
+        }
+
+        unknown_2C = other.unknown_2C;
+        unknown_30 = other.unknown_30;
+        unknown_34 = other.unknown_34;
+    }
+
+    ePathFinder::ePathFinder(const ePathFinder &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePathFinder& ePathFinder::operator = (const ePathFinder &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            if (nullptr != points)
+            {
+                delete[](points);
+            }
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePathFinder::cloneFromMe() const
+    {
+        return new ePathFinder(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePathFinder: serialization
     // <kao2.00426F80>
     ////////////////////////////////////////////////////////////////
     void ePathFinder::serialize(Archive &ar)
@@ -75,33 +148,33 @@ namespace ZookieWizard
 
         if (ar.isInReadMode())
         {
-            if (nullptr != group)
+            if (nullptr != points)
             {
-                delete[](group);
-                group = nullptr;
+                delete[](points);
+                points = nullptr;
 
-                group_MaxLength = 0;
-                group_Count = 0;
+                points_MaxLength = 0;
+                points_Count = 0;
             }
 
-            ar.readOrWrite(&group_MaxLength, 0x04);
+            ar.readOrWrite(&points_MaxLength, 0x04);
 
-            group = new ePoint3 [group_MaxLength];
+            points = new ePoint3 [points_MaxLength];
 
-            for (i = 0; i < group_MaxLength; i++)
+            for (i = 0; i < points_MaxLength; i++)
             {
-                group[i].serialize(ar);
+                points[i].serialize(ar);
 
-                group_Count = (i+1);
+                points_Count = (i+1);
             }
         }
         else
         {
-            ar.readOrWrite(&group_Count, 0x04);
+            ar.readOrWrite(&points_Count, 0x04);
 
-            for (i = 0; i < group_Count; i++)
+            for (i = 0; i < points_Count; i++)
             {
-                group[i].serialize(ar);
+                points[i].serialize(ar);
             }
         }
 

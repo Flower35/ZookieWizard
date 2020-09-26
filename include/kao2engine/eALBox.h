@@ -4,7 +4,6 @@
 #include <kao2engine/eRefCounter.h>
 
 #include <kao2ar/AxisList.h>
-
 #include <kao2ar/Collection.h>
 
 namespace ZookieWizard
@@ -15,6 +14,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eALBox interface
+    // <kao2.005D1D5C> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eALBox : public eRefCounter
@@ -44,28 +44,27 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
-        protected:
-
-            bool function_004AAB60() const;
-            void function_004A9CC0();
-            void function_004A99C0();
-            void function_004A9C80();
-            void function_004A9870();
-            uint8_t function_004A9830(eALBox* other) const;
-            bool function_004AA540(eALBox* other) const;
-            uint8_t function_004AA4F0(eALBox* other) const;
-            void function_004A9FF0(eNode* arg1, int8_t arg2) const;
-
-            /*[vptr]+0x24]*/ void function_004AA560(eALBox* other);
-            /*[vptr]+0x28]*/ void function_004AA750(eALBox* other);
-
         public:
 
             eALBox();
             ~eALBox();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eALBox &other);
+
+        public:
+
+            eALBox(const eALBox &other);
+            eALBox& operator = (const eALBox &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* <<< eALBox >> */
 
             int32_t getCollisionId() const;
             AxisList* getAxisList(int32_t row, int32_t column) const;
@@ -74,12 +73,36 @@ namespace ZookieWizard
             void createAxisListEntry(eNode* parent, float* boxBound);
 
             void function_004A9F40(eALBox* other, uint8_t row_id);
+
+        protected:
+
+            /* << eALBox >> */
+
+            bool isParentNodeInteractive() const;
+
+            uint8_t function_004A9830(eALBox* other) const;
+            void function_004A9870();
+            void function_004A99C0();
+            void function_004A9C80();
+            void function_004A9CC0();
+            void function_004A9FF0(eNode* arg1, int8_t arg2) const;
+            uint8_t function_004AA4F0(eALBox* other) const;
+            bool function_004AA540(eALBox* other) const;
+
+            /*[[vptr]+0x24]*/ void function_004AA560(eALBox* other);
+            /*[[vptr]+0x28]*/ void function_004AA750(eALBox* other);
+
+        private:
+
+            /* << eALBox >> */
+
+            void clearNewALBox();
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eALBox TypeInfo
-    // <kao2.004AAD80> (registration)
+    // <kao2.004AAD50> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ALBOX_ID = 0x01231325;

@@ -36,6 +36,46 @@ namespace ZookieWizard
         /*[0x00C4]*/ unknown_C4 = (-1);
     }
 
-    eParticleGeometry::~eParticleGeometry() {}
+    eParticleGeometry::~eParticleGeometry()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eParticleGeometry: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eParticleGeometry::createFromOtherObject(const eParticleGeometry &other)
+    {
+        unknown_58 = other.unknown_58;
+
+        unknown_BC = other.unknown_BC;
+        unknown_C0 = other.unknown_C0;
+        unknown_C4 = other.unknown_C4;
+    }
+
+    eParticleGeometry::eParticleGeometry(const eParticleGeometry &other)
+    : eGeometry(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eParticleGeometry& eParticleGeometry::operator = (const eParticleGeometry &other)
+    {
+        if ((&other) != this)
+        {
+            eGeometry::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eParticleGeometry::cloneFromMe() const
+    {
+        return new eParticleGeometry(*this);
+    }
 
 }

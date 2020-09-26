@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eBonusShooting : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,14 +28,26 @@ namespace ZookieWizard
             eBonusShooting();
             ~eBonusShooting();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eBonusShooting &other);
+
+        public:
+
+            eBonusShooting(const eBonusShooting &other);
+            eBonusShooting& operator = (const eBonusShooting &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eBonusShooting TypeInfo
-    // <kao_tw.00650FA0> (registration)
+    // <kao_tw.00650F70> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_BONUSSHOOTING_ID = 0x4147EF6E;

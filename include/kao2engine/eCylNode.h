@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eCylNode interface
+    // <kao2.005D1D98> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eCylNode : public eGeometry
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,8 +27,22 @@ namespace ZookieWizard
             eCylNode();
             ~eCylNode();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eCylNode &other);
+
+        public:
+
+            eCylNode(const eCylNode &other);
+            eCylNode& operator = (const eCylNode &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eNode >> */
 
             void renderNode(eDrawContext &draw_context) const override;
 
@@ -41,7 +55,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eCylNode TypeInfo
-    // <kao2.004AC030> (registration)
+    // <kao2.004AC000> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_CYLNODE_ID = 0x0101F34A;

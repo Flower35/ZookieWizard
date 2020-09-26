@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eEnergy : public ePowerBar
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eEnergy();
             ~eEnergy();
 
+        private:
+
+            void createFromOtherObject(const eEnergy &other);
+
+        public:
+
+            eEnergy(const eEnergy &other);
+            eEnergy& operator = (const eEnergy &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eEnergy TypeInfo
-    // <kao2.0050AEF0> (registration)
+    // <kao2.0050AEC0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ENERGY_ID = 0x2DC45EDF;

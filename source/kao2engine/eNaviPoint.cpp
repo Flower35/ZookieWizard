@@ -29,9 +29,47 @@ namespace ZookieWizard
     eNaviPoint::eNaviPoint()
     : eTransform()
     {
-        /*[0x1C]*/ flags |= 0x40000000;
+        /*[0x1C]*/
+        flags |= 0x40000000;
+        flags &= (~0x00000400);
     }
 
-    eNaviPoint::~eNaviPoint() {}
+    eNaviPoint::~eNaviPoint()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNaviPoint: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eNaviPoint::createFromOtherObject(const eNaviPoint &other)
+    {
+        flags |= 0x40000000;
+    }
+
+    eNaviPoint::eNaviPoint(const eNaviPoint &other)
+    : eTransform(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eNaviPoint& eNaviPoint::operator = (const eNaviPoint &other)
+    {
+        if ((&other) != this)
+        {
+            eTransform::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eNaviPoint::cloneFromMe() const
+    {
+        return new eNaviPoint(*this);
+    }
 
 }

@@ -15,7 +15,6 @@ namespace ZookieWizard
 
     class eNPCMap : public eGroup
     {
-
         /*** Properties ***/
 
         protected:
@@ -51,18 +50,34 @@ namespace ZookieWizard
             eNPCMap();
             ~eNPCMap();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eNPCMap &other);
+
+        public:
+
+            eNPCMap(const eNPCMap &other);
+            eNPCMap& operator = (const eNPCMap &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eNode >> */
 
             void renderNode(eDrawContext &draw_context) const override;
 
-            void customSetup(ePoint3 &box_min, ePoint3 &box_max, int32_t navis_in_group);
+            /* << eNPCMap >> */
+
+            void customMapSetup(ePoint3 &box_min, ePoint3 &box_max, int32_t navis_in_group);
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eNPCMap TypeInfo
-    // <kao2.00422660> (registration)
+    // <kao2.00422630> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_NPCMAP_ID = 0xA10000FF;

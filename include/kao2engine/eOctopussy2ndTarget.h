@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eOctopussy2ndTarget : public eSecondCameraTarget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +27,25 @@ namespace ZookieWizard
             eOctopussy2ndTarget();
             ~eOctopussy2ndTarget();
 
+        private:
+
+            void createFromOtherObject(const eOctopussy2ndTarget &other);
+
+        public:
+
+            eOctopussy2ndTarget(const eOctopussy2ndTarget &other);
+            eOctopussy2ndTarget& operator = (const eOctopussy2ndTarget &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eOctopussy2ndTarget TypeInfo
-    // <kao2.00516FD0> (registration)
+    // <kao2.00516FA0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_OCTOPUSSY2NDTARGET_ID = 0xCA3E7A21;

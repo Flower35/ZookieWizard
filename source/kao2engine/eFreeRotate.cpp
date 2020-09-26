@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eFreeRotate::~eFreeRotate() {}
+    eFreeRotate::~eFreeRotate()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eFreeRotate: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eFreeRotate::createFromOtherObject(const eFreeRotate &other)
+    {}
+
+    eFreeRotate::eFreeRotate(const eFreeRotate &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eFreeRotate& eFreeRotate::operator = (const eFreeRotate &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eFreeRotate::cloneFromMe() const
+    {
+        return new eFreeRotate(*this);
+    }
 
 }

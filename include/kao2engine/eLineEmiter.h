@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eLineEmiter interface
+    // <kao2.005D6598> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eLineEmiter : public eParticleEmiter
     {
-
         /*** Properties ***/
 
         protected:
@@ -32,14 +32,26 @@ namespace ZookieWizard
             eLineEmiter();
             ~eLineEmiter();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eLineEmiter &other);
+
+        public:
+
+            eLineEmiter(const eLineEmiter &other);
+            eLineEmiter& operator = (const eLineEmiter &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eLineEmiter TypeInfo
-    // <kao2.005537A0> (registration)
+    // <kao2.00553770> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_LINEEMITER_ID = 0x0001E002;

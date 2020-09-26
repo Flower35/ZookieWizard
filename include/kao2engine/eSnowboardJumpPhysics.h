@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSnowboardJumpPhysics : public eJumpPhysics
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eSnowboardJumpPhysics();
             ~eSnowboardJumpPhysics();
 
+        private:
+
+            void createFromOtherObject(const eSnowboardJumpPhysics &other);
+
+        public:
+
+            eSnowboardJumpPhysics(const eSnowboardJumpPhysics &other);
+            eSnowboardJumpPhysics& operator = (const eSnowboardJumpPhysics &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSnowboardJumpPhysics TypeInfo
-    // <kao2.004E59A0> (registration)
+    // <kao2.004E5970> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SNOWBOARDJUMPPHYSICS_ID = 0x3B950C42;

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class ePadSeqeunce : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +27,25 @@ namespace ZookieWizard
             ePadSeqeunce();
             ~ePadSeqeunce();
 
+        private:
+
+            void createFromOtherObject(const ePadSeqeunce &other);
+
+        public:
+
+            ePadSeqeunce(const ePadSeqeunce &other);
+            ePadSeqeunce& operator = (const ePadSeqeunce &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // ePadSeqeunce TypeInfo
-    // <kao2.005239A0> (registration)
+    // <kao2.00523970> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PADSEQEUNCE_ID = 0x3F1A9115;

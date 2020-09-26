@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eGravitation::~eGravitation() {}
+    eGravitation::~eGravitation()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGravitation: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eGravitation::createFromOtherObject(const eGravitation &other)
+    {}
+
+    eGravitation::eGravitation(const eGravitation &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eGravitation& eGravitation::operator = (const eGravitation &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eGravitation::cloneFromMe() const
+    {
+        return new eGravitation(*this);
+    }
 
 }

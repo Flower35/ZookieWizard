@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSplineHintFollowCameraCtrl : public eFollowCameraCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,13 +26,25 @@ namespace ZookieWizard
             eSplineHintFollowCameraCtrl();
             ~eSplineHintFollowCameraCtrl();
 
+        private:
+
+            void createFromOtherObject(const eSplineHintFollowCameraCtrl &other);
+
+        public:
+
+            eSplineHintFollowCameraCtrl(const eSplineHintFollowCameraCtrl &other);
+            eSplineHintFollowCameraCtrl& operator = (const eSplineHintFollowCameraCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSplineHintFollowCameraCtrl TypeInfo
-    // <kao2.004D79A0> (registration)
+    // <kao2.004D7970> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SPLINEHINTFOLLOWCAMERACTRL_ID = 0x123400CD;

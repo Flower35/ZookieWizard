@@ -42,7 +42,54 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eXRefTarget serialization
+    // eXRefTarget: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eXRefTarget::createFromOtherObject(const eXRefTarget &other)
+    {
+        scene = other.scene;
+
+        if (nullptr != scene)
+        {
+            scene->incRef();
+        }
+
+        fileName = other.fileName;
+    }
+
+
+    eXRefTarget::eXRefTarget(const eXRefTarget &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eXRefTarget& eXRefTarget::operator = (const eXRefTarget &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            scene->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eXRefTarget::cloneFromMe() const
+    {
+        return new eXRefTarget(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eXRefTarget: serialization
     // <kao2.004AD030>
     ////////////////////////////////////////////////////////////////
     void eXRefTarget::serialize(Archive &ar)
@@ -83,11 +130,21 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefTarget: set name and load target (used with eProxy)
     ////////////////////////////////////////////////////////////////
-    bool eXRefTarget::loadTarget(eString media_dir, int32_t engine_version, int32_t ar_flags, eString model_name)
+    eXRefTarget* eXRefTarget::loadTarget(const eString &media_dir, const eString &model_name, int32_t engine_version, int32_t ar_flags)
     {
-        bool result = false;
+        eXRefTarget* result = nullptr;
         eScene* previous_scene;
+
         Archive parallel_ar(media_dir);
+        eString full_path = ArFunctions::getFullArchivePath(model_name, media_dir, engine_version, ar_flags);
+
+        /* Check if this proxy already exists */
+        if (nullptr != (result = (eXRefTarget*)nodesManager_GetProxyTarget(&full_path)))
+        {
+            return result;
+        }
+
+        /********************************/
 
         fileName = model_name;
 
@@ -104,24 +161,31 @@ namespace ZookieWizard
         {
             parallel_ar.open
             (
-                fileName,
-                ((AR_MODE_READ | ar_flags) & (~ AR_MODE_WRITE)),
+                full_path,
+                (AR_MODE_IS_PROXY | AR_MODE_READ),
                 engine_version,
-                true,
                 0
             );
 
             parallel_ar.copySceneFromMe(&scene);
-
-            result = true;
         }
-        catch (ErrorMessage &e)
+        catch (ErrorMessage &err)
         {
-            e.display();
+            err.display();
         }
 
         /* Restore parent scene */
         ArFunctions::setCurrentScene(previous_scene);
+
+        /* Save this path, even if the Archive was not found (to avoid multiple errors for the same "eProxy") */
+        if (!nodesManager_InsertProxyTarget(&full_path, (result = this)))
+        {
+            result = nullptr;
+        }
+        else if ((nullptr != result) && (nullptr == (result->scene)))
+        {
+            result = nullptr;
+        }
 
         return result;
     }
@@ -130,10 +194,12 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefTarget: save external model to a separate AR file
     ////////////////////////////////////////////////////////////////
-    void eXRefTarget::exportTarget(eString media_dir, int32_t engine_version, int32_t ar_flags) const
+    void eXRefTarget::exportTarget(const eString &media_dir, int32_t engine_version, int32_t ar_flags) const
     {
         eScene* previous_scene;
+
         Archive parallel_ar(media_dir);
+        eString full_path = ArFunctions::getFullArchivePath(fileName, media_dir, engine_version, ar_flags);
 
         if (nullptr != scene)
         {
@@ -150,10 +216,9 @@ namespace ZookieWizard
             {
                 parallel_ar.open
                 (
-                    fileName,
-                    ((AR_MODE_WRITE | ar_flags) & (~ AR_MODE_READ)),
+                    full_path,
+                    (AR_MODE_IS_PROXY | AR_MODE_WRITE),
                     engine_version,
-                    true,
                     0
                 );
             }

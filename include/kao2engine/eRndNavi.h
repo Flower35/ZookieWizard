@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eRndNavi : public eNaviCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eRndNavi();
             ~eRndNavi();
 
+        private:
+
+            void createFromOtherObject(const eRndNavi &other);
+
+        public:
+
+            eRndNavi(const eRndNavi &other);
+            eRndNavi& operator = (const eRndNavi &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eRndNavi TypeInfo
-    // <kao2.00429DC0> (registration)
+    // <kao2.00429D90> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_RNDNAVI_ID = 0xFE010030;

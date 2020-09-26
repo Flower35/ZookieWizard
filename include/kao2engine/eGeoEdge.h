@@ -10,11 +10,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eGeoEdge interface
+    // <kao2.005E1030> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eGeoEdge : public eGeometry
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,8 +28,22 @@ namespace ZookieWizard
             eGeoEdge();
             ~eGeoEdge();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eGeoEdge &other);
+
+        public:
+
+            eGeoEdge(const eGeoEdge &other);
+            eGeoEdge& operator = (const eGeoEdge &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eNode >> */
 
             void renderNode(eDrawContext &draw_context) const override;
 
@@ -43,7 +57,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eGeoEdge TypeInfo
-    // <kao2.005ADDA0> (registration)
+    // <kao2.005ADD70> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_GEOEDGE_ID = 0x034567FE;

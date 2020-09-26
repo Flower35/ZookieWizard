@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eCredits::~eCredits() {}
+    eCredits::~eCredits()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCredits: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eCredits::createFromOtherObject(const eCredits &other)
+    {}
+
+    eCredits::eCredits(const eCredits &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eCredits& eCredits::operator = (const eCredits &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eCredits::cloneFromMe() const
+    {
+        return new eCredits(*this);
+    }
 
 }

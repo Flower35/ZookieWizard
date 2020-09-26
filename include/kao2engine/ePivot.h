@@ -10,11 +10,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // ePivot interface
+    // <kao2.005D1140> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class ePivot : public eTransform
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,10 +29,24 @@ namespace ZookieWizard
             ePivot();
             ~ePivot();
 
-            void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+        private:
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
+            void createFromOtherObject(const ePivot &other);
+
+        public:
+
+            ePivot(const ePivot &other);
+            ePivot& operator = (const ePivot &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
+            TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
+
+            /* << eNode >> */
 
             void updateBeforeRendering(eDrawContext &draw_context) override;
             void renderNode(eDrawContext &draw_context) const override;
@@ -40,6 +54,8 @@ namespace ZookieWizard
             void editingNewNodeSetup() override;
 
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
+
+            /* << ePivot >> */
 
             void rebuildEmptyAnimState(bool is_root);
 
@@ -51,7 +67,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // ePivot TypeInfo
-    // <kao2.0x00487090> (registration)
+    // <kao2.00487060> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PIVOT_ID = 0x00AA3456;

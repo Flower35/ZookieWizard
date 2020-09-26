@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eRealTimeClock : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eRealTimeClock();
             ~eRealTimeClock();
 
+        private:
+
+            void createFromOtherObject(const eRealTimeClock &other);
+
+        public:
+
+            eRealTimeClock(const eRealTimeClock &other);
+            eRealTimeClock& operator = (const eRealTimeClock &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eRealTimeClock TypeInfo
-    // <kao2.00445C70> (registration)
+    // <kao2.00445C40> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_REALTIMECLOCK_ID = 0x3A2CB899;

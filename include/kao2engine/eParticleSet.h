@@ -19,6 +19,8 @@ namespace ZookieWizard
     {
         /*** Properties ***/
 
+        public:
+
             /*[0x00]*/ float unknown_00;
             /*[0x04]*/ float unknown_04;
             /*[0x08]*/ float unknown_08;
@@ -38,17 +40,19 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
+        public:
+
             void serialize(Archive &ar);
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eParticleSet interface
+    // <kao2.005D6A98> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eParticleSet : public eParticleGeometry
     {
-
         /*** Properties ***/
 
         protected:
@@ -98,14 +102,26 @@ namespace ZookieWizard
             eParticleSet();
             ~eParticleSet();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eParticleSet &other);
+
+        public:
+
+            eParticleSet(const eParticleSet &other);
+            eParticleSet& operator = (const eParticleSet &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eParticleSet TypeInfo
-    // <kao2.00559960> (registration)
+    // <kao2.00559930> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PARTICLESET_ID = 0x12ABF012;

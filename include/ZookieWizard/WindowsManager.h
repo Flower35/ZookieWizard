@@ -129,6 +129,8 @@ namespace ZookieWizard
 
                 void displayMessage(uint8_t type, const char* text) const;
 
+                bool askQuestion(const char* text) const;
+
                 LRESULT overriddenListboxKeyDispatch(HWND listbox_window, uint16_t keycode) const;
         };
 

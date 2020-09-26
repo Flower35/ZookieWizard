@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eSnd interface
+    // <kao2.005CEEC8> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eSnd : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +28,25 @@ namespace ZookieWizard
             eSnd();
             ~eSnd();
 
+        private:
+
+            void createFromOtherObject(const eSnd &other);
+
+        public:
+
+            eSnd(const eSnd &other);
+            eSnd& operator = (const eSnd &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSnd TypeInfo
-    // <kao2.00439D80> (registration)
+    // <kao2.00439D50> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SND_ID = 0x39D5A028;

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eFocMill471Deflector : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,14 +27,26 @@ namespace ZookieWizard
             eFocMill471Deflector();
             ~eFocMill471Deflector();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eFocMill471Deflector &other);
+
+        public:
+
+            eFocMill471Deflector(const eFocMill471Deflector &other);
+            eFocMill471Deflector& operator = (const eFocMill471Deflector &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFocMill471Deflector TypeInfo
-    // <kao_tw.005B5D10> (registration)
+    // <kao_tw.005B5CE0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FOCMILL471DEFLECTOR_ID = 0x05072618;

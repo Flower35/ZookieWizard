@@ -74,25 +74,123 @@ namespace ZookieWizard
 
     eParticleSet::~eParticleSet()
     {
-        if (nullptr != unknown_00E0)
+        unknown_00E0->decRef();
+        unknown_00DC->decRef();
+        unknown_00D8->decRef();
+        unknown_00D4->decRef();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eParticleSet: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eParticleSet::createFromOtherObject(const eParticleSet &other)
+    {
+        groupA_MaxLength = other.groupA_Count;
+
+        if (groupA_MaxLength > 0)
         {
-            unknown_00E0->decRef();
+            groupA = new eParticleSetBase [groupA_MaxLength];
+
+            for (groupA_Count = 0; groupA_Count < groupA_MaxLength; groupA_Count++)
+            {
+                groupA[groupA_Count] = other.groupA[groupA_Count];
+            }
+        }
+        else
+        {
+            groupA_Count = 0;
+            groupA = nullptr;
         }
 
-        if (nullptr != unknown_00DC)
-        {
-            unknown_00DC->decRef();
-        }
+        /****************/
 
-        if (nullptr != unknown_00D8)
-        {
-            unknown_00D8->decRef();
-        }
-
+        unknown_00D4 = other.unknown_00D4;
         if (nullptr != unknown_00D4)
         {
-            unknown_00D4->decRef();
+            unknown_00D4->incRef();
         }
+
+        unknown_00D8 = other.unknown_00D8;
+        if (nullptr != unknown_00D8)
+        {
+            unknown_00D8->incRef();
+        }
+
+        unknown_00DC = other.unknown_00DC;
+        if (nullptr != unknown_00DC)
+        {
+            unknown_00DC->incRef();
+        }
+
+        unknown_00E0 = other.unknown_00E0;
+        if (nullptr != unknown_00E0)
+        {
+            unknown_00E0->incRef();
+        }
+
+        /****************/
+
+        unknown_0124 = other.unknown_0124;
+        unknown_0128 = other.unknown_0128;
+
+        unknown_011E = other.unknown_011E;
+
+        unknown_00E4 = other.unknown_00E4;
+        unknown_BC   = other.unknown_BC;
+        unknown_00E8 = other.unknown_00E8;
+        unknown_00EC = other.unknown_00EC;
+        unknown_00F0 = other.unknown_00F0;
+
+        unknown_00F4 = other.unknown_00F4;
+        unknown_00FC = other.unknown_00FC;
+        unknown_00F8 = other.unknown_00F8;
+        unknown_0100 = other.unknown_0100;
+        unknown_0104 = other.unknown_0104;
+        unknown_0118 = other.unknown_0118;
+        unknown_0119 = other.unknown_0119;
+        unknown_011A = other.unknown_011A;
+        unknown_0108 = other.unknown_0108;
+        unknown_010C = other.unknown_010C;
+        unknown_0110 = other.unknown_0110;
+        unknown_0114 = other.unknown_0114;
+        unknown_011B = other.unknown_011B;
+        unknown_011C = other.unknown_011C;
+        unknown_011D = other.unknown_011D;
+        unknown_0120 = other.unknown_0120;
+    }
+
+    eParticleSet::eParticleSet(const eParticleSet &other)
+    : eParticleGeometry(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eParticleSet& eParticleSet::operator = (const eParticleSet &other)
+    {
+        if ((&other) != this)
+        {
+            eParticleGeometry::operator = (other);
+
+            /****************/
+
+            unknown_00E0->decRef();
+            unknown_00DC->decRef();
+            unknown_00D8->decRef();
+            unknown_00D4->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eParticleSet::cloneFromMe() const
+    {
+        return new eParticleSet(*this);
     }
 
 
@@ -100,7 +198,6 @@ namespace ZookieWizard
     // Unknown structure
     // <kao2.005594A0> (serialization)
     ////////////////////////////////////////////////////////////////
-
     void eParticleSetBase::serialize(Archive &ar)
     {
         ar.readOrWrite(&unknown_0C, 0x04);
@@ -129,7 +226,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eParticleSet serialization
+    // eParticleSet: serialization
     // <kao2.00558FF0>
     ////////////////////////////////////////////////////////////////
     void eParticleSet::serialize(Archive &ar)
@@ -172,7 +269,7 @@ namespace ZookieWizard
         }
 
         /* [0x0124] unknown */
-        
+
         ar.readOrWrite(&unknown_0124, 0x04);
 
         /* [0x0128] unknown */

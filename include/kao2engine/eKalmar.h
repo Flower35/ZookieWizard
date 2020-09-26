@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eKalmar : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eKalmar();
             ~eKalmar();
 
+        private:
+
+            void createFromOtherObject(const eKalmar &other);
+
+        public:
+
+            eKalmar(const eKalmar &other);
+            eKalmar& operator = (const eKalmar &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eKalmar TypeInfo
-    // <kao2.00527DA0> (registration)
+    // <kao2.00527D70> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_KALMAR_ID = 0x01234321;

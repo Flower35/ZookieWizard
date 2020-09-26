@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eLookAtCtrl : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eLookAtCtrl();
             ~eLookAtCtrl();
 
+        private:
+
+            void createFromOtherObject(const eLookAtCtrl &other);
+
+        public:
+
+            eLookAtCtrl(const eLookAtCtrl &other);
+            eLookAtCtrl& operator = (const eLookAtCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eLookAtCtrl TypeInfo
-    // <kao2.004D0C80> (registration)
+    // <kao2.004D0C50> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_LOOKATCTRL_ID = 0x3C1A9205;

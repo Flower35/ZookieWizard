@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eVisibilityCtrl : public Gadget
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             eVisibilityCtrl();
             ~eVisibilityCtrl();
 
+        private:
+
+            void createFromOtherObject(const eVisibilityCtrl &other);
+
+        public:
+
+            eVisibilityCtrl(const eVisibilityCtrl &other);
+            eVisibilityCtrl& operator = (const eVisibilityCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eVisibilityCtrl TypeInfo
-    // <kao2.004304E0> (registration)
+    // <kao2.004304B0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_VISIBILITYCTRL_ID = 0xFAC13020;

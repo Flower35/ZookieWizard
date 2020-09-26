@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eAnimNotyfier::~eAnimNotyfier() {}
+    eAnimNotyfier::~eAnimNotyfier()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eAnimNotyfier: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eAnimNotyfier::createFromOtherObject(const eAnimNotyfier &other)
+    {}
+
+    eAnimNotyfier::eAnimNotyfier(const eAnimNotyfier &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eAnimNotyfier& eAnimNotyfier::operator = (const eAnimNotyfier &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eAnimNotyfier::cloneFromMe() const
+    {
+        return new eAnimNotyfier(*this);
+    }
 
 }

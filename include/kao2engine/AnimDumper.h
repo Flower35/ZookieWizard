@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class AnimDumper : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             AnimDumper();
             ~AnimDumper();
 
+        private:
+
+            void createFromOtherObject(const AnimDumper &other);
+
+        public:
+
+            AnimDumper(const AnimDumper &other);
+            AnimDumper& operator = (const AnimDumper &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // AnimDumper TypeInfo
-    // <kao2.005AF790> (registration)
+    // <kao2.005AF760> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ANIMDUMPER_ID = 0x00020007;

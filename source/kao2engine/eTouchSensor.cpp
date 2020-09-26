@@ -30,11 +30,50 @@ namespace ZookieWizard
     : eGroup()
     {}
 
-    eTouchSensor::~eTouchSensor() {}
+    eTouchSensor::~eTouchSensor()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eTouchSensor serialization
+    // eTouchSensor: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eTouchSensor::createFromOtherObject(const eTouchSensor &other)
+    {
+        for (int32_t a = 0; a < 4; a++)
+        {
+            actionTables[a] = other.actionTables[a];
+        }
+    }
+
+    eTouchSensor::eTouchSensor(const eTouchSensor &other)
+    : eGroup(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eTouchSensor& eTouchSensor::operator = (const eTouchSensor &other)
+    {
+        if ((&other) != this)
+        {
+            eGroup::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eTouchSensor::cloneFromMe() const
+    {
+        return new eTouchSensor(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTouchSensor: serialization
     // <kao2.004BAAD0>
     ////////////////////////////////////////////////////////////////
     void eTouchSensor::serialize(Archive &ar)

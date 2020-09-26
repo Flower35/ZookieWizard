@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eCameraShaker::~eCameraShaker() {}
+    eCameraShaker::~eCameraShaker()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCameraShaker: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eCameraShaker::createFromOtherObject(const eCameraShaker &other)
+    {}
+
+    eCameraShaker::eCameraShaker(const eCameraShaker &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eCameraShaker& eCameraShaker::operator = (const eCameraShaker &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eCameraShaker::cloneFromMe() const
+    {
+        return new eCameraShaker(*this);
+    }
 
 }

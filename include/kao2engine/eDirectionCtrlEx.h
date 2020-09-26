@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eDirectionCtrlEx : public eDirectionCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,13 +26,25 @@ namespace ZookieWizard
             eDirectionCtrlEx();
             ~eDirectionCtrlEx();
 
+        private:
+
+            void createFromOtherObject(const eDirectionCtrlEx &other);
+
+        public:
+
+            eDirectionCtrlEx(const eDirectionCtrlEx &other);
+            eDirectionCtrlEx& operator = (const eDirectionCtrlEx &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eDirectionCtrlEx TypeInfo
-    // <kao2.00461950> (registration)
+    // <kao2.00461920> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_DIRECTIONCTRLEX_ID = 0x00FEBEF1;

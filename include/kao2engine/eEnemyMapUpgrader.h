@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eEnemyMapUpgrader interface
+    // <kao2.005D0108> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eEnemyMapUpgrader : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +28,25 @@ namespace ZookieWizard
             eEnemyMapUpgrader();
             ~eEnemyMapUpgrader();
 
+        private:
+
+            void createFromOtherObject(const eEnemyMapUpgrader &other);
+
+        public:
+
+            eEnemyMapUpgrader(const eEnemyMapUpgrader &other);
+            eEnemyMapUpgrader& operator = (const eEnemyMapUpgrader &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eEnemyMapUpgrader TypeInfo
-    // <kao2.0045D410> (registration)
+    // <kao2.0045D3E0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ENEMYMAPUPGRADER_ID = 0x3A5EB586;

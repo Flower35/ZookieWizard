@@ -1,6 +1,7 @@
 #include <kao2engine/Actor.h>
 #include <kao2ar/Archive.h>
 
+#include <ZookieWizard/WindowsManager.h>
 #include <kao2engine/Log.h>
 #include <kao2engine/eTrack.h>
 
@@ -42,7 +43,64 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Actor serialization
+    // Actor: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void Actor::createFromOtherObject(const Actor &other)
+    {
+        script = nullptr;
+
+        scriptPath = other.scriptPath;
+
+        if ((nullptr != other.script) || (other.unknown_04D0.getSize() > 0) || (other.unknown_04DC.getSize() > 0))
+        {
+            GUI::theWindowsManager.displayMessage
+            (
+                WINDOWS_MANAGER_MESSAGE_WARNING,
+                    "WARNING: You are trying to clone the \"Actor\" object with a precompiled script.\n\n" \
+                    "This operation is currently not supported.\n\n" \
+                    "The new \"Actor\" will contain an empty \"Namespace\" (no states and no gadgets)." \
+            );
+        }
+    }
+
+
+    Actor::Actor(const Actor &other)
+    : ePivot(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    Actor& Actor::operator = (const Actor &other)
+    {
+        if ((&other) != this)
+        {
+            ePivot::operator = (other);
+
+            /****************/
+
+            script->decRef();
+
+            unknown_04D0.clear();
+
+            unknown_04DC.clear();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* Actor::cloneFromMe() const
+    {
+        return new Actor(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Actor: serialization
     // <kao2.00571510>
     ////////////////////////////////////////////////////////////////
     void Actor::serialize(Archive &ar)
@@ -80,14 +138,6 @@ namespace ZookieWizard
 
         ar.serializeString(scriptPath);
 
-        if (ar.isInExportScriptsMode())
-        {
-            if (ar.checkGameEngine(GAME_VERSION_KAO2_PL_PC, (-1)))
-            {
-                saveMyScript(ar);
-            }
-        }
-
         /* Unknown groups (possibly NodeRefs and Gadgets) */
 
         if (ar.getVersion() >= 0x89)
@@ -102,18 +152,17 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Actor: export readable structure
     ////////////////////////////////////////////////////////////////
-    void Actor::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
+    void Actor::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
     {
-        int32_t i;
+        int32_t a;
         eNode* test_node;
+        eString test_str;
 
         char bufor[128];
-        eString test_str;
-        eTrack* test_track;
 
         /* "eNode" parent class */
 
-        eNode::writeStructureToTextFile(file, indentation);
+        ePivot::writeStructureToTextFile(file, indentation, true);
 
         /* "Actor" additional info */
 
@@ -140,75 +189,16 @@ namespace ZookieWizard
         file << bufor;
         ArFunctions::writeNewLine(file, 0);
 
-        /* "ePivot" additional info */
-
-        for (i = 0; i < animations.tracks.getSize(); i++)
-        {
-            test_track = (eTrack*)animations.tracks.getIthChild(i);
-            sprintf_s
-            (
-                bufor, 128,
-                " - track [%d]: \"%s\" [%.2f, %.2f]",
-                i,
-                test_track->getStringRepresentation().getText(),
-                test_track->getStartFrame(),
-                test_track->getEndFrame()
-            );
-
-            ArFunctions::writeIndentation(file, indentation);
-            file << bufor;
-            ArFunctions::writeNewLine(file, 0);
-        }
-
-        /* "eTransform" parent class */
-
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform pos: (%f, %f, %f)",
-            defaultTransform.pos.x,
-            defaultTransform.pos.y,
-            defaultTransform.pos.z
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
-
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform rot: (%f, %f, %f, %f)",
-            defaultTransform.rot.x,
-            defaultTransform.rot.y,
-            defaultTransform.rot.z,
-            defaultTransform.rot.w
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
-
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform scl: (%f)",
-            defaultTransform.scale
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
-
         /* "eGroup" parent class */
 
-        for (i = 0; i < nodes.getSize(); i++)
+        if (!group_written)
         {
-            test_node = (eNode*)nodes.getIthChild(i);
-
-            if (nullptr != test_node)
+            for (a = 0; a < nodes.getSize(); a++)
             {
-                test_node->writeStructureToTextFile(file, (indentation + 1));
+                if (nullptr != (test_node = (eNode*)nodes.getIthChild(a)))
+                {
+                    test_node->writeStructureToTextFile(file, (indentation + 1), false);
+                }
             }
         }
     }
@@ -312,7 +302,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Actor: save script file
     ////////////////////////////////////////////////////////////////
-    void Actor::saveMyScript(Archive &ar) const
+    void Actor::exportScripts(const eString &media_dir) const
     {
         FileOperator file;
         eString result;
@@ -329,16 +319,16 @@ namespace ZookieWizard
             {
                 if ('?' == scriptPath.getText()[0])
                 {
-                    result += ar.getMediaDir();
+                    result += media_dir;
                     result += "scripts/";
                     result += name;
                     result += ".def";
 
                     has_question_mark = true;
                 }
-                else if (nullptr != script)
+                else if ((nullptr != script) && (script->canBeExported()))
                 {
-                    result += ar.getMediaDir();
+                    result += media_dir;
                     result += scriptPath;
 
                     is_not_empty = true;
@@ -356,7 +346,7 @@ namespace ZookieWizard
                     {
                         throw ErrorMessage
                         (
-                            "Actor::saveScript():\n" \
+                            "Actor::exportScripts():\n" \
                             "Could not create directory: \"%s\"",
                             full_path
                         );
@@ -366,7 +356,7 @@ namespace ZookieWizard
                     {
                         throw ErrorMessage
                         (
-                            "Actor::saveScript():\n" \
+                            "Actor::exportScripts():\n" \
                             "Could not open file: \"%s\"",
                             full_path
                         );
@@ -394,6 +384,10 @@ namespace ZookieWizard
         {
             e.display();
         }
+
+        /****************/
+
+        eGroup::exportScripts(media_dir);
     }
 
 }

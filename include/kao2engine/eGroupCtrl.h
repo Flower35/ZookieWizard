@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eGroupCtrl : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,8 +27,22 @@ namespace ZookieWizard
             eGroupCtrl();
             ~eGroupCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eGroupCtrl &other);
+
+        public:
+
+            eGroupCtrl(const eGroupCtrl &other);
+            eGroupCtrl& operator = (const eGroupCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << Gadget >> */
 
             eString getDefaultGadgetName() const override;
     };
@@ -37,7 +50,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eGroupCtrl TypeInfo
-    // <kao2.0042CB20> (registration)
+    // <kao2.0042CAF0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_GROUPCTRL_ID = 0xFA013020;

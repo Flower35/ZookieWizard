@@ -16,6 +16,8 @@ namespace ZookieWizard
     {
         /*** Properties ***/
 
+        public:
+
             /*[0x04]*/ eNode* nodeTarget;
             /*[0x08]*/ eString message;
             /*[0x0C]*/ eCameraZonePacket* cameraPacket;
@@ -26,10 +28,19 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
+        public:
+
             eActionBase();
             ~eActionBase();
 
-            eActionBase& operator = (const eActionBase &otherAction);
+        private:
+
+            void createFromOtherObject(const eActionBase &other);
+
+        public:
+
+            eActionBase(const eActionBase &other);
+            eActionBase& operator = (const eActionBase &other);
 
             void serializeAction(Archive &ar);
     };
@@ -37,11 +48,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eActionTable interface
+    // <kao2.005D1860> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eActionTable : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -57,10 +68,24 @@ namespace ZookieWizard
             eActionTable();
             ~eActionTable();
 
-            void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+        private:
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation) const override;
+            void createFromOtherObject(const eActionTable &other);
+
+        public:
+
+            eActionTable(const eActionTable &other);
+            eActionTable& operator = (const eActionTable &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
+            TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
+
+            /* << eActionTable >> */
 
             void deleteIthAction(int32_t i);
             void findAndDeleteActionsWithNode(const eNode* target);
@@ -72,7 +97,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eActionTable TypeInfo
-    // <kao2.004AF970> (registration)
+    // <kao2.004AF940> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ACTIONTABLE_ID = 0xFC00;

@@ -36,11 +36,48 @@ namespace ZookieWizard
         /*[0x0220]*/ unknown_0220 = 256.0f;
     }
 
-    ePlaneEmiter::~ePlaneEmiter() {}
+    ePlaneEmiter::~ePlaneEmiter()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // ePlaneEmiter serialization
+    // ePlaneEmiter: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePlaneEmiter::createFromOtherObject(const ePlaneEmiter &other)
+    {
+        unknown_021C = other.unknown_021C;
+        unknown_0220 = other.unknown_0220;
+    }
+
+    ePlaneEmiter::ePlaneEmiter(const ePlaneEmiter &other)
+    : eParticleEmiter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePlaneEmiter& ePlaneEmiter::operator = (const ePlaneEmiter &other)
+    {
+        if ((&other) != this)
+        {
+            eParticleEmiter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePlaneEmiter::cloneFromMe() const
+    {
+        return new ePlaneEmiter(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePlaneEmiter: serialization
     // <kao2.005530E0>
     ////////////////////////////////////////////////////////////////
     void ePlaneEmiter::serialize(Archive &ar)

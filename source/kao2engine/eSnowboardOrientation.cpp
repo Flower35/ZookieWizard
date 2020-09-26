@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eBasePhysics()
     {}
 
-    eSnowboardOrientation::~eSnowboardOrientation() {}
+    eSnowboardOrientation::~eSnowboardOrientation()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSnowboardOrientation: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSnowboardOrientation::createFromOtherObject(const eSnowboardOrientation &other)
+    {}
+
+    eSnowboardOrientation::eSnowboardOrientation(const eSnowboardOrientation &other)
+    : eBasePhysics(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSnowboardOrientation& eSnowboardOrientation::operator = (const eSnowboardOrientation &other)
+    {
+        if ((&other) != this)
+        {
+            eBasePhysics::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSnowboardOrientation::cloneFromMe() const
+    {
+        return new eSnowboardOrientation(*this);
+    }
 
 }

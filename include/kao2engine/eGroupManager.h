@@ -14,7 +14,6 @@ namespace ZookieWizard
 
     class eGroupManager : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -34,14 +33,26 @@ namespace ZookieWizard
             eGroupManager();
             ~eGroupManager();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eGroupManager &other);
+
+        public:
+
+            eGroupManager(const eGroupManager &other);
+            eGroupManager& operator = (const eGroupManager &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eGroupManager TypeInfo
-    // <kao2.0042C930> (registration)
+    // <kao2.0042C900> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_GROUPMANAGER_ID = 0x00FA9283;

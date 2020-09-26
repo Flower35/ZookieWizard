@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eSnow()
     {}
 
-    eRain::~eRain() {}
+    eRain::~eRain()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eRain: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eRain::createFromOtherObject(const eRain &other)
+    {}
+
+    eRain::eRain(const eRain &other)
+    : eSnow(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eRain& eRain::operator = (const eRain &other)
+    {
+        if ((&other) != this)
+        {
+            eSnow::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eRain::cloneFromMe() const
+    {
+        return new eRain(*this);
+    }
 
 }

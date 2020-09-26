@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    ePadSeqeunce::~ePadSeqeunce() {}
+    ePadSeqeunce::~ePadSeqeunce()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePadSeqeunce: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePadSeqeunce::createFromOtherObject(const ePadSeqeunce &other)
+    {}
+
+    ePadSeqeunce::ePadSeqeunce(const ePadSeqeunce &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePadSeqeunce& ePadSeqeunce::operator = (const ePadSeqeunce &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePadSeqeunce::cloneFromMe() const
+    {
+        return new ePadSeqeunce(*this);
+    }
 
 }

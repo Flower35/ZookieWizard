@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eLevelChanger::~eLevelChanger() {}
+    eLevelChanger::~eLevelChanger()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLevelChanger: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eLevelChanger::createFromOtherObject(const eLevelChanger &other)
+    {}
+
+    eLevelChanger::eLevelChanger(const eLevelChanger &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eLevelChanger& eLevelChanger::operator = (const eLevelChanger &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eLevelChanger::cloneFromMe() const
+    {
+        return new eLevelChanger(*this);
+    }
 
 }

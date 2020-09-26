@@ -10,27 +10,15 @@ namespace ZookieWizard
 {
 
     ////////////////////////////////////////////////////////////////
-    // AxisList
+    // AxisList: Constructor and Descructor
     // <kao2.004BAC80> (costructor)
+    // <kao2.004BACA0> (destructor)
     ////////////////////////////////////////////////////////////////
     AxisList::AxisList()
     {
-        /*[0x00]*/ previous = nullptr;
-        /*[0x04]*/ next = nullptr;
-        /*[0x08]*/ coordLimit = 0;
-        /*[0x0C]*/ alboxEntryId = (-1);
-        /*[0x0E]*/ columnId = 0;
-        /*[0x0F]*/ rowId = 0;
-
-        tempPreviousId = 0;
-        tempNextId = 0;
+        clearNewAxisList();
     }
 
-
-    ////////////////////////////////////////////////////////////////
-    // AxisList
-    // <kao2.004BACA0> (destructor)
-    ////////////////////////////////////////////////////////////////
     AxisList::~AxisList()
     {
         if (nullptr != next)
@@ -46,8 +34,39 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // AxisList
-    // <kao2.004BAEF0> (serialization)
+    // AxisList: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void AxisList::createFromOtherObject(const AxisList &other)
+    {
+        throw ErrorMessage
+        (
+            "CRITICAL ERROR while cloning the \"AxisList\" object:\n" \
+            "cloning << axis lists >> without context is not supported!!!"
+        );
+    }
+
+    AxisList::AxisList(const AxisList &other)
+    {
+        clearNewAxisList();
+
+        createFromOtherObject(other);
+    }
+
+    AxisList& AxisList::operator = (const AxisList &other)
+    {
+        if ((&other) != this)
+        {
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // AxisList: serialization
+    // <kao2.004BAEF0>
     ////////////////////////////////////////////////////////////////
     void AxisList::serialize(Archive &ar)
     {
@@ -288,6 +307,23 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // AxisList: clear this object
+    ////////////////////////////////////////////////////////////////
+    void AxisList::clearNewAxisList()
+    {
+        /*[0x00]*/ previous = nullptr;
+        /*[0x04]*/ next = nullptr;
+        /*[0x08]*/ coordLimit = 0;
+        /*[0x0C]*/ alboxEntryId = (-1);
+        /*[0x0E]*/ columnId = 0;
+        /*[0x0F]*/ rowId = 0;
+
+        tempPreviousId = 0;
+        tempNextId = 0;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Generate AxisList pointers
     // <kao2.005A589E>
     // Arg4 = <kao2.004BCDC0>
@@ -335,6 +371,11 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void ArFunctions::destroy_AxisList_pointers(AxisList** pointer, int32_t arg2, int32_t arg3)
     {
+        if (nullptr == pointer)
+        {
+            return;
+        }
+
         int32_t i;
         int32_t j = (arg2 / 0x04) * (arg3 - 1);
 

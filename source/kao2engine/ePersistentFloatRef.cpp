@@ -32,6 +32,40 @@ namespace ZookieWizard
         id = 0;
     }
 
-    ePersistentFloatRef::~ePersistentFloatRef() {}
+    ePersistentFloatRef::~ePersistentFloatRef()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePersistentFloatRef: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePersistentFloatRef::createFromOtherObject(const ePersistentFloatRef &other)
+    {}
+
+    ePersistentFloatRef::ePersistentFloatRef(const ePersistentFloatRef &other)
+    : Float(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePersistentFloatRef& ePersistentFloatRef::operator = (const ePersistentFloatRef &other)
+    {
+        if ((&other) != this)
+        {
+            Float::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePersistentFloatRef::cloneFromMe() const
+    {
+        return new ePersistentFloatRef(*this);
+    }
 
 }

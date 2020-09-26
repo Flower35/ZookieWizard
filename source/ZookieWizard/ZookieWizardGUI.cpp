@@ -18,15 +18,15 @@ namespace ZookieWizard
         static bool updatingNodeName = false;
         bool updatingMovedSelectedTransformEditboxes = false;
 
-        static const int32_t nodesList_ButtonsCount = 15;
-        static const int32_t nodesList_ActionsCount = 5;
+        static const int32_t nodesList_ButtonsCount = 18;
+        static const int32_t nodesList_ActionsCount = 6;
         int32_t nodesList_CurrentAction;
         static HWND nodesList_Windows[1 + nodesList_ButtonsCount];
         static uint8_t nodesList_ActionIds[nodesList_ButtonsCount];
 
         static const char* nodesList_ActionNames[nodesList_ActionsCount] =
         {
-            "Browsing the Archive", "Moving Nodes", "Deleting Nodes", "Modifying 3D meshes", "Parsing instructions"
+            "Browsing the Archive", "Moving Nodes", "Deleting Nodes", "Cloning Nodes", "Modifying 3D meshes", "Parsing instructions"
         };
 
 
@@ -41,37 +41,57 @@ namespace ZookieWizard
 
         void menuFunc_DenisConvert(WPARAM wParam, LPARAM lParam, void* custom_param)
         {
-            if (0 == (int32_t)custom_param)
+            int32_t function = (int32_t)custom_param;
+
+            if (0 == function)
             {
-                openDenisLevel();
+                DenisMenuOptions_OpenDenisLevel();
             }
-            else if (1 == (int32_t)custom_param)
+            else if (1 == function)
             {
-                convertDenisLevel();
+                DenisMenuOptions_ConvertDenisLevel();
             }
         }
 
         void menuFunc_ArOpen(WPARAM wParam, LPARAM lParam, void* custom_param)
         {
-            if ((int32_t)custom_param >= 0)
+            int32_t function = (int32_t)custom_param;
+
+            if (0 == function)
             {
-                openOrSaveAr((int32_t)custom_param);
+                ArMenuOptions_OpenOrSaveAr(AR_MODE_READ);
             }
-            else if ((-1) == (int32_t)custom_param)
+            else if (1 == function)
             {
-                writeArStructureToTextFile();
+                ArMenuOptions_OpenOrSaveAr(AR_MODE_WRITE);
             }
-            else if ((-2) == (int32_t)custom_param)
+            else if (2 == function)
             {
-                exportArToCollada();
+                ArMenuOptions_CloseAr();
             }
-            else if ((-3) == (int32_t)custom_param)
+            else if (3 == function)
             {
-                bulkArchiveConverter();
+                ArMenuOptions_GenerateEmptyScene();
             }
-            else if ((-4) == (int32_t)custom_param)
+            else if (4 == function)
             {
-                generateEmptyScene();
+                ArMenuOptions_ExportScripts();
+            }
+            else if (5 == function)
+            {
+                ArMenuOptions_ExportProxies();
+            }
+            else if (6 == function)
+            {
+                ArMenuOptions_BulkArchiveConverter();
+            }
+            else if (7 == function)
+            {
+                ArMenuOptions_WriteStructureToTextFile();
+            }
+            else if (8 == function)
+            {
+                ArMenuOptions_ExportArToCollada();
             }
         }
 
@@ -80,6 +100,54 @@ namespace ZookieWizard
             if (EN_CHANGE == HIWORD(wParam))
             {
                 GetWindowText((HWND)lParam, (LPSTR)custom_param, LARGE_BUFFER_SIZE);
+            }
+        }
+
+        void buttonFunc_ArchivesList(WPARAM wParam, LPARAM lParam, void* custom_param)
+        {
+            eString dummy_str;
+            char bufor[64];
+
+            switch (HIWORD(wParam))
+            {
+                case LBN_SELCHANGE:
+                {
+                    currentArId = SendMessage((HWND)lParam, LB_GETCURSEL, 0, 0);
+
+                    if (currentArId < 0)
+                    {
+                        currentArId = 0;
+                    }
+                    else if (currentArId >= MAX_OPEN_ARCHIVES)
+                    {
+                        currentArId = (MAX_OPEN_ARCHIVES - 1);
+                    }
+
+                    /****************/
+
+                    myARs[currentArId].changeGlobalScene();
+                    myARs[currentArId].changeSelectedObject(NODES_LISTBOX_UPDATE_CURRENT, nullptr);
+
+                    /****************/
+
+                    if (myARs[currentArId].isNotEmpty() && (SendMessage((HWND)lParam, LB_GETTEXTLEN, (WPARAM)currentArId, 0) < 64))
+                    {
+                        SendMessage((HWND)lParam, LB_GETTEXT, (WPARAM)currentArId, (LPARAM)bufor);
+
+                        dummy_str = bufor;
+
+                        if (checkArFilenameExtensions(dummy_str.getText(), dummy_str.getLength()))
+                        {
+                            dummy_str = dummy_str.getSubstring(0, (-4));
+                        }
+                    }
+
+                    GUI::updateArSettingsText(2, dummy_str.getText());
+
+                    /****************/
+
+                    break;
+                }
             }
         }
 
@@ -154,7 +222,7 @@ namespace ZookieWizard
                     }
                 }
 
-                myARs[0].changeSelectedObject(a, (void*)b);
+                myARs[currentArId].changeSelectedObject(a, (void*)b);
             }
         }
 
@@ -209,7 +277,7 @@ namespace ZookieWizard
         {
             if (BN_CLICKED == HIWORD(wParam))
             {
-                myARs[0].changeSelectedObject((int32_t)custom_param, nullptr);
+                myARs[currentArId].changeSelectedObject((int32_t)custom_param, nullptr);
             }
         }
 
@@ -219,15 +287,15 @@ namespace ZookieWizard
             {
                 if (0 == (int32_t)custom_param)
                 {
-                    exportTrimeshToObj();
+                    ArMenuOptions_ExportTrimeshToObj();
                 }
                 else if (1 == (int32_t)custom_param)
                 {
-                    importTrimeshFromObj();
+                    ArMenuOptions_ImportTrimeshFromObj();
                 }
                 else if (2 == (int32_t)custom_param)
                 {
-                    changeNodesWithTxt();
+                    ArMenuOptions_ChangeNodesWithTxt();
                 }
             }
         }
@@ -333,7 +401,7 @@ namespace ZookieWizard
                     }
                     else if (0x01 == (int32_t)custom_param)
                     {
-                        myARs[0].changeSelectedObject(NODES_EDITING_INSERT, bufor);
+                        myARs[currentArId].changeSelectedObject(NODES_EDITING_INSERT, bufor);
                     }
                 }
             }
@@ -347,7 +415,7 @@ namespace ZookieWizard
             {
                 GetWindowText((HWND)lParam, bufor, LARGE_BUFFER_SIZE);
 
-                myARs[0].changeSelectedObject(NODES_EDITING_CHANGE_NAME, bufor);
+                myARs[currentArId].changeSelectedObject(NODES_EDITING_CHANGE_NAME, bufor);
             }
         }
 
@@ -357,11 +425,11 @@ namespace ZookieWizard
             {
                 if (BST_CHECKED == SendMessage((HWND)lParam, BM_GETCHECK, 0, 0))
                 {
-                    myARs[0].changeSelectedObject(NODES_EDITING_SET_FLAG, custom_param);
+                    myARs[currentArId].changeSelectedObject(NODES_EDITING_SET_FLAG, custom_param);
                 }
                 else
                 {
-                    myARs[0].changeSelectedObject(NODES_EDITING_UNSET_FLAG, custom_param);
+                    myARs[currentArId].changeSelectedObject(NODES_EDITING_UNSET_FLAG, custom_param);
                 }
             }
         }
@@ -440,14 +508,14 @@ namespace ZookieWizard
 
                         a = (LB_ERR == a) ? NODES_LISTBOX_UPDATE_CURRENT : a;
 
-                        myARs[0].changeSelectedObject(a, nullptr);
+                        myARs[currentArId].changeSelectedObject(a, nullptr);
 
                         return (-2);
                     }
 
                     case VK_BACK:
                     {
-                        myARs[0].changeSelectedObject(NODES_LISTBOX_PARENT, nullptr);
+                        myARs[currentArId].changeSelectedObject(NODES_LISTBOX_PARENT, nullptr);
 
                         return (-2);
                     }
@@ -559,7 +627,7 @@ namespace ZookieWizard
 
             if (nullptr == new_text)
             {
-                return;
+                new_text = "";
             }
 
             switch (id)
@@ -716,14 +784,15 @@ namespace ZookieWizard
             AppendMenu(menu_bar, MF_POPUP, (UINT_PTR)test_menu, "Game &version");
 
             test_menu = CreateMenu();
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)AR_MODE_READ), "&Open Archive");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)AR_MODE_WRITE), "&Save Archive");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)(-4)), "Generate &empty scene");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)AR_MODE_EXPORT_SCRIPTS), "Export S&cripts");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)AR_MODE_EXPORT_PROXIES), "Export &proxies");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)(-3)), "&Bulk archive converter");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)(-1)), "Export &readable structure");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)(-2)), "Export COLLADA &dae");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)0), "&Open Archive");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)1), "&Save Archive");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)2), "&Close Archive");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)3), "Generate &empty scene");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)4), "Export S&cripts");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)5), "Export &proxies");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)6), "&Bulk archive converter");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)7), "Export &readable structure");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)8), "Export COLLADA &dae");
             AppendMenu(menu_bar, MF_POPUP, (UINT_PTR)test_menu, "Kao the Kangaroo: Round 2");
 
             SetMenu(main_window, menu_bar);
@@ -1037,6 +1106,55 @@ namespace ZookieWizard
                 return false;
             }
 
+            theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
+
+            /********************************/
+            /* [PAGE 1] (6) Create line decoration */
+
+            theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
+            theWindowsManager.getCurrentPosition(nullptr, &y);
+            theWindowsManager.setCurrentPosition(0, y);
+
+            if (0 == theWindowsManager.addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0x01))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(0, (WINDOW_PADDING_SMALL - 2));
+
+            /********************************/
+            /* [PAGE 1] (7) Create dummy label */
+
+            theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD);
+
+            if (0 == theWindowsManager.addWindow("Choose an Archive:", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01))
+            {
+                return false;
+            }
+
+            /********************************/
+            /* [PAGE 1] (8) Create listbox */
+
+            theWindowsManager.setCurrentClassName("LISTBOX");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_HSCROLL | WS_VSCROLL | LBS_DISABLENOSCROLL | LBS_HASSTRINGS | LBS_NOTIFY);
+
+            theWindowsManager.addEdgesToNextWindow();
+            if (0 == (dummy_window = theWindowsManager.addWindow("", RECT_TABS_X2, 128, buttonFunc_ArchivesList, nullptr, 0x01)))
+            {
+                return false;
+            }
+
+            SendMessage(dummy_window, LB_SETHORIZONTALEXTENT, (WPARAM)512, 0);
+
+            for (a = 0; a < MAX_OPEN_ARCHIVES; a++)
+            {
+                SendMessage(dummy_window, LB_ADDSTRING, 0, (LPARAM)"<< EMPTY >>");
+            }
+
+            SendMessage(dummy_window, LB_SETCURSEL, (WPARAM)0, 0);
+
             /********************************/
             /* [PAGE 2] */
 
@@ -1100,7 +1218,7 @@ namespace ZookieWizard
             theWindowsManager.getCurrentPosition(&x, &y);
 
             /********************************/
-            /* [PAGE 2] (5 – 20) Create buttons */
+            /* [PAGE 2] (5 – 23) Create buttons */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON | BS_MULTILINE);
@@ -1177,32 +1295,52 @@ namespace ZookieWizard
             nodesList_ActionIds[10] = 3;
             nodesList_ActionIds[11] = 3;
             nodesList_ActionIds[12] = 3;
-            nodesList_ActionIds[13] = 3;
 
-            if (0 == (nodesList_Windows[1 + 10] = theWindowsManager.addWindow("Export 3D Meshes to Wavefront OBJ", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)0, 0)))
+            if (0 == (nodesList_Windows[1 + 10] = theWindowsManager.addWindow("Clone Current Node", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_CLONE_CURRENT, 0)))
             {
                 return false;
             }
 
-            if (0 == (nodesList_Windows[1 + 11] = theWindowsManager.addWindow("Import 3D Meshes from Wavefront OBJ", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)1, 0x01)))
+            if (0 == (nodesList_Windows[1 + 11] = theWindowsManager.addWindow("Clone\nHighlighted Node\n(from the list)", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_CLONE_SELECTED, 0x01)))
             {
                 return false;
             }
 
-            if (0 == (nodesList_Windows[1 + 12] = theWindowsManager.addWindow("Rebuild Collision Data", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0)))
-            {
-                return false;
-            }
-
-            if (0 == (nodesList_Windows[1 + 13] = theWindowsManager.addWindow("Clear Collision Data", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01)))
+            if (0 == (nodesList_Windows[1 + 12] = theWindowsManager.addWindow("Paste Cloned\nNode into\nCurrent Group\n", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_CLONE_PASTING, 0x01)))
             {
                 return false;
             }
 
             theWindowsManager.setCurrentPosition(x, y);
+            nodesList_ActionIds[13] = 4;
             nodesList_ActionIds[14] = 4;
+            nodesList_ActionIds[15] = 4;
+            nodesList_ActionIds[16] = 4;
 
-            if (0 == (nodesList_Windows[1 + 14] = theWindowsManager.addWindow("Change Nodes with a TXT file", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)2, 0x01)))
+            if (0 == (nodesList_Windows[1 + 13] = theWindowsManager.addWindow("Export 3D Meshes to Wavefront OBJ", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)0, 0)))
+            {
+                return false;
+            }
+
+            if (0 == (nodesList_Windows[1 + 14] = theWindowsManager.addWindow("Import 3D Meshes from Wavefront OBJ", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)1, 0x01)))
+            {
+                return false;
+            }
+
+            if (0 == (nodesList_Windows[1 + 15] = theWindowsManager.addWindow("Rebuild Collision Data", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0)))
+            {
+                return false;
+            }
+
+            if (0 == (nodesList_Windows[1 + 16] = theWindowsManager.addWindow("Clear Collision Data", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01)))
+            {
+                return false;
+            }
+
+            theWindowsManager.setCurrentPosition(x, y);
+            nodesList_ActionIds[17] = 5;
+
+            if (0 == (nodesList_Windows[1 + 17] = theWindowsManager.addWindow("Change Nodes with a TXT file", a, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)2, 0x01)))
             {
                 return false;
             }

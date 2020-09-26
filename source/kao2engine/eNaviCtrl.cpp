@@ -30,7 +30,41 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eNaviCtrl::~eNaviCtrl() {}
+    eNaviCtrl::~eNaviCtrl()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNaviCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eNaviCtrl::createFromOtherObject(const eNaviCtrl &other)
+    {}
+
+    eNaviCtrl::eNaviCtrl(const eNaviCtrl &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eNaviCtrl& eNaviCtrl::operator = (const eNaviCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eNaviCtrl::cloneFromMe() const
+    {
+        return nullptr;
+    }
 
 
     ////////////////////////////////////////////////////////////////

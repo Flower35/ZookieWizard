@@ -34,26 +34,61 @@ namespace ZookieWizard
         /*[0x14]*/ loopType = loopTypeEnum::SINGLE;
     }
 
-    eTrack::~eTrack() {}
+    eTrack::~eTrack()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eTrack serialization
+    // eTrack: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eTrack::createFromOtherObject(const eTrack &other)
+    {
+        name = other.name;
+        startFrame = other.startFrame;
+        endFrame = other.endFrame;
+        loopType = other.loopType;
+    }
+
+    eTrack::eTrack(const eTrack &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eTrack& eTrack::operator = (const eTrack &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eTrack::cloneFromMe() const
+    {
+        return new eTrack(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTrack: serialization
     // <kao2.004B5D50>
     ////////////////////////////////////////////////////////////////
     void eTrack::serialize(Archive &ar)
     {
-        /* Nazwa animacji */
         ar.serializeString(name);
 
-        /* Klatka pocz¹tkowa i klatka koñcowa */
         ar.readOrWrite(&startFrame, 0x04);
         ar.readOrWrite(&endFrame, 0x04);
 
-        /* Rodzaj zapêtlania animacji */
         ar.readOrWrite(&loopType, 0x04);
 
-        /* --dodatek-- Archiwa nigdy nie posiada³y tej wersji */
         if (ar.getVersion() < 0x7D)
         {
             throw ErrorMessage

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    StateDumper::~StateDumper() {}
+    StateDumper::~StateDumper()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // StateDumper: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void StateDumper::createFromOtherObject(const StateDumper &other)
+    {}
+
+    StateDumper::StateDumper(const StateDumper &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    StateDumper& StateDumper::operator = (const StateDumper &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* StateDumper::cloneFromMe() const
+    {
+        return new StateDumper(*this);
+    }
 
 }

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eGroupMsgForward::~eGroupMsgForward() {}
+    eGroupMsgForward::~eGroupMsgForward()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroupMsgForward: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eGroupMsgForward::createFromOtherObject(const eGroupMsgForward &other)
+    {}
+
+    eGroupMsgForward::eGroupMsgForward(const eGroupMsgForward &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eGroupMsgForward& eGroupMsgForward::operator = (const eGroupMsgForward &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eGroupMsgForward::cloneFromMe() const
+    {
+        return new eGroupMsgForward(*this);
+    }
 
 }

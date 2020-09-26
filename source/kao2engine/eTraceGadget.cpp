@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eTraceGadget::~eTraceGadget() {}
+    eTraceGadget::~eTraceGadget()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTraceGadget: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eTraceGadget::createFromOtherObject(const eTraceGadget &other)
+    {}
+
+    eTraceGadget::eTraceGadget(const eTraceGadget &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eTraceGadget& eTraceGadget::operator = (const eTraceGadget &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eTraceGadget::cloneFromMe() const
+    {
+        return new eTraceGadget(*this);
+    }
 
 }

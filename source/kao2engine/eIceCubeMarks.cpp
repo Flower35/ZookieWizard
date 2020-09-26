@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eMarks()
     {}
 
-    eIceCubeMarks::~eIceCubeMarks() {}
+    eIceCubeMarks::~eIceCubeMarks()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eIceCubeMarks: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eIceCubeMarks::createFromOtherObject(const eIceCubeMarks &other)
+    {}
+
+    eIceCubeMarks::eIceCubeMarks(const eIceCubeMarks &other)
+    : eMarks(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eIceCubeMarks& eIceCubeMarks::operator = (const eIceCubeMarks &other)
+    {
+        if ((&other) != this)
+        {
+            eMarks::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eIceCubeMarks::cloneFromMe() const
+    {
+        return new eIceCubeMarks(*this);
+    }
 
 }

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eEmptyCtrl()
     {}
 
-    eTargeting::~eTargeting() {}
+    eTargeting::~eTargeting()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTargeting: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eTargeting::createFromOtherObject(const eTargeting &other)
+    {}
+
+    eTargeting::eTargeting(const eTargeting &other)
+    : eEmptyCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eTargeting& eTargeting::operator = (const eTargeting &other)
+    {
+        if ((&other) != this)
+        {
+            eEmptyCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eTargeting::cloneFromMe() const
+    {
+        return new eTargeting(*this);
+    }
 
 }

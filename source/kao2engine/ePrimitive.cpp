@@ -28,10 +28,42 @@ namespace ZookieWizard
 
     ePrimitive::ePrimitive()
     : eRefCounter()
+    {}
+
+    ePrimitive::~ePrimitive()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePrimitive: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePrimitive::createFromOtherObject(const ePrimitive &other)
+    {}
+
+    ePrimitive::ePrimitive(const ePrimitive &other)
+    : eRefCounter(other)
     {
-        /* (...) */
+        createFromOtherObject(other);
     }
 
-    ePrimitive::~ePrimitive() {}
+    ePrimitive& ePrimitive::operator = (const ePrimitive &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePrimitive::cloneFromMe() const
+    {
+        return nullptr;
+    }
 
 }

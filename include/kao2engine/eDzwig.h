@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eDzwig : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eDzwig();
             ~eDzwig();
 
+        private:
+
+            void createFromOtherObject(const eDzwig &other);
+
+        public:
+
+            eDzwig(const eDzwig &other);
+            eDzwig& operator = (const eDzwig &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eDzwig TypeInfo
-    // <kao2.0044EF20> (registration)
+    // <kao2.0044EEF0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_DZWIG_ID = 0x3BB66553;

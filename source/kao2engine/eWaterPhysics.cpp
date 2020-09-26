@@ -30,6 +30,40 @@ namespace ZookieWizard
     : ePhysics()
     {}
 
-    eWaterPhysics::~eWaterPhysics() {}
+    eWaterPhysics::~eWaterPhysics()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eWaterPhysics: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eWaterPhysics::createFromOtherObject(const eWaterPhysics &other)
+    {}
+
+    eWaterPhysics::eWaterPhysics(const eWaterPhysics &other)
+    : ePhysics(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eWaterPhysics& eWaterPhysics::operator = (const eWaterPhysics &other)
+    {
+        if ((&other) != this)
+        {
+            ePhysics::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eWaterPhysics::cloneFromMe() const
+    {
+        return new eWaterPhysics(*this);
+    }
 
 }

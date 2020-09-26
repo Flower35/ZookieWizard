@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eDirectionalLight interface
+    // <kao2.005D0E18> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eDirectionalLight : public eLight
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,8 +28,22 @@ namespace ZookieWizard
             eDirectionalLight();
             ~eDirectionalLight();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eDirectionalLight &other);
+
+        public:
+
+            eDirectionalLight(const eDirectionalLight &other);
+            eDirectionalLight& operator = (const eDirectionalLight &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eNode >> */
 
             void renderNode(eDrawContext &draw_context) const override;
 
@@ -39,7 +53,11 @@ namespace ZookieWizard
             int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
 
-            /*[vptr]+0x74]*/ void bindLight(int32_t light_id) const override;
+            /* << eLight >> */
+
+            /*[[vptr]+0x74]*/ void bindLight(int32_t light_id) const override;
+
+            /* << eDirectionalLight >> */
 
             ePoint3 getPosition() const;
             void setPosition(ePoint3 &new_position);
@@ -51,7 +69,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eDirectionalLight TypeInfo
-    // <kao2.0047FC90> (registration)
+    // <kao2.0047FC60> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_DIRECTIONALLIGHT_ID = 0x03454501;

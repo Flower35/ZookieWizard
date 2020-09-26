@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eEggsFactory : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eEggsFactory();
             ~eEggsFactory();
 
+        private:
+
+            void createFromOtherObject(const eEggsFactory &other);
+
+        public:
+
+            eEggsFactory(const eEggsFactory &other);
+            eEggsFactory& operator = (const eEggsFactory &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eEggsFactory TypeInfo
-    // <kao2.005068D0> (registration)
+    // <kao2.005068A0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_EGGSFACTORY_ID = 0x3BF54C3F;

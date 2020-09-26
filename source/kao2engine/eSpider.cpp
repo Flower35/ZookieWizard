@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eSpider::~eSpider() {}
+    eSpider::~eSpider()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSpider: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSpider::createFromOtherObject(const eSpider &other)
+    {}
+
+    eSpider::eSpider(const eSpider &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSpider& eSpider::operator = (const eSpider &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSpider::cloneFromMe() const
+    {
+        return new eSpider(*this);
+    }
 
 }

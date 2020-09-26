@@ -30,11 +30,45 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eGoUpAndDown::~eGoUpAndDown() {}
+    eGoUpAndDown::~eGoUpAndDown()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eGoUpAndDown serialization
+    // eGoUpAndDown: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eGoUpAndDown::createFromOtherObject(const eGoUpAndDown &other)
+    {}
+
+    eGoUpAndDown::eGoUpAndDown(const eGoUpAndDown &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eGoUpAndDown& eGoUpAndDown::operator = (const eGoUpAndDown &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eGoUpAndDown::cloneFromMe() const
+    {
+        return new eGoUpAndDown(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGoUpAndDown: serialization
     ////////////////////////////////////////////////////////////////
     void eGoUpAndDown::serialize(Archive &ar)
     {

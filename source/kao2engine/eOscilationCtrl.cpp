@@ -30,11 +30,50 @@ namespace ZookieWizard
     : eRefCounter()
     {}
 
-    eOscilationCtrl::~eOscilationCtrl() {}
+    eOscilationCtrl::~eOscilationCtrl()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eOscilationCtrl serialization
+    // eOscilationCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eOscilationCtrl::createFromOtherObject(const eOscilationCtrl &other)
+    {
+        unknown_0008 = other.unknown_0008;
+        unknown_0050 = other.unknown_0050;
+        unknown_0098 = other.unknown_0098;
+        unknown_00E0 = other.unknown_00E0;
+    }
+
+    eOscilationCtrl::eOscilationCtrl(const eOscilationCtrl &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eOscilationCtrl& eOscilationCtrl::operator = (const eOscilationCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eOscilationCtrl::cloneFromMe() const
+    {
+        return new eOscilationCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eOscilationCtrl: serialization
     // <kao2.0055B8B0>
     ////////////////////////////////////////////////////////////////
     void eOscilationCtrl::serialize(Archive &ar)

@@ -8,14 +8,29 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eModifier interface
+    // <kao2.005CDE70> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eModifier : public eRefCounter
     {
+        /*** Methods ***/
+
         public:
 
             eModifier();
             ~eModifier();
+
+        private:
+
+            void createFromOtherObject(const eModifier &other);
+
+        public:
+
+            eModifier(const eModifier &other);
+            eModifier& operator = (const eModifier &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
 
             TypeInfo* getType() const override;
     };
@@ -23,7 +38,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eModifier TypeInfo
-    // <kao2.0046D890> (registration)
+    // <kao2.0046D860> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_MODIFIER_ID = 0x4004;

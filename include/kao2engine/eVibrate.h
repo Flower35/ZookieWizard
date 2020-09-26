@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eVibrate : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eVibrate();
             ~eVibrate();
 
+        private:
+
+            void createFromOtherObject(const eVibrate &other);
+
+        public:
+
+            eVibrate(const eVibrate &other);
+            eVibrate& operator = (const eVibrate &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eVibrate TypeInfo
-    // <kao2.004CFB20> (registration)
+    // <kao2.004CFAF0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_VIBRATE_ID = 0x0002FBAE;

@@ -43,7 +43,54 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eMorpherTarget serialization
+    // eMorpherTarget: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eMorpherTarget::createFromOtherObject(const eMorpherTarget &other)
+    {
+        unknown_08 = nullptr;
+        unknown_0C = nullptr;
+
+        throw ErrorMessage
+        (
+            "CRITICAL ERROR while cloning the \"eMorpherTarget\" object:\n" \
+            "cloning << morpher targets >> without context is not supported!!!"
+        );
+    }
+
+    eMorpherTarget::eMorpherTarget(const eMorpherTarget &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eMorpherTarget& eMorpherTarget::operator = (const eMorpherTarget &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            unknown_08->decRef();
+            unknown_0C->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eMorpherTarget::cloneFromMe() const
+    {
+        return new eMorpherTarget(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMorpherTarget: serialization
     // <kao2.0049ECC0>
     ////////////////////////////////////////////////////////////////
     void eMorpherTarget::serialize(Archive &ar)

@@ -37,11 +37,60 @@ namespace ZookieWizard
         /*[0x08]*/ actor = nullptr;
     }
 
-    eMultiBlockIndexCtrl::~eMultiBlockIndexCtrl() {}
+    eMultiBlockIndexCtrl::~eMultiBlockIndexCtrl()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eMultiBlockIndexCtrl serialization
+    // eMultiBlockIndexCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eMultiBlockIndexCtrl::createFromOtherObject(const eMultiBlockIndexCtrl &other)
+    {
+        throw ErrorMessage
+        (
+            "CRITICAL ERROR while cloning the \"eMultiBlockIndexCtrl\" object:\n" \
+            "cloning << multiple block index controllers >> without context is not supported!!!"
+        );
+    }
+
+    eMultiBlockIndexCtrl::eMultiBlockIndexCtrl(const eMultiBlockIndexCtrl &other)
+    : eRefCounter(other)
+    {
+        actor = nullptr;
+
+        /****************/
+
+        createFromOtherObject(other);
+    }
+
+    eMultiBlockIndexCtrl& eMultiBlockIndexCtrl::operator = (const eMultiBlockIndexCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            actor = nullptr;
+            controllers.clear();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eMultiBlockIndexCtrl::cloneFromMe() const
+    {
+        return new eMultiBlockIndexCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMultiBlockIndexCtrl: serialization
     // <kao2.004BD700>
     ////////////////////////////////////////////////////////////////
     void eMultiBlockIndexCtrl::serialize(Archive &ar)
@@ -63,4 +112,5 @@ namespace ZookieWizard
     {
         serializeKnownObject<eMultiBlockIndexCtrl>(ar, o, t);
     }
+
 }

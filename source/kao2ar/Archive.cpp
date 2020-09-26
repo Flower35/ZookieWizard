@@ -2,23 +2,77 @@
 #include <kao2ar/eObject.h>
 
 #include <kao2engine/Log.h>
-#include <kao2engine/eNode.h>
+#include <kao2engine/eScene.h>
 
 namespace ZookieWizard
 {
 
     ////////////////////////////////////////////////////////////////
-    // Ar: constructor
+    // AR HELPER FUNCTION: get path based on game version
+    ////////////////////////////////////////////////////////////////
+    eString ArFunctions::getFullArchivePath(const eString &filename, const eString &media_dir, int32_t engine_version, int32_t flags)
+    {
+        eString result;
+
+        if (0 == (AR_MODE_ABSOLUTE_PATH & flags))
+        {
+            result = media_dir;
+
+            if (result.getLength() > 0)
+            {
+                switch (result.getText()[result.getLength() - 1])
+                {
+                    case '/':
+                    case '\\':
+                    {
+                        break;
+                    }
+
+                    default:
+                    {
+                        result += "/";
+                    }
+                }
+            }
+
+            if (AR_MODE_PARTICLES_PATH & flags)
+            {
+                result += "particle/";
+            }
+            else if (0 == (AR_MODE_XREF_PATH & flags))
+            {
+                switch (engine_version)
+                {
+                    case GAME_VERSION_ASTERIX_XXL2_PSP:
+                    case GAME_VERSION_KAO_TW_PC:
+                    {
+                        result += "build/pc/";
+                        break;
+                    }
+
+                    default:
+                    {
+                        result += "build/win32/";
+                    }
+                }
+            }
+        }
+
+        return (result + filename);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Archive: Constructors
     ////////////////////////////////////////////////////////////////
 
     Archive::Archive()
-    {
-        Archive(eString(-1));
-    }
+    : Archive(eString(-1))
+    {}
 
     Archive::Archive(eString new_media_dir)
     {
-        /* Reset values */
+        modeFlags = 0;
 
         tempItemsCount = 0;
         tempItemsList = nullptr;
@@ -34,8 +88,6 @@ namespace ZookieWizard
         engineOpenedWith = (-1);
         engineSavedWith = (-1);
 
-        isLoadedAsProxy = false;
-
         /* Set working directory */
 
         setMediaDir(new_media_dir);
@@ -43,7 +95,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: deconstructor
+    // Archive: Deconstructor
     ////////////////////////////////////////////////////////////////
     Archive::~Archive()
     {
@@ -70,66 +122,22 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: get path based on game version
+    // Archive: check if this Archive is loaded
     ////////////////////////////////////////////////////////////////
-    eString Archive::getFullArchivePath(eString filename, int32_t current_engine) const
+    bool Archive::isNotEmpty() const
     {
-        eString result;
-
-        if ((AR_MODE_ABSOLUTE_PATH & modeFlags) && (AR_MODE_XREF_PATH & modeFlags))
-        {
-            result = (mediaDirectory + filename);
-        }
-        else if (AR_MODE_ABSOLUTE_PATH & modeFlags)
-        {
-            result = filename;
-        }
-        else
-        {
-            result = mediaDirectory;
-
-            if (AR_MODE_XREF_PATH & modeFlags)
-            {
-                result += "particle/";
-                result += filename;
-            }
-            else
-            {
-                switch (current_engine)
-                {
-                    case GAME_VERSION_ASTERIX_XXL2_PSP:
-                    case GAME_VERSION_KAO_TW_PC:
-                    {
-                        result += "build/pc/";
-
-                        break;
-                    }
-
-                    default:
-                    {
-                        result += "build/win32/";
-
-                        break;
-                    }
-                }
-
-                result += filename;
-            }
-        }
-
-        return result;
+        return (nullptr != parentObject);
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: open for reading
+    // Archive: open for reading or writing
     ////////////////////////////////////////////////////////////////
-    bool Archive::open(eString filename, int32_t mode, int32_t engine_version, bool is_proxy, int32_t ver_max_override)
+    bool Archive::open(eString path, int32_t mode, int32_t engine_version, int32_t ver_max_override)
     {
         int32_t a;
         int32_t ver_min;
         int32_t ver_max;
-        eString path;
 
         switch (engine_version)
         {
@@ -182,19 +190,6 @@ namespace ZookieWizard
 
         modeFlags = mode;
 
-        isLoadedAsProxy = is_proxy;
-
-        if (isInReadMode() && isInWriteMode())
-        {
-            throw ErrorMessage
-            (
-                "Archive::open()\n" \
-                "cannot be both READ and WRITE modes !!!"
-            );
-        }
-
-        path = getFullArchivePath(filename, engine_version);
-
         if (isInReadMode())
         {
             theLog.print(eString(" @ ARCHIVE: READING \"") + path + "\"\n");
@@ -214,11 +209,13 @@ namespace ZookieWizard
         }
         else
         {
-            theLog.print(eString(" @ ARCHIVE: EXPORTING TO \"") + mediaDirectory + "\"\n");
+            throw ErrorMessage
+            (
+                "Archive::open()\n" \
+                "unrecognized opening mode!"
+            );
 
-            engineSavedWith = engine_version;
-
-            a = (-1);
+            return false;
         }
 
         if (false == isInReadMode())
@@ -227,20 +224,17 @@ namespace ZookieWizard
             myFile.createDir();
         }
 
-        if ((-1) != a)
+        if (!myFile.open(path.getText(), a))
         {
-            if (!myFile.open(path.getText(), a))
-            {
-                throw ErrorMessage
-                (
-                    "Archive::open():\n" \
-                    "Could not open file:\n" \
-                    "\"%s\"",
-                    path.getText()
-                );
+            throw ErrorMessage
+            (
+                "Archive::open():\n" \
+                "Could not open file:\n" \
+                "\"%s\"",
+                path.getText()
+            );
 
-                return false;
-            }
+            return false;
         }
 
         /* [0x00] Check or save archive header */
@@ -249,19 +243,16 @@ namespace ZookieWizard
 
         readOrWrite(&a, 0x04);
 
-        if (isInReadMode())
+        if (isInReadMode() && (*(uint32_t*)"tate" != a))
         {
-            if (*(uint32_t*)"tate" != a)
-            {
-                throw ErrorMessage
-                (
-                    "[%s]\n" \
-                    "invalid archive magic. Expected \"tate\".",
-                    path.getFilename(true).getText()
-                );
+            throw ErrorMessage
+            (
+                "[%s]\n" \
+                "invalid archive magic. Expected \"tate\".",
+                path.getFilename(true).getText()
+            );
 
-                return false;
-            }
+            return false;
         }
 
         /* [0x04] Check or save version */
@@ -278,20 +269,17 @@ namespace ZookieWizard
 
         readOrWrite(&version, 0x04);
 
-        if (isInReadMode())
+        if (isInReadMode() && ((version < ver_min) || (version > ver_max)))
         {
-            if ((version < ver_min) || (version > ver_max))
-            {
-                throw ErrorMessage
-                (
-                    "[%s]\n" \
-                    "invalid archive version %i\n" \
-                    "(current version: %i, minimum: %i).",
-                    path.getFilename(true).getText(), version, ver_max, ver_min
-                );
+            throw ErrorMessage
+            (
+                "[%s]\n" \
+                "invalid archive version %i\n" \
+                "(current version: %i, minimum: %i).",
+                path.getFilename(true).getText(), version, ver_max, ver_min
+            );
 
-                return false;
-            }
+            return false;
         }
 
         /* [0x08] Check or save Temporary Pointers list size */
@@ -300,21 +288,18 @@ namespace ZookieWizard
 
         readOrWrite(&tempItemsMaxLength, 0x04);
 
-        if (isInReadMode())
+        if (isInReadMode() && ((tempItemsMaxLength < 1) || (tempItemsMaxLength > AR_MAX_ITEMS)))
         {
-            if ((tempItemsMaxLength < 1) || (tempItemsMaxLength > AR_MAX_ITEMS))
-            {
-                throw ErrorMessage
-                (
-                    "[%s]\n" \
-                    "Incorrect number of temporary class fields.\n" \
-                    "(max: %d)",
-                    path.getFilename(true).getText(),
-                    AR_MAX_ITEMS
-                );
+            throw ErrorMessage
+            (
+                "[%s]\n" \
+                "Incorrect number of temporary class fields.\n" \
+                "(max: %d)",
+                path.getFilename(true).getText(),
+                AR_MAX_ITEMS
+            );
 
-                return false;
-            }
+            return false;
         }
 
         /* Allocate size for temporary object pointers */
@@ -355,6 +340,16 @@ namespace ZookieWizard
 
         ArFunctions::serialize_eRefCounter(*this, &parentObject, &E_REFCOUNTER_TYPEINFO);
 
+        if (isInWriteMode())
+        {
+            /* Finally, update temp list size */
+            myFile.setPointer(0x08);
+            readOrWrite(&tempItemsCount, 0x04);
+        }
+
+        /* Close the "*.ar" file */
+        close(false);
+
         if (isInReadMode())
         {
             /* Now we can just set output version to the maximum supported by current engine */
@@ -365,25 +360,42 @@ namespace ZookieWizard
             if ((nullptr != parentObject) && parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
             {
                 ((eNode*)parentObject)->updateDrawPassFlags(nullptr);
+
+                if (0 == (AR_MODE_SKIP_PROXIES & modeFlags))
+                {
+                    ((eNode*)parentObject)->reloadXRef(mediaDirectory, engine_version);
+                }
+                else
+                {
+                    modeFlags &= (~AR_MODE_SKIP_PROXIES);
+                }
             }
         }
-        else if (isInWriteMode())
-        {
-            /* Finally, update temp list size */
-            myFile.setPointer(0x08);
-            readOrWrite(&tempItemsCount, 0x04);
-        }
-
-        /* Close the "*.ar" file */
-
-        close(false);
 
         return true;
     }
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: check modes
+    // Archive: Close
+    ////////////////////////////////////////////////////////////////
+    void Archive::close(bool hide)
+    {
+        if (hide)
+        {
+            selectedObject = nullptr;
+
+            destroyParent();
+        }
+
+        myFile.close();
+
+        deleteTempStrPtrs();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Archive: Checking modes
     ////////////////////////////////////////////////////////////////
 
     bool Archive::isInReadMode() const
@@ -396,16 +408,6 @@ namespace ZookieWizard
         return (AR_MODE_WRITE & modeFlags);
     }
 
-    bool Archive::isInExportScriptsMode() const
-    {
-        return (AR_MODE_EXPORT_SCRIPTS & modeFlags);
-    }
-
-    bool Archive::isInExportProxiesMode() const
-    {
-        return (AR_MODE_EXPORT_PROXIES & modeFlags);
-    }
-
     bool Archive::isInDebugMode() const
     {
         return (AR_MODE_DEBUG & modeFlags);
@@ -413,7 +415,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: check versions
+    // Archive: Checking versions
     ////////////////////////////////////////////////////////////////
 
     int32_t Archive::getVersion() const
@@ -470,25 +472,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: close
-    ////////////////////////////////////////////////////////////////
-    void Archive::close(bool hide)
-    {
-        if (hide)
-        {
-            selectedObject = nullptr;
-
-            destroyParent();
-        }
-
-        myFile.close();
-
-        deleteTempStrPtrs();
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: insert new temporary class
+    // Archive: Insert new temporary class
     // <kao2.004651C0>
     ////////////////////////////////////////////////////////////////
     bool Archive::addItem(void* item, int type)
@@ -516,7 +500,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: get stored temporary class
+    // Archive: Get stored temporary class
     // <kao2.00465290>
     ////////////////////////////////////////////////////////////////
     void* Archive::getItem(int id, int type) const
@@ -546,7 +530,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: find class pointer in write mode
+    // Archive: Find class pointer in write mode
     // <kao2.00465240>
     ////////////////////////////////////////////////////////////////
     int Archive::findItem(void* item) const
@@ -564,7 +548,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: insert previous string copy
+    // Archive: Insert previous string copy
     ////////////////////////////////////////////////////////////////
     bool Archive::addTempStr(eStringBase<char>* str)
     {
@@ -590,23 +574,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: dereference string copies
-    ////////////////////////////////////////////////////////////////
-    void Archive::deleteTempStrPtrs()
-    {
-        int32_t i;
-
-        for (i = 0; i < tempStrCount; i++)
-        {
-            tempStrList[i]->decRef();
-        }
-
-        tempStrCount = 0;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: read or write some data
+    // Archive: Read or write some data
     ////////////////////////////////////////////////////////////////
     void Archive::readOrWrite(void* pointer, int size)
     {
@@ -622,7 +590,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: main serialize function
+    // Archive: Main serializaion function
     // <kao2.00464D00>
     ////////////////////////////////////////////////////////////////
     void Archive::serialize(eObject** o, TypeInfo* t)
@@ -809,7 +777,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: read string
+    // Archive: Read to a string
     // <kao2.00462120>
     ////////////////////////////////////////////////////////////////
     eString ArFunctions::readString(Archive &ar)
@@ -825,7 +793,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: write string
+    // Archive: Write from a string
     // <kao2.00462180>
     ////////////////////////////////////////////////////////////////
     void ArFunctions::writeString(Archive &ar, eString &s)
@@ -838,7 +806,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: string serialization
+    // Archive: String serialization
     // <kao2.004621E0>
     ////////////////////////////////////////////////////////////////
     void Archive::serializeString(eString &s)
@@ -951,7 +919,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: replace old string pointer during serialization!
+    // Archive: replace old string pointer during serialization!
     ////////////////////////////////////////////////////////////////
     void Archive::replaceStringDuringSerialization(eString &oldStr, eString newStr)
     {
@@ -982,7 +950,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: compare some object with current root
+    // Archive: Compare some object with current root
     ////////////////////////////////////////////////////////////////
     bool Archive::compareWithMyRoot(eRefCounter* object) const
     {
@@ -991,7 +959,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: check TypeInfo without serialization
+    // Archive: Check TypeInfo without serialization
     // <kao2.00463130>
     ////////////////////////////////////////////////////////////////
     void Archive::checkTypeInfo(TypeInfo** t)
@@ -1034,7 +1002,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Ar: get or set Media Directory path
+    // Archive: get or set Media Directory path
     ////////////////////////////////////////////////////////////////
 
     eString Archive::getMediaDir() const

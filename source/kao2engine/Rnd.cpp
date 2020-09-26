@@ -32,14 +32,41 @@ namespace ZookieWizard
         name = "rnd";
     }
 
-    Rnd::~Rnd() {}
+    Rnd::~Rnd()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // Static Gadget
+    // Rnd: cloning the object
     ////////////////////////////////////////////////////////////////
 
-    Rnd theRnd;
+    void Rnd::createFromOtherObject(const Rnd &other)
+    {}
+
+    Rnd::Rnd(const Rnd &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    Rnd& Rnd::operator = (const Rnd &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* Rnd::cloneFromMe() const
+    {
+        return new Rnd(*this);
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -49,5 +76,12 @@ namespace ZookieWizard
     {
         return "rnd";
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Static Gadget
+    ////////////////////////////////////////////////////////////////
+
+    Rnd theRnd;
 
 }

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eWaterTarget : public eEggTarget
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             eWaterTarget();
             ~eWaterTarget();
 
+        private:
+
+            void createFromOtherObject(const eWaterTarget &other);
+
+        public:
+
+            eWaterTarget(const eWaterTarget &other);
+            eWaterTarget& operator = (const eWaterTarget &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eWaterTarget TypeInfo
-    // <kao2.005078C0> (registration)
+    // <kao2.00507890> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_WATERTARGET_ID = 0x3BFA6DCD;

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eTextWriter()
     {}
 
-    eTextWriterEx::~eTextWriterEx() {}
+    eTextWriterEx::~eTextWriterEx()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTextWriterEx: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eTextWriterEx::createFromOtherObject(const eTextWriterEx &other)
+    {}
+
+    eTextWriterEx::eTextWriterEx(const eTextWriterEx &other)
+    : eTextWriter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eTextWriterEx& eTextWriterEx::operator = (const eTextWriterEx &other)
+    {
+        if ((&other) != this)
+        {
+            eTextWriter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eTextWriterEx::cloneFromMe() const
+    {
+        return new eTextWriterEx(*this);
+    }
 
 }

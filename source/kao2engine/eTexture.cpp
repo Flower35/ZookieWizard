@@ -54,7 +54,61 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTexture serialization
+    // eTexture: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eTexture::createFromOtherObject(const eTexture &other)
+    {
+        params = other.params;
+
+        form = other.form;
+        if (nullptr != form)
+        {
+            form->incRef();
+        }
+
+        bmp = other.bmp;
+        if (nullptr != bmp)
+        {
+            bmp->incRef();
+        }
+
+        unknown_14 = other.unknown_14;
+    }
+
+    eTexture::eTexture(const eTexture &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eTexture& eTexture::operator = (const eTexture &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            form->decRef();
+            bmp->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eTexture::cloneFromMe() const
+    {
+        return new eTexture(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTexture: serialization
     // <kao2.004732A0>
     ////////////////////////////////////////////////////////////////
     void eTexture::serialize(Archive &ar)
@@ -142,6 +196,23 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eTexture: check path
+    ////////////////////////////////////////////////////////////////
+    bool eTexture::matchesPath(eString &searched_path) const
+    {
+        if (nullptr != bmp)
+        {
+            if (searched_path.comparePath(bmp->getPath()))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eTexture: get texture name index
     ////////////////////////////////////////////////////////////////
     GLuint eTexture::getTextureId() const
@@ -165,7 +236,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTexture:
+    // eTexture: update OpenGL TEXTURE matrix, if "eTexTransform" exists
     ////////////////////////////////////////////////////////////////
     void eTexture::updateTextureMatrix(eAnimate* anim) const
     {
@@ -203,23 +274,6 @@ namespace ZookieWizard
                 form->incRef();
             }
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eTexture: check path
-    ////////////////////////////////////////////////////////////////
-    bool eTexture::matchesPath(eString &searched_path) const
-    {
-        if (nullptr != bmp)
-        {
-            if (searched_path.comparePath(bmp->getPath()))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
 }

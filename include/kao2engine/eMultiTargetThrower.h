@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eMultiTargetThrower : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eMultiTargetThrower();
             ~eMultiTargetThrower();
 
+        private:
+
+            void createFromOtherObject(const eMultiTargetThrower &other);
+
+        public:
+
+            eMultiTargetThrower(const eMultiTargetThrower &other);
+            eMultiTargetThrower& operator = (const eMultiTargetThrower &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eMultiTargetThrower TypeInfo
-    // <kao2.005046F0> (registration)
+    // <kao2.005046C0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_MULTITARGETTHROWER_ID = 0x3BF54DDF;

@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eCollisionMesh interface
+    // <kao2.005D8230>
     ////////////////////////////////////////////////////////////////
 
     class eCollisionMesh : public eCollision
     {
-
         /*** Properties ***/
 
         protected:
@@ -30,13 +30,25 @@ namespace ZookieWizard
             eCollisionMesh();
             ~eCollisionMesh();
 
+        private:
+
+            void createFromOtherObject(const eCollisionMesh &other);
+
+        public:
+
+            eCollisionMesh(const eCollisionMesh &other);
+            eCollisionMesh& operator = (const eCollisionMesh &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCollisionMesh TypeInfo
-    // <kao2.00599630> (registration)
+    // <kao2.00599600> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_COLLISIONMESH_ID = 0x0002FC03;

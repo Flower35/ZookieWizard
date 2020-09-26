@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eParticleCtrl : public Gadget
     {
-
         /*** Methods ***/
 
         public:
@@ -21,8 +20,22 @@ namespace ZookieWizard
             eParticleCtrl();
             ~eParticleCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eParticleCtrl &other);
+
+        public:
+
+            eParticleCtrl(const eParticleCtrl &other);
+            eParticleCtrl& operator = (const eParticleCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << Gadget >> */
 
             eString getDefaultGadgetName() const override;
     };
@@ -30,7 +43,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eParticleCtrl TypeInfo
-    // <kao2.00430610> (registration)
+    // <kao2.004305E0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PARTICLECTRL_ID = 0xFACE3020;

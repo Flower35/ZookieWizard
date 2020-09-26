@@ -29,12 +29,7 @@ namespace ZookieWizard
     Namespace::Namespace()
     : State("", nullptr)
     {
-        /*[0x78]*/ unknown_0078 = nullptr;
-        /*[0x80]*/ isPersistent = false;
-
-        nodeRefNames_count = 0;
-        nodeRefNames_maxLength = 0;
-        nodeRefNames = nullptr;
+        clearNewNamespace();
     }
 
     Namespace::~Namespace()
@@ -49,7 +44,50 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Namespace serialization
+    // Namespace: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void Namespace::createFromOtherObject(const Namespace &other)
+    {
+        throw ErrorMessage
+        (
+            "CRITICAL ERROR while cloning the \"Namespace\" object:\n" \
+            "cloning << namespaces >> without context is not supported!!!"
+        );
+    }
+
+    Namespace::Namespace(const Namespace &other)
+    : State(other)
+    {
+        clearNewNamespace();
+
+        /****************/
+
+        createFromOtherObject(other);
+    }
+
+    Namespace& Namespace::operator = (const Namespace &other)
+    {
+        if ((&other) != this)
+        {
+            State::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* Namespace::cloneFromMe() const
+    {
+        return new Namespace(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Namespace: serialization
     // <kao2.0059D3D0>
     ////////////////////////////////////////////////////////////////
     void Namespace::serialize(Archive &ar)
@@ -58,6 +96,8 @@ namespace ZookieWizard
 
         if (ar.getVersion() <= 0x88)
         {
+            exportable = true;
+
             /* [0x78] unknown */
             ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_0078, &E_NAMESPACE_TYPEINFO);
 
@@ -124,6 +164,32 @@ namespace ZookieWizard
                 }
             }
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Namespace: is the script ready to be exported?
+    ////////////////////////////////////////////////////////////////
+    bool Namespace::canBeExported() const
+    {
+        /* Only scripts from the Retail version of KAO2 are supported */
+        return exportable;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Namespace: clear this object
+    ////////////////////////////////////////////////////////////////
+    void Namespace::clearNewNamespace()
+    {
+        /*[0x78]*/ unknown_0078 = nullptr;
+        /*[0x80]*/ isPersistent = false;
+
+        nodeRefNames_count = 0;
+        nodeRefNames_maxLength = 0;
+        nodeRefNames = nullptr;
+
+        exportable = false;
     }
 
 }

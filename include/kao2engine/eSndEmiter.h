@@ -10,11 +10,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eSndEmiter interface
+    // <kao2.005D624C> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eSndEmiter : public eTransform
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,14 +28,26 @@ namespace ZookieWizard
             eSndEmiter();
             ~eSndEmiter();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eSndEmiter &other);
+
+        public:
+
+            eSndEmiter(const eSndEmiter &other);
+            eSndEmiter& operator = (const eSndEmiter &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSndEmiter TypeInfo
-    // <kao2.0056A980> (registration)
+    // <kao2.0056A950> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SNDEMITER_ID = 0x12345567;

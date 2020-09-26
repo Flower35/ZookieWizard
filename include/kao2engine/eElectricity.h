@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eElectricity : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eElectricity();
             ~eElectricity();
 
+        private:
+
+            void createFromOtherObject(const eElectricity &other);
+
+        public:
+
+            eElectricity(const eElectricity &other);
+            eElectricity& operator = (const eElectricity &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eElectricity TypeInfo
-    // <kao2.005682E0> (registration)
+    // <kao2.005682B0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ELECTRICITY_ID = 0x3B3E6942;

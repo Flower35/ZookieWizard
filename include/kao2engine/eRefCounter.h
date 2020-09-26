@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eRefCounter interface
+    // <kao2.005CD9A4> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eRefCounter : public eObject
     {
-
         /*** Properties ***/
 
         protected:
@@ -26,7 +26,21 @@ namespace ZookieWizard
             eRefCounter();
             ~eRefCounter();
 
+        private:
+
+            void createFromOtherObject(const eRefCounter &other);
+
+        public:
+
+            eRefCounter(const eRefCounter &other);
+            eRefCounter& operator = (const eRefCounter &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+
+            /* << eRefCounter >> */
 
             void incRef();
             void decRef();

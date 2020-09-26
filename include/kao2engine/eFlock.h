@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eFlock : public ePathCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -31,14 +30,26 @@ namespace ZookieWizard
             eFlock();
             ~eFlock();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eFlock &other);
+
+        public:
+
+            eFlock(const eFlock &other);
+            eFlock& operator = (const eFlock &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFlock TypeInfo
-    // <kao2.0042DFD0> (registration)
+    // <kao2.0042DFA0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FLOCK_ID = 0xF001A029;

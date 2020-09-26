@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eWaterPhysics : public ePhysics
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,13 +27,25 @@ namespace ZookieWizard
             eWaterPhysics();
             ~eWaterPhysics();
 
+        private:
+
+            void createFromOtherObject(const eWaterPhysics &other);
+
+        public:
+
+            eWaterPhysics(const eWaterPhysics &other);
+            eWaterPhysics& operator = (const eWaterPhysics &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eWaterPhysics TypeInfo
-    // <kao2.004F6960> (registration)
+    // <kao2.004F6930> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_WATERPHYSICS_ID = 0x0002DF20;

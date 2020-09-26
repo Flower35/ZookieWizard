@@ -55,7 +55,57 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eCamera serialization
+    // eCamera: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eCamera::createFromOtherObject(const eCamera &other)
+    {
+        followCurrentActor = other.followCurrentActor;
+
+        camTarget = other.camTarget;
+        if (nullptr != camTarget)
+        {
+            camTarget->incRef();
+        }
+
+        unknown_01D8[0] = other.unknown_01D8[0];
+        unknown_01D8[1] = other.unknown_01D8[1];
+        unknown_01D8[2] = other.unknown_01D8[2];
+        unknown_01D8[3] = other.unknown_01D8[3];
+    }
+
+    eCamera::eCamera(const eCamera &other)
+    : eObserver(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eCamera& eCamera::operator = (const eCamera &other)
+    {
+        if ((&other) != this)
+        {
+            eObserver::operator = (other);
+
+            /****************/
+
+            camTarget->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eCamera::cloneFromMe() const
+    {
+        return new eCamera(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCamera: serialization
     // <kao2.0050EA80>
     ////////////////////////////////////////////////////////////////
     void eCamera::serialize(Archive &ar)
@@ -108,6 +158,28 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eCamera: find reference to some node when deleting it
+    ////////////////////////////////////////////////////////////////
+    void eCamera::findAndDereference(eNode* target)
+    {
+        eGroup* targets_parent;
+
+        if (nullptr != camTarget)
+        {
+            if (nullptr != (targets_parent = camTarget->getParentNode()))
+            {
+                if ((targets_parent == target) || (nullptr == targets_parent->getParentNode()))
+                {
+                    /* Is the target's parent invalid? (no longer has a valid parent) */
+
+                    camTarget->setParentNode(nullptr);
+                }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eCamera: render this node
     ////////////////////////////////////////////////////////////////
     void eCamera::renderNode(eDrawContext &draw_context) const
@@ -150,31 +222,6 @@ namespace ZookieWizard
             /* Restore parent matrix (OpenGL) */
 
             glPopMatrix();
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eCamera: find reference to some node when deleting it
-    ////////////////////////////////////////////////////////////////
-    void eCamera::findAndDereference(eNode* target)
-    {
-        eNode* targets_parent;
-
-        if (nullptr != camTarget)
-        {
-            targets_parent = camTarget->getParentNode();
-
-            if (nullptr != targets_parent)
-            {
-                if ((targets_parent == target)
-                  || (nullptr == targets_parent->getParentNode()))
-                {
-                    /* Is the target's parent invalid? (no longer has a valid parent) */
-
-                    camTarget->setParentNode(nullptr);
-                }
-            }
         }
     }
 

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : ePathCtrl()
     {}
 
-    eStrafeCtrl::~eStrafeCtrl() {}
+    eStrafeCtrl::~eStrafeCtrl()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eStrafeCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eStrafeCtrl::createFromOtherObject(const eStrafeCtrl &other)
+    {}
+
+    eStrafeCtrl::eStrafeCtrl(const eStrafeCtrl &other)
+    : ePathCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eStrafeCtrl& eStrafeCtrl::operator = (const eStrafeCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            ePathCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eStrafeCtrl::cloneFromMe() const
+    {
+        return new eStrafeCtrl(*this);
+    }
 
 }

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eLookAtCtrl()
     {}
 
-    ePadRot::~ePadRot() {}
+    ePadRot::~ePadRot()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePadRot: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePadRot::createFromOtherObject(const ePadRot &other)
+    {}
+
+    ePadRot::ePadRot(const ePadRot &other)
+    : eLookAtCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePadRot& ePadRot::operator = (const ePadRot &other)
+    {
+        if ((&other) != this)
+        {
+            eLookAtCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePadRot::cloneFromMe() const
+    {
+        return new ePadRot(*this);
+    }
 
 }

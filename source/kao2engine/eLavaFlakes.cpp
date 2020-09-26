@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eSnow()
     {}
 
-    eLavaFlakes::~eLavaFlakes() {}
+    eLavaFlakes::~eLavaFlakes()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLavaFlakes: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eLavaFlakes::createFromOtherObject(const eLavaFlakes &other)
+    {}
+
+    eLavaFlakes::eLavaFlakes(const eLavaFlakes &other)
+    : eSnow(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eLavaFlakes& eLavaFlakes::operator = (const eLavaFlakes &other)
+    {
+        if ((&other) != this)
+        {
+            eSnow::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eLavaFlakes::cloneFromMe() const
+    {
+        return new eLavaFlakes(*this);
+    }
 
 }

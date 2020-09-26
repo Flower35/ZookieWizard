@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eOMB : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eOMB();
             ~eOMB();
 
+        private:
+
+            void createFromOtherObject(const eOMB &other);
+
+        public:
+
+            eOMB(const eOMB &other);
+            eOMB& operator = (const eOMB &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eOMB TypeInfo
-    // <kao2.005684B0> (registration)
+    // <kao2.00568480> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_OMB_ID = 0xFFEEF789;

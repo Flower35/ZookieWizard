@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eFootPrints : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eFootPrints();
             ~eFootPrints();
 
+        private:
+
+            void createFromOtherObject(const eFootPrints &other);
+
+        public:
+
+            eFootPrints(const eFootPrints &other);
+            eFootPrints& operator = (const eFootPrints &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFootPrints TypeInfo
-    // <kao2.00444840> (registration)
+    // <kao2.00444810> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FOOTPRINTS_ID = 0x3B46EC8F;

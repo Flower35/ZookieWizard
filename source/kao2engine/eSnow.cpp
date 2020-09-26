@@ -30,11 +30,45 @@ namespace ZookieWizard
     : eParticleGeometry()
     {}
 
-    eSnow::~eSnow() {}
+    eSnow::~eSnow()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eSnow serialization
+    // eSnow: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSnow::createFromOtherObject(const eSnow &other)
+    {}
+
+    eSnow::eSnow(const eSnow &other)
+    : eParticleGeometry(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSnow& eSnow::operator = (const eSnow &other)
+    {
+        if ((&other) != this)
+        {
+            eParticleGeometry::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSnow::cloneFromMe() const
+    {
+        return new eSnow(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSnow: serialization
     // <kao2.00560B30>
     ////////////////////////////////////////////////////////////////
     void eSnow::serialize(Archive &ar)

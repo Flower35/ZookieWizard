@@ -10,11 +10,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eMorpherTarget interface
+    // <kao2.005D1A00> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eMorpherTarget : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -30,14 +30,26 @@ namespace ZookieWizard
             eMorpherTarget();
             ~eMorpherTarget();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eMorpherTarget &other);
+
+        public:
+
+            eMorpherTarget(const eMorpherTarget &other);
+            eMorpherTarget& operator = (const eMorpherTarget &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eMorpherTarget TypeInfo
-    // <kao2.0049EF40> (registration)
+    // <kao2.0049EF10> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_MORPHERTARGET_ID = 0x3017;

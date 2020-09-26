@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eTargetGenerator : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -30,13 +29,25 @@ namespace ZookieWizard
             eTargetGenerator();
             ~eTargetGenerator();
 
+        private:
+
+            void createFromOtherObject(const eTargetGenerator &other);
+
+        public:
+
+            eTargetGenerator(const eTargetGenerator &other);
+            eTargetGenerator& operator = (const eTargetGenerator &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eTargetGenerator TypeInfo
-    // <kao2.005A5030> (registration)
+    // <kao2.005A5000> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TARGETGENERATOR_ID = 0x3BE0ACF2;

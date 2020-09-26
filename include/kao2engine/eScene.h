@@ -16,6 +16,8 @@ namespace ZookieWizard
     {
         /*** Properties ***/
 
+        public:
+
             /*[0x00]*/ uint8_t unknown_00;
             /*[0x01]*/ uint8_t unknown_01;
             /*[0x02]*/ uint8_t unknown_02;
@@ -28,12 +30,16 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
+        public:
+
             void serialize(Archive &ar);
     };
 
     struct ScenePortalBaseB
     {
         /*** Properties ***/
+
+        public:
 
             /*[0x00]*/ int32_t unknown_00;
             /*[0x04]*/ eString name;
@@ -48,6 +54,8 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
+        public:
+
             ScenePortalBaseB();
             ~ScenePortalBaseB();
 
@@ -57,11 +65,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eScene interface
+    // <kao2.005D15E0> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eScene : public ePivot
     {
-
         /*** Properties ***/
 
         protected:
@@ -89,19 +97,29 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
-        private:
-
-            void function_00498B20();
-
         public:
 
             eScene();
             ~eScene();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eScene &other);
+
+        public:
+
+            eScene(const eScene &other);
+            eScene& operator = (const eScene &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
 
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
+
+            /* << eNode >> */
 
             void findAndDereference(eNode* target) override;
 
@@ -109,17 +127,25 @@ namespace ZookieWizard
 
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
 
+            /* << eScene >> */
+
             void setBackgroundColor(GLfloat new_color[3]);
             void setAmbientColor(GLfloat new_color[3]);
             void setCompileStrings(eString &str_a, eString &str_b);
 
             eCollisionMgr* getCollisionManager() const;
+
+        private:
+
+            /* << eScene >> */
+
+            void function_00498B20();
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eScene TypeInfo
-    // <kao2.0x00499F90> (registration)
+    // <kao2.00499F60> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SCENE_ID = 0x8001;

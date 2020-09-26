@@ -47,7 +47,71 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Transform structture
+    // eMultiTransform: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eMultiTransform::createFromOtherObject(const eMultiTransform &other)
+    {
+        if (other.transformsCount > 0)
+        {
+            transformsMaxLength = other.transformsCount;
+
+            transforms = new eMultiTransformBase [transformsMaxLength];
+
+            for (transformsCount = 0; transformsCount < transformsMaxLength; transformsCount++)
+            {
+                transforms[transformsCount] = other.transforms[transformsCount];
+            }
+        }
+        else
+        {
+            transformsCount = 0;
+            transformsMaxLength = 0;
+            transforms = nullptr;
+        }
+
+        unknown_54 = other.unknown_54;
+        unknown_58 = other.unknown_58;
+        unknown_5C = other.unknown_5C;
+        unknown_60 = other.unknown_60;
+        unknown_64 = other.unknown_64;
+    }
+
+    eMultiTransform::eMultiTransform(const eMultiTransform &other)
+    : eGroup(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eMultiTransform& eMultiTransform::operator = (const eMultiTransform &other)
+    {
+        if ((&other) != this)
+        {
+            eGroup::operator = (other);
+
+            /****************/
+
+            if (nullptr != transforms)
+            {
+                delete[](transforms);
+            }
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eMultiTransform::cloneFromMe() const
+    {
+        return new eMultiTransform(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Transform Base structture
     // <kao2.004B14FC> (serialization)
     ////////////////////////////////////////////////////////////////
 
@@ -78,7 +142,7 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eMultiTransform serialization
+    // eMultiTransform: serialization
     // <kao2.004B0B30>
     ////////////////////////////////////////////////////////////////
     void eMultiTransform::serialize(Archive &ar)
@@ -87,15 +151,13 @@ namespace ZookieWizard
 
         eGroup::serialize(ar);
 
-        /* Grupa */
-
         if (ar.isInReadMode())
         {
             if (nullptr != transforms)
             {
                 delete[](transforms);
                 transforms = nullptr;
-                
+
                 transformsCount = 0;
             }
 

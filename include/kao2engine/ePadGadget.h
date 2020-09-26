@@ -12,7 +12,6 @@ namespace ZookieWizard
 
     class ePadGadget : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,7 +27,21 @@ namespace ZookieWizard
             ePadGadget();
             ~ePadGadget();
 
+        private:
+
+            void createFromOtherObject(const ePadGadget &other);
+
+        public:
+
+            ePadGadget(const ePadGadget &other);
+            ePadGadget& operator = (const ePadGadget &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+
+            /* << Gadget >> */
 
             eString getDefaultGadgetName() const override;
     };
@@ -36,7 +49,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // ePadGadget TypeInfo
-    // <kao2.004C8300> (registration)
+    // <kao2.004C82D0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PADGADGET_ID = 0x0002FBAD;

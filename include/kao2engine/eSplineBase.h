@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eSplineBase interface
+    // <kao2.005CF380> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eSplineBase : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +29,25 @@ namespace ZookieWizard
             eSplineBase();
             ~eSplineBase();
 
+        private:
+
+            void createFromOtherObject(const eSplineBase &other);
+
+        public:
+
+            eSplineBase(const eSplineBase &other);
+            eSplineBase& operator = (const eSplineBase &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSplineBase TypeInfo
-    // <kao2.0043E670> (registration)
+    // <kao2.0043E640> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SPLINEBASE_ID = 0x3BB4FDE7;

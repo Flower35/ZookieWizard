@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eFloatObject()
     {}
 
-    eFloatCtrlObject::~eFloatCtrlObject() {}
+    eFloatCtrlObject::~eFloatCtrlObject()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eFloatCtrlObject: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eFloatCtrlObject::createFromOtherObject(const eFloatCtrlObject &other)
+    {}
+
+    eFloatCtrlObject::eFloatCtrlObject(const eFloatCtrlObject &other)
+    : eFloatObject(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eFloatCtrlObject& eFloatCtrlObject::operator = (const eFloatCtrlObject &other)
+    {
+        if ((&other) != this)
+        {
+            eFloatObject::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eFloatCtrlObject::cloneFromMe() const
+    {
+        return new eFloatCtrlObject(*this);
+    }
 
 }

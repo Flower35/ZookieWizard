@@ -82,7 +82,76 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eKeyBase: serialize
+    // eLeafCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    template <typename T>
+    void eLeafCtrl<T>::createFromOtherObject(const eLeafCtrl<T> &other)
+    {
+        outOfRangeTypeA = other.outOfRangeTypeA;
+
+        outOfRangeTypeB = other.outOfRangeTypeB;
+
+        keysCount = other.keysCount;
+
+        if (keysCount > 0)
+        {
+            keysMaxLength = keysCount;
+
+            keys = new eKeyBase<T> [keysMaxLength];
+
+            for (int32_t a = 0; a < keysMaxLength; a++)
+            {
+                keys[a] = other.keys[a];
+            }
+        }
+        else
+        {
+            keysMaxLength = 0;
+            keys = nullptr;
+        }
+
+        defaultKeyframeValue = other.defaultKeyframeValue;
+    }
+
+    template <typename T>
+    eLeafCtrl<T>::eLeafCtrl(const eLeafCtrl<T> &other)
+    : eCtrl<T>(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    template <typename T>
+    eLeafCtrl<T>& eLeafCtrl<T>::operator = (const eLeafCtrl<T> &other)
+    {
+        if ((&other) != this)
+        {
+            eCtrl<T>::operator = (other);
+
+            /****************/
+
+            if (nullptr != keys)
+            {
+                delete[](keys);
+            }
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    template <typename T>
+    eObject* eLeafCtrl<T>::cloneFromMe() const
+    {
+        return new eLeafCtrl<T>(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eKeyBase: serialization
     // <kao2.004A5400>: "eFloatKey"
     // <kao2.004A5370>: "ePoint3Key"
     // <kao2.004A52A0>: "eRotationKey"
@@ -95,6 +164,258 @@ namespace ZookieWizard
         ar.readOrWrite(&(data[0]), sizeof(T));
         ar.readOrWrite(&(data[1]), sizeof(T));
         ar.readOrWrite(&(data[2]), sizeof(T));
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: serialization
+    // <kao2.004A31B0>: "eFloatKey"
+    // <kao2.004A3B50>: "ePoint3Key"
+    // <kao2.004A47D0>: "eRotationKey"
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::serialize(Archive &ar)
+    {
+        int32_t i;
+
+        /* "Parameter Curve Out-of-Range Types" */
+
+        ar.readOrWrite(&outOfRangeTypeA, 0x04);
+
+        ar.readOrWrite(&outOfRangeTypeB, 0x04);
+
+        /* Keys group */
+
+        if (ar.isInReadMode())
+        {
+            ar.readOrWrite(&keysMaxLength, 0x04);
+
+            keys = new eKeyBase<T> [keysMaxLength];
+
+            for (i = 0; i < keysMaxLength; i++)
+            {
+                keys[i].serializeKey(ar);
+
+                keysCount = (i+1);
+            }
+        }
+        else
+        {
+            ar.readOrWrite(&keysCount, 0x04);
+
+            for (i = 0; i < keysCount; i++)
+            {
+                keys[i].serializeKey(ar);
+            }
+        }
+
+        /* Possibly a default key */
+        /* "eFloatKey": [0x1C] (4 bytes) */
+        /* "ePoint3Key": [0x1C] [0x20] [0x24] (12 bytes) */
+        /* "eRotationKey": [0x1C] [0x20] [0x24] [0x28] (16 bytes) */
+
+        ar.readOrWrite(&defaultKeyframeValue, sizeof(T));
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: animation function
+    // [[vptr]+0x28] Modify [scale/rotation/position] based on current time
+    // <kao2.004A2ED0>: "eFloatKey"
+    // <kao2.004A3770>: "ePoint3Key"
+    // <kao2.004A4280>: "eRotationKey"
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::ctrlApplyTransform(T* e, float time) const
+    {
+        T test = {0};
+
+        if (nullptr != e)
+        {
+            if (0 == keysCount)
+            {
+                (*e) = defaultKeyframeValue;
+
+                return;
+            }
+            else if (1 == keysCount)
+            {
+                (*e) = keys[0].data[0];
+
+                return;
+            }
+            else
+            {
+                switch ((time > keys[0].time) ? outOfRangeTypeB : outOfRangeTypeA)
+                {
+                    case 0: // "Constant"
+                    {
+                        if (time <= keys[0].time)
+                        {
+                            (*e) = keys[0].data[0];
+
+                            return;
+                        }
+                        else if (time >= keys[keysCount - 1].time)
+                        {
+                            (*e) = keys[keysCount - 1].data[0];
+
+                            return;
+                        }
+
+                        break;
+                    }
+
+                    case 1: // "Cycle"
+                    case 2: // "Loop"
+                    {
+                        float x = keys[keysCount - 1].time - keys[0].time;
+                        float y = time - keys[0].time;
+
+                        float w = fmod(y, x);
+
+                        if (w < 0)
+                        {
+                            w += x;
+                        }
+
+                        time = w + keys[0].time;
+
+                        break;
+                    }
+
+                    case 3: // "Ping Pong"
+                    {
+                        if (time >= keys[keysCount - 1].time)
+                        {
+                            (*e) = keys[keysCount - 1].data[0];
+
+                            return;
+                        }
+
+                        float x = keys[keysCount - 1].time - keys[0].time;
+                        float y = time - keys[0].time;
+                        float z = x + x;
+
+                        float w = fmod(y, z);
+
+                        if (w < 0)
+                        {
+                            w += z;
+                        }
+
+                        if (w > x)
+                        {
+                            w = z - w;
+                        }
+
+                        time = w + keys[0].time;
+
+                        break;
+                    }
+
+                    case 4: // "Linear"
+                    {
+                        /* (--dsp--) <kao2.004A303E> */
+
+                        break;
+                    }
+
+                    case 5: // "Relative Repeat"
+                    {
+                        float x = keys[keysCount - 1].time - keys[0].time;
+                        float y = time - keys[0].time;
+
+                        float z = floor(y / x);
+                        float w = fmod(y, x);
+
+                        if (w < 0)
+                        {
+                            w += x;
+                        }
+
+                        time = w + keys[0].time;
+
+                        test = (keys[keysCount - 1].data[0] - keys[0].data[0]) * z;
+
+                        break;
+                    }
+                }
+
+                int id = getKeyframeId(time);
+
+                float ratio = (time - keys[id].time) / (keys[id + 1].time - keys[id].time);
+
+                (*e) = interpolate(ratio, keys[id].data[0], keys[id + 1].data[0], test);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: set static keyframes for fun
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::ctrlSetStaticKeyframe(T &new_value, int32_t param)
+    {
+        if (0x01 == param)
+        {
+            clearLeafKeys();
+
+            defaultKeyframeValue = new_value;
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: clear keyframes for specific animation
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::ctrlClearKeyframes(int32_t anim_id)
+    {
+        clearLeafKeys();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: set loop type
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
+    {
+        if (0x01 == param)
+        {
+            if (loop_type < 0)
+            {
+                loop_type = 0;
+            }
+            else if (loop_type > 5)
+            {
+                loop_type = 5;
+            }
+
+            outOfRangeTypeB = outOfRangeTypeA = loop_type;
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: update specific animation
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::ctrlAddKeyframe(int anim_id, float new_time, T &new_data, int param)
+    {
+        addLeafKey(new_time, new_data);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: set default value (used when there are no keys)
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::setDefaultValue(T new_value)
+    {
+        defaultKeyframeValue = new_value;
     }
 
 
@@ -241,258 +562,6 @@ namespace ZookieWizard
                 keys[a + 1].data[1] = control_point_D;
             }
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eLeafCtrl: animation function
-    // [[vptr]+0x28] Modify [scale/rotation/position] based on current time
-    // <kao2.004A2ED0>: "eFloatKey"
-    // <kao2.004A3770>: "ePoint3Key"
-    // <kao2.004A4280>: "eRotationKey"
-    ////////////////////////////////////////////////////////////////
-    template <typename T>
-    void eLeafCtrl<T>::ctrlApplyTransform(T* e, float time) const
-    {
-        T test = {0};
-
-        if (nullptr != e)
-        {
-            if (0 == keysCount)
-            {
-                (*e) = defaultKeyframeValue;
-
-                return;
-            }
-            else if (1 == keysCount)
-            {
-                (*e) = keys[0].data[0];
-
-                return;
-            }
-            else
-            {
-                switch ((time > keys[0].time) ? outOfRangeTypeB : outOfRangeTypeA)
-                {
-                    case 0: // "Constant"
-                    {
-                        if (time <= keys[0].time)
-                        {
-                            (*e) = keys[0].data[0];
-
-                            return;
-                        }
-                        else if (time >= keys[keysCount - 1].time)
-                        {
-                            (*e) = keys[keysCount - 1].data[0];
-
-                            return;
-                        }
-
-                        break;
-                    }
-
-                    case 1: // "Cycle"
-                    case 2: // "Loop"
-                    {
-                        float x = keys[keysCount - 1].time - keys[0].time;
-                        float y = time - keys[0].time;
-
-                        float w = fmod(y, x);
-
-                        if (w < 0)
-                        {
-                            w += x;
-                        }
-
-                        time = w + keys[0].time;
-
-                        break;
-                    }
-
-                    case 3: // "Ping Pong"
-                    {
-                        if (time >= keys[keysCount - 1].time)
-                        {
-                            (*e) = keys[keysCount - 1].data[0];
-
-                            return;
-                        }
-
-                        float x = keys[keysCount - 1].time - keys[0].time;
-                        float y = time - keys[0].time;
-                        float z = x + x;
-
-                        float w = fmod(y, z);
-
-                        if (w < 0)
-                        {
-                            w += z;
-                        }
-
-                        if (w > x)
-                        {
-                            w = z - w;
-                        }
-
-                        time = w + keys[0].time;
-
-                        break;
-                    }
-
-                    case 4: // "Linear"
-                    {
-                        /* (--dsp--) <kao2.004A303E> */
-
-                        break;
-                    }
-
-                    case 5: // "Relative Repeat"
-                    {
-                        float x = keys[keysCount - 1].time - keys[0].time;
-                        float y = time - keys[0].time;
-
-                        float z = floor(y / x);
-                        float w = fmod(y, x);
-
-                        if (w < 0)
-                        {
-                            w += x;
-                        }
-
-                        time = w + keys[0].time;
-
-                        test = (keys[keysCount - 1].data[0] - keys[0].data[0]) * z;
-
-                        break;
-                    }
-                }
-
-                int id = getKeyframeId(time);
-
-                float ratio = (time - keys[id].time) / (keys[id + 1].time - keys[id].time);
-
-                (*e) = interpolate(ratio, keys[id].data[0], keys[id + 1].data[0], test);
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eLeafCtrl serialization
-    // <kao2.004A31B0>: "eFloatKey"
-    // <kao2.004A3B50>: "ePoint3Key"
-    // <kao2.004A47D0>: "eRotationKey"
-    ////////////////////////////////////////////////////////////////
-    template <typename T>
-    void eLeafCtrl<T>::serialize(Archive &ar)
-    {
-        int32_t i;
-
-        /* "Parameter Curve Out-of-Range Types" */
-
-        ar.readOrWrite(&outOfRangeTypeA, 0x04);
-
-        ar.readOrWrite(&outOfRangeTypeB, 0x04);
-
-        /* Keys group */
-
-        if (ar.isInReadMode())
-        {
-            ar.readOrWrite(&keysMaxLength, 0x04);
-
-            keys = new eKeyBase<T> [keysMaxLength];
-
-            for (i = 0; i < keysMaxLength; i++)
-            {
-                keys[i].serializeKey(ar);
-
-                keysCount = (i+1);
-            }
-        }
-        else
-        {
-            ar.readOrWrite(&keysCount, 0x04);
-
-            for (i = 0; i < keysCount; i++)
-            {
-                keys[i].serializeKey(ar);
-            }
-        }
-
-        /* Possibly a default key */
-        /* "eFloatKey": [0x1C] (4 bytes) */
-        /* "ePoint3Key": [0x1C] [0x20] [0x24] (12 bytes) */
-        /* "eRotationKey": [0x1C] [0x20] [0x24] [0x28] (16 bytes) */
-
-        ar.readOrWrite(&defaultKeyframeValue, sizeof(T));
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eLeafCtrl: set static keyframes for fun
-    ////////////////////////////////////////////////////////////////
-    template <typename T>
-    void eLeafCtrl<T>::ctrlSetStaticKeyframe(T &new_value, int32_t param)
-    {
-        if (0x01 == param)
-        {
-            clearLeafKeys();
-
-            defaultKeyframeValue = new_value;
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eLeafCtrl: clear keyframes for specific animation
-    ////////////////////////////////////////////////////////////////
-    template <typename T>
-    void eLeafCtrl<T>::ctrlClearKeyframes(int32_t anim_id)
-    {
-        clearLeafKeys();
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eLeafCtrl: set loop type
-    ////////////////////////////////////////////////////////////////
-    template <typename T>
-    void eLeafCtrl<T>::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
-    {
-        if (0x01 == param)
-        {
-            if (loop_type < 0)
-            {
-                loop_type = 0;
-            }
-            else if (loop_type > 5)
-            {
-                loop_type = 5;
-            }
-
-            outOfRangeTypeB = outOfRangeTypeA = loop_type;
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eLeafCtrl: update specific animation
-    ////////////////////////////////////////////////////////////////
-    template <typename T>
-    void eLeafCtrl<T>::ctrlAddKeyframe(int anim_id, float new_time, T &new_data, int param)
-    {
-        addLeafKey(new_time, new_data);
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eLeafCtrl: set default value (used when there are no keys)
-    ////////////////////////////////////////////////////////////////
-    template <typename T>
-    void eLeafCtrl<T>::setDefaultValue(T new_value)
-    {
-        defaultKeyframeValue = new_value;
     }
 
 

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : ePhysics()
     {}
 
-    eWhalePhysics::~eWhalePhysics() {}
+    eWhalePhysics::~eWhalePhysics()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eWhalePhysics: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eWhalePhysics::createFromOtherObject(const eWhalePhysics &other)
+    {}
+
+    eWhalePhysics::eWhalePhysics(const eWhalePhysics &other)
+    : ePhysics(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eWhalePhysics& eWhalePhysics::operator = (const eWhalePhysics &other)
+    {
+        if ((&other) != this)
+        {
+            ePhysics::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eWhalePhysics::cloneFromMe() const
+    {
+        return new eWhalePhysics(*this);
+    }
 
 }

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eFlyingTarget : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -30,13 +29,25 @@ namespace ZookieWizard
             eFlyingTarget();
             ~eFlyingTarget();
 
+        private:
+
+            void createFromOtherObject(const eFlyingTarget &other);
+
+        public:
+
+            eFlyingTarget(const eFlyingTarget &other);
+            eFlyingTarget& operator = (const eFlyingTarget &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eFlyingTarget TypeInfo
-    // <kao2.00500B40> (registration)
+    // <kao2.00500B10> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_FLYINGTARGET_ID = 0x0002F0F4;

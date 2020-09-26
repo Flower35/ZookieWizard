@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eFSOp::~eFSOp() {}
+    eFSOp::~eFSOp()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eFSOp: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eFSOp::createFromOtherObject(const eFSOp &other)
+    {}
+
+    eFSOp::eFSOp(const eFSOp &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eFSOp& eFSOp::operator = (const eFSOp &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eFSOp::cloneFromMe() const
+    {
+        return nullptr;
+    }
 
 }

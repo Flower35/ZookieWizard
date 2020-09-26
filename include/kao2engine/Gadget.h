@@ -13,12 +13,11 @@ namespace ZookieWizard
 
     class Gadget : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
 
-            /*[0x08]*/ Actor* unknown_08;
+            /*[0x08]*/ Actor* parentActor;
             /*[0x0C]*/ eString name;
 
         /*** Methods ***/
@@ -28,11 +27,25 @@ namespace ZookieWizard
             Gadget();
             ~Gadget();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const Gadget &other);
+
+        public:
+
+            Gadget(const Gadget &other);
+            Gadget& operator = (const Gadget &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
 
             eString getStringRepresentation() const override;
             eString generateScriptText() const override;
+
+            /* << Gadget >> */
 
             virtual eString getDefaultGadgetName() const;
     };
@@ -40,7 +53,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // Gadget TypeInfo
-    // <kao2.005980C0> (registration)
+    // <kao2.00598090> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_GADGET_ID = 0x00020000;

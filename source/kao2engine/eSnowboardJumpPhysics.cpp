@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eJumpPhysics()
     {}
 
-    eSnowboardJumpPhysics::~eSnowboardJumpPhysics() {}
+    eSnowboardJumpPhysics::~eSnowboardJumpPhysics()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSnowboardJumpPhysics: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSnowboardJumpPhysics::createFromOtherObject(const eSnowboardJumpPhysics &other)
+    {}
+
+    eSnowboardJumpPhysics::eSnowboardJumpPhysics(const eSnowboardJumpPhysics &other)
+    : eJumpPhysics(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSnowboardJumpPhysics& eSnowboardJumpPhysics::operator = (const eSnowboardJumpPhysics &other)
+    {
+        if ((&other) != this)
+        {
+            eJumpPhysics::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSnowboardJumpPhysics::cloneFromMe() const
+    {
+        return new eSnowboardJumpPhysics(*this);
+    }
 
 }

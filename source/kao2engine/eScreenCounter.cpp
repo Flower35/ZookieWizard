@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eTextWriterFields2()
     {}
 
-    eScreenCounter::~eScreenCounter() {}
+    eScreenCounter::~eScreenCounter()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eScreenCounter: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eScreenCounter::createFromOtherObject(const eScreenCounter &other)
+    {}
+
+    eScreenCounter::eScreenCounter(const eScreenCounter &other)
+    : eTextWriterFields2(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eScreenCounter& eScreenCounter::operator = (const eScreenCounter &other)
+    {
+        if ((&other) != this)
+        {
+            eTextWriterFields2::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eScreenCounter::cloneFromMe() const
+    {
+        return new eScreenCounter(*this);
+    }
 
 }

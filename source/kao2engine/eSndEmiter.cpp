@@ -32,11 +32,47 @@ namespace ZookieWizard
     : eTransform()
     {}
 
-    eSndEmiter::~eSndEmiter() {}
+    eSndEmiter::~eSndEmiter()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eSndEmiter serialization
+    // eSndEmiter: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSndEmiter::createFromOtherObject(const eSndEmiter &other)
+    {
+        controllers = other.controllers;
+    }
+
+    eSndEmiter::eSndEmiter(const eSndEmiter &other)
+    : eTransform(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSndEmiter& eSndEmiter::operator = (const eSndEmiter &other)
+    {
+        if ((&other) != this)
+        {
+            eTransform::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSndEmiter::cloneFromMe() const
+    {
+        return nullptr;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSndEmiter: serialization
     // <kao2.0056A830>
     ////////////////////////////////////////////////////////////////
     void eSndEmiter::serialize(Archive &ar)

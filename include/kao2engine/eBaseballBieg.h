@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eBaseballBieg : public eSplineWalk
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eBaseballBieg();
             ~eBaseballBieg();
 
+        private:
+
+            void createFromOtherObject(const eBaseballBieg &other);
+
+        public:
+
+            eBaseballBieg(const eBaseballBieg &other);
+            eBaseballBieg& operator = (const eBaseballBieg &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eBaseballBieg TypeInfo
-    // <kao2.0045A120> (registration)
+    // <kao2.0045A0F0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_BASEBALLBIEG_ID = 0x3BCFE7E9;

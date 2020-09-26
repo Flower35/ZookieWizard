@@ -418,6 +418,7 @@
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardGUI.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardMaterials.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardMisc.cpp" />
+    <ClCompile Include="..\source\ZookieWizard\ZookieWizardNodes.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardRender.cpp" />
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardSpecialModels.cpp" />
   </ItemGroup>

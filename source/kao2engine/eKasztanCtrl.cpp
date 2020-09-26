@@ -30,11 +30,47 @@ namespace ZookieWizard
     : eEmptyCtrl()
     {}
 
-    eKasztanCtrl::~eKasztanCtrl() {}
+    eKasztanCtrl::~eKasztanCtrl()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eKasztanCtrl serialization
+    // eKasztanCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eKasztanCtrl::createFromOtherObject(const eKasztanCtrl &other)
+    {
+        unknown_5C = other.unknown_5C;
+    }
+
+    eKasztanCtrl::eKasztanCtrl(const eKasztanCtrl &other)
+    : eEmptyCtrl(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eKasztanCtrl& eKasztanCtrl::operator = (const eKasztanCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eEmptyCtrl::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eKasztanCtrl::cloneFromMe() const
+    {
+        return new eKasztanCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eKasztanCtrl: serialization
     // <kao2.00427DE0>
     ////////////////////////////////////////////////////////////////
     void eKasztanCtrl::serialize(Archive &ar)

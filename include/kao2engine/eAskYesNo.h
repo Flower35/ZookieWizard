@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eAskYesNo : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eAskYesNo();
             ~eAskYesNo();
 
+        private:
+
+            void createFromOtherObject(const eAskYesNo &other);
+
+        public:
+
+            eAskYesNo(const eAskYesNo &other);
+            eAskYesNo& operator = (const eAskYesNo &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eAskYesNo TypeInfo
-    // <kao2.00460470> (registration)
+    // <kao2.00460440> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ASKYESNO_ID = 0x38339AA6;

@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eTrack interface
+    // <kao2.005CF7C8> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eTrack : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,11 +29,25 @@ namespace ZookieWizard
             eTrack();
             ~eTrack();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eTrack &other);
+
+        public:
+
+            eTrack(const eTrack &other);
+            eTrack& operator = (const eTrack &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
 
             eString getStringRepresentation() const override;
             eString getLogPrintMessage() const override;
+
+            /* << eTrack >> */
 
             void setName(eString new_name);
 
@@ -51,7 +65,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eTrack TypeInfo
-    // <kao2.0x004B5F80> (registration)
+    // <kao2.004B5F50> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_TRACK_ID = 0xAC000000;

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : eCollisionPrimitive()
     {}
 
-    eCollisionSphere::~eCollisionSphere() {}
+    eCollisionSphere::~eCollisionSphere()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCollisionSphere: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eCollisionSphere::createFromOtherObject(const eCollisionSphere &other)
+    {}
+
+    eCollisionSphere::eCollisionSphere(const eCollisionSphere &other)
+    : eCollisionPrimitive(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eCollisionSphere& eCollisionSphere::operator = (const eCollisionSphere &other)
+    {
+        if ((&other) != this)
+        {
+            eCollisionPrimitive::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eCollisionSphere::cloneFromMe() const
+    {
+        return new eCollisionSphere(*this);
+    }
 
 }

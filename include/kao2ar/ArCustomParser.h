@@ -103,6 +103,7 @@ namespace ZookieWizard
             ~ArCustomParser();
 
             bool openFile(eString filename, eGroup* current_parent);
+            eGroup* getDefaultParent() const;
             int32_t beginParsing();
 
         private:

@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eActorCollision::~eActorCollision() {}
+    eActorCollision::~eActorCollision()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eActorCollision: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eActorCollision::createFromOtherObject(const eActorCollision &other)
+    {}
+
+    eActorCollision::eActorCollision(const eActorCollision &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eActorCollision& eActorCollision::operator = (const eActorCollision &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eActorCollision::cloneFromMe() const
+    {
+        return new eActorCollision(*this);
+    }
 
 }

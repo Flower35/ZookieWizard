@@ -45,7 +45,71 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTexTransform serialization
+    // eTexTransform: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eTexTransform::createFromOtherObject(const eTexTransform &other)
+    {
+        xScale = other.xScale;
+        if (nullptr != xScale)
+        {
+            xScale->incRef();
+        }
+
+        yScale = other.yScale;
+        if (nullptr != yScale)
+        {
+            yScale->incRef();
+        }
+
+        uOffset = other.uOffset;
+        if (nullptr != uOffset)
+        {
+            uOffset->incRef();
+        }
+
+        vOffset = other.vOffset;
+        if (nullptr != vOffset)
+        {
+            vOffset->incRef();
+        }
+    }
+
+    eTexTransform::eTexTransform(const eTexTransform &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eTexTransform& eTexTransform::operator = (const eTexTransform &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            xScale->decRef();
+            yScale->decRef();
+            uOffset->decRef();
+            vOffset->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eTexTransform::cloneFromMe() const
+    {
+        return new eTexTransform(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTexTransform: serialization
     // <kao2.00472C80>
     ////////////////////////////////////////////////////////////////
     void eTexTransform::serialize(Archive &ar)
@@ -67,7 +131,6 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTexTransform: update texture matrix
     ////////////////////////////////////////////////////////////////
-
     void eTexTransform::updateTextureMatrix(eAnimate* anim) const
     {
         /* Reset the Texture Mapping matrix and update it */

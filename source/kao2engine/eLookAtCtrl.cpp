@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eLookAtCtrl::~eLookAtCtrl() {}
+    eLookAtCtrl::~eLookAtCtrl()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLookAtCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eLookAtCtrl::createFromOtherObject(const eLookAtCtrl &other)
+    {}
+
+    eLookAtCtrl::eLookAtCtrl(const eLookAtCtrl &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eLookAtCtrl& eLookAtCtrl::operator = (const eLookAtCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eLookAtCtrl::cloneFromMe() const
+    {
+        return new eLookAtCtrl(*this);
+    }
 
 }

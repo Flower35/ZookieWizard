@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eActivate : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,13 +26,25 @@ namespace ZookieWizard
             eActivate();
             ~eActivate();
 
+        private:
+
+            void createFromOtherObject(const eActivate &other);
+
+        public:
+
+            eActivate(const eActivate &other);
+            eActivate& operator = (const eActivate &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eActivate TypeInfo
-    // <kao2.005A3480> (registration)
+    // <kao2.005A3450> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_ACTIVATE_ID = 0x358E5A86;

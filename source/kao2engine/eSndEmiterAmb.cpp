@@ -30,6 +30,42 @@ namespace ZookieWizard
     : eSndEmiter()
     {}
 
-    eSndEmiterAmb::~eSndEmiterAmb() {}
+    eSndEmiterAmb::~eSndEmiterAmb()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSndEmiterAmb: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSndEmiterAmb::createFromOtherObject(const eSndEmiterAmb &other)
+    {
+        unknown_08 = other.unknown_08;
+    }
+
+    eSndEmiterAmb::eSndEmiterAmb(const eSndEmiterAmb &other)
+    : eSndEmiter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSndEmiterAmb& eSndEmiterAmb::operator = (const eSndEmiterAmb &other)
+    {
+        if ((&other) != this)
+        {
+            eSndEmiter::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSndEmiterAmb::cloneFromMe() const
+    {
+        return new eSndEmiterAmb(*this);
+    }
 
 }

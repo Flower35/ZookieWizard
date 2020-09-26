@@ -43,6 +43,70 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // ePathConstrainCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePathConstrainCtrl::createFromOtherObject(const ePathConstrainCtrl &other)
+    {
+        unknown_08 = other.unknown_08;
+        if (nullptr != unknown_08)
+        {
+            unknown_08->incRef();
+        }
+
+        unknown_0C = other.unknown_0C;
+        if (nullptr != unknown_0C)
+        {
+            unknown_0C->incRef();
+        }
+    }
+
+    ePathConstrainCtrl::ePathConstrainCtrl(const ePathConstrainCtrl &other)
+    : eCtrl<ePoint3>(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePathConstrainCtrl& ePathConstrainCtrl::operator = (const ePathConstrainCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eCtrl<ePoint3>::operator = (other);
+
+            /****************/
+
+            unknown_0C->decRef();
+            unknown_08->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePathConstrainCtrl::cloneFromMe() const
+    {
+        return new ePathConstrainCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePathConstrainCtrl: serialization
+    // <kao2.004A7B70>
+    ////////////////////////////////////////////////////////////////
+    void ePathConstrainCtrl::serialize(Archive &ar)
+    {
+        /* [0x08] eBezierSplineNode */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_08, &E_BEZIERSPLINENODE_TYPEINFO);
+
+        /* [0x0C] eLeafCtrl<float> */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_0C, &E_LEAFCTRL_FLOAT_TYPEINFO);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // ePathConstrainCtrl: animation function
     // [[vptr]+0x28] Modify "ePoint3" based on current time
     // <kao2.004A7B00>
@@ -58,33 +122,9 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // ePathConstrainCtrl serialization
-    // <kao2.004A7B70>
-    ////////////////////////////////////////////////////////////////
-    void ePathConstrainCtrl::serialize(Archive &ar)
-    {
-        /* [0x08] eBezierSplineNode */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_08, &E_BEZIERSPLINENODE_TYPEINFO);
-
-        /* [0x0C] eLeafCtrl<float> */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_0C, &E_LEAFCTRL_FLOAT_TYPEINFO);
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // ePathConstrainCtrl: set static keyframes for fun
     ////////////////////////////////////////////////////////////////
     void ePathConstrainCtrl::ctrlSetStaticKeyframe(ePoint3 &new_value, int32_t param)
-    {
-        /* (...) don't know what to do... */
-        return;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // ePathConstrainCtrl: set loop type
-    ////////////////////////////////////////////////////////////////
-    void ePathConstrainCtrl::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
     {
         /* (...) don't know what to do... */
         return;
@@ -101,6 +141,16 @@ namespace ZookieWizard
             unknown_0C->ctrlClearKeyframes(anim_id);
         }
 
+        /* (...) don't know what to do... */
+        return;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePathConstrainCtrl: set loop type
+    ////////////////////////////////////////////////////////////////
+    void ePathConstrainCtrl::ctrlSetLoopType(int32_t anim_id, int32_t loop_type, int32_t param)
+    {
         /* (...) don't know what to do... */
         return;
     }

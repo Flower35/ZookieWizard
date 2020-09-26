@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eCameraFOVCtrl::~eCameraFOVCtrl() {}
+    eCameraFOVCtrl::~eCameraFOVCtrl()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCameraFOVCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eCameraFOVCtrl::createFromOtherObject(const eCameraFOVCtrl &other)
+    {}
+
+    eCameraFOVCtrl::eCameraFOVCtrl(const eCameraFOVCtrl &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eCameraFOVCtrl& eCameraFOVCtrl::operator = (const eCameraFOVCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eCameraFOVCtrl::cloneFromMe() const
+    {
+        return new eCameraFOVCtrl(*this);
+    }
 
 }

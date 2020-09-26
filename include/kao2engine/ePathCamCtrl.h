@@ -10,11 +10,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // ePathCamCtrl interface
+    // <kao2.005D5AB4> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class ePathCamCtrl : public eCameraCtrl
     {
-
         /*** Properties ***/
 
         protected:
@@ -35,8 +35,22 @@ namespace ZookieWizard
             ePathCamCtrl();
             ~ePathCamCtrl();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const ePathCamCtrl &other);
+
+        public:
+
+            ePathCamCtrl(const ePathCamCtrl &other);
+            ePathCamCtrl& operator = (const ePathCamCtrl &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << ePathCamCtrl >> */
 
             eCamera* getCameraLink() const;
             void setCameraLink(eCamera* new_camera);
@@ -48,7 +62,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // ePathCamCtrl TypeInfo
-    // <kao2.0052B0F0> (registration)
+    // <kao2.0052B0C0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PATHCAMCTRL_ID = 0x12455671;

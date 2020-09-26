@@ -50,7 +50,51 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eXRefProxy serialization
+    // eXRefProxy: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eXRefProxy::createFromOtherObject(const eXRefProxy &other)
+    {
+        target = other.target;
+
+        if (nullptr != target)
+        {
+            target->incRef();
+        }
+    }
+
+    eXRefProxy::eXRefProxy(const eXRefProxy &other)
+    : eNode(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eXRefProxy& eXRefProxy::operator = (const eXRefProxy &other)
+    {
+        if ((&other) != this)
+        {
+            eNode::operator = (other);
+
+            /****************/
+
+            target->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eXRefProxy::cloneFromMe() const
+    {
+        return new eXRefProxy(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eXRefProxy: serialization
     // <kao2.004AD600>
     ////////////////////////////////////////////////////////////////
     void eXRefProxy::serialize(Archive &ar)

@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSpringTrunk2 : public Gadget
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,13 +28,25 @@ namespace ZookieWizard
             eSpringTrunk2();
             ~eSpringTrunk2();
 
+        private:
+
+            void createFromOtherObject(const eSpringTrunk2 &other);
+
+        public:
+
+            eSpringTrunk2(const eSpringTrunk2 &other);
+            eSpringTrunk2& operator = (const eSpringTrunk2 &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSpringTrunk2 TypeInfo
-    // <kao2.004F2C00> (registration)
+    // <kao2.004F2BD0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SPRINGTRUNK2_ID = 0x00025402;

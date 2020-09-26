@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eCinemaMode::~eCinemaMode() {}
+    eCinemaMode::~eCinemaMode()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eCinemaMode: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eCinemaMode::createFromOtherObject(const eCinemaMode &other)
+    {}
+
+    eCinemaMode::eCinemaMode(const eCinemaMode &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eCinemaMode& eCinemaMode::operator = (const eCinemaMode &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eCinemaMode::cloneFromMe() const
+    {
+        return new eCinemaMode(*this);
+    }
 
 }

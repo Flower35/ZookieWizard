@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSphereEmiter : public eParticleEmiter
     {
-
         /*** Properties ***/
 
         protected:
@@ -28,14 +27,26 @@ namespace ZookieWizard
             eSphereEmiter();
             ~eSphereEmiter();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eSphereEmiter &other);
+
+        public:
+
+            eSphereEmiter(const eSphereEmiter &other);
+            eSphereEmiter& operator = (const eSphereEmiter &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eSphereEmiter TypeInfo
-    // <kao2.00553940> (registration)
+    // <kao2.00553910> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SPHEREEMITER_ID = 0x0001E004;

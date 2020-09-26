@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eSphNode : public eGeometry
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,8 +26,22 @@ namespace ZookieWizard
             eSphNode();
             ~eSphNode();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const eSphNode &other);
+
+        public:
+
+            eSphNode(const eSphNode &other);
+            eSphNode& operator = (const eSphNode &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
+
+            /* << eNode >> */
 
             void renderNode(eDrawContext &draw_context) const override;
 
@@ -41,7 +54,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eSphNode TypeInfo
-    // <kao2.004AC520> (registration)
+    // <kao2.004AC4F0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_SPHNODE_ID = 0x0101F34B;

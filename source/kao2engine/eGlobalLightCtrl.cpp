@@ -23,36 +23,62 @@ namespace ZookieWizard
 
     TypeInfo* eGlobalLightCtrl::getType() const
     {
-        /* (--dsp--) Simple hack for versions older than "kao_tw" */
-        /* But this replaces object ID even when saving "kao_tw" archives... */
-
-        return &E_GROUP_TYPEINFO;
+        return &E_GLOBALLIGHTCTRL_TYPEINFO;
     }
 
     eGlobalLightCtrl::eGlobalLightCtrl()
     : eGroup()
     {}
 
-    eGlobalLightCtrl::~eGlobalLightCtrl() {}
+    eGlobalLightCtrl::~eGlobalLightCtrl()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eGlobalLightCtrl serialization
+    // eGlobalLightCtrl: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eGlobalLightCtrl::createFromOtherObject(const eGlobalLightCtrl &other)
+    {}
+
+    eGlobalLightCtrl::eGlobalLightCtrl(const eGlobalLightCtrl &other)
+    : eGroup(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eGlobalLightCtrl& eGlobalLightCtrl::operator = (const eGlobalLightCtrl &other)
+    {
+        if ((&other) != this)
+        {
+            eGroup::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eGlobalLightCtrl::cloneFromMe() const
+    {
+        return new eGlobalLightCtrl(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGlobalLightCtrl: serialization
     ////////////////////////////////////////////////////////////////
     void eGlobalLightCtrl::serialize(Archive &ar)
     {
-        /* See above: TypeInfo hack ("eGroup" ID is being written) */
-
-        if (false)
+        if (ar.getVersion() < 0x90)
         {
-            if (ar.getVersion() < 0x90)
-            {
-                throw ErrorMessage
-                (
-                    "eGlobalLightCtrl::serialize():\n" \
-                    "ar.version() 144 required!"
-                );
-            }
+            throw ErrorMessage
+            (
+                "eGlobalLightCtrl::serialize():\n" \
+                "ar.version() 144 required!"
+            );
         }
 
         eGroup::serialize(ar);

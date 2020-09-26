@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // ePlaneEmiter interface
+    // <kao2.005D6658> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class ePlaneEmiter : public eParticleEmiter
     {
-
         /*** Properties ***/
 
         protected:
@@ -27,14 +27,26 @@ namespace ZookieWizard
             ePlaneEmiter();
             ~ePlaneEmiter();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const ePlaneEmiter &other);
+
+        public:
+
+            ePlaneEmiter(const ePlaneEmiter &other);
+            ePlaneEmiter& operator = (const ePlaneEmiter &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // ePlaneEmiter TypeInfo
-    // <kao2.00553870> (registration)
+    // <kao2.00553840> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_PLANEEMITER_ID = 0x0001E003;

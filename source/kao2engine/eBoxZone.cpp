@@ -29,13 +29,49 @@ namespace ZookieWizard
 
     eBoxZone::eBoxZone()
     : eZone()
-    {}
+    {
+        /*[0x1C]*/ flags |= 0x40000000;
+    }
 
-    eBoxZone::~eBoxZone() {}
+    eBoxZone::~eBoxZone()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eBoxZone serialization
+    // eBoxZone: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eBoxZone::createFromOtherObject(const eBoxZone &other)
+    {}
+
+    eBoxZone::eBoxZone(const eBoxZone &other)
+    : eZone(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eBoxZone& eBoxZone::operator = (const eBoxZone &other)
+    {
+        if ((&other) != this)
+        {
+            eZone::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eBoxZone::cloneFromMe() const
+    {
+        return new eBoxZone(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBoxZone: serialization
     // <kao2.0049E290>
     ////////////////////////////////////////////////////////////////
     void eBoxZone::serialize(Archive &ar)

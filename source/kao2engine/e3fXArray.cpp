@@ -30,7 +30,41 @@ namespace ZookieWizard
     : eGeoArray<ePoint4>()
     {}
 
-    e3fXArray::~e3fXArray() {}
+    e3fXArray::~e3fXArray()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // e3fXArray: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void e3fXArray::createFromOtherObject(const e3fXArray &other)
+    {}
+
+    e3fXArray::e3fXArray(const e3fXArray &other)
+    : eGeoArray<ePoint4>(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    e3fXArray& e3fXArray::operator = (const e3fXArray &other)
+    {
+        if ((&other) != this)
+        {
+            eGeoArray<ePoint4>::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* e3fXArray::cloneFromMe() const
+    {
+        return new e3fXArray(*this);
+    }
 
 
     ////////////////////////////////////////////////////////////////

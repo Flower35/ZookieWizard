@@ -30,6 +30,40 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eExtraAlbox::~eExtraAlbox() {}
+    eExtraAlbox::~eExtraAlbox()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // eExtraAlbox: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eExtraAlbox::createFromOtherObject(const eExtraAlbox &other)
+    {}
+
+    eExtraAlbox::eExtraAlbox(const eExtraAlbox &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eExtraAlbox& eExtraAlbox::operator = (const eExtraAlbox &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eExtraAlbox::cloneFromMe() const
+    {
+        return new eExtraAlbox(*this);
+    }
 
 }

@@ -30,11 +30,45 @@ namespace ZookieWizard
     : Gadget()
     {}
 
-    eBonusShooting::~eBonusShooting() {}
+    eBonusShooting::~eBonusShooting()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eBonusShooting serialization
+    // eBonusShooting: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eBonusShooting::createFromOtherObject(const eBonusShooting &other)
+    {}
+
+    eBonusShooting::eBonusShooting(const eBonusShooting &other)
+    : Gadget(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eBonusShooting& eBonusShooting::operator = (const eBonusShooting &other)
+    {
+        if ((&other) != this)
+        {
+            Gadget::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eBonusShooting::cloneFromMe() const
+    {
+        return new eBonusShooting(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBonusShooting: serialization
     ////////////////////////////////////////////////////////////////
     void eBonusShooting::serialize(Archive &ar)
     {

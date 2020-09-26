@@ -8,11 +8,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eCameraShaker interface
+    // <kao2.005D2C68> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eCameraShaker : public Gadget
     {
-
         /*** Methods ***/
 
         public:
@@ -20,13 +20,25 @@ namespace ZookieWizard
             eCameraShaker();
             ~eCameraShaker();
 
+        private:
+
+            void createFromOtherObject(const eCameraShaker &other);
+
+        public:
+
+            eCameraShaker(const eCameraShaker &other);
+            eCameraShaker& operator = (const eCameraShaker &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eCameraShaker TypeInfo
-    // <kao2.004D59B0> (registration)
+    // <kao2.004D5980> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_CAMERASHAKER_ID = 0xCA3E7A11;

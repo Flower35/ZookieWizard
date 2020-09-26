@@ -13,7 +13,6 @@ namespace ZookieWizard
 
     class eEggsNotStatic : public eEggsFactory
     {
-
         /*** Methods ***/
 
         public:
@@ -21,13 +20,25 @@ namespace ZookieWizard
             eEggsNotStatic();
             ~eEggsNotStatic();
 
+        private:
+
+            void createFromOtherObject(const eEggsNotStatic &other);
+
+        public:
+
+            eEggsNotStatic(const eEggsNotStatic &other);
+            eEggsNotStatic& operator = (const eEggsNotStatic &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // eEggsNotStatic TypeInfo
-    // <kao2.005069A0> (registration)
+    // <kao2.00506970> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_EGGSNOTSTATIC_ID = 0x3BF54C40;

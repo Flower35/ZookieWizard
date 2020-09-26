@@ -35,11 +35,47 @@ namespace ZookieWizard
         /*[0x14]*/ flags |= 0x40000000;
     }
 
-    eSphNode::~eSphNode() {}
+    eSphNode::~eSphNode()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // eSphNode serialization
+    // eSphNode: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eSphNode::createFromOtherObject(const eSphNode &other)
+    {
+        radius = other.radius;
+    }
+
+    eSphNode::eSphNode(const eSphNode &other)
+    : eGeometry(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    eSphNode& eSphNode::operator = (const eSphNode &other)
+    {
+        if ((&other) != this)
+        {
+            eGeometry::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eSphNode::cloneFromMe() const
+    {
+        return new eSphNode(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eSphNode: serialization
     // <kao2.004AC320>
     ////////////////////////////////////////////////////////////////
     void eSphNode::serialize(Archive &ar)

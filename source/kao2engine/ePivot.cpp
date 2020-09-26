@@ -35,11 +35,47 @@ namespace ZookieWizard
         flags |= 0x00071000;
     }
 
-    ePivot::~ePivot() {}
+    ePivot::~ePivot()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
-    // ePivot serialization
+    // ePivot: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ePivot::createFromOtherObject(const ePivot &other)
+    {
+        animations = other.animations;
+    }
+
+    ePivot::ePivot(const ePivot &other)
+    : eTransform(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ePivot& ePivot::operator = (const ePivot &other)
+    {
+        if ((&other) != this)
+        {
+            eTransform::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* ePivot::cloneFromMe() const
+    {
+        return new ePivot(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ePivot: serialization
     // <kao2.00486660>
     ////////////////////////////////////////////////////////////////
     void ePivot::serialize(Archive &ar)
@@ -77,9 +113,9 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ePivot: export readable structure
     ////////////////////////////////////////////////////////////////
-    void ePivot::writeStructureToTextFile(FileOperator &file, int32_t indentation) const
+    void ePivot::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
     {
-        int32_t i;
+        int32_t a;
         eNode* test_node;
         eTrack* test_track;
 
@@ -88,77 +124,40 @@ namespace ZookieWizard
 
         /* "eNode" parent class */
 
-        eNode::writeStructureToTextFile(file, indentation);
+        eTransform::writeStructureToTextFile(file, indentation, true);
 
         /* "ePivot" additional info */
 
-        for (i = 0; i < animations.tracks.getSize(); i++)
+        for (a = 0; a < animations.tracks.getSize(); a++)
         {
-            test_track = (eTrack*)animations.tracks.getIthChild(i);
-            sprintf_s
-            (
-                bufor, 128,
-                " - track [%d]: \"%s\" [%.2f, %.2f]",
-                i,
-                test_track->getStringRepresentation().getText(),
-                test_track->getStartFrame(),
-                test_track->getEndFrame()
-            );
+            if (nullptr != (test_track = (eTrack*)animations.tracks.getIthChild(a)))
+            {
+                sprintf_s
+                (
+                    bufor, 128,
+                    " - track [%d]: \"%s\" [%.2f, %.2f]",
+                    a,
+                    test_track->getStringRepresentation().getText(),
+                    test_track->getStartFrame(),
+                    test_track->getEndFrame()
+                );
 
-            ArFunctions::writeIndentation(file, indentation);
-            file << bufor;
-            ArFunctions::writeNewLine(file, 0);
+                ArFunctions::writeIndentation(file, indentation);
+                file << bufor;
+                ArFunctions::writeNewLine(file, 0);
+            }
         }
-
-        /* "eTransform" parent class */
-
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform pos: (%f, %f, %f)",
-            defaultTransform.pos.x,
-            defaultTransform.pos.y,
-            defaultTransform.pos.z
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
-
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform rot: (%f, %f, %f, %f)",
-            defaultTransform.rot.x,
-            defaultTransform.rot.y,
-            defaultTransform.rot.z,
-            defaultTransform.rot.w
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
-
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform scl: (%f)",
-            defaultTransform.scale
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
 
         /* "eGroup" parent class */
 
-        for (i = 0; i < nodes.getSize(); i++)
+        if (!group_written)
         {
-            test_node = (eNode*)nodes.getIthChild(i);
-
-            if (nullptr != test_node)
+            for (a = 0; a < nodes.getSize(); a++)
             {
-                test_node->writeStructureToTextFile(file, (indentation + 1));
+                if (nullptr != (test_node = (eNode*)nodes.getIthChild(a)))
+                {
+                    test_node->writeStructureToTextFile(file, (indentation + 1), false);
+                }
             }
         }
     }
@@ -217,6 +216,7 @@ namespace ZookieWizard
     {
         animations.rebuildEmptyAnimState(is_root);
     }
+
 
     ////////////////////////////////////////////////////////////////
     // ePivot: custom TXT parser

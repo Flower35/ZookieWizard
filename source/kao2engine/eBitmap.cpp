@@ -67,6 +67,435 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eBitmap: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void eBitmap::createFromOtherObject(const eBitmap &other)
+    {
+        int32_t a;
+
+        virtualWidth = other.virtualWidth;
+        virtualHeight = other.virtualHeight;
+
+        width = other.width;
+        height = other.height;
+
+        type = other.type;
+
+        path = other.path;
+        GUI::materialsManager_UpdateBitmapName(this);
+
+        isLoadedFromExternalFile = other.isLoadedFromExternalFile;
+
+        /****************/
+
+        a = width * height * getBytesPerPixel();
+
+        if (a > 0)
+        {
+            pixels = new uint8_t [a];
+
+            std::memcpy(pixels, other.pixels, a);
+        }
+        else
+        {
+            pixels = nullptr;
+        }
+
+        if (isUsingPalette())
+        {
+            palette = new uint32_t [256];
+
+            std::memcpy(palette, other.palette, (4 * 256));
+        }
+        else
+        {
+            palette = nullptr;
+        }
+
+        /****************/
+
+        texture_name_id = 0;
+        generateTexture();
+    }
+
+    eBitmap::eBitmap(const eBitmap &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+
+        /****************/
+
+        GUI::materialsManager_InsertBitmap(this);
+    }
+
+    eBitmap& eBitmap::operator = (const eBitmap &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            deleteTexture();
+
+            if (nullptr != pixels)
+            {
+                delete[](pixels);
+            }
+
+            if (nullptr != palette)
+            {
+                delete[](palette);
+            }
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* eBitmap::cloneFromMe() const
+    {
+        return new eBitmap(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: serialization
+    // <kao2.00470B50>
+    ////////////////////////////////////////////////////////////////
+    void eBitmap::serialize(Archive &ar)
+    {
+        int32_t a = 0;
+        bool can_be_empty = ((ar.getVersion() >= 0x8A) && isLoadedFromExternalFile);
+
+        int32_t total_length;
+        bool using_pal;
+
+        if (ar.isInReadMode())
+        {
+            deleteTexture();
+        }
+
+        /* Bitmap dimensions */
+
+        if (ar.isInWriteMode() && can_be_empty)
+        {
+            ar.readOrWrite(&a, 0x04);
+            ar.readOrWrite(&a, 0x04);
+        }
+        else
+        {
+            ar.readOrWrite(&virtualWidth, 0x04);
+            ar.readOrWrite(&virtualHeight, 0x04);
+        }
+
+        if (ar.getVersion() < 0x6B)
+        {
+            width = virtualWidth;
+            height = virtualHeight;
+        }
+        else
+        {
+            if (ar.isInWriteMode() && can_be_empty)
+            {
+                ar.readOrWrite(&a, 0x04);
+                ar.readOrWrite(&a, 0x04);
+            }
+            else
+            {
+                ar.readOrWrite(&width, 0x04);
+                ar.readOrWrite(&height, 0x04);
+            }
+        }
+
+        /* Bitmap type, image size in bytes */
+
+        ar.readOrWrite(&type, 0x04);
+
+        if (ar.isInReadMode())
+        {
+            switch (type)
+            {
+                case bitmapType::RGBA8:
+                case bitmapType::RGB8:
+                case bitmapType::PAL8_RGBA8:
+                case bitmapType::PAL8_RGBX8:
+                case bitmapType::RGBX8:
+                {
+                    break;
+                }
+
+                default:
+                {
+                    throw ErrorMessage
+                    (
+                        "eBitmap::serialize():\n" \
+                        "unsupported bitap type 0x%08X!", type
+                    );
+
+                    return;
+                }
+            }
+        }
+
+        total_length = getBytesPerPixel() * width * height;
+
+        using_pal = isUsingPalette();
+
+        if (ar.isInReadMode())
+        {
+            /* Allocate memory for pixels */
+
+            if (nullptr != pixels)
+            {
+                delete[](pixels);
+                pixels = nullptr;
+            }
+
+            if (total_length > 0)
+            {
+                pixels = new uint8_t [total_length];
+            }
+
+            if (using_pal)
+            {
+                if (nullptr == palette)
+                {
+                    palette = new uint32_t [256];
+                }
+            }
+            else
+            {
+                if (nullptr != palette)
+                {
+                    delete[](palette);
+                    palette = nullptr;
+                }
+            }
+        }
+
+        /* Read image contents: */
+        /* Save pixels ALWAYS if "ar.engineSavedWith" is different from "KAO_TW" */
+        /* Otherwise save pixels only when image was NOT loaded from external file */
+
+        if (!can_be_empty)
+        {
+            if (total_length > 0)
+            {
+                ar.readOrWrite(pixels, total_length);
+            }
+        }
+
+        if (using_pal)
+        {
+            ar.readOrWrite(palette, 0x0400);
+        }
+
+
+        /* Filename ("*.bmp" or "*.tga") */
+
+        ar.serializeString(path);
+
+        if (ar.isInReadMode())
+        {
+            GUI::materialsManager_UpdateBitmapName(this);
+        }
+
+        /* Load texture from file, Bind texture */
+
+        if (ar.isInReadMode())
+        {
+            /* <kao_tw.004271E3> */
+            if ((virtualWidth <= 0) || (virtualHeight <= 0))
+            {
+                try
+                {
+                    loadFromFile(ar.getMediaDir(), false);
+
+                    isLoadedFromExternalFile = true;
+                }
+                catch (ErrorMessage &e)
+                {
+                    e.display();
+                }
+            }
+
+            generateTexture();
+        }
+
+        /* Abstract "eBitmapEvaluator" pointer */
+
+        a = 0x01;
+        ar.readOrWrite(&a, 0x04);
+        if (0x01 != a)
+        {
+            throw ErrorMessage
+            (
+                "eBitmap::serialize()\n" \
+                "non-empty eBitmapEvaulator pointer!"
+            );
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: COLLADA exporting
+    ////////////////////////////////////////////////////////////////
+    void eBitmap::writeNodeToXmlFile(ColladaExporter &exporter) const
+    {
+        int32_t i;
+        char bufor[64];
+
+        if (exporter.objectRefAlreadyExists(COLLADA_EXPORTER_OBJ_IMAGE, this))
+        {
+            /* Bitmap was already exported */
+            return;
+        }
+
+        exporter.openTag("image");
+
+        i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_IMAGE, this, true);
+        sprintf_s(bufor, 64, "Bitmap%d", i);
+        exporter.insertTagAttrib("id", bufor);
+
+        exporter.openTag("init_from");
+        exporter.openTag("ref");
+        exporter.writeInsideTag(path);
+
+        exporter.closeTag(); // "ref"
+        exporter.closeTag(); // "init_from"
+        exporter.closeTag(); // "image"
+
+        /* Actually export the image to hard drive */
+        try
+        {
+            exportImageFile(exporter.getWorkingDirectory());
+        }
+        catch (ErrorMessage &err)
+        {
+            err.display();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: generate OpenGL texture
+    ////////////////////////////////////////////////////////////////
+    void eBitmap::generateTexture()
+    {
+        int32_t a, b;
+        int32_t total_size;
+        int32_t bytes_per_pixel;
+        uint8_t* temp_pixels = nullptr;
+        bool using_pal = false;
+        GLint internal_format = 0;
+        GLenum px_data_format = 0;
+
+        if (0 == texture_name_id)
+        {
+            /* Generate 32-bit image, if palette is used */
+
+            if (using_pal = isUsingPalette())
+            {
+                switch (type)
+                {
+                    case bitmapType::PAL8_RGBA8:
+                    {
+                        bytes_per_pixel = 4;
+                        break;
+                    }
+
+                    case bitmapType::PAL8_RGBX8:
+                    {
+                        bytes_per_pixel = 3;
+                        break;
+                    }
+
+                    default:
+                    {
+                        bytes_per_pixel = 1;
+                    }
+                }
+
+                total_size = width * height;
+
+                temp_pixels = new uint8_t[total_size * bytes_per_pixel];
+
+                if ((nullptr != palette) && (nullptr != pixels) && (nullptr != temp_pixels))
+                {
+                    for (a = 0; a < total_size; a++)
+                    {
+                        for (b = 0; b < bytes_per_pixel; b++)
+                        {
+                            temp_pixels[bytes_per_pixel * a + b] = ((palette[pixels[a]] >> (8 * b)) & 0x000000FF);
+                        }
+                    }
+                }
+            }
+
+            /* Check color format */
+
+            switch (type)
+            {
+                case bitmapType::RGBA8:
+                case bitmapType::PAL8_RGBA8:
+                case bitmapType::RGBX8:
+                {
+                    internal_format = GL_RGBA8;
+                    px_data_format = GL_RGBA;
+
+                    break;
+                }
+
+                case bitmapType::RGB8:
+                case bitmapType::PAL8_RGBX8:
+                {
+                    internal_format = GL_RGB8;
+                    px_data_format = GL_RGB;
+
+                    break;
+                }
+            }
+
+            /* Generate and bind one texture */
+
+            glGenTextures(1, &texture_name_id);
+
+            glBindTexture(GL_TEXTURE_2D, texture_name_id);
+
+            glTexImage2D
+            (
+                GL_TEXTURE_2D, // target
+                0, // level of detail
+                internal_format, // number of color components
+                virtualWidth, // width
+                virtualHeight, // height
+                0, // border (must be 0)
+                px_data_format, // pixel data format
+                GL_UNSIGNED_BYTE, // data type
+                (using_pal ? temp_pixels : pixels) // pixels
+            );
+
+            /* Default params (so that texture isn't white!) */
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+
+        if (nullptr != temp_pixels)
+        {
+            delete[](temp_pixels);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eBitmap: load raw data (8-bit or 24-bit)
     ////////////////////////////////////////////////////////////////
     void eBitmap::loadRaw(const uint8_t* other_pixels, const uint32_t* other_palette, int32_t new_width, int32_t new_height)
@@ -709,594 +1138,6 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eBitmap: copy pixels from other bitmap
-    ////////////////////////////////////////////////////////////////
-    void eBitmap::copyBitmap(const eBitmap* source)
-    {
-        if (nullptr != source)
-        {
-            /* Copy properties */
-
-            virtualWidth = source->virtualWidth;
-            virtualHeight = source->virtualHeight;
-            width = source->width;
-            height = source->height;
-            type = source->type;
-            path = source->path;
-
-            /* Copy pixels array */
-
-            int total_length = getBytesPerPixel() * width * height;
-
-            if (nullptr != pixels)
-            {
-                delete[](pixels);
-                pixels = nullptr;
-            }
-
-            if (total_length > 0)
-            {
-                pixels = new uint8_t [total_length];
-            }
-
-            if (nullptr != source->pixels)
-            {
-                std::memcpy(pixels, source->pixels, total_length);
-            }
-
-            /* Copy palette array */
-
-            if (isUsingPalette())
-            {
-                if (nullptr == palette)
-                {
-                    palette = new uint32_t [256];
-                }
-
-                if (nullptr != source->palette)
-                {
-                    std::memcpy(palette, source->palette, (256 * 4));
-                }
-            }
-            else
-            {
-                if (nullptr != palette)
-                {
-                    delete[](palette);
-                    palette = nullptr;
-                }
-            }
-
-            /* Regenerate 2D texture */
-
-            generateTexture();
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eBitmap: generate OpenGL texture
-    ////////////////////////////////////////////////////////////////
-    void eBitmap::generateTexture()
-    {
-        int32_t a, b;
-        int32_t total_size;
-        int32_t bytes_per_pixel;
-        uint8_t* temp_pixels = nullptr;
-        bool using_pal = false;
-        GLint internal_format = 0;
-        GLenum px_data_format = 0;
-
-        if (0 == texture_name_id)
-        {
-            /* Generate 32-bit image, if palette is used */
-
-            if (using_pal = isUsingPalette())
-            {
-                switch (type)
-                {
-                    case bitmapType::PAL8_RGBA8:
-                    {
-                        bytes_per_pixel = 4;
-                        break;
-                    }
-
-                    case bitmapType::PAL8_RGBX8:
-                    {
-                        bytes_per_pixel = 3;
-                        break;
-                    }
-
-                    default:
-                    {
-                        bytes_per_pixel = 1;
-                    }
-                }
-
-                total_size = width * height;
-
-                temp_pixels = new uint8_t[total_size * bytes_per_pixel];
-
-                if ((nullptr != palette) && (nullptr != pixels) && (nullptr != temp_pixels))
-                {
-                    for (a = 0; a < total_size; a++)
-                    {
-                        for (b = 0; b < bytes_per_pixel; b++)
-                        {
-                            temp_pixels[bytes_per_pixel * a + b] = ((palette[pixels[a]] >> (8 * b)) & 0x000000FF);
-                        }
-                    }
-                }
-            }
-
-            /* Check color format */
-
-            switch (type)
-            {
-                case bitmapType::RGBA8:
-                case bitmapType::PAL8_RGBA8:
-                case bitmapType::RGBX8:
-                {
-                    internal_format = GL_RGBA8;
-                    px_data_format = GL_RGBA;
-
-                    break;
-                }
-
-                case bitmapType::RGB8:
-                case bitmapType::PAL8_RGBX8:
-                {
-                    internal_format = GL_RGB8;
-                    px_data_format = GL_RGB;
-
-                    break;
-                }
-            }
-
-            /* Generate and bind one texture */
-
-            glGenTextures(1, &texture_name_id);
-
-            glBindTexture(GL_TEXTURE_2D, texture_name_id);
-
-            glTexImage2D
-            (
-                GL_TEXTURE_2D, // target
-                0, // level of detail
-                internal_format, // number of color components
-                virtualWidth, // width
-                virtualHeight, // height
-                0, // border (must be 0)
-                px_data_format, // pixel data format
-                GL_UNSIGNED_BYTE, // data type
-                (using_pal ? temp_pixels : pixels) // pixels
-            );
-
-            /* Default params (so that texture isn't white!) */
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
-
-        if (nullptr != temp_pixels)
-        {
-            delete[](temp_pixels);
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eBitmap: delete texture
-    // <kao2.00470F10>
-    ////////////////////////////////////////////////////////////////
-    void eBitmap::deleteTexture()
-    {
-        if (0 != texture_name_id)
-        {
-            glDeleteTextures(1, &texture_name_id);
-
-            texture_name_id = 0;
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eBitmap: get bytes per pixel
-    // <kao2.00470AA0>
-    ////////////////////////////////////////////////////////////////
-    int eBitmap::getBytesPerPixel() const
-    {
-        switch (type)
-        {
-            case bitmapType::RGBA8:
-            case bitmapType::RGBX8:
-            case bitmapType::RGBA8_SWIZZLED:
-            case bitmapType::RGBX8_SWIZZLED:
-            {
-                return 0x04;
-            }
-
-            case bitmapType::RGB8:
-            {
-                return 0x03;
-            }
-
-            case bitmapType::PAL8_RGBA8:
-            case bitmapType::PAL8_RGBX8:
-            case bitmapType::PAL8_RGBA8_IDTEX8:
-            case bitmapType::PAL8_RGBX8_IDTEX8:
-            {
-                return 0x01;
-            }
-
-            default:
-            {
-                return 0x00;
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eBitmap: cakculate bytes per pixel when exporting
-    ////////////////////////////////////////////////////////////////
-    int eBitmap::getBytesPerPixelOutput(bool bmp_ext) const
-    {
-        switch (type)
-        {
-            case bitmapType::RGBA8:
-            {
-                return (bmp_ext ? 0x03 : 0x04);
-            }
-
-            case bitmapType::PAL8_RGBA8:
-            case bitmapType::PAL8_RGBX8:
-            {
-                return (bmp_ext ? 0x01: 0x04);
-            }
-
-            case bitmapType::RGB8:
-            case bitmapType::RGBX8:
-            {
-                /* This makes TGA textures compatible with KAO3 engine */
-                return (bmp_ext ? 0x03 : 0x04);
-            }
-
-            default:
-            {
-                return 0x01;
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eBitmap: show object type
-    ////////////////////////////////////////////////////////////////
-    const char* eBitmap::getTypeName() const
-    {
-        switch (type)
-        {
-            case bitmapType::RGBA8:
-            {
-                return "RGBA8";
-            }
-
-            case bitmapType::RGB8:
-            {
-                return "RGB8";
-            }
-
-            case bitmapType::PAL8_RGBA8:
-            {
-                return "PAL8_RGBA8";
-            }
-
-            case bitmapType::PAL8_RGBX8:
-            {
-                return "PAL8_RGBX8";
-            }
-
-            case bitmapType::RGBX8:
-            {
-                return "RGBX8";
-            }
-
-            default:
-            {
-                return "<???>";
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eBitmap: check if color palette needs to be allocated
-    // <kao2.00470F40>
-    ////////////////////////////////////////////////////////////////
-    bool eBitmap::isUsingPalette() const
-    {
-        switch (type)
-        {
-            case bitmapType::PAL8_RGBA8:
-            case bitmapType::PAL8_RGBX8:
-            case bitmapType::PAL8_RGBA8_IDTEX8:
-            case bitmapType::PAL8_RGBX8_IDTEX8:
-            {
-                return true;
-            }
-
-            default:
-            {
-                return false;
-            }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eBitmap serialization
-    // <kao2.00470B50>
-    ////////////////////////////////////////////////////////////////
-    void eBitmap::serialize(Archive &ar)
-    {
-        int32_t a = 0;
-        bool can_be_empty = ((ar.getVersion() >= 0x8A) && isLoadedFromExternalFile);
-
-        int32_t total_length;
-        bool using_pal;
-
-        if (ar.isInReadMode())
-        {
-            deleteTexture();
-        }
-
-        /* Bitmap dimensions */
-
-        if (ar.isInWriteMode() && can_be_empty)
-        {
-            ar.readOrWrite(&a, 0x04);
-            ar.readOrWrite(&a, 0x04);
-        }
-        else
-        {
-            ar.readOrWrite(&virtualWidth, 0x04);
-            ar.readOrWrite(&virtualHeight, 0x04);
-        }
-
-        if (ar.getVersion() < 0x6B)
-        {
-            width = virtualWidth;
-            height = virtualHeight;
-        }
-        else
-        {
-            if (ar.isInWriteMode() && can_be_empty)
-            {
-                ar.readOrWrite(&a, 0x04);
-                ar.readOrWrite(&a, 0x04);
-            }
-            else
-            {
-                ar.readOrWrite(&width, 0x04);
-                ar.readOrWrite(&height, 0x04);
-            }
-        }
-
-        /* Bitmap type, image size in bytes */
-
-        ar.readOrWrite(&type, 0x04);
-
-        if (ar.isInReadMode())
-        {
-            switch (type)
-            {
-                case bitmapType::RGBA8:
-                case bitmapType::RGB8:
-                case bitmapType::PAL8_RGBA8:
-                case bitmapType::PAL8_RGBX8:
-                case bitmapType::RGBX8:
-                {
-                    break;
-                }
-
-                default:
-                {
-                    throw ErrorMessage
-                    (
-                        "eBitmap::serialize():\n" \
-                        "unsupported bitap type 0x%08X!", type
-                    );
-
-                    return;
-                }
-            }
-        }
-
-        total_length = getBytesPerPixel() * width * height;
-
-        using_pal = isUsingPalette();
-
-        if (ar.isInReadMode())
-        {
-            /* Allocate memory for pixels */
-
-            if (nullptr != pixels)
-            {
-                delete[](pixels);
-                pixels = nullptr;
-            }
-
-            if (total_length > 0)
-            {
-                pixels = new uint8_t [total_length];
-            }
-
-            if (using_pal)
-            {
-                if (nullptr == palette)
-                {
-                    palette = new uint32_t [256];
-                }
-            }
-            else
-            {
-                if (nullptr != palette)
-                {
-                    delete[](palette);
-                    palette = nullptr;
-                }
-            }
-        }
-
-        /* Read image contents: */
-        /* Save pixels ALWAYS if "ar.engineSavedWith" is different from "KAO_TW" */
-        /* Otherwise save pixels only when image was NOT loaded from external file */
-
-        if (!can_be_empty)
-        {
-            if (total_length > 0)
-            {
-                ar.readOrWrite(pixels, total_length);
-            }
-        }
-
-        if (using_pal)
-        {
-            ar.readOrWrite(palette, 0x0400);
-        }
-
-
-        /* Filename ("*.bmp" or "*.tga") */
-
-        ar.serializeString(path);
-
-        if (ar.isInReadMode())
-        {
-            GUI::materialsManager_UpdateBitmapName(this);
-        }
-
-        /* Load texture from file, Bind texture */
-
-        if (ar.isInReadMode())
-        {
-            /* <kao_tw.004271E3> */
-            if ((virtualWidth <= 0) || (virtualHeight <= 0))
-            {
-                try
-                {
-                    loadFromFile(ar.getMediaDir(), false);
-
-                    isLoadedFromExternalFile = true;
-                }
-                catch (ErrorMessage &e)
-                {
-                    e.display();
-                }
-            }
-
-            generateTexture();
-        }
-
-        /* Abstract "eBitmapEvaluator" pointer */
-
-        a = 0x01;
-        ar.readOrWrite(&a, 0x04);
-        if (0x01 != a)
-        {
-            throw ErrorMessage
-            (
-                "eBitmap::serialize()\n" \
-                "non-empty eBitmapEvaulator pointer!"
-            );
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eBitmap: COLLADA exporting
-    ////////////////////////////////////////////////////////////////
-    void eBitmap::writeNodeToXmlFile(ColladaExporter &exporter) const
-    {
-        int32_t i;
-        char bufor[64];
-
-        if (exporter.objectRefAlreadyExists(COLLADA_EXPORTER_OBJ_IMAGE, this))
-        {
-            /* Bitmap was already exported */
-            return;
-        }
-
-        exporter.openTag("image");
-
-        i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_IMAGE, this, true);
-        sprintf_s(bufor, 64, "Bitmap%d", i);
-        exporter.insertTagAttrib("id", bufor);
-
-        exporter.openTag("init_from");
-        exporter.openTag("ref");
-        exporter.writeInsideTag(path);
-
-        exporter.closeTag(); // "ref"
-        exporter.closeTag(); // "init_from"
-        exporter.closeTag(); // "image"
-
-        /* Actually export the image to hard drive */
-        try
-        {
-            exportImageFile(exporter.getWorkingDirectory());
-        }
-        catch (ErrorMessage &err)
-        {
-            err.display();
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eBitmap: set and get filename path
-    ////////////////////////////////////////////////////////////////
-
-    void eBitmap::setPath(eString new_path)
-    {
-        path = new_path;
-
-        GUI::materialsManager_UpdateBitmapName(this);
-    }
-
-    eString eBitmap::getPath() const
-    {
-        return path;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eBitmap: get texture name (used with eTexture)
-    ////////////////////////////////////////////////////////////////
-    GLuint eBitmap::getTextureId() const
-    {
-        return texture_name_id;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eBitmap: get or set the "loaded from external file" flag
-    ////////////////////////////////////////////////////////////////
-
-    bool eBitmap::getLoadedFromExternalFileFlag() const
-    {
-        return isLoadedFromExternalFile;
-    }
-
-    void eBitmap::setLoadedFromExternalFileFlag(bool new_flag)
-    {
-        isLoadedFromExternalFile = new_flag;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // eBitmap: set transparency color
     ////////////////////////////////////////////////////////////////
     void eBitmap::setTransparencyColor(uint32_t color)
@@ -1480,6 +1321,196 @@ namespace ZookieWizard
         }
 
         return ratio;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: get texture name (used with eTexture)
+    ////////////////////////////////////////////////////////////////
+    GLuint eBitmap::getTextureId() const
+    {
+        return texture_name_id;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: get or et the filename path
+    ////////////////////////////////////////////////////////////////
+
+    eString eBitmap::getPath() const
+    {
+        return path;
+    }
+
+    void eBitmap::setPath(eString new_path)
+    {
+        path = new_path;
+
+        GUI::materialsManager_UpdateBitmapName(this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: get or set the "loaded from external file" flag
+    ////////////////////////////////////////////////////////////////
+
+    bool eBitmap::getLoadedFromExternalFileFlag() const
+    {
+        return isLoadedFromExternalFile;
+    }
+
+    void eBitmap::setLoadedFromExternalFileFlag(bool new_flag)
+    {
+        isLoadedFromExternalFile = new_flag;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: check if color palette needs to be allocated
+    // <kao2.00470F40>
+    ////////////////////////////////////////////////////////////////
+    bool eBitmap::isUsingPalette() const
+    {
+        switch (type)
+        {
+            case bitmapType::PAL8_RGBA8:
+            case bitmapType::PAL8_RGBX8:
+            case bitmapType::PAL8_RGBA8_IDTEX8:
+            case bitmapType::PAL8_RGBX8_IDTEX8:
+            {
+                return true;
+            }
+
+            default:
+            {
+                return false;
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: get bytes per pixel
+    // <kao2.00470AA0>
+    ////////////////////////////////////////////////////////////////
+    int eBitmap::getBytesPerPixel() const
+    {
+        switch (type)
+        {
+            case bitmapType::RGBA8:
+            case bitmapType::RGBX8:
+            case bitmapType::RGBA8_SWIZZLED:
+            case bitmapType::RGBX8_SWIZZLED:
+            {
+                return 0x04;
+            }
+
+            case bitmapType::RGB8:
+            {
+                return 0x03;
+            }
+
+            case bitmapType::PAL8_RGBA8:
+            case bitmapType::PAL8_RGBX8:
+            case bitmapType::PAL8_RGBA8_IDTEX8:
+            case bitmapType::PAL8_RGBX8_IDTEX8:
+            {
+                return 0x01;
+            }
+
+            default:
+            {
+                return 0x00;
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: cakculate bytes per pixel when exporting
+    ////////////////////////////////////////////////////////////////
+    int eBitmap::getBytesPerPixelOutput(bool bmp_ext) const
+    {
+        switch (type)
+        {
+            case bitmapType::RGBA8:
+            {
+                return (bmp_ext ? 0x03 : 0x04);
+            }
+
+            case bitmapType::PAL8_RGBA8:
+            case bitmapType::PAL8_RGBX8:
+            {
+                return (bmp_ext ? 0x01: 0x04);
+            }
+
+            case bitmapType::RGB8:
+            case bitmapType::RGBX8:
+            {
+                /* This makes TGA textures compatible with KAO3 engine */
+                return (bmp_ext ? 0x03 : 0x04);
+            }
+
+            default:
+            {
+                return 0x01;
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: show object type
+    ////////////////////////////////////////////////////////////////
+    const char* eBitmap::getTypeName() const
+    {
+        switch (type)
+        {
+            case bitmapType::RGBA8:
+            {
+                return "RGBA8";
+            }
+
+            case bitmapType::RGB8:
+            {
+                return "RGB8";
+            }
+
+            case bitmapType::PAL8_RGBA8:
+            {
+                return "PAL8_RGBA8";
+            }
+
+            case bitmapType::PAL8_RGBX8:
+            {
+                return "PAL8_RGBX8";
+            }
+
+            case bitmapType::RGBX8:
+            {
+                return "RGBX8";
+            }
+
+            default:
+            {
+                return "<???>";
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: delete texture
+    // <kao2.00470F10>
+    ////////////////////////////////////////////////////////////////
+    void eBitmap::deleteTexture()
+    {
+        if (0 != texture_name_id)
+        {
+            glDeleteTextures(1, &texture_name_id);
+
+            texture_name_id = 0;
+        }
     }
 
 }
