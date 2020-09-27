@@ -135,10 +135,11 @@ namespace ZookieWizard
     {
         char bufor[64];
 
-        /* "eNode" parent class */
+        /* "eNode": parent class */
+
         eNode::writeStructureToTextFile(file, indentation, true);
 
-        /* "eZone" additional info */
+        /* "eZone": additional info */
 
         sprintf_s(bufor, 64, " - boxBoundMin: (%f, %f, %f)", boxBoundMin.x, boxBoundMin.y, boxBoundMin.z);
 
@@ -152,17 +153,23 @@ namespace ZookieWizard
         file << bufor;
         ArFunctions::writeNewLine(file, 0);
 
-        ArFunctions::writeIndentation(file, indentation);
-        file << " - enter actions:";
-        ArFunctions::writeNewLine(file, 0);
+        if (enterActions.getActionsCount() > 0)
+        {
+            ArFunctions::writeIndentation(file, indentation);
+            file << " - enter actions:";
+            ArFunctions::writeNewLine(file, 0);
 
-        enterActions.writeStructureToTextFile(file, indentation, true);
+            enterActions.writeStructureToTextFile(file, indentation, true);
+        }
 
-        ArFunctions::writeIndentation(file, indentation);
-        file << " - leave actions:";
-        ArFunctions::writeNewLine(file, 0);
+        if (leaveActions.getActionsCount() > 0)
+        {
+            ArFunctions::writeIndentation(file, indentation);
+            file << " - leave actions:";
+            ArFunctions::writeNewLine(file, 0);
 
-        leaveActions.writeStructureToTextFile(file, indentation, true);
+            leaveActions.writeStructureToTextFile(file, indentation, true);
+        }
     }
 
 

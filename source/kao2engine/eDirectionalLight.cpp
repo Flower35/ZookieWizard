@@ -103,6 +103,52 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eDirectionalLight: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eDirectionalLight::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    {
+        char bufor[1024];
+        TypeInfo* info;
+
+        /* "eLight": parent class */
+
+        eLight::writeStructureToTextFile(file, indentation, true);
+
+        /* "eDirectionalLight": additional info */
+
+        sprintf_s
+        (
+            bufor, 1024,
+            " - light pos: (%f, %f, %f)",
+            position.x,
+            position.y,
+            position.z
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        if (nullptr != target)
+        {
+            info = target->getType();
+
+            sprintf_s
+            (
+                bufor, 1024,
+                " - light target: (%s) \"%s\"",
+                info->name,
+                target->getArchivePath().getText()
+            );
+
+            ArFunctions::writeIndentation(file, indentation);
+            file << bufor;
+            ArFunctions::writeNewLine(file, 0);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eDirectionalLight: render this node (light source position)
     ////////////////////////////////////////////////////////////////
     void eDirectionalLight::renderNode(eDrawContext &draw_context) const

@@ -667,8 +667,7 @@ namespace ZookieWizard
 
         sprintf_s
         (
-            bufor,
-            1024,
+            bufor, 1024,
             "[%08X] %s (\"%s\")",
             info->id,
             info->name,
@@ -680,8 +679,7 @@ namespace ZookieWizard
 
         sprintf_s
         (
-            bufor,
-            512,
+            bufor, 1024,
             " - flags: %08X %08X %04X (visGroup: %d)",
             unknown_0C,
             flags,
@@ -698,8 +696,7 @@ namespace ZookieWizard
 
             sprintf_s
             (
-                bufor,
-                512,
+                bufor, 1024,
                 " - parent: [%08X] %s (\"%s\")",
                 info->id,
                 info->name,
@@ -716,8 +713,7 @@ namespace ZookieWizard
 
             sprintf_s
             (
-                bufor,
-                512,
+                bufor, 1024,
                 " - albox: [%08X] %s (id=%08X)",
                 info->id,
                 info->name,
@@ -1283,6 +1279,31 @@ namespace ZookieWizard
     void eNode::setName(eString new_name)
     {
         name = new_name;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: get full Archive access path
+    ////////////////////////////////////////////////////////////////
+    eString eNode::getArchivePath() const
+    {
+        eString result;
+
+        if (nullptr != parent)
+        {
+            result = parent->getArchivePath() + "::";
+        }
+
+        if (name.getLength() <= 0)
+        {
+            result += "???";
+        }
+        else
+        {
+            result += name.getSubstring(0, 32);
+        }
+
+        return result;
     }
 
 

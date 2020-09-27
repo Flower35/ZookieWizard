@@ -122,11 +122,11 @@ namespace ZookieWizard
         char bufor[128];
         eString test_str;
 
-        /* "eNode" parent class */
+        /* "eTransform": parent class */
 
         eTransform::writeStructureToTextFile(file, indentation, true);
 
-        /* "ePivot" additional info */
+        /* "ePivot": additional info */
 
         for (a = 0; a < animations.tracks.getSize(); a++)
         {
@@ -148,7 +148,7 @@ namespace ZookieWizard
             }
         }
 
-        /* "eGroup" parent class */
+        /****************/
 
         if (!group_written)
         {

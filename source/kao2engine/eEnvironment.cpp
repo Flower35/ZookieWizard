@@ -148,6 +148,104 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eEnvironment: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eEnvironment::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    {
+        int32_t a, b;
+        float dummy_floats[3];
+        eNode* test_node;
+        eString light_path;
+        const char* light_type;
+        char bufor[LARGE_BUFFER_SIZE];
+
+        /* "eGroup": parent class */
+
+        eGroup::writeStructureToTextFile(file, indentation, true);
+
+        /* "eEnvironment": additional info */
+
+        b = lights.getSize();
+
+        for (a = 0; a < b; a++)
+        {
+            if (nullptr != (test_node = (eNode*)lights.getIthChild(a)))
+            {
+                light_path = test_node->getArchivePath();
+                light_type = test_node->getType()->name;
+            }
+            else
+            {
+                light_path = "<EMPTY>";
+                light_type = "";
+            }
+
+            sprintf_s
+            (
+                bufor, LARGE_BUFFER_SIZE,
+                " - light [%d/%d]: (%s) \"%s\"",
+                (a + 1),
+                b,
+                light_type,
+                light_path.getText()
+            );
+
+            ArFunctions::writeIndentation(file, indentation);
+            file << bufor;
+            ArFunctions::writeNewLine(file, 0);
+        }
+
+        if (nullptr != fog)
+        {
+            fog->getFogColor(dummy_floats);
+
+            sprintf_s
+            (
+                bufor, LARGE_BUFFER_SIZE,
+                " - fog color: (%.6f, %.6f, %.6f)",
+                dummy_floats[0],
+                dummy_floats[1],
+                dummy_floats[2]
+            );
+
+            ArFunctions::writeIndentation(file, indentation);
+            file << bufor;
+            ArFunctions::writeNewLine(file, 0);
+
+            dummy_floats[0] = fog->getFogStart();
+            dummy_floats[1] = fog->getFogEnd();
+            dummy_floats[2] = fog->getFogMax();
+
+            sprintf_s
+            (
+                bufor, LARGE_BUFFER_SIZE,
+                " - fog start, end, max: (%.6f, %.6f, %.6f)",
+                dummy_floats[0],
+                dummy_floats[1],
+                dummy_floats[2]
+            );
+
+            ArFunctions::writeIndentation(file, indentation);
+            file << bufor;
+            ArFunctions::writeNewLine(file, 0);
+        }
+
+        /****************/
+
+        if (!group_written)
+        {
+            for (a = 0; a < nodes.getSize(); a++)
+            {
+                if (nullptr != (test_node = (eNode*)nodes.getIthChild(a)))
+                {
+                    test_node->writeStructureToTextFile(file, (indentation + 1), false);
+                }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eEnvironment: find reference to some node when deleting it
     ////////////////////////////////////////////////////////////////
     void eEnvironment::findAndDereference(eNode* target)

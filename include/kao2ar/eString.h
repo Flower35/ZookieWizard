@@ -7,7 +7,7 @@ namespace ZookieWizard
 {
 
     ////////////////////////////////////////////////////////////////
-    // Klasay napisów w KAO2/KAO3
+    // Multireference Serializable String class from KAO2
     ////////////////////////////////////////////////////////////////
 
     template <typename charT>
@@ -25,15 +25,14 @@ namespace ZookieWizard
 
         public:
 
-            /* Konstrukcja klasy */
-            eStringBase<charT>(int count);
-
-            /* Usuwanie, modyfikowanie referencji */
+            eStringBase(int count);
             ~eStringBase();
+
+            /* Reference manipulation */
             eStringBase<charT>* decRef();
             void incRef();
 
-            /* Odwo³ania do wartoœci prywatnych */
+            /* Retrieving member data */
             charT* getText() const;
             int getLength() const;
             int getReferenceCount() const;
@@ -52,31 +51,41 @@ namespace ZookieWizard
 
         public:
 
-            /* Retrieve or set pointer - used with Archives */
-            eStringBase<charT>* getPointer() const;
-            void setPointer(eStringBase<charT>*  newPtr);
+            eStringPtrBase(int count = 0);
+            eStringPtrBase(const charT* str);
+            eStringPtrBase(const eStringPtrBase<charT>& str);
+            ~eStringPtrBase();
 
-            /* Funkcje zwi¹zane z konstrukcj¹ */
-            void create(int count);
-            void create(const charT* str);
-            void copy(const eStringPtrBase<charT>& sourceStr);
+        private:
 
-            /* Modyfikowanie referencji */
+            /* String creation from some data */
+            void createFromText(const charT* str);
+            void createFromOtherString(const eStringPtrBase<charT>& source);
+
+        public:
+
+            /* Assignment operators and addition operators */
+            eStringPtrBase<charT>& operator = (const charT* str);
+            eStringPtrBase<charT>& operator = (const eStringPtrBase<charT>& str);
+            eStringPtrBase<charT> operator + (const charT* str) const;
+            eStringPtrBase<charT> operator + (const eStringPtrBase<charT>& str) const;
+            eStringPtrBase<charT>& operator += (const charT* str);
+            eStringPtrBase<charT>& operator += (const eStringPtrBase<charT>& str);
+
+            /* Reference manipulation */
             void decRef();
             void incRef();
 
-            /* Funkcje zwi¹zane z konstrukcj¹ i dekonstrukcj¹ */
-            eStringPtrBase<charT>(int count = 0);
-            eStringPtrBase<charT>(const charT* str);
-            eStringPtrBase<charT>(const eStringPtrBase<charT>& str);
-            ~eStringPtrBase();
-
-            /* Odwo³ania do wartoœci prywatnych */
+            /* Retrieving data from the base object */
             charT* getText() const;
             int getLength() const;
             int getReferenceCount() const;
 
-            /* Ró¿ne funkcje operuj¹ce na tekstach */
+            /* Retrieve or set the base pointer */
+            eStringBase<charT>* getPointer() const;
+            void setPointer(eStringBase<charT>* newPtr);
+
+            /* Different text operations */
             bool compare(const charT* str, int pos = 0, int count = (-1), bool case_sensitive = false) const;
             bool compare(const eStringPtrBase<charT>& str, int pos = 0, int count = (-1), bool case_sensitive = false) const;
             bool compareExact(const charT* str, bool case_sensitive = true) const;
@@ -89,19 +98,11 @@ namespace ZookieWizard
             eStringPtrBase<charT> getFilename(bool with_extesion) const;
             eStringPtrBase<charT> trimWhitespace() const;
             bool isRooted() const;
-
-            /* Operatory przypisywania i kopiowania */
-            eStringPtrBase<charT>& operator = (const charT* str);
-            eStringPtrBase<charT>& operator = (const eStringPtrBase<charT>& str);
-            eStringPtrBase<charT> operator + (const charT* str) const;
-            eStringPtrBase<charT> operator + (const eStringPtrBase<charT>& str) const;
-            eStringPtrBase<charT>& operator += (const charT* str);
-            eStringPtrBase<charT>& operator += (const eStringPtrBase<charT>& str);
     };
 
 
     ////////////////////////////////////////////////////////////////
-    // Definicje u¿ywanych typów tekstu
+    // Alternate String type definitions (better class names)
     ////////////////////////////////////////////////////////////////
 
     typedef eStringPtrBase<char> eString;
@@ -109,13 +110,13 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Dodatkowe funkcje szblonowe
+    // Helper functions for the Strings
     ////////////////////////////////////////////////////////////////
 
     namespace StringFunctions
     {
-        void convertString(eString& str1, const eUnicodeString& str2);
-        void convertString(eUnicodeString& str1, const eString& str2);
+        void convertString(eString& deestination, const eUnicodeString& source);
+        void convertString(eUnicodeString& destination, const eString& source);
 
         template <typename charT>
         int getCharArrayLength(const charT* str);

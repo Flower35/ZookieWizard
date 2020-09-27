@@ -160,11 +160,11 @@ namespace ZookieWizard
 
         char bufor[128];
 
-        /* "eNode" parent class */
+        /* "ePivot": parent class */
 
         ePivot::writeStructureToTextFile(file, indentation, true);
 
-        /* "Actor" additional info */
+        /* "Actor": additional info */
 
         if (scriptPath.getLength() > 0)
         {
@@ -189,7 +189,7 @@ namespace ZookieWizard
         file << bufor;
         ArFunctions::writeNewLine(file, 0);
 
-        /* "eGroup" parent class */
+        /****************/
 
         if (!group_written)
         {

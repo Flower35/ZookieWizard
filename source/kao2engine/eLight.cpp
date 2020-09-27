@@ -139,6 +139,41 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eLight: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eLight::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    {
+        char bufor[128];
+        const float* color_values[3] = {diffuse, ambient, specular};
+        const char* color_names[3] = {"diffuse", "ambient", "specular"};
+
+        /* "eNode": parent class */
+
+        eNode::writeStructureToTextFile(file, indentation, true);
+
+        /* "eLight": additional info */
+
+        for (int32_t a = 0; a < 3; a++)
+        {
+            sprintf_s
+            (
+                bufor, 128,
+                " - %s color: (%.6f, %.6f, %.6f, %.6f)",
+                color_names[a],
+                color_values[a][0],
+                color_values[a][1],
+                color_values[a][2],
+                color_values[a][3]
+            );
+
+            ArFunctions::writeIndentation(file, indentation);
+            file << bufor;
+            ArFunctions::writeNewLine(file, 0);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eLight: custom TXT parser methods
     ////////////////////////////////////////////////////////////////
 

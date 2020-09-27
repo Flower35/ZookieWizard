@@ -126,7 +126,11 @@ namespace ZookieWizard
     {
         eNode* child_node;
 
+        /* "eNode": parent class */
+
         eNode::writeStructureToTextFile(file, indentation, true);
+
+        /****************/
 
         if (!group_written)
         {

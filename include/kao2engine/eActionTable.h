@@ -87,6 +87,8 @@ namespace ZookieWizard
 
             /* << eActionTable >> */
 
+            int32_t getActionsCount() const;
+
             void deleteIthAction(int32_t i);
             void findAndDeleteActionsWithNode(const eNode* target);
 

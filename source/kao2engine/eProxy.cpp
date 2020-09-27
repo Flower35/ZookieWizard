@@ -180,11 +180,11 @@ namespace ZookieWizard
 
         char bufor[128];
 
-        /* "eNode" parent class */
+        /* "eTransform": parent class */
 
-        eGroup::writeStructureToTextFile(file, indentation, true);
+        eTransform::writeStructureToTextFile(file, indentation, true);
 
-        /* "eProxy" additional info */
+        /* "eProxy": additional info */
 
         if (targetFile.getLength() > 0)
         {
@@ -204,7 +204,7 @@ namespace ZookieWizard
             }
         }
 
-        /* "eGroup" parent class */
+        /****************/
 
         if (!group_written)
         {

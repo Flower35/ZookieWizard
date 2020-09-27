@@ -144,6 +144,7 @@ namespace ZookieWizard
             virtual void ctrlRemoveAnimTrack(int32_t deleted_id);
 
             void setName(eString new_name);
+            eString getArchivePath() const;
 
             eGroup* getRootNode() const;
             eGroup* getParentNode() const;

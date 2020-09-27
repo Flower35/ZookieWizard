@@ -99,6 +99,47 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eOmniLight: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eOmniLight::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    {
+        char bufor[128];
+
+        /* "eLight": parent class */
+
+        eLight::writeStructureToTextFile(file, indentation, true);
+
+        /* "eOmniLight": additional info */
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - light pos: (%f, %f, %f)",
+            position.x,
+            position.y,
+            position.z
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+
+        sprintf_s
+        (
+            bufor, 128,
+            " - attenuation: (%.6f, %.6f, %.6f)",
+            attenuationConstant,
+            attenuationLinear,
+            attenuationQuadratic
+        );
+
+        ArFunctions::writeIndentation(file, indentation);
+        file << bufor;
+        ArFunctions::writeNewLine(file, 0);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eOmniLight: render this node (light source position)
     ////////////////////////////////////////////////////////////////
     void eOmniLight::renderNode(eDrawContext &draw_context) const

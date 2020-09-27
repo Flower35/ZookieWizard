@@ -138,11 +138,11 @@ namespace ZookieWizard
 
         char bufor[128];
 
-        /* "eNode" parent class */
+        /* "eGroup": parent class */
 
         eGroup::writeStructureToTextFile(file, indentation, true);
 
-        /* "eTransform" additional info */
+        /* "eTransform": additional info */
 
         sprintf_s
         (
@@ -182,7 +182,7 @@ namespace ZookieWizard
         file << bufor;
         ArFunctions::writeNewLine(file, 0);
 
-        /* "eGroup" parent class */
+        /****************/
 
         if (!group_written)
         {
