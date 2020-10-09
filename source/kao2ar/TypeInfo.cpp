@@ -93,6 +93,8 @@ namespace ZookieWizard
 #include <kao2engine/eMaterialState.h>
 #include <kao2engine/eGroup.h>
 #include <kao2engine/eProxy.h>
+#include <kao2engine/eAnimBillboardTarget.h>
+#include <kao2engine/eAnimBillboardProxy.h>
 #include <kao2engine/ePivot.h>
 #include <kao2engine/eScene.h>
 #include <kao2engine/eALZoneSensor.h>
@@ -189,6 +191,7 @@ namespace ZookieWizard
 #include <kao2engine/eCameraDeflector.h>
 #include <kao2engine/ePathCamCtrl.h>
 #include <kao2engine/eGravity.h>
+#include <kao2engine/eOrtho2D.h>
 #include <kao2engine/eParticleEmiter.h>
 #include <kao2engine/ePointEmiter.h>
 #include <kao2engine/eLineEmiter.h>
@@ -410,6 +413,8 @@ namespace ZookieWizard
         registerTypeInfo(&E_MATERIALSTATE_TYPEINFO);
         registerTypeInfo(&E_GROUP_TYPEINFO);
         registerTypeInfo(&E_PROXY_TYPEINFO);
+        registerTypeInfo(&E_ANIMBILLBOARDTARGET_TYPEINFO);
+        registerTypeInfo(&E_ANIMBILLBOARDPROXY_TYPEINFO);
         registerTypeInfo(&E_PIVOT_TYPEINFO);
         registerTypeInfo(&E_SCENE_TYPEINFO);
         registerTypeInfo(&E_ALZONESENSOR_TYPEINFO);
@@ -511,6 +516,7 @@ namespace ZookieWizard
         registerTypeInfo(&E_CAMERADEFLECTOR_TYPEINFO);
         registerTypeInfo(&E_PATHCAMCTRL_TYPEINFO);
         registerTypeInfo(&E_GRAVITY_TYPEINFO);
+        registerTypeInfo(&E_ORTHO2D_TYPEINFO);
         registerTypeInfo(&E_PARTICLEEMITER_TYPEINFO);
         registerTypeInfo(&E_POINTEMITER_TYPEINFO);
         registerTypeInfo(&E_LINEEMITER_TYPEINFO);

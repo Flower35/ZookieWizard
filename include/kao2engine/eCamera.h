@@ -22,8 +22,8 @@ namespace ZookieWizard
             /*[0x01D0]*/ eTransform* camTarget;
             /*[0x01D8-0x01E4]*/ float unknown_01D8[4];
 
-            eCtrl<float>* unknown_additional_01;
-            float unknown_additional_02[2];
+            eLeafCtrl<float>* unknown_01E0;
+            int32_t unknown_01DC;
 
         /*** Methods ***/
 

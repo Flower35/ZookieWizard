@@ -40,15 +40,14 @@ namespace ZookieWizard
         unknown_01D8[2] = 0;
         unknown_01D8[3] = 200.0f;
 
-        unknown_additional_01 = nullptr;
+        unknown_01E0 = nullptr;
 
-        unknown_additional_02[0] = 1.0f;
-        unknown_additional_02[1] = 1.0f;
+        unknown_01DC = 0x3FA78D36;
     }
 
     eCamera::~eCamera()
     {
-        unknown_additional_01->decRef();
+        unknown_01E0->decRef();
 
         camTarget->decRef();
     }
@@ -72,6 +71,14 @@ namespace ZookieWizard
         unknown_01D8[1] = other.unknown_01D8[1];
         unknown_01D8[2] = other.unknown_01D8[2];
         unknown_01D8[3] = other.unknown_01D8[3];
+
+        unknown_01E0 = other.unknown_01E0;
+        if (nullptr != unknown_01E0)
+        {
+            unknown_01E0->incRef();
+        }
+
+        unknown_01DC = other.unknown_01DC;
     }
 
     eCamera::eCamera(const eCamera &other)
@@ -138,21 +145,21 @@ namespace ZookieWizard
         /* [0x01CC] Shold the camera look at the Actor with `eFollowCameraCtrl.makeCurrent()` */
         ar.readOrWrite(&followCurrentActor, 0x01);
 
-        /* "Asterix & Obelix XXL 2: Mission Wifix" */
-        if (ar.getVersion() >= 0x91)
+        if (ar.getVersion() < 0x91)
         {
-            throw ErrorMessage
-            (
-                "eCamera::serialize():\n" \
-                "archve versions 145-147 ARE NOT SUPPORTED!"
-            );
-
-            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_additional_01, &E_LEAFCTRL_FLOAT_TYPEINFO);
-
-            for (i = 0; i < 2; i++)
+            if (nullptr != unknown_01E0)
             {
-                ar.readOrWrite(&(unknown_additional_02[i]), 0x04);
+                unknown_01E0->decRef();
+                unknown_01E0 = nullptr;
             }
+        }
+        else
+        {
+            /* "Asterix & Obelix XXL 2: Mission Wifix" */
+
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_01E0, &E_LEAFCTRL_FLOAT_TYPEINFO);
+
+            ar.readOrWrite(&unknown_01DC, 0x04);
         }
     }
 

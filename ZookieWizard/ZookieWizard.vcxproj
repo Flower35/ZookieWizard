@@ -127,6 +127,8 @@
     <ClCompile Include="..\source\kao2engine\eALBox.cpp" />
     <ClCompile Include="..\source\kao2engine\eALZoneSensor.cpp" />
     <ClCompile Include="..\source\kao2engine\eAmbientLight.cpp" />
+    <ClCompile Include="..\source\kao2engine\eAnimBillboardProxy.cpp" />
+    <ClCompile Include="..\source\kao2engine\eAnimBillboardTarget.cpp" />
     <ClCompile Include="..\source\kao2engine\eAnimNotyfier.cpp" />
     <ClCompile Include="..\source\kao2engine\eAnimState.cpp" />
     <ClCompile Include="..\source\kao2engine\eAskYesNo.cpp" />
@@ -269,6 +271,7 @@
     <ClCompile Include="..\source\kao2engine\eOctopussy2ndTarget.cpp" />
     <ClCompile Include="..\source\kao2engine\eOMB.cpp" />
     <ClCompile Include="..\source\kao2engine\eOmniLight.cpp" />
+    <ClCompile Include="..\source\kao2engine\eOrtho2D.cpp" />
     <ClCompile Include="..\source\kao2engine\eOscilationCtrl.cpp" />
     <ClCompile Include="..\source\kao2engine\ePadGadget.cpp" />
     <ClCompile Include="..\source\kao2engine\ePadRot.cpp" />
