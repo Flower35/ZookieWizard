@@ -32,7 +32,21 @@ namespace ZookieWizard
     char currentWorkingDirectory[LARGE_BUFFER_SIZE];
 
     #define ZOOKIE_WIZARD_SETTINGS_FILENAME "ZookieWizard.ini"
-    #define ZOOKIE_WIZARD_SETTINGS_COUNT 7
+    #define ZOOKIE_WIZARD_SETTINGS_COUNT 8
+
+    const char* ZookieWizardSettingNames[ZOOKIE_WIZARD_SETTINGS_COUNT] =
+    {
+        "EngineVersion", "MediaDir", "DenisDir", "LevelName",
+        "CameraMovementSpeed", "CameraRotationSpeed",
+        "DrawFlags", "BackgroundColor"
+    };
+
+    const bool ZookieWizardSettingIsString[ZOOKIE_WIZARD_SETTINGS_COUNT] =
+    {
+        false, true, true, true,
+        false, false,
+        false, false
+    };
 
 
     ////////////////////////////////////////////////////////////////
@@ -66,16 +80,6 @@ namespace ZookieWizard
         eString keywords[3];
         const char* dummy_text;
 
-        const char* settings_names[ZOOKIE_WIZARD_SETTINGS_COUNT] =
-        {
-            "EngineVersion", "MediaDir", "DenisDir", "LevelName", "CameraMovementSpeed", "CameraRotationSpeed", "DrawFlags"
-        };
-
-        const bool settings_is_str[7] =
-        {
-            false, true, true, true, false, false, false
-        };
-
         try
         {
             bufor[0] = '\0';
@@ -101,7 +105,7 @@ namespace ZookieWizard
 
                     for (a = 0; (setting_id < 0) && (a < ZOOKIE_WIZARD_SETTINGS_COUNT); a++)
                     {
-                        if (keywords[1].compareExact(settings_names[a], true))
+                        if (keywords[1].compareExact(ZookieWizardSettingNames[a], true))
                         {
                             setting_id = a;
                         }
@@ -109,7 +113,7 @@ namespace ZookieWizard
 
                     if (setting_id >= 0)
                     {
-                        if (settings_is_str[setting_id])
+                        if (ZookieWizardSettingIsString[setting_id])
                         {
                             dummy_text = keywords[2].getText();
                             a = keywords[2].getLength();
@@ -166,21 +170,24 @@ namespace ZookieWizard
                                 case 4: // "CameraMovementSpeed"
                                 {
                                     setting_id = 3;
-
                                     break;
                                 }
 
                                 case 5: // "CameraRotationSpeed"
                                 {
                                     setting_id = 4;
-
                                     break;
                                 }
 
                                 case 6: // "DrawFlags"
                                 {
                                     setting_id = 5;
+                                    break;
+                                }
 
+                                case 7: // "BackgroundColor"
+                                {
+                                    setting_id = 6;
                                     break;
                                 }
 
@@ -214,16 +221,6 @@ namespace ZookieWizard
         FileOperator file;
         int32_t setting_id;
 
-        const char* settings_names[ZOOKIE_WIZARD_SETTINGS_COUNT] =
-        {
-            "EngineVersion", "MediaDir", "DenisDir", "LevelName", "CameraMovementSpeed", "CameraRotationSpeed", "DrawFlags"
-        };
-
-        const bool settings_is_str[ZOOKIE_WIZARD_SETTINGS_COUNT] =
-        {
-            false, true, true, true, false, false, false
-        };
-
         bufor[0] = '\0';
         getCurrentWorkingDirectory(bufor);
         dummy_str[0] = bufor;
@@ -244,9 +241,9 @@ namespace ZookieWizard
 
         for (setting_id = 0; setting_id < ZOOKIE_WIZARD_SETTINGS_COUNT; setting_id++)
         {
-            dummy_str[0] = settings_names[setting_id];
+            dummy_str[0] = ZookieWizardSettingNames[setting_id];
 
-            if (settings_is_str[setting_id])
+            if (ZookieWizardSettingIsString[setting_id])
             {
                 switch (setting_id)
                 {
@@ -306,6 +303,20 @@ namespace ZookieWizard
                     case 6: // "DrawFlags"
                     {
                         sprintf_s(bufor, LARGE_BUFFER_SIZE, "%lu", GUI::myDrawFlags);
+
+                        break;
+                    }
+
+                    case 7: // "BackgroundCOlor"
+                    {
+                        sprintf_s
+                        (
+                            bufor, LARGE_BUFFER_SIZE,
+                            "%d %d %d",
+                            (int)(255 * GUI::backgroundColor[0]),
+                            (int)(255 * GUI::backgroundColor[1]),
+                            (int)(255 * GUI::backgroundColor[2])
+                        );
 
                         break;
                     }
@@ -1437,7 +1448,8 @@ namespace ZookieWizard
             sprintf_s
             (
                 bufor, LARGE_BUFFER_SIZE,
-                "<\"%s\">\n\nOBJ document imported successfully! :)",
+                "<\"%s\">\n\nOBJ document imported successfully! :)\n\n" \
+                "Remember to optimize your materials after you adjust them!",
                 filename.getText()
             );
 

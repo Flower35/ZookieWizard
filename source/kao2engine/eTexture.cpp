@@ -8,6 +8,13 @@
 
 namespace ZookieWizard
 {
+    const char* theTextureFlags[KAO2_TEXTURE_FLAGS_COUNT] =
+    {
+        "WRAP_S: Clamp to Edge\n / Repeat",
+        "WRAP_T: Clamp to Edge\n / Repeat",
+        "MAG_FILTER: Linear\n / Nearest"
+    };
+
 
     ////////////////////////////////////////////////////////////////
     // eTexture interface
@@ -34,7 +41,7 @@ namespace ZookieWizard
     eTexture::eTexture(eBitmap* x)
     : eRefCounter()
     {
-        /*[0x08]*/ params = 0x00000004;
+        /*[0x08]*/ textureFlags = 0x00000004;
         /*[0x0C]*/ form = nullptr;
 
         /*[0x10]*/ bmp = x;
@@ -44,10 +51,14 @@ namespace ZookieWizard
         }
 
         /*[0x14]*/ unknown_14 = 0;
+
+        GUI::materialsManager_InsertTexture(this);
     }
 
     eTexture::~eTexture()
     {
+        GUI::materialsManager_DeleteTexture(this);
+
         bmp->decRef();
         form->decRef();
     }
@@ -59,7 +70,7 @@ namespace ZookieWizard
 
     void eTexture::createFromOtherObject(const eTexture &other)
     {
-        params = other.params;
+        textureFlags = other.textureFlags;
 
         form = other.form;
         if (nullptr != form)
@@ -73,12 +84,18 @@ namespace ZookieWizard
             bmp->incRef();
         }
 
+        GUI::materialsManager_UpdateTextureName(this);
+
         unknown_14 = other.unknown_14;
     }
 
     eTexture::eTexture(const eTexture &other)
     : eRefCounter(other)
     {
+        GUI::materialsManager_InsertTexture(this);
+
+        /****************/
+
         createFromOtherObject(other);
     }
 
@@ -117,10 +134,15 @@ namespace ZookieWizard
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&bmp, &E_BITMAP_TYPEINFO);
 
         /* `glTexParameteri` flags */
-        ar.readOrWrite(&params, 0x04);
+        ar.readOrWrite(&textureFlags, 0x04);
 
         /* Texture tranformation */
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&form, &E_TEXTRANSFORM_TYPEINFO);
+
+        if (ar.isInReadMode())
+        {
+            GUI::materialsManager_UpdateTextureName(this);
+        }
 
         /* [0x14] unknown */
         if (ar.getVersion() >= 0x6D)
@@ -196,6 +218,66 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eTexture: optimize data by removing "eBitmap" duplicates
+    ////////////////////////////////////////////////////////////////
+    void eTexture::optimizeTextureByComparingBitmaps(eTexture &other)
+    {
+        bool loaded_flag_test;
+        int32_t result;
+
+        if (((&other) != this) && (nullptr != bmp) && (nullptr != other.bmp))
+        {
+            result = bmp->checkSimilarityToAnotherBitmap(*(other.bmp));
+
+            if (result > 0)
+            {
+                loaded_flag_test = (bmp->getLoadedFromExternalFileFlag() | other.bmp->getLoadedFromExternalFileFlag());
+
+                if (2 == result)
+                {
+                    setBitmap(other.bmp);
+                    bmp->setLoadedFromExternalFileFlag(loaded_flag_test);
+                }
+                else if (1 == result)
+                {
+                    other.setBitmap(bmp);
+                    other.bmp->setLoadedFromExternalFileFlag(loaded_flag_test);
+                }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTexture: compare two textures
+    ////////////////////////////////////////////////////////////////
+    bool eTexture::checkSimilarityToAnotherTexture(const eTexture &other) const
+    {
+        if ((&other) != this)
+        {
+            if (textureFlags != other.textureFlags)
+            {
+                return false;
+            }
+
+            if (form != other.form)
+            {
+                return false;
+            }
+
+            if (bmp != other.bmp)
+            {
+                return false;
+            }
+
+            /* Property [eTexture + 0x14] is probably not used */
+        }
+
+        return true;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eTexture: check path
     ////////////////////////////////////////////////////////////////
     bool eTexture::matchesPath(eString &searched_path) const
@@ -227,11 +309,47 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTexture: get bitmap pointer
+    // eTexture: apply or erase flag bits
     ////////////////////////////////////////////////////////////////
+
+    uint32_t eTexture::getTextureFlags() const
+    {
+        return textureFlags;
+    }
+
+    void eTexture::setTextureFlags(uint32_t bits_to_apply)
+    {
+        textureFlags |= bits_to_apply;
+    }
+
+    void eTexture::unsetTextureFlags(uint32_t bits_to_erase)
+    {
+        textureFlags &= (~bits_to_erase);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTexture: get or set the bitmap pointer
+    ////////////////////////////////////////////////////////////////
+
     eBitmap* eTexture::getBitmap() const
     {
         return bmp;
+    }
+
+    void eTexture::setBitmap(eBitmap* new_bitmap)
+    {
+        if (bmp != new_bitmap)
+        {
+            bmp->decRef();
+
+            bmp = new_bitmap;
+
+            if (nullptr != bmp)
+            {
+                bmp->incRef();
+            }
+        }
     }
 
 
@@ -256,16 +374,19 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTexture: set texture transform
+    // eTexture: get or set the texture transform
     ////////////////////////////////////////////////////////////////
+
+    eTexTransform* eTexture::getTextureTransform() const
+    {
+        return form;
+    }
+
     void eTexture::setTextureTransform(eTexTransform* new_form)
     {
         if (form != new_form)
         {
-            if (nullptr != form)
-            {
-                form->decRef();
-            }
+            form->decRef();
 
             form = new_form;
 

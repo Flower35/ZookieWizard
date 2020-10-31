@@ -342,16 +342,22 @@ namespace ZookieWizard
                 {
                     if (nullptr != animate)
                     {
-                        defaultTransform = ctrl->ctrlGetTransform(defaultTransform, animate);
+                        test_srp = ctrl->ctrlGetTransform(defaultTransform, animate);
                     }
                     else
                     {
-                        ctrl->ctrlApplyTransform(&defaultTransform, 0);
+                        ctrl->ctrlApplyTransform(&test_srp, 0);
                     }
                 }
+                else
+                {
+                    test_srp = defaultTransform;
+                }
             }
-
-            test_srp = defaultTransform;
+            else if (!jointType)
+            {
+                test_srp = defaultTransform;
+            }
         }
 
         getTransposedMatrices(test_srp);

@@ -5,6 +5,11 @@
 
 namespace ZookieWizard
 {
+    const char* theLeafOoRT[KAO2_LEAFKEY_OORT_COUNT] =
+    {
+        "Constant", "Cycle", "Loop", "Ping Pong", "Linear", "Relative Repeat"
+    };
+
 
     ////////////////////////////////////////////////////////////////
     // eLeafCtrl interfaces
@@ -410,12 +415,158 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eLeafCtrl: set default value (used when there are no keys)
+    // eLeafCtrl: get or set the default value (used when there are no keys)
     ////////////////////////////////////////////////////////////////
+
+    template <typename T>
+    T eLeafCtrl<T>::getDefaultValue() const
+    {
+        return defaultKeyframeValue;
+    }
+
     template <typename T>
     void eLeafCtrl<T>::setDefaultValue(T new_value)
     {
         defaultKeyframeValue = new_value;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: get "Out of Range Type"
+    ////////////////////////////////////////////////////////////////
+
+    template <typename T>
+    int32_t eLeafCtrl<T>::getLeafLoopType(int32_t zero_if_a_otheriwse_b) const
+    {
+        return (0 == zero_if_a_otheriwse_b) ? outOfRangeTypeA : outOfRangeTypeB;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: get the number of leaf keys
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    int32_t eLeafCtrl<T>::getLeafKeysCount() const
+    {
+        return keysCount;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: clear all leaf keys
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    void eLeafCtrl<T>::clearLeafKeys()
+    {
+        keysCount = 0;
+        keysMaxLength = 0;
+
+        if (nullptr != keys)
+        {
+            delete[](keys);
+            keys = nullptr;
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: get the time and data of some key (if it exists)
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    bool eLeafCtrl<T>::getIthLeafKey(int32_t id, float &returned_time, T &returned_data)
+    {
+        if ((id >= 0) && (id < keysCount))
+        {
+            returned_time = keys[id].time;
+            returned_data = keys[id].data[0];
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: add a new leaf key
+    // (returns the ID of the inserted key)
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    int32_t eLeafCtrl<T>::addLeafKey(float new_time, T new_data)
+    {
+        if ((keysCount + 1) >= keysMaxLength)
+        {
+            eKeyBase<T>* dummy_keys = new eKeyBase<T> [keysMaxLength + 1];
+
+            if (nullptr != keys)
+            {
+                for (int i = 0; i < keysCount; i++)
+                {
+                    dummy_keys[i] = keys[i];
+                }
+
+                delete[](keys);
+            }
+
+            keys = dummy_keys;
+
+            keysMaxLength++;
+        }
+
+        /* Find the right index based on the passed keyframe number */
+
+        int b = (-1);
+
+        for (int a = 0; (b < 0) && (a < keysCount); a++)
+        {
+            if (keys[a].time > new_time)
+            {
+                b = a;
+            }
+        }
+
+        if (b > 0)
+        {
+            for (int a = keysCount - 1; a >= b; a--)
+            {
+                keys[a + 1] = keys[a];
+            }
+        }
+        else
+        {
+            b = keysCount;
+        }
+
+        keys[b].time = new_time;
+        keys[b].data[0] = new_data;
+
+        keysCount++;
+
+        recalculateInterpolationData();
+
+        return b;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eLeafCtrl: remove some leaf key
+    ////////////////////////////////////////////////////////////////
+    template <typename T>
+    bool eLeafCtrl<T>::removeIthLeafKey(int32_t id)
+    {
+        if ((id >= 0) && (id < keysCount))
+        {
+            for (int a = id + 1; a < keysCount; a++)
+            {
+                keys[a - 1] = keys[a];
+            }
+
+            keysCount--;
+
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -562,81 +713,6 @@ namespace ZookieWizard
                 keys[a + 1].data[1] = control_point_D;
             }
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eLeafCtrl: clear all leaf keys
-    ////////////////////////////////////////////////////////////////
-    template <typename T>
-    void eLeafCtrl<T>::clearLeafKeys()
-    {
-        keysCount = 0;
-        keysMaxLength = 0;
-
-        if (nullptr != keys)
-        {
-            delete[](keys);
-            keys = nullptr;
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // eLeafCtrl: add a new leaf key
-    ////////////////////////////////////////////////////////////////
-    template <typename T>
-    void eLeafCtrl<T>::addLeafKey(float new_time, T new_data)
-    {
-        if ((keysCount + 1) >= keysMaxLength)
-        {
-            eKeyBase<T>* dummy_keys = new eKeyBase<T> [keysMaxLength + 1];
-
-            if (nullptr != keys)
-            {
-                for (int i = 0; i < keysCount; i++)
-                {
-                    dummy_keys[i] = keys[i];
-                }
-
-                delete[](keys);
-            }
-
-            keys = dummy_keys;
-
-            keysMaxLength++;
-        }
-
-        /* Find the right index based on the passed keyframe number */
-
-        int b = (-1);
-
-        for (int a = 0; (b < 0) && (a < keysCount); a++)
-        {
-            if (keys[a].time > new_time)
-            {
-                b = a;
-            }
-        }
-
-        if (b > 0)
-        {
-            for (int a = keysCount - 1; a >= b; a--)
-            {
-                keys[a + 1] = keys[a];
-            }
-        }
-        else
-        {
-            b = keysCount;
-        }
-
-        keys[b].time = new_time;
-        keys[b].data[0] = new_data;
-
-        keysCount++;
-
-        recalculateInterpolationData();
     }
 
 

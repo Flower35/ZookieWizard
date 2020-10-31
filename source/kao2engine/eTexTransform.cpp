@@ -186,4 +186,94 @@ namespace ZookieWizard
         glMatrixMode(GL_MODELVIEW);
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eTexTransform: get texture transformation controllers
+    ////////////////////////////////////////////////////////////////
+
+    eLeafCtrl<float>* eTexTransform::getXScaleCtrl() const
+    {
+        return xScale;
+    }
+
+    eLeafCtrl<float>* eTexTransform::getYScaleCtrl() const
+    {
+        return yScale;
+    }
+
+    eLeafCtrl<float>* eTexTransform::getUOffsetCtrl() const
+    {
+        return uOffset;
+    }
+
+    eLeafCtrl<float>* eTexTransform::getVOffsetCtrl() const
+    {
+        return vOffset;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eTexTransform: set texture transformation controllers
+    ////////////////////////////////////////////////////////////////
+
+    void eTexTransform::setXScaleCtrl(eLeafCtrl<float>* new_ctrl)
+    {
+        if (xScale != new_ctrl)
+        {
+            xScale->decRef();
+
+            xScale = new_ctrl;
+
+            if (nullptr != xScale)
+            {
+                xScale->incRef();
+            }
+        }
+    }
+
+    void eTexTransform::setYScaleCtrl(eLeafCtrl<float>* new_ctrl)
+    {
+        if (yScale != new_ctrl)
+        {
+            yScale->decRef();
+
+            yScale = new_ctrl;
+
+            if (nullptr != yScale)
+            {
+                yScale->incRef();
+            }
+        }
+    }
+
+    void eTexTransform::setUOffsetCtrl(eLeafCtrl<float>* new_ctrl)
+    {
+        if (uOffset != new_ctrl)
+        {
+            uOffset->decRef();
+
+            uOffset = new_ctrl;
+
+            if (nullptr != uOffset)
+            {
+                uOffset->incRef();
+            }
+        }
+    }
+
+    void eTexTransform::setVOffsetCtrl(eLeafCtrl<float>* new_ctrl)
+    {
+        if (vOffset != new_ctrl)
+        {
+            vOffset->decRef();
+
+            vOffset = new_ctrl;
+
+            if (nullptr != vOffset)
+            {
+                vOffset->incRef();
+            }
+        }
+    }
+
 }

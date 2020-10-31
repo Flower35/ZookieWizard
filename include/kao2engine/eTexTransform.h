@@ -49,6 +49,16 @@ namespace ZookieWizard
             /* << eTexTransform >> */
 
             void updateTextureMatrix(eAnimate* anim) const;
+
+            eLeafCtrl<float>* getXScaleCtrl() const;
+            eLeafCtrl<float>* getYScaleCtrl() const;
+            eLeafCtrl<float>* getUOffsetCtrl() const;
+            eLeafCtrl<float>* getVOffsetCtrl() const;
+
+            void setXScaleCtrl(eLeafCtrl<float>* new_ctrl);
+            void setYScaleCtrl(eLeafCtrl<float>* new_ctrl);
+            void setUOffsetCtrl(eLeafCtrl<float>* new_ctrl);
+            void setVOffsetCtrl(eLeafCtrl<float>* new_ctrl);
     };
 
 

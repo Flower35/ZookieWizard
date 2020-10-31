@@ -8,6 +8,7 @@
 #include <kao2engine/eXRefTarget.h>
 #include <kao2engine/eXRefProxy.h>
 #include <kao2engine/eGeometry.h>
+#include <kao2engine/eMaterial.h>
 
 namespace ZookieWizard
 {
@@ -163,6 +164,7 @@ namespace ZookieWizard
         eNode *test_root, *test_node = nullptr;
         eTransform* parent_xform = nullptr;
         eGeometry* test_geometry;
+        eMaterial* test_material;
 
         /********************************/
         /* If no object is selected, and we are not updating List or Root, then cancel this function */
@@ -663,8 +665,6 @@ namespace ZookieWizard
                     GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
                 }
 
-                child_id = (-1);
-
                 break;
             }
 
@@ -702,8 +702,6 @@ namespace ZookieWizard
                     GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
                 }
 
-                child_id = (-1);
-
                 break;
             }
 
@@ -724,6 +722,55 @@ namespace ZookieWizard
                 markedChildId = child_id;
 
                 update_list = true;
+
+                break;
+            }
+
+            case NODES_EDITING_MATERIAL_CLONE:
+            case NODES_EDITING_MATERIAL_DELETE:
+            case NODES_EDITING_MATERIAL_CHANGE:
+            {
+                if ((nullptr != test_node) && test_node->getType()->checkHierarchy(&E_GEOMETRY_TYPEINFO))
+                {
+                    test_geometry = (eGeometry*)test_node;
+
+                    if (NODES_EDITING_MATERIAL_CLONE == child_id)
+                    {
+                        test_material = test_geometry->getMaterial();
+
+                        if (nullptr != test_material)
+                        {
+                            test_material = new eMaterial(*(test_material));
+                        }
+                        else
+                        {
+                            test_material = new eMaterial(nullptr);
+                        }
+                    }
+                    else if (NODES_EDITING_MATERIAL_DELETE == child_id)
+                    {
+                        test_material = nullptr;
+                    }
+                    else
+                    {
+                        test_material = GUI::materialsManager_GetCurrentMaterial();
+                    }
+
+                    test_geometry->setMaterial(test_material);
+
+                    GUI::materialsManager_SetCurrentMaterialFromGeometry(test_geometry->getMaterial());
+                }
+                else
+                {
+                    GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_WARNING, "Current Node type must be \"eGeometry\" or its child type!");
+                }
+
+                break;
+            }
+
+            case NODES_EDITING_MATERIAL_OPTIMIZE:
+            {
+                GUI::materialsManager_ReduceSimilarMaterials(test_node);
 
                 break;
             }

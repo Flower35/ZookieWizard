@@ -29,6 +29,12 @@ namespace ZookieWizard
     eMaterialState::eMaterialState()
     : eRefCounter()
     {
+        theMaterialStatesCounter++;
+
+        GUI::materialsManager_UpdateStatistics();
+
+        /****************/
+
         /*[0x28-0x34]*/
         emissive[0] = 0;
         emissive[1] = 0;
@@ -54,12 +60,16 @@ namespace ZookieWizard
         specular[3] = 1.0f;
 
         /*[0x48]*/ shininess = 0;
-        /*[0x4C]*/ unknown_4C = true;
+        /*[0x4C]*/ useGlobalAmbientLight = true;
 
     }
 
     eMaterialState::~eMaterialState()
-    {}
+    {
+        theMaterialStatesCounter--;
+
+        GUI::materialsManager_UpdateStatistics();
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -89,12 +99,16 @@ namespace ZookieWizard
         specular[3] = other.specular[3];
 
         shininess = other.shininess;
-        unknown_4C = other.unknown_4C;
+        useGlobalAmbientLight = other.useGlobalAmbientLight;
     }
 
     eMaterialState::eMaterialState(const eMaterialState &other)
     : eRefCounter(other)
     {
+        theMaterialStatesCounter++;
+
+        /****************/
+
         createFromOtherObject(other);
     }
 
@@ -189,15 +203,57 @@ namespace ZookieWizard
             shininess = 0;
         }
 
-        /* [0x4C] unknown */
+        /* [0x4C] should global ambient lights be used with this material? */
         if (ar.getVersion() >= 0x76)
         {
-            ar.readOrWrite(&unknown_4C, 0x01);
+            ar.readOrWrite(&useGlobalAmbientLight, 0x01);
         }
         else
         {
-            unknown_4C = true;
+            useGlobalAmbientLight = true;
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterialState: compare with other material state
+    ////////////////////////////////////////////////////////////////
+    bool eMaterialState::checkSimilarityToAnotherState(const eMaterialState &other) const
+    {
+        if ((&other) != this)
+        {
+            if ((ambient[0] != other.ambient[0]) || (ambient[1] != other.ambient[1]) || (ambient[2] != other.ambient[2]) || (ambient[3] != other.ambient[3]))
+            {
+                return false;
+            }
+
+            if ((diffuse[0] != other.diffuse[0]) || (diffuse[1] != other.diffuse[1]) || (diffuse[2] != other.diffuse[2]) || (diffuse[3] != other.diffuse[3]))
+            {
+                return false;
+            }
+
+            if ((emissive[0] != other.emissive[0]) || (emissive[1] != other.emissive[1]) || (emissive[2] != other.emissive[2]) || (emissive[3] != other.emissive[3]))
+            {
+                return false;
+            }
+
+            if ((specular[0] != other.specular[0]) || (specular[1] != other.specular[1]) || (specular[2] != other.specular[2]) || (specular[3] != other.specular[3]))
+            {
+                return false;
+            }
+
+            if (shininess != other.shininess)
+            {
+                return false;
+            }
+
+            if (useGlobalAmbientLight != other.useGlobalAmbientLight)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
@@ -219,6 +275,13 @@ namespace ZookieWizard
         values[2] = diffuse[2];
     }
 
+    void eMaterialState::getEmissiveColor(float* values) const
+    {
+        values[0] = emissive[0];
+        values[1] = emissive[1];
+        values[2] = emissive[2];
+    }
+
     void eMaterialState::getSpecularColor(float* values) const
     {
         values[0] = specular[0];
@@ -229,6 +292,11 @@ namespace ZookieWizard
     float eMaterialState::getShininess() const
     {
         return shininess;
+    }
+
+    bool eMaterialState::getGlobalAmbientLightState() const
+    {
+        return useGlobalAmbientLight;
     }
 
     void eMaterialState::setAmbientColor(float* values)
@@ -247,6 +315,14 @@ namespace ZookieWizard
         diffuse[3] = 1.0f;
     }
 
+    void eMaterialState::setEmissiveColor(float* values)
+    {
+        emissive[0] = values[0];
+        emissive[1] = values[1];
+        emissive[2] = values[2];
+        emissive[3] = 1.0f;
+    }
+
     void eMaterialState::setSpecularColor(float* values)
     {
         specular[0] = values[0];
@@ -259,5 +335,16 @@ namespace ZookieWizard
     {
         shininess = value;
     }
+
+    void eMaterialState::setGlobalAmbientLightState(bool value)
+    {
+        useGlobalAmbientLight = value;
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // Global MaterialStates counter
+    ////////////////////////////////////////////////////////////////
+
+    int32_t theMaterialStatesCounter = 0;
 
 }

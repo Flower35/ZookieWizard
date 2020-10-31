@@ -3,6 +3,8 @@
 
 #include <kao2engine/ePrimitive.h>
 
+#include <kao2ar/Collection.h>
+
 namespace ZookieWizard
 {
     class eNode;
@@ -134,6 +136,8 @@ namespace ZookieWizard
 
             virtual int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property);
             virtual int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params);
+
+            virtual void collectNodesOfSomeType(const TypeInfo* type, Collection<ArFunctions::serialize_eRefCounter> &collection);
 
             virtual void exportScripts(const eString &media_dir) const;
 

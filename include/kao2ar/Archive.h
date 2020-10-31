@@ -40,37 +40,41 @@ namespace ZookieWizard
     #define AR_MODE_PARTICLES_PATH (1 << 6)
     #define AR_MODE_XREF_PATH (1 << 7)
 
-    #define AR_MAX_ITEMS 65536
-    #define AR_MAX_TEMPSTR 192
+    #define AR_MAX_ITEMS   65536
+    #define AR_MAX_TEMPSTR   192
 
     #define AR_ITEM_TYPE_OBJECT 0x00
     #define AR_ITEM_TYPE_STRING 0x01
-    #define AR_ITEM_TYPE_OTHER 0x02
+    #define AR_ITEM_TYPE_OTHER  0x02
 
-    #define NODES_LISTBOX_SET_MARKED_CHILD (-1)
-    #define NODES_LISTBOX_UPDATE_CURRENT (-2)
-    #define NODES_LISTBOX_PARENT (-3)
-    #define NODES_LISTBOX_ROOT (-4)
-    #define NODES_LISTBOX_MOVE_UP (-5)
-    #define NODES_LISTBOX_MOVE_DOWN (-6)
-    #define NODES_LISTBOX_MOVE_OUT (-7)
-    #define NODES_LISTBOX_MOVE_IN (-8)
-    #define NODES_LISTBOX_CENTER_CAMERA (-9)
-    #define NODES_LISTBOX_DELETE_CURRENT (-10)
-    #define NODES_LISTBOX_DELETE_CHILDREN (-11)
-    #define NODES_LISTBOX_DELETE_SELECTED (-12)
+    #define NODES_LISTBOX_SET_MARKED_CHILD   (-1)
+    #define NODES_LISTBOX_UPDATE_CURRENT     (-2)
+    #define NODES_LISTBOX_PARENT             (-3)
+    #define NODES_LISTBOX_ROOT               (-4)
+    #define NODES_LISTBOX_MOVE_UP            (-5)
+    #define NODES_LISTBOX_MOVE_DOWN          (-6)
+    #define NODES_LISTBOX_MOVE_OUT           (-7)
+    #define NODES_LISTBOX_MOVE_IN            (-8)
+    #define NODES_LISTBOX_CENTER_CAMERA      (-9)
+    #define NODES_LISTBOX_DELETE_CURRENT    (-10)
+    #define NODES_LISTBOX_DELETE_CHILDREN   (-11)
+    #define NODES_LISTBOX_DELETE_SELECTED   (-12)
     #define NODES_LISTBOX_COLLISION_REBUILD (-13)
-    #define NODES_LISTBOX_COLLISION_CLEAR (-14)
-    #define NODES_EDITING_SET_FLAG (-15)
-    #define NODES_EDITING_UNSET_FLAG (-16)
-    #define NODES_EDITING_CHANGE_NAME (-17)
-    #define NODES_EDITING_CHANGE_TYPE (-18)
-    #define NODES_EDITING_INSERT (-19)
-    #define NODES_EDITING_RESET_TRANSFORM (-20)
-    #define NODES_EDITING_APPLY_TRANSFORM (-21)
-    #define NODES_EDITING_CLONE_CURRENT (-22)
-    #define NODES_EDITING_CLONE_SELECTED (-23)
-    #define NODES_EDITING_CLONE_PASTING (-24)
+    #define NODES_LISTBOX_COLLISION_CLEAR   (-14)
+    #define NODES_EDITING_SET_FLAG          (-15)
+    #define NODES_EDITING_UNSET_FLAG        (-16)
+    #define NODES_EDITING_CHANGE_NAME       (-17)
+    #define NODES_EDITING_CHANGE_TYPE       (-18)
+    #define NODES_EDITING_INSERT            (-19)
+    #define NODES_EDITING_RESET_TRANSFORM   (-20)
+    #define NODES_EDITING_APPLY_TRANSFORM   (-21)
+    #define NODES_EDITING_CLONE_CURRENT     (-22)
+    #define NODES_EDITING_CLONE_SELECTED    (-23)
+    #define NODES_EDITING_CLONE_PASTING     (-24)
+    #define NODES_EDITING_MATERIAL_CLONE    (-25)
+    #define NODES_EDITING_MATERIAL_DELETE   (-26)
+    #define NODES_EDITING_MATERIAL_CHANGE   (-27)
+    #define NODES_EDITING_MATERIAL_OPTIMIZE (-28)
 
     class Archive
     {

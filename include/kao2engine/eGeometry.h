@@ -57,6 +57,8 @@ namespace ZookieWizard
 
             /* << eGeometry >> */
 
+            void optimizeGeometryByComparingMaterials(eGeometry &other);
+
             void oldNodeSerialization(ePoint3* arg1);
 
             eMaterial* getMaterial() const;

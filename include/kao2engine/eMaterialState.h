@@ -22,7 +22,7 @@ namespace ZookieWizard
             /*[0x28-0x34]*/ float emissive[4];
             /*[0x38-0x44]*/ float specular[4];
             /*[0x48]*/ float shininess;
-            /*[0x4C]*/ bool unknown_4C;
+            /*[0x4C]*/ bool useGlobalAmbientLight;
 
         /*** Methods ***/
 
@@ -48,15 +48,21 @@ namespace ZookieWizard
 
             /* << eMaterialState >> */
 
+            bool checkSimilarityToAnotherState(const eMaterialState &other) const;
+
             void getAmbientColor(float* values) const;
             void getDiffuseColor(float* values) const;
+            void getEmissiveColor(float* values) const;
             void getSpecularColor(float* values) const;
             float getShininess() const;
+            bool getGlobalAmbientLightState() const;
 
             void setAmbientColor(float* values);
             void setDiffuseColor(float* values);
+            void setEmissiveColor(float* values);
             void setSpecularColor(float* values);
             void setShininess(float value);
+            void setGlobalAmbientLightState(bool value);
     };
 
 
@@ -68,6 +74,13 @@ namespace ZookieWizard
     static const int E_MATERIALSTATE_ID = 0x1005;
 
     extern TypeInfo E_MATERIALSTATE_TYPEINFO;
+
+
+    ////////////////////////////////////////////////////////////////
+    // Global Material States counter
+    ////////////////////////////////////////////////////////////////
+
+    extern int32_t theMaterialStatesCounter;
 
 }
 

@@ -328,6 +328,7 @@ namespace ZookieWizard
         eMatrix4x4 parent_matrix;
 
         eTransform* test_xform;
+        eSRP test_srp;
 
         /* (--dsp--) check "eMorpherMod" <kao2.006030C0> */
 
@@ -337,21 +338,29 @@ namespace ZookieWizard
         {
             if (nullptr != (test_xform = tri->getPreviousTransform()))
             {
-                parent_matrix = test_xform->getXForm(true).getInverseMatrix();
+                test_srp = test_xform->getXForm(true);
+                parent_matrix = test_srp.getInverseMatrix();
             }
         }
 
         /* Prepare bone matrices */
 
-        for (i = 0; i < bonesCount; i++)
+        if (update)
         {
-            if (update)
+            for (i = 0; i < bonesCount; i++)
             {
                 bone_xform_matrix = bones[i].xform->getXForm(true).getMatrix();
 
                 theBonesMatrices[i] = parent_matrix * (bone_xform_matrix * bones[i].matrix);
             }
-            else
+        }
+        else
+        {
+            parent_matrix.m[0][3] = 0;
+            parent_matrix.m[1][3] = 0;
+            parent_matrix.m[2][3] = 0;
+
+            for (i = 0; i < bonesCount; i++)
             {
                 theBonesMatrices[i] = parent_matrix;
             }

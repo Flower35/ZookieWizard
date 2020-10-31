@@ -14,7 +14,7 @@ namespace ZookieWizard
         typedef void (*void_func_with_params)(WPARAM, LPARAM, void*);
 
         #define WINDOWS_MANAGER_MENU_ID 101
-        #define WINDOWS_MANAGER_SCROLL_HEIGHT (int)(3.5 * RECT_WINDOW_Y)
+        #define WINDOWS_MANAGER_SCROLL_HEIGHT (int)(3.75 * RECT_WINDOW_Y)
 
         #define WINDOWS_MANAGER_MESSAGE_ERROR 0
         #define WINDOWS_MANAGER_MESSAGE_WARNING 1

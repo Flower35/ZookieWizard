@@ -3,8 +3,6 @@
 
 #include <kao2engine/eNode.h>
 
-#include <kao2ar/Collection.h>
-
 namespace ZookieWizard
 {
 
@@ -63,6 +61,8 @@ namespace ZookieWizard
             void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id) override;
 
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
+
+            void collectNodesOfSomeType(const TypeInfo* type, Collection<ArFunctions::serialize_eRefCounter> &collection) override;
 
             void exportScripts(const eString &media_dir) const override;
 

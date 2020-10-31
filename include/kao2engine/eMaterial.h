@@ -84,9 +84,15 @@ namespace ZookieWizard
 
             /* << eMaterial >> */
 
+            void optimizeMaterialByComparingTexturesAndStates(eMaterial &other);
+            bool checkSimilarityToAnotherMaterial(const eMaterial &other) const;
+
             int32_t getTexturesCount() const;
             eTexture* getIthTexture(int32_t i) const;
+            void setIthTexture(int32_t i, eTexture* new_texture);
             void appendTexture(eTexture* new_texture);
+            void removeTexture(int32_t i);
+            void swapTexture(int32_t i, int32_t direction);
 
             void setName(eString new_name);
             bool hasInvisibleInName() const;
@@ -107,6 +113,7 @@ namespace ZookieWizard
             void setSoundType(uint16_t new_type);
 
             float getAlphaTestRef() const;
+            void setAlphaTestRef(float new_alpha);
     };
 
 

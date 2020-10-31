@@ -121,6 +121,7 @@ namespace ZookieWizard
         soundType = other.soundType;
 
         name = other.name;
+        GUI::materialsManager_UpdateMaterialName(this);
 
         transpLayer = other.transpLayer;
 
@@ -130,11 +131,11 @@ namespace ZookieWizard
     eMaterial::eMaterial(const eMaterial &other)
     : eRefCounter(other)
     {
-        createFromOtherObject(other);
+        GUI::materialsManager_InsertMaterial(this);
 
         /****************/
 
-        GUI::materialsManager_InsertMaterial(this);
+        createFromOtherObject(other);
     }
 
     eMaterial& eMaterial::operator = (const eMaterial &other)
@@ -352,6 +353,105 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eMaterial: optimize data by removing "eTexture" or "eMaterialState" duplicates
+    ////////////////////////////////////////////////////////////////
+    void eMaterial::optimizeMaterialByComparingTexturesAndStates(eMaterial &other)
+    {
+        int32_t a, b, textures_count[2];
+        eTexture* dummy_texture[2];
+
+        if ((&other) != this)
+        {
+            textures_count[0] = textures.getSize();
+            textures_count[1] = other.textures.getSize();
+
+            for (a = 0; a < textures_count[0]; a++)
+            {
+                if (nullptr != (dummy_texture[0] = (eTexture*)textures.getIthChild(a)))
+                {
+                    for (b = 0; b < textures_count[1]; b++)
+                    {
+                        if (nullptr != (dummy_texture[1] = (eTexture*)other.textures.getIthChild(a)))
+                        {
+                            if (dummy_texture[0]->checkSimilarityToAnotherTexture(*(dummy_texture[1])))
+                            {
+                                setIthTexture(a, dummy_texture[1]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ((nullptr != state) && (nullptr != other.state))
+            {
+                if (state->checkSimilarityToAnotherState(*(other.state)))
+                {
+                    setMaterialState(other.state);
+                }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterial: compare two materials
+    ////////////////////////////////////////////////////////////////
+    bool eMaterial::checkSimilarityToAnotherMaterial(const eMaterial &other) const
+    {
+        int32_t a, textures_count;
+
+        if ((&other) != this)
+        {
+            if ((textures_count = textures.getSize()) != other.textures.getSize())
+            {
+                return false;
+            }
+
+            for (a = 0; a < textures_count; a++)
+            {
+                if (textures.getIthChild(a) != other.textures.getIthChild(a))
+                {
+                    return false;
+                }
+            }
+
+            if (materialFlags != other.materialFlags)
+            {
+                return false;
+            }
+
+            if (state != other.state)
+            {
+                return false;
+            }
+
+            if (collisionType != other.collisionType)
+            {
+                return false;
+            }
+
+            /* Property [eMaterial + 0x20] is probably not used */
+
+            if (soundType != other.soundType)
+            {
+                return false;
+            }
+
+            /* Name property is not important */
+
+            /* "transpLayer" property is probably not used */
+
+            if (alphaTestRef != other.alphaTestRef)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eMaterial: get textures count
     ////////////////////////////////////////////////////////////////
     int32_t eMaterial::getTexturesCount() const
@@ -361,11 +461,18 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eMaterial: get i-th texture (used with eTriMesh)
+    // eMaterial: get or set the i-th texture
     ////////////////////////////////////////////////////////////////
+
     eTexture* eMaterial::getIthTexture(int32_t i) const
     {
         return (eTexture*)textures.getIthChild(i);
+    }
+
+    void eMaterial::setIthTexture(int32_t i, eTexture* new_texture)
+    {
+        /* The Collection does all the necessary checks */
+        textures.setIthChild(i, new_texture);
     }
 
 
@@ -375,6 +482,31 @@ namespace ZookieWizard
     void eMaterial::appendTexture(eTexture* new_texture)
     {
         textures.appendChild(new_texture);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterial: remove i-th texture
+    ////////////////////////////////////////////////////////////////
+    void eMaterial::removeTexture(int32_t i)
+    {
+        textures.deleteIthChild(i);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eMaterial: swap some two textures
+    ////////////////////////////////////////////////////////////////
+    void eMaterial::swapTexture(int32_t i, int32_t direction)
+    {
+        if (direction > 0)
+        {
+            textures.swapForward(i);
+        }
+        else if (direction < 0)
+        {
+            textures.swapBackward(i);
+        }
     }
 
 
@@ -453,14 +585,16 @@ namespace ZookieWizard
     // eMaterial: get or set material state
     ////////////////////////////////////////////////////////////////
 
+    eMaterialState* eMaterial::getMaterialState() const
+    {
+        return state;
+    }
+
     void eMaterial::setMaterialState(eMaterialState* new_mtl_state)
     {
         if (state != new_mtl_state)
         {
-            if (nullptr != state)
-            {
-                state->decRef();
-            }
+            state->decRef();
 
             state = new_mtl_state;
 
@@ -471,24 +605,19 @@ namespace ZookieWizard
         }
     }
 
-    eMaterialState* eMaterial::getMaterialState() const
-    {
-        return state;
-    }
-
 
     ////////////////////////////////////////////////////////////////
     // eMaterial: get or set collision type
     ////////////////////////////////////////////////////////////////
 
-    void eMaterial::setCollisionType(uint32_t new_type)
-    {
-        collisionType = new_type;
-    }
-
     uint32_t eMaterial::getCollisionType() const
     {
         return collisionType;
+    }
+
+    void eMaterial::setCollisionType(uint32_t new_type)
+    {
+        collisionType = new_type;
     }
 
 
@@ -508,11 +637,25 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eMaterial: get AlphaTest reference value
+    // eMaterial: get or set the AlphaTest reference value
     ////////////////////////////////////////////////////////////////
     float eMaterial::getAlphaTestRef() const
     {
         return alphaTestRef;
+    }
+
+    void eMaterial::setAlphaTestRef(float new_alpha)
+    {
+        alphaTestRef = new_alpha;
+
+        if (alphaTestRef < 0)
+        {
+            alphaTestRef = 0;
+        }
+        else if (alphaTestRef > 1)
+        {
+            alphaTestRef = 1;
+        }
     }
 
 }

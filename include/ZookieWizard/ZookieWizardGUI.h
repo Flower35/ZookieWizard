@@ -97,7 +97,7 @@ namespace ZookieWizard
         extern int32_t animationFPS;
         extern bool renderingLimitFramerate;
 
-        extern bool updatingMovedSelectedTransformEditboxes;
+        extern bool updatingEditboxesNotByUser;
 
         /*** Functions ***/
 
@@ -106,6 +106,7 @@ namespace ZookieWizard
 
         bool isAppRunning();
         void render();
+        void updateSceneBackgroundColor();
         void setPerspective(GLsizei, GLsizei);
         void changeView(bool);
 

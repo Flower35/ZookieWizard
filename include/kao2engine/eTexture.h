@@ -10,6 +10,15 @@ namespace ZookieWizard
     struct eAnimate;
 
     ////////////////////////////////////////////////////////////////
+    // eTexture helper definitions
+    ////////////////////////////////////////////////////////////////
+
+    #define KAO2_TEXTURE_FLAGS_COUNT 3
+
+    extern const char* theTextureFlags[KAO2_TEXTURE_FLAGS_COUNT];
+
+
+    ////////////////////////////////////////////////////////////////
     // eTexture interface
     // <kao2.005D0760> (vptr)
     ////////////////////////////////////////////////////////////////
@@ -20,7 +29,7 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x08]*/ uint32_t params;
+            /*[0x08]*/ uint32_t textureFlags;
             /*[0x0C]*/ eTexTransform* form;
             /*[0x10]*/ eBitmap* bmp;
             /*[0x14]*/ int32_t unknown_14;
@@ -51,13 +60,24 @@ namespace ZookieWizard
 
             /* << eTexture >> */
 
+            void optimizeTextureByComparingBitmaps(eTexture &other);
+            bool checkSimilarityToAnotherTexture(const eTexture &other) const;
+
             bool matchesPath(eString &searched_path) const;
 
             GLuint getTextureId() const;
-            eBitmap* getBitmap() const;
 
-            void setTextureTransform(eTexTransform* new_form);
+            uint32_t getTextureFlags() const;
+            void setTextureFlags(uint32_t bits_to_apply);
+            void unsetTextureFlags(uint32_t bits_to_erase);
+
+            eBitmap* getBitmap() const;
+            void setBitmap (eBitmap* new_bitmap);
+
             void updateTextureMatrix(eAnimate* anim) const;
+
+            eTexTransform* getTextureTransform() const;
+            void setTextureTransform(eTexTransform* new_form);
     };
 
 

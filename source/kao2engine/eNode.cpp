@@ -403,6 +403,8 @@ namespace ZookieWizard
             }
         #endif
 
+        /****************/
+
         /*[0x08]*/ previousTransform = nullptr;
         /*[0x0C]*/ unknown_0C = 0x00FFFFFF;
         /*[0x10]*/ parent = nullptr;
@@ -426,6 +428,8 @@ namespace ZookieWizard
 
         visCtrl->decRef();
         axisListBox->decRef();
+
+        /****************/
 
         theNodesCounter--;
 
@@ -1210,7 +1214,20 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eNode: empty funcion (for "eGroup" / "Actor")
+    // eNode: collecting nodes of some type (copies have increased references!)
+    ////////////////////////////////////////////////////////////////
+    void eNode::collectNodesOfSomeType(const TypeInfo* type, Collection<ArFunctions::serialize_eRefCounter> &collection)
+    {
+        if (getType()->checkHierarchy(type))
+        {
+            collection.appendChild(this);
+        }
+    }
+
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eGroup" / "Actor")
     ////////////////////////////////////////////////////////////////
     void eNode::exportScripts(const eString &media_dir) const
     {}

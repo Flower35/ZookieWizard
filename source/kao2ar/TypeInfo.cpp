@@ -299,7 +299,7 @@ namespace ZookieWizard
     // <kao2.00462CB0>
     ////////////////////////////////////////////////////////////////
 
-    bool TypeInfo::checkHierarchy(TypeInfo* assumed_type) const
+    bool TypeInfo::checkHierarchy(const TypeInfo* assumed_type) const
     {
         const TypeInfo* test = this;
 

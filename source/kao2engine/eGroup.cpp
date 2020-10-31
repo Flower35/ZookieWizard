@@ -496,6 +496,25 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eGroup: collecting nodes of some type (copies have increased references!)
+    ////////////////////////////////////////////////////////////////
+    void eGroup::collectNodesOfSomeType(const TypeInfo* type, Collection<ArFunctions::serialize_eRefCounter> &collection)
+    {
+        eNode* child_node;
+
+        for (int32_t a = 0; a < nodes.getSize(); a++)
+        {
+            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
+            {
+                child_node->collectNodesOfSomeType(type, collection);
+            }
+        }
+
+        eNode::collectNodesOfSomeType(type, collection);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eGroup: exporting script files
     ////////////////////////////////////////////////////////////////
     void eGroup::exportScripts(const eString &media_dir) const

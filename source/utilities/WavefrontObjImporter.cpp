@@ -407,8 +407,6 @@ namespace ZookieWizard
     {
         readModelData();
 
-        checkForAlreadyExistingMaterials();
-
         constructTriMeshes();
     }
 
@@ -829,59 +827,6 @@ namespace ZookieWizard
 
         /* Don't decrease reference of "eMaterial" in local structure */
         dummy_obj_mtl.material = nullptr;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // WavefrontObjImporter: check if materials with same paths already exist
-    ////////////////////////////////////////////////////////////////
-    void WavefrontObjImporter::checkForAlreadyExistingMaterials()
-    {
-        int i;
-
-        eNode* root;
-        eMaterial* matching_material;
-        eTexture* dummy_texture;
-        eBitmap* dummy_bitmap;
-        eString dummy_path;
-
-        if ((nullptr != parentGroup) && (objMaterialsCount > 0))
-        {
-            theLog.print(" Scanning for reused texture filenames...\n");
-
-            root = parentGroup->getRootNode();
-
-            if (nullptr == root)
-            {
-                root = parentGroup;
-            }
-
-            for (i = 0; i < objMaterialsCount; i++)
-            {
-                dummy_texture = objMaterials[i].material->getIthTexture(0);
-
-                if (nullptr != dummy_texture)
-                {
-                    dummy_bitmap = dummy_texture->getBitmap();
-
-                    if (nullptr != dummy_bitmap)
-                    {
-                        dummy_path = dummy_bitmap->getPath();
-
-                        matching_material = (eMaterial*) GUI::materialsManager_FindMaterial(dummy_path.getText());
-
-                        if ((nullptr != matching_material) && (objMaterials[i].material != matching_material))
-                        {
-                            theLog.print(eString(" @ REPLACING \"") + dummy_path + "\" WITH PREVIOUS INSTANCE\n");
-
-                            objMaterials[i].material->decRef();
-                            objMaterials[i].material = matching_material;
-                            matching_material->incRef();
-                        }
-                    }
-                }
-            }
-        }
     }
 
 

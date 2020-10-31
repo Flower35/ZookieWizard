@@ -7,6 +7,33 @@
 
 namespace ZookieWizard
 {
+    bool ArFunctions::isValidImageWidth(int32_t test)
+    {
+        bool bit_found = false;
+
+        if ((test < 0) || (test > 2048))
+        {
+            return false;
+        }
+
+        while (0 != test)
+        {
+            if (test & 0x01)
+            {
+                if (bit_found)
+                {
+                    return false;
+                }
+
+                bit_found = true;
+            }
+
+            test >>= 0x01;
+        }
+
+        return true;
+    }
+
 
     ////////////////////////////////////////////////////////////////
     // eBitmap interface
@@ -83,7 +110,7 @@ namespace ZookieWizard
         type = other.type;
 
         path = other.path;
-        GUI::materialsManager_UpdateBitmapName(this);
+        GUI::materialsManager_UpdateBitmapPath(this);
 
         isLoadedFromExternalFile = other.isLoadedFromExternalFile;
 
@@ -122,11 +149,11 @@ namespace ZookieWizard
     eBitmap::eBitmap(const eBitmap &other)
     : eRefCounter(other)
     {
-        createFromOtherObject(other);
+        GUI::materialsManager_InsertBitmap(this);
 
         /****************/
 
-        GUI::materialsManager_InsertBitmap(this);
+        createFromOtherObject(other);
     }
 
     eBitmap& eBitmap::operator = (const eBitmap &other)
@@ -302,7 +329,7 @@ namespace ZookieWizard
 
         if (ar.isInReadMode())
         {
-            GUI::materialsManager_UpdateBitmapName(this);
+            GUI::materialsManager_UpdateBitmapPath(this);
         }
 
         /* Load texture from file, Bind texture */
@@ -379,6 +406,99 @@ namespace ZookieWizard
         {
             err.display();
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eBitmap: compare two bitmaps, and if they are similar,
+    // return the one that is "more detailed"
+    // ([0] = no match, [1] = this object, [2] = the other object)
+    ////////////////////////////////////////////////////////////////
+    int32_t eBitmap::checkSimilarityToAnotherBitmap(const eBitmap &other) const
+    {
+        if (  ((&other) != this)
+            && (path.getLength() > 0)
+            && path.comparePath(other.path)
+            && (virtualWidth == other.virtualWidth) && (virtualHeight == other.virtualHeight)
+            && (width == other.width) && (height == other.height) )
+        {
+            switch (type)
+            {
+                /* (32-bit) */
+                case RGBA8:
+                {
+                    switch (other.type)
+                    {
+                        case RGBA8:
+                        case PAL8_RGBA8:
+                        {
+                            return 1;
+                        }
+                    }
+
+                    break;
+                }
+
+                /* (24-bit) */
+                case RGB8:
+                case RGBX8:
+                {
+                    switch (other.type)
+                    {
+                        case RGB8:
+                        case PAL8_RGBX8:
+                        case RGBX8:
+                        {
+                            return 1;
+                        }
+                    }
+
+                    break;
+                }
+
+                /* (32-bit with palette) */
+                case PAL8_RGBA8:
+                {
+                    switch (other.type)
+                    {
+                        case RGBA8:
+                        {
+                            return 2;
+                        }
+
+                        case PAL8_RGBA8:
+                        {
+                            return 1;
+                        }
+                    }
+
+                    break;
+                }
+
+                /* (24-bit with palette) */
+                case PAL8_RGBX8:
+                {
+                    switch (other.type)
+                    {
+                        case RGB8:
+                        case RGBX8:
+                        {
+                            return 2;
+                        }
+
+                        case PAL8_RGBX8:
+                        {
+                            return 1;
+                        }
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        /* Objects are not similar */
+        return 0;
     }
 
 
@@ -553,6 +673,19 @@ namespace ZookieWizard
         bool left_to_right;
         bool top_to_bottom;
 
+        const char* error_header =
+            "eBitmap::loadFromFile():\n";
+
+        const char* dimensions_error =
+            "Incorrect image dimensions!\n\n" \
+            "Width and height must be a number that is a power of 2, in range from 0 to 2048!";
+
+        const char* bitmap_error_text =
+            "Incorrect BITMAP header!";
+
+        const char* targa_error_text =
+            "Incorrect TARGA header!";
+
         /* Get path and open file */
 
         full_path = path.getText();
@@ -577,12 +710,7 @@ namespace ZookieWizard
         {
             if (false == silent_if_not_exists)
             {
-                throw ErrorMessage
-                (
-                    "Bitmap::loadFromFile():\n" \
-                    "Could not open file: \"%s\"",
-                    full_path
-                );
+                throw ErrorMessage("%sCould not open file: \"%s\"", error_header, full_path);
             }
 
             return false;
@@ -597,6 +725,8 @@ namespace ZookieWizard
 
             if (*(int16_t*)"BM" != (0x0000FFFF & a))
             {
+                throw ErrorMessage("%s%s", error_header, bitmap_error_text);
+
                 return false;
             }
 
@@ -617,6 +747,14 @@ namespace ZookieWizard
 
             /* [0x16] "biHeight" */
             file.read(&new_height, 0x04);
+
+            /* Check dimensions */
+            if ((!ArFunctions::isValidImageWidth(new_width)) || (!ArFunctions::isValidImageWidth(new_height)))
+            {
+                throw ErrorMessage("%s%s", error_header, dimensions_error);
+
+                return false;
+            }
 
             /* [0x1A] "biPlanes" */
             file.read(&a, 0x02);
@@ -686,6 +824,8 @@ namespace ZookieWizard
 
                 default:
                 {
+                    throw ErrorMessage("%sIncorrect \"Bits per Pixel\" value in BITMAP header!", error_header);
+
                     return false;
                 }
             }
@@ -718,6 +858,8 @@ namespace ZookieWizard
 
             if (0 != (0x000000FF & a))
             {
+                throw ErrorMessage("%s%s", error_header, targa_error_text);
+
                 return false;
             }
 
@@ -726,6 +868,8 @@ namespace ZookieWizard
 
             if (0 != (0x000000FF & a))
             {
+                throw ErrorMessage("%s%s", error_header, targa_error_text);
+
                 return false;
             }
 
@@ -735,6 +879,8 @@ namespace ZookieWizard
 
             if (2 != (0x000000FF & a))
             {
+                throw ErrorMessage("%sCompressed TARGA images are NOT supported!", error_header);
+
                 return false;
             }
 
@@ -745,6 +891,8 @@ namespace ZookieWizard
 
                 if (0 != (0x000000FF & a))
                 {
+                    throw ErrorMessage("%s%s", error_header, targa_error_text);
+
                     return false;
                 }
             }
@@ -754,6 +902,8 @@ namespace ZookieWizard
 
             if (0 != (0x0000FFFF & a))
             {
+                throw ErrorMessage("%s%s", error_header, targa_error_text);
+
                 return false;
             }
 
@@ -762,6 +912,8 @@ namespace ZookieWizard
 
             if (0 != (0x0000FFFF & a))
             {
+                throw ErrorMessage("%s%s", error_header, targa_error_text);
+
                 return false;
             }
 
@@ -775,6 +927,14 @@ namespace ZookieWizard
 
             new_height &= 0x0000FFFF;
 
+            /* Check dimensions */
+            if ((!ArFunctions::isValidImageWidth(new_width)) || (!ArFunctions::isValidImageWidth(new_height)))
+            {
+                throw ErrorMessage("%s%s", error_header, dimensions_error);
+
+                return false;
+            }
+
             /* [0x10] "Pixel Depth" */
             file.read(&bpp, 0x01);
 
@@ -782,6 +942,8 @@ namespace ZookieWizard
 
             if ((32 != bpp) && (24 != bpp))
             {
+                throw ErrorMessage("%sIncorrect \"Bits per Pixel\" value in TARGA header!", error_header);
+
                 return false;
             }
 
@@ -796,6 +958,8 @@ namespace ZookieWizard
 
                 if ((0x08 != b) && (0x00 != b))
                 {
+                    throw ErrorMessage("%s%s", error_header, targa_error_text);
+
                     return false;
                 }
             }
@@ -803,6 +967,8 @@ namespace ZookieWizard
             {
                 if (0x00 != b)
                 {
+                    throw ErrorMessage("%s%s", error_header, targa_error_text);
+
                     return false;
                 }
             }
@@ -865,12 +1031,7 @@ namespace ZookieWizard
         }
         else
         {
-            throw ErrorMessage
-            (
-                "eBitmap::loadFromFile():\n"
-                "unsupported file extension! [%s]",
-                path.getText()
-            );
+            throw ErrorMessage("%sUnsupported file extension! [%s]", error_header, path.getText());
 
             return false;
         }
@@ -1346,7 +1507,7 @@ namespace ZookieWizard
     {
         path = new_path;
 
-        GUI::materialsManager_UpdateBitmapName(this);
+        GUI::materialsManager_UpdateBitmapPath(this);
     }
 
 

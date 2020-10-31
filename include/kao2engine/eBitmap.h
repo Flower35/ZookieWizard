@@ -5,6 +5,15 @@
 
 namespace ZookieWizard
 {
+    ////////////////////////////////////////////////////////////////
+    // eBitmap helper definitions
+    ////////////////////////////////////////////////////////////////
+
+    namespace ArFunctions
+    {
+        bool isValidImageWidth(int32_t test);
+    }
+
     enum bitmapType
     {
         RGBA8 = 0x00,
@@ -17,6 +26,7 @@ namespace ZookieWizard
         RGBA8_SWIZZLED = 0x2C,
         RGBX8_SWIZZLED = 0x63
     };
+
 
     ////////////////////////////////////////////////////////////////
     // eBitmap interface
@@ -66,6 +76,8 @@ namespace ZookieWizard
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             /* << eBitmap >> */
+
+            int32_t checkSimilarityToAnotherBitmap(const eBitmap &other) const;
 
             void generateTexture();
 

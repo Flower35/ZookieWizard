@@ -285,6 +285,21 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eGeometry: optimize data by removing "eMaterial" duplicates
+    ////////////////////////////////////////////////////////////////
+    void eGeometry::optimizeGeometryByComparingMaterials(eGeometry &other)
+    {
+        if ((nullptr != material) && (nullptr != other.material))
+        {
+            if (material->checkSimilarityToAnotherMaterial(*(other.material)))
+            {
+                setMaterial(other.material);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eGeometry: old serialization
     // <kao2.0046F980>
     ////////////////////////////////////////////////////////////////
@@ -310,10 +325,7 @@ namespace ZookieWizard
     {
         if (material != new_material)
         {
-            if (nullptr != material)
-            {
-                material->decRef();
-            }
+            material->decRef();
 
             material = new_material;
 

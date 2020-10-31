@@ -410,6 +410,21 @@ namespace ZookieWizard
 
 
         ////////////////////////////////////////////////////////////////
+        // Update OpenGL Background Color
+        ////////////////////////////////////////////////////////////////
+        void updateSceneBackgroundColor()
+        {
+            glClearColor
+            (
+                backgroundColor[0], // Red
+                backgroundColor[1], // Green
+                backgroundColor[2], // Blue
+                1.0 // Alpha
+            );
+        }
+
+
+        ////////////////////////////////////////////////////////////////
         // Set OpenGL perspective
         ////////////////////////////////////////////////////////////////
         void setPerspective(GLsizei new_width, GLsizei new_height)
@@ -428,13 +443,7 @@ namespace ZookieWizard
             }
 
             /* Set background color for this scene */
-            glClearColor
-            (
-                backgroundColor[0], // Red
-                backgroundColor[1], // Green
-                backgroundColor[2], // Blue
-                1.0 // Alpha
-            );
+            updateSceneBackgroundColor();
 
             glViewport(0, 0, new_width, new_height);
 
@@ -543,7 +552,7 @@ namespace ZookieWizard
 
             /********************************/
 
-            updatingMovedSelectedTransformEditboxes = true;
+            updatingEditboxesNotByUser = true;
             ignored_editbox--; // [1 ... 7] -> [0 ... 6]
 
             for (int a = 0; a < EDITBOXES_COUNT; a++)
@@ -558,7 +567,7 @@ namespace ZookieWizard
                 }
             }
 
-            updatingMovedSelectedTransformEditboxes = false;
+            updatingEditboxesNotByUser = false;
 
             /********************************/
 

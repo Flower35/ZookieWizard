@@ -7,6 +7,15 @@ namespace ZookieWizard
 {
 
     ////////////////////////////////////////////////////////////////
+    // eLeafCtrl helper definitions
+    ////////////////////////////////////////////////////////////////
+
+    #define KAO2_LEAFKEY_OORT_COUNT 6
+
+    extern const char* theLeafOoRT[KAO2_LEAFKEY_OORT_COUNT];
+
+
+    ////////////////////////////////////////////////////////////////
     // eLeafCtrl Keyframe
     ////////////////////////////////////////////////////////////////
 
@@ -82,7 +91,16 @@ namespace ZookieWizard
 
             /* << eLeafCtrl >> */
 
+            T getDefaultValue() const;
             void setDefaultValue(T new_value);
+
+            int32_t getLeafLoopType(int32_t zero_if_a_otheriwse_b) const;
+
+            int32_t getLeafKeysCount() const;
+            void clearLeafKeys();
+            bool getIthLeafKey(int32_t id, float &returned_time, T &returned_data);
+            int32_t addLeafKey(float new_time, T new_data);
+            bool removeIthLeafKey(int32_t id);
 
         private:
 
@@ -92,9 +110,6 @@ namespace ZookieWizard
             T interpolate(float ratio, T &first, T &second, T &other) const;
 
             void recalculateInterpolationData();
-
-            void clearLeafKeys();
-            void addLeafKey(float new_time, T new_data);
     };
 
 

@@ -20,7 +20,7 @@ namespace ZookieWizard
 
         TypeInfo(int _id, const char* _name, TypeInfo* _parent, eObject* (*_create)());
 
-        bool checkHierarchy(TypeInfo* assumed_type) const;
+        bool checkHierarchy(const TypeInfo* assumed_type) const;
     };
 
 
