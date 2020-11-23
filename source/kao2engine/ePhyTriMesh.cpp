@@ -266,6 +266,70 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // ePhyTriMesh: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void ePhyTriMesh::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    {
+        int32_t a, b;
+        char bufor[2 * LARGE_BUFFER_SIZE];
+        eNode* trimesh_parent = nullptr;
+        eString bone_path;
+
+        if (nullptr != tri)
+        {
+            trimesh_parent = tri->getParentNode();
+        }
+
+        for (a = 0; a < bonesCount; a++)
+        {
+            /* 1. Print bone path relative to "eTriMesh" parent */
+
+            bone_path = bones[a].xform->getArchivePath(trimesh_parent);
+
+            sprintf_s
+            (
+                bufor, (2 * LARGE_BUFFER_SIZE),
+                " - bone [%d]: \"%s\"",
+                a,
+                bone_path.getText()
+            );
+
+            ArFunctions::writeIndentation(file, indentation);
+            file << bufor;
+            ArFunctions::writeNewLine(file, 0);
+
+            /* 2. Print the Inverse Bind Matrix */
+
+            ArFunctions::writeIndentation(file, indentation);
+            file << " - inv bind matrix: [";
+
+            for (b = 0; b < 4; b++)
+            {
+                sprintf_s
+                (
+                    bufor, (2 * LARGE_BUFFER_SIZE),
+                    "[%f, %f, %f, %f]",
+                    bones[a].matrix.m[b][0],
+                    bones[a].matrix.m[b][1],
+                    bones[a].matrix.m[b][2],
+                    bones[a].matrix.m[b][3]
+                );
+
+                file << bufor;
+
+                if (b < 3)
+                {
+                    file << ", ";
+                }
+            }
+
+            file << "]";
+            ArFunctions::writeNewLine(file, 0);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // ePhyTriMesh: destroy bones (required for correct "eTransform" dereferencing)
     ////////////////////////////////////////////////////////////////
     void ePhyTriMesh::deleteBones()

@@ -166,7 +166,7 @@ namespace ZookieWizard
 
         /* "Actor": additional info */
 
-        if (scriptPath.getLength() > 0)
+        if (!(scriptPath.isEmpty()))
         {
             if ('?' == scriptPath.getText()[0])
             {
@@ -315,7 +315,7 @@ namespace ZookieWizard
         {
             /* Check if script (and path) exists */
 
-            if (scriptPath.getLength() > 0)
+            if (!(scriptPath.isEmpty()))
             {
                 if ('?' == scriptPath.getText()[0])
                 {

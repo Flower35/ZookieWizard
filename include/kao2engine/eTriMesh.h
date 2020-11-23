@@ -42,6 +42,7 @@ namespace ZookieWizard
             TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             /* << eNode >> */

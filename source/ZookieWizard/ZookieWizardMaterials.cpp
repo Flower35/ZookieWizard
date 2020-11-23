@@ -42,6 +42,13 @@ namespace ZookieWizard
         float matMgr_mousePos[2];
         int matMgr_mouseMode;
 
+        #define MATMGR_RENDERED_LIST_MIN              1
+
+        #define MATMGR_RENDERED_LIST_THUMBNAILS_GRID  1
+        #define MATMGR_RENDERED_LIST_SINGLE_BITMAP    2
+
+        #define MATMGR_RENDERED_LIST_MAX              2
+
         const int THUMBNAILS_IN_GRID = 10;
         const float THUMBNAIL_HW = 1.0f;
         const float BIG_THUMBNAIL_HW = 7.5f;
@@ -55,10 +62,10 @@ namespace ZookieWizard
         #define MATMGR_INFO_WINDOW_TOTALS_TEXTURES          3
         #define MATMGR_INFO_WINDOW_TOTALS_STATES            4
         #define MATMGR_INFO_WINDOW_TOTALS_MATERIALS         5
-        #define MATMGR_INFO_WINDOW_OPTIMIZE_PAUSE            6
-        #define MATMGR_INFO_WINDOW_OPTIMIZE_BMPBTN           7
-        #define MATMGR_INFO_WINDOW_OPTIMIZE_TEXBTN           8
-        #define MATMGR_INFO_WINDOW_OPTIMIZE_NOTES            9
+        #define MATMGR_INFO_WINDOW_OPTIMIZE_PAUSE           6
+        #define MATMGR_INFO_WINDOW_OPTIMIZE_BMPBTN          7
+        #define MATMGR_INFO_WINDOW_OPTIMIZE_TEXBTN          8
+        #define MATMGR_INFO_WINDOW_OPTIMIZE_NOTES           9
 
         #define MATMGR_INFO_WINDOW_END                      9
 
@@ -206,7 +213,7 @@ namespace ZookieWizard
             matMgr_BmpList = nullptr;
             matMgr_BmpList_Current = (-1);
 
-            matMgr_RenderedList = 1;
+            matMgr_RenderedList = MATMGR_RENDERED_LIST_THUMBNAILS_GRID;
             matMgr_scrollPos = 0;
             matMgr_mousePos[0] = 0;
             matMgr_mousePos[1] = 0;
@@ -541,24 +548,20 @@ namespace ZookieWizard
         eString materialsManager_GenerateBitmapListName(eBitmap* bitmap)
         {
             char bufor[LARGE_BUFFER_SIZE];
-
             eString name_str;
-            const char* name_txt;
 
             if (nullptr != bitmap)
             {
                 name_str = bitmap->getPath();
             }
 
-            name_txt = name_str.getText();
-
-            if ((nullptr == name_txt) || (name_str.getLength() <= 0))
+            if (name_str.isEmpty())
             {
                 sprintf_s(bufor, LARGE_BUFFER_SIZE, "<Unnamed Bitmap>");
             }
             else
             {
-                sprintf_s(bufor, LARGE_BUFFER_SIZE, "\"%s\"", name_txt);
+                sprintf_s(bufor, LARGE_BUFFER_SIZE, "\"%s\"", name_str.getText());
             }
 
             return eString(bufor);
@@ -567,6 +570,7 @@ namespace ZookieWizard
         eString materialsManager_GenerateTextureListName(eTexture* texture)
         {
             char bufor[LARGE_BUFFER_SIZE];
+            eString name_str;
 
             int uses_form = 0;
             const char* texture_types[3] = {"???", "Static", "Animated"};
@@ -574,9 +578,6 @@ namespace ZookieWizard
             const char* bitmap_types[2] = {"Empty", "Unnamed"};
 
             eBitmap* dummy_bmp;
-
-            eString name_str;
-            const char* name_txt;
 
             if (nullptr != texture)
             {
@@ -589,15 +590,13 @@ namespace ZookieWizard
                 uses_form = (nullptr != texture->getTextureTransform()) ? 2 : 1;
             }
 
-            name_txt = name_str.getText();
-
-            if ((nullptr == name_txt) || (name_str.getLength() <= 0))
+            if (name_str.isEmpty())
             {
                 sprintf_s(bufor, LARGE_BUFFER_SIZE, "[%s] <%s Texture>", texture_types[uses_form], bitmap_types[uses_bmp]);
             }
             else
             {
-                sprintf_s(bufor, LARGE_BUFFER_SIZE, "[%s] \"%s\"", texture_types[uses_form], name_txt);
+                sprintf_s(bufor, LARGE_BUFFER_SIZE, "[%s] \"%s\"", texture_types[uses_form], name_str.getText());
             }
 
             return eString(bufor);
@@ -606,24 +605,20 @@ namespace ZookieWizard
         eString materialsManager_GenerateMaterialListName(eMaterial* material)
         {
             char bufor[LARGE_BUFFER_SIZE];
-
             eString name_str;
-            const char* name_txt;
 
             if (nullptr != material)
             {
                 name_str = material->getStringRepresentation();
             }
 
-            name_txt = name_str.getText();
-
-            if ((nullptr == name_txt) || (name_str.getLength() <= 0))
+            if (name_str.isEmpty())
             {
                 sprintf_s(bufor, LARGE_BUFFER_SIZE, "<Unnamed Material>");
             }
             else
             {
-                sprintf_s(bufor, LARGE_BUFFER_SIZE, "\"%s\"", name_txt);
+                sprintf_s(bufor, LARGE_BUFFER_SIZE, "\"%s\"", name_str.getText());
             }
 
             return eString(bufor);
@@ -1184,7 +1179,6 @@ namespace ZookieWizard
         {
             eBitmap* bitmap;
             eString path_str;
-            const char* path_txt;
 
             matMgr_BmpList_Current = selected_id;
 
@@ -1221,15 +1215,14 @@ namespace ZookieWizard
                     EnableWindow(matMgr_Windows[MATMGR_BITMAPS_WINDOW_PATHEDIT], TRUE);
 
                     path_str = bitmap->getPath();
-                    path_txt = path_str.getText();
 
-                    if ((path_str.getLength() > 0) && (nullptr != path_txt))
+                    if (path_str.isEmpty())
                     {
-                        SetWindowText(matMgr_Windows[MATMGR_BITMAPS_WINDOW_PATHEDIT], path_txt);
+                        SetWindowText(matMgr_Windows[MATMGR_BITMAPS_WINDOW_PATHEDIT], "");
                     }
                     else
                     {
-                        SetWindowText(matMgr_Windows[MATMGR_BITMAPS_WINDOW_PATHEDIT], "");
+                        SetWindowText(matMgr_Windows[MATMGR_BITMAPS_WINDOW_PATHEDIT], path_str.getText());
                     }
 
                     /* Update "isExternal" Checkbox */
@@ -1241,6 +1234,9 @@ namespace ZookieWizard
                     SendMessage(matMgr_Windows[MATMGR_BITMAPS_WINDOW_EXTCHECK], BM_SETCHECK, (WPARAM)(is_external ? BST_CHECKED : BST_UNCHECKED), 0);
 
                     /* Done updating Bitmap-related windows */
+
+                    matMgr_RenderedList = MATMGR_RENDERED_LIST_SINGLE_BITMAP;
+                    matMgr_scrollPos = 0;
 
                     matMgr_UpdatingWindowsNotByUser = false;
                 }
@@ -1340,7 +1336,6 @@ namespace ZookieWizard
             eMaterial* material;
             char bufor[32];
             eString name_str;
-            const char* name_txt;
             int32_t a, b;
             float alpha_test_ref;
             uint32_t test32;
@@ -1438,15 +1433,14 @@ namespace ZookieWizard
                     EnableWindow(matMgr_Windows[MATMGR_MATERIALS_WINDOW_NAMEEDIT], TRUE);
 
                     name_str = material->getStringRepresentation();
-                    name_txt = name_str.getText();
 
-                    if ((name_str.getLength() > 0) && (nullptr != name_txt))
+                    if (name_str.isEmpty())
                     {
-                        SetWindowText(matMgr_Windows[MATMGR_MATERIALS_WINDOW_NAMEEDIT], name_txt);
+                        SetWindowText(matMgr_Windows[MATMGR_MATERIALS_WINDOW_NAMEEDIT], "");
                     }
                     else
                     {
-                        SetWindowText(matMgr_Windows[MATMGR_MATERIALS_WINDOW_NAMEEDIT], "");
+                        SetWindowText(matMgr_Windows[MATMGR_MATERIALS_WINDOW_NAMEEDIT], name_str.getText());
                     }
 
                     /* Update AlphaTestRef Editbox */
@@ -1582,7 +1576,7 @@ namespace ZookieWizard
             eTexTransform* form;
             eLeafCtrl<float>* keyframes = nullptr;
 
-            int32_t a;
+            int32_t a, b;
             float key_time, key_value, default_value;
             bool update_editboxes = true;
 
@@ -1757,7 +1751,14 @@ namespace ZookieWizard
                                 }
                                 else
                                 {
-                                    keyframes->removeIthLeafKey(matMgr_TextureKeyframesId - 1);
+                                    a = matMgr_TextureKeyframesId - 1;
+                                    keyframes->removeIthLeafKey(a);
+                                    b = keyframes->getLeafKeysCount();
+
+                                    if (a >= b)
+                                    {
+                                        matMgr_TextureKeyframesId = b;
+                                    }
                                 }
                             }
 
@@ -2489,7 +2490,7 @@ namespace ZookieWizard
         ////////////////////////////////////////////////////////////////
         void materialsManager_UpdateThumbnailsWindow(int list_id)
         {
-            if ((1 == matMgr_RenderedList) && (1 == list_id))
+            if ((MATMGR_RENDERED_LIST_THUMBNAILS_GRID == matMgr_RenderedList) && (MATMGR_RENDERED_LIST_THUMBNAILS_GRID == list_id))
             {
                 matMgr_scrollPos++;
 
@@ -2498,7 +2499,7 @@ namespace ZookieWizard
                     matMgr_scrollPos = 0;
                 }
             }
-            else if ((list_id >= 1) && (list_id <= 2))
+            else if ((list_id >= MATMGR_RENDERED_LIST_MIN) && (list_id <= MATMGR_RENDERED_LIST_MAX))
             {
                 matMgr_RenderedList = list_id;
 
@@ -2519,31 +2520,45 @@ namespace ZookieWizard
             matMgr_mousePos[1] = pos_y;
             matMgr_mouseMode = click;
 
-            if ((3 == click) && (1 == matMgr_RenderedList))
+            if (3 == click)
             {
-                int counter = THUMBNAILS_IN_GRID * THUMBNAILS_IN_GRID * matMgr_scrollPos;
-
-                for (int y = 0; (counter < matMgr_BmpList_Count) && (y < THUMBNAILS_IN_GRID); y++)
+                if (MATMGR_RENDERED_LIST_THUMBNAILS_GRID == matMgr_RenderedList)
                 {
-                    for (int x = 0; (counter < matMgr_BmpList_Count) && (x < THUMBNAILS_IN_GRID); x++)
+                    int counter = THUMBNAILS_IN_GRID * THUMBNAILS_IN_GRID * matMgr_scrollPos;
+
+                    for (int y = 0; (counter < matMgr_BmpList_Count) && (y < THUMBNAILS_IN_GRID); y++)
                     {
-                        float center_x = (float)(((x - (THUMBNAILS_IN_GRID / 2.0f)) * 2) + 1);
-                        float center_y = (float)(((y - (THUMBNAILS_IN_GRID / 2.0f)) * (-2)) - 1);
-
-                        if ((matMgr_mousePos[0] >= (center_x - THUMBNAIL_HW))
-                            && (matMgr_mousePos[0] <= (center_x + THUMBNAIL_HW))
-                            && (matMgr_mousePos[1] >= (center_y - THUMBNAIL_HW))
-                            && (matMgr_mousePos[1] <= (center_y + THUMBNAIL_HW)))
+                        for (int x = 0; (counter < matMgr_BmpList_Count) && (x < THUMBNAILS_IN_GRID); x++)
                         {
-                            materialsManager_SetCurrentBitmap(counter, true, true);
+                            float center_x = (float)(((x - (THUMBNAILS_IN_GRID / 2.0f)) * 2) + 1);
+                            float center_y = (float)(((y - (THUMBNAILS_IN_GRID / 2.0f)) * (-2)) - 1);
 
-                            materialsManager_UpdateThumbnailsWindow(2);
+                            if ((matMgr_mousePos[0] >= (center_x - THUMBNAIL_HW))
+                                && (matMgr_mousePos[0] <= (center_x + THUMBNAIL_HW))
+                                && (matMgr_mousePos[1] >= (center_y - THUMBNAIL_HW))
+                                && (matMgr_mousePos[1] <= (center_y + THUMBNAIL_HW)))
+                            {
+                                materialsManager_SetCurrentBitmap(counter, true, true);
 
-                            return;
+                                materialsManager_UpdateThumbnailsWindow(MATMGR_RENDERED_LIST_SINGLE_BITMAP);
+
+                                return;
+                            }
+
+                            counter++;
                         }
-
-                        counter++;
                     }
+
+                    /* Mouse button released outside the Thumbnails Grid. */
+                    /* Browsing another page (if available).              */
+                    materialsManager_UpdateThumbnailsWindow(MATMGR_RENDERED_LIST_THUMBNAILS_GRID);
+                }
+                else if (MATMGR_RENDERED_LIST_SINGLE_BITMAP == matMgr_RenderedList)
+                {
+                    /* Switch back to the Thumbnails List                  */
+                    /* by clicking anywhere when a single bitmap is shown. */
+                    matMgr_RenderedList = MATMGR_RENDERED_LIST_THUMBNAILS_GRID;
+                    matMgr_scrollPos = 0;
                 }
             }
         }
@@ -2572,7 +2587,7 @@ namespace ZookieWizard
             }
             glEnd();
 
-            if (1 == matMgr_RenderedList)
+            if (MATMGR_RENDERED_LIST_THUMBNAILS_GRID == matMgr_RenderedList)
             {
                 /* Rendering thumbnails */
 
@@ -2644,7 +2659,7 @@ namespace ZookieWizard
 
                 glDisable(GL_BLEND);
             }
-            else if (2 == matMgr_RenderedList)
+            else if (MATMGR_RENDERED_LIST_SINGLE_BITMAP == matMgr_RenderedList)
             {
                 /* Rendering a bitmap */
 
@@ -2738,7 +2753,7 @@ namespace ZookieWizard
 
             if (nullptr != dummy_bitmap)
             {
-                if (dummy_bitmap->getPath().getLength() > 0)
+                if (!(dummy_bitmap->getPath().isEmpty()))
                 {
                     try
                     {
@@ -2767,7 +2782,7 @@ namespace ZookieWizard
 
             if (nullptr != dummy_bitmap)
             {
-                if (dummy_bitmap->getPath().getLength() > 0)
+                if (!(dummy_bitmap->getPath().isEmpty()))
                 {
                     try
                     {
@@ -2792,26 +2807,7 @@ namespace ZookieWizard
 
         eString materialsManager_AssignWorkingDirectory(eString directory)
         {
-            int test_length = directory.getLength();
-            const char* test_text = directory.getText();
-
-            if (test_length > 0)
-            {
-                switch (test_text[test_length - 1])
-                {
-                    case '/':
-                    case '\\':
-                    {
-                        break;
-                    }
-
-                    default:
-                    {
-                        directory += "/";
-                    }
-                }
-            }
-
+            directory.assertPath();
             return directory;
         }
 
@@ -2835,7 +2831,7 @@ namespace ZookieWizard
 
                 eString bmp_path = matMgr_BmpList[matMgr_BmpList_Current]->getPath();
 
-                if (bmp_path.getLength() > 0)
+                if (!(bmp_path.isEmpty()))
                 {
                     test_str = eString("\"") + bmp_path + "\"";
                 }
@@ -2899,7 +2895,7 @@ namespace ZookieWizard
 
                 eString bmp_path = matMgr_BmpList[matMgr_BmpList_Current]->getPath();
 
-                if (bmp_path.getLength() > 0)
+                if (!(bmp_path.isEmpty()))
                 {
                     test_str = eString("\"") + bmp_path + "\"";
                 }
@@ -3677,14 +3673,14 @@ namespace ZookieWizard
 
                         case MATMGR_BITMAPS_WINDOW_BTNS_BROWSE:
                         {
-                            materialsManager_UpdateThumbnailsWindow(1);
+                            materialsManager_UpdateThumbnailsWindow(MATMGR_RENDERED_LIST_THUMBNAILS_GRID);
 
                             break;
                         }
 
                         case MATMGR_BITMAPS_WINDOW_BTNS_ENLARGE:
                         {
-                            materialsManager_UpdateThumbnailsWindow(2);
+                            materialsManager_UpdateThumbnailsWindow(MATMGR_RENDERED_LIST_SINGLE_BITMAP);
 
                             break;
                         }
@@ -4089,7 +4085,7 @@ namespace ZookieWizard
             /********************************/
             /* Create buttons - Bitmaps and Textures Optimization */
 
-            if (false == materialsManager_AddLinePauseWindow(MATMGR_MATERIALS_WINDOW_TEXLIST_PAUSE))
+            if (false == materialsManager_AddLinePauseWindow(MATMGR_INFO_WINDOW_OPTIMIZE_PAUSE))
             {
                 return false;
             }

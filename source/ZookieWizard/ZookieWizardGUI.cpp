@@ -17,11 +17,11 @@ namespace ZookieWizard
 
         bool updatingEditboxesNotByUser = false;
 
-        static const int32_t nodesList_ButtonsCount = 22;
+        static const int32_t nodesList_ButtonsCount = 23;
         static const int32_t nodesList_ActionsCount = 7;
         int32_t nodesList_CurrentAction;
         static HWND nodesList_Windows[1 + nodesList_ButtonsCount];
-        static uint8_t nodesList_ActionIds[nodesList_ButtonsCount];
+        static int32_t nodesList_ActionIds[nodesList_ActionsCount][2];
 
         static const char* nodesList_ActionNames[nodesList_ActionsCount] =
         {
@@ -250,7 +250,8 @@ namespace ZookieWizard
 
             for (int32_t i = 0; i < nodesList_ButtonsCount; i++)
             {
-                bool show_button = (nodesList_CurrentAction == nodesList_ActionIds[i]);
+                bool show_button = ((i >= nodesList_ActionIds[nodesList_CurrentAction][0])
+                    && (i <= nodesList_ActionIds[nodesList_CurrentAction][1]));
 
                 ShowWindow(nodesList_Windows[1 + i], show_button ? SW_SHOW : SW_HIDE);
             }
@@ -296,6 +297,10 @@ namespace ZookieWizard
                 else if (2 == (int32_t)custom_param)
                 {
                     ArMenuOptions_ChangeNodesWithTxt();
+                }
+                else if (3 == (int32_t)custom_param)
+                {
+                    myARs[currentArId].updateDrawPassFlags();
                 }
             }
         }
@@ -506,7 +511,7 @@ namespace ZookieWizard
                     case 6: // Euler angle Z
                     {
                         customizable_xform.rot.toEulerAngles(true, dummy_angles[0], dummy_angles[1], dummy_angles[2]);
-                        dummy_angles[id - 4] = dummy_float / 180.0f * (float)M_PI;
+                        dummy_angles[id - 4] = DEG2RAD_F(dummy_float);
                         customizable_xform.rot.fromEulerAngles(true, dummy_angles[0], dummy_angles[1], dummy_angles[2]);
                         break;
                     }
@@ -1368,9 +1373,8 @@ namespace ZookieWizard
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON | BS_MULTILINE);
 
             theWindowsManager.setCurrentPosition(x, y);
-            nodesList_ActionIds[0] = 0;
-            nodesList_ActionIds[1] = 0;
-            nodesList_ActionIds[2] = 0;
+            nodesList_ActionIds[0][0] = 0;
+            nodesList_ActionIds[0][1] = 2;
 
             if (0 == (nodesList_Windows[1 + 0] = theWindowsManager.addWindow("^ Back to the\nArchive Root", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_ROOT, 0)))
             {
@@ -1388,10 +1392,8 @@ namespace ZookieWizard
             }
 
             theWindowsManager.setCurrentPosition(x, y);
-            nodesList_ActionIds[3] = 1;
-            nodesList_ActionIds[4] = 1;
-            nodesList_ActionIds[5] = 1;
-            nodesList_ActionIds[6] = 1;
+            nodesList_ActionIds[1][0] = 3;
+            nodesList_ActionIds[1][1] = 6;
 
             if (0 == (nodesList_Windows[1 + 3] = theWindowsManager.addWindow("Move Higlighted Node UP", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_UP, 0)))
             {
@@ -1414,9 +1416,8 @@ namespace ZookieWizard
             }
 
             theWindowsManager.setCurrentPosition(x, y);
-            nodesList_ActionIds[7] = 2;
-            nodesList_ActionIds[8] = 2;
-            nodesList_ActionIds[9] = 2;
+            nodesList_ActionIds[2][0] = 7;
+            nodesList_ActionIds[2][1] = 9;
 
             if (0 == (nodesList_Windows[1 + 7] = theWindowsManager.addWindow("Delete Current Node", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE_CURRENT, 0x01)))
             {
@@ -1434,9 +1435,8 @@ namespace ZookieWizard
             }
 
             theWindowsManager.setCurrentPosition(x, y);
-            nodesList_ActionIds[10] = 3;
-            nodesList_ActionIds[11] = 3;
-            nodesList_ActionIds[12] = 3;
+            nodesList_ActionIds[3][0] = 10;
+            nodesList_ActionIds[3][1] = 12;
 
             if (0 == (nodesList_Windows[1 + 10] = theWindowsManager.addWindow("Clone Current Node", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_CLONE_CURRENT, 0)))
             {
@@ -1454,10 +1454,8 @@ namespace ZookieWizard
             }
 
             theWindowsManager.setCurrentPosition(x, y);
-            nodesList_ActionIds[13] = 4;
-            nodesList_ActionIds[14] = 4;
-            nodesList_ActionIds[15] = 4;
-            nodesList_ActionIds[16] = 4;
+            nodesList_ActionIds[4][0] = 13;
+            nodesList_ActionIds[4][1] = 16;
 
             if (0 == (nodesList_Windows[1 + 13] = theWindowsManager.addWindow("Clone or Create\na new Material", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_MATERIAL_CLONE, 0)))
             {
@@ -1480,10 +1478,8 @@ namespace ZookieWizard
             }
 
             theWindowsManager.setCurrentPosition(x, y);
-            nodesList_ActionIds[17] = 5;
-            nodesList_ActionIds[18] = 5;
-            nodesList_ActionIds[19] = 5;
-            nodesList_ActionIds[20] = 5;
+            nodesList_ActionIds[5][0] = 17;
+            nodesList_ActionIds[5][1] = 20;
 
             if (0 == (nodesList_Windows[1 + 17] = theWindowsManager.addWindow("Export 3D Meshes to Wavefront OBJ", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)0, 0)))
             {
@@ -1506,9 +1502,15 @@ namespace ZookieWizard
             }
 
             theWindowsManager.setCurrentPosition(x, y);
-            nodesList_ActionIds[21] = 6;
+            nodesList_ActionIds[6][0] = 21;
+            nodesList_ActionIds[6][1] = 22;
 
-            if (0 == (nodesList_Windows[1 + 21] = theWindowsManager.addWindow("Change Nodes with a TXT file", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)2, 0x01)))
+            if (0 == (nodesList_Windows[1 + 21] = theWindowsManager.addWindow("Change Nodes with \"ArCustomParser\"", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)2, 0)))
+            {
+                return false;
+            }
+
+            if (0 == (nodesList_Windows[1 + 22] = theWindowsManager.addWindow("Update \"DrawPass\" flags from Current Node", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)3, 0x01)))
             {
                 return false;
             }

@@ -252,17 +252,17 @@ namespace ZookieWizard
 
                 defaultTransform.rot.toEulerAngles(true, alpha, beta, gamma);
 
-                sprintf_s(bufor, 64, "0 0 1 %f", (gamma / 180.0 * M_PI));
+                sprintf_s(bufor, 64, "0 0 1 %f", RAD2DEG_F(gamma));
                 exporter.openTag("rotate");
                 exporter.writeInsideTag(bufor);
                 exporter.closeTag();
 
-                sprintf_s(bufor, 64, "0 1 0 %f", (beta / 180.0 * M_PI));
+                sprintf_s(bufor, 64, "0 1 0 %f", RAD2DEG_F(beta));
                 exporter.openTag("rotate");
                 exporter.writeInsideTag(bufor);
                 exporter.closeTag();
 
-                sprintf_s(bufor, 64, "1 0 0 %f", (alpha / 180.0 * M_PI));
+                sprintf_s(bufor, 64, "1 0 0 %f", RAD2DEG_F(alpha));
                 exporter.openTag("rotate");
                 exporter.writeInsideTag(bufor);
                 exporter.closeTag();
@@ -563,9 +563,9 @@ namespace ZookieWizard
 
             property.getValue(dummy_floats);
 
-            dummy_floats[0] = (dummy_floats[0] / 180.0f) * (float)M_PI;
-            dummy_floats[1] = (dummy_floats[1] / 180.0f) * (float)M_PI;
-            dummy_floats[2] = (dummy_floats[2] / 180.0f) * (float)M_PI;
+            dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
+            dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
+            dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
             defaultTransform.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
 
             return 0;
@@ -649,9 +649,9 @@ namespace ZookieWizard
 
             params[0].getValue(dummy_floats);
 
-            dummy_floats[0] = (dummy_floats[0] / 180.0f) * (float)M_PI;
-            dummy_floats[1] = (dummy_floats[1] / 180.0f) * (float)M_PI;
-            dummy_floats[2] = (dummy_floats[2] / 180.0f) * (float)M_PI;
+            dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
+            dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
+            dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
             defaultTransform.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
 
             /********************************/
@@ -760,9 +760,9 @@ namespace ZookieWizard
 
             params[0].getValue(dummy_floats);
 
-            dummy_floats[0] = (dummy_floats[0] / 180.0f) * (float)M_PI;
-            dummy_floats[1] = (dummy_floats[1] / 180.0f) * (float)M_PI;
-            dummy_floats[2] = (dummy_floats[2] / 180.0f) * (float)M_PI;
+            dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
+            dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
+            dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
             dummy_srp.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
 
             /********************************/
@@ -895,9 +895,9 @@ namespace ZookieWizard
             }
 
             params[3].getValue(dummy_floats);
-            dummy_floats[0] = (dummy_floats[0] / 180.0f) * (float)M_PI;
-            dummy_floats[1] = (dummy_floats[1] / 180.0f) * (float)M_PI;
-            dummy_floats[2] = (dummy_floats[2] / 180.0f) * (float)M_PI;
+            dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
+            dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
+            dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
             dummy_srp.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
 
             /********************************/

@@ -15,44 +15,74 @@ namespace ZookieWizard
 
     struct WavefrontObjImporterVertex
     {
-        float x;
-        float y;
-        float z;
-        float r;
-        float g;
-        float b;
+        /*** Properties ***/
 
-        WavefrontObjImporterVertex();
+        public:
 
-        bool operator == (const WavefrontObjImporterVertex&) const;
+            float x;
+            float y;
+            float z;
+            float r;
+            float g;
+            float b;
+
+        /*** Methods ***/
+
+        public:
+
+            WavefrontObjImporterVertex();
+
+            bool operator == (const WavefrontObjImporterVertex&) const;
+
+            void applyMatrix(eMatrix4x4 &model_matrix);
     };
 
     struct WavefrontObjImporterFace
     {
-        int32_t material_id;
-        int32_t group_id;
-        int32_t v_id[3];
-        int32_t vt_id[3];
-        int32_t vn_id[3];
+        /*** Properties ***/
 
-        WavefrontObjImporterFace();
+        public:
 
-        bool matchesSetting(const int32_t g_id, const int32_t m_id) const;
+            int32_t material_id;
+            int32_t group_id;
+            int32_t v_id[3];
+            int32_t vt_id[3];
+            int32_t vn_id[3];
+
+        /*** Methods ***/
+
+        public:
+
+            WavefrontObjImporterFace();
+
+            bool matchesSetting(const int32_t g_id, const int32_t m_id) const;
     };
 
     struct WavefrontObjImporterMaterial
     {
-        eString name;
-        eMaterial* material;
+        /*** Properties ***/
 
-        WavefrontObjImporterMaterial();
-        ~WavefrontObjImporterMaterial();
+        public:
+
+            eString name;
+            eMaterial* material;
+
+        /*** Methods ***/
+
+        public:
+
+            WavefrontObjImporterMaterial();
+            ~WavefrontObjImporterMaterial();
+
+            WavefrontObjImporterMaterial& operator = (const WavefrontObjImporterMaterial &other);
     };
 
 
     ////////////////////////////////////////////////////////////////
     // WAVEFRONT OBJ Importer class
     ////////////////////////////////////////////////////////////////
+
+    #define WAVEFRONT_OBJ_IMPORTER_DEFAULT_FLAGS 0x07
 
     class WavefrontObjImporter
     {
@@ -65,6 +95,10 @@ namespace ZookieWizard
             eString workingDirectory;
 
             eGroup* parentGroup;
+            eSRP appliedTransform;
+            bool appendNameToMeshes;
+            bool regroupMeshesWithMaterials;
+            bool makeMaterialsTwoSided;
 
             WavefrontObjImporterVertex* objVertices;
             int32_t objVerticesCount;
@@ -92,6 +126,9 @@ namespace ZookieWizard
 
             uint16_t* referencedVertices;
 
+            int32_t importedVertices;
+            int32_t importedMeshes;
+
         /*** Methods ***/
 
         public:
@@ -99,12 +136,12 @@ namespace ZookieWizard
             WavefrontObjImporter();
             ~WavefrontObjImporter();
 
-            bool openObj(eString filename, eGroup* target);
-            bool openMtl(eString filename);
-
-            void begin();
+            void begin(eString obj_fullpath, eGroup* target, int32_t flags, eSRP &srp);
 
         protected:
+
+            bool openObj(eString filename);
+            bool openMtl(eString filename);
 
             void appendVertices(WavefrontObjImporterVertex* element, int32_t slots);
             void appendMapping(ePoint2* element, int32_t slots);

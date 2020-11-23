@@ -550,22 +550,22 @@ namespace ZookieWizard
         }
     }
 
-    void eQuat::fromEulerAngles(bool transposed, float alpha, float beta, float gamma)
+    void eQuat::fromEulerAngles(bool transposed, float alpha_rad, float beta_rad, float gamma_rad)
     {
         /* [X][Y][Z] rotation order */
 
         float t = transposed ? (-1.0f) : 1.0f;
 
-        alpha /= 2.0f;
-        beta /= 2.0f;
-        gamma /= 2.0f;
+        alpha_rad /= 2.0f;
+        beta_rad /= 2.0f;
+        gamma_rad /= 2.0f;
 
-        float s1 = std::sinf(alpha);
-        float s2 = std::sinf(beta);
-        float s3 = std::sinf(gamma);
-        float c1 = std::cosf(alpha);
-        float c2 = std::cosf(beta);
-        float c3 = std::cosf(gamma);
+        float s1 = std::sinf(alpha_rad);
+        float s2 = std::sinf(beta_rad);
+        float s3 = std::sinf(gamma_rad);
+        float c1 = std::cosf(alpha_rad);
+        float c2 = std::cosf(beta_rad);
+        float c3 = std::cosf(gamma_rad);
 
         x = t * (c2 * c3 * s1 - c1 * s2 * s3);
         y = t * (c2 * s1 * s3 + c1 * c3 * s2);
@@ -595,7 +595,7 @@ namespace ZookieWizard
         }
     }
 
-    void eQuat::toEulerAngles(bool inverse, float &alpha, float &beta, float &gamma) const
+    void eQuat::toEulerAngles(bool inverse, float &alpha_rad, float &beta_rad, float &gamma_rad) const
     {
         double a, b;
         float x = inverse ? (- (this->x)) : (this->x);
@@ -605,23 +605,23 @@ namespace ZookieWizard
         /* [X] angle */
         a = 2 * (w * x + y * z);
         b = 1 - 2 * (x * x + y * y);
-        alpha = (float)std::atan2(a, b);
+        alpha_rad = (float)std::atan2(a, b);
 
         /* [Y] angle */
         a = 2 * (w * y - z * x);
         if (std::abs(a) >= 1)
         {
-            beta = (float)std::copysign(M_PI / 2.0, a);
+            beta_rad = (float)std::copysign(M_PI / 2.0, a);
         }
         else
         {
-            beta = (float)std::asin(a);
+            beta_rad = (float)std::asin(a);
         }
 
         /* [Z] angle */
         a = 2 * (w * z + x * y);
         b = 1 - 2 * (y * y + z * z);
-        gamma = (float)std::atan2(a, b);
+        gamma_rad = (float)std::atan2(a, b);
     }
 
     /* <kao2.00468090> */

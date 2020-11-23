@@ -16,9 +16,6 @@ namespace ZookieWizard
 
     DenisFileOperator::DenisFileOperator(eString new_dir)
     {
-        int32_t test_length;
-        char* test_text;
-
         /* Set mode to READ */
 
         mode = 0;
@@ -26,26 +23,7 @@ namespace ZookieWizard
         /* Save working directory */
 
         workingDirectory = new_dir;
-
-        test_length = workingDirectory.getLength();
-        test_text = workingDirectory.getText();
-
-        if (test_length > 0)
-        {
-            switch (test_text[test_length - 1])
-            {
-                case '/':
-                case '\\':
-                {
-                    break;
-                }
-
-                default:
-                {
-                    workingDirectory += "/";
-                }
-            }
-        }
+        workingDirectory.assertPath();
     }
 
     DenisFileOperator::~DenisFileOperator()
@@ -232,9 +210,9 @@ namespace ZookieWizard
             /* Clockwise rotation, originally [X] and [Z] angles are negated */
             /* For CCW rotatnion we need [Y] angle to be negative */
 
-            x = alpha / float(0x8000) * float(M_PI);
-            y = ((-beta) & 0x0000FFFF) / float(0x8000) * float(M_PI);
-            z = gamma / float(0x8000) * float(M_PI);
+            x = alpha / (float)0x8000 * (float)M_PI;
+            y = ((-beta) & 0x0000FFFF) / (float)0x8000 * (float)M_PI;
+            z = gamma / (float)0x8000 * (float)M_PI;
         }
         else
         {
@@ -242,9 +220,9 @@ namespace ZookieWizard
             /* This order of matrix multiplications gives [X][Y][Z] rotation in result */
             /* For CCW rotation we need all angles to be negative */
 
-            z = ((-alpha) & 0x0000FFFF) / float(0x8000) * float(M_PI);
-            y = ((-beta) & 0x0000FFFF) / float(0x8000) * float(M_PI);
-            x = ((-gamma) & 0x0000FFFF) / float(0x8000) * float(M_PI);
+            z = ((-alpha) & 0x0000FFFF) / (float)0x8000 * (float)M_PI;
+            y = ((-beta) & 0x0000FFFF) / (float)0x8000 * (float)M_PI;
+            x = ((-gamma) & 0x0000FFFF) / (float)0x8000 * (float)M_PI;
         }
     }
 

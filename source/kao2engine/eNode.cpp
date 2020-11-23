@@ -112,6 +112,15 @@ namespace ZookieWizard
                     return true;
                 }
 
+                case TXT_PARSING_NODE_PROPTYPE_FLOAT4:
+                {
+                    ((float*)result_ptr)[0] = floatValues[0];
+                    ((float*)result_ptr)[1] = floatValues[1];
+                    ((float*)result_ptr)[2] = floatValues[2];
+                    ((float*)result_ptr)[3] = floatValues[3];
+                    return true;
+                }
+
                 case TXT_PARSING_NODE_PROPTYPE_STRING:
                 {
                     *(eString*)result_ptr = strValue;
@@ -163,6 +172,15 @@ namespace ZookieWizard
                 floatValues[0] = ((float*)new_value_ptr)[0];
                 floatValues[1] = ((float*)new_value_ptr)[1];
                 floatValues[2] = ((float*)new_value_ptr)[2];
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_FLOAT4:
+            {
+                floatValues[0] = ((float*)new_value_ptr)[0];
+                floatValues[1] = ((float*)new_value_ptr)[1];
+                floatValues[2] = ((float*)new_value_ptr)[2];
+                floatValues[3] = ((float*)new_value_ptr)[3];
                 break;
             }
 
@@ -276,6 +294,12 @@ namespace ZookieWizard
                 break;
             }
 
+            case TXT_PARSING_NODE_PROPTYPE_FLOAT4:
+            {
+                which_type = "a floating-point quadruple";
+                break;
+            }
+
             case TXT_PARSING_NODE_PROPTYPE_STRING:
             {
                 which_type = "a string";
@@ -325,6 +349,12 @@ namespace ZookieWizard
             case TXT_PARSING_NODE_PROPTYPE_FLOAT3:
             {
                 which_type = "a floating-point triple";
+                break;
+            }
+
+            case TXT_PARSING_NODE_PROPTYPE_FLOAT4:
+            {
+                which_type = "a floating-point quadruple";
                 break;
             }
 
@@ -1302,16 +1332,16 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eNode: get full Archive access path
     ////////////////////////////////////////////////////////////////
-    eString eNode::getArchivePath() const
+    eString eNode::getArchivePath(eNode* final_root) const
     {
         eString result;
 
-        if (nullptr != parent)
+        if ((nullptr != parent) && ((nullptr == final_root) || (this != final_root)))
         {
-            result = parent->getArchivePath() + "::";
+            result = parent->getArchivePath(final_root) + "::";
         }
 
-        if (name.getLength() <= 0)
+        if (name.isEmpty())
         {
             result += "???";
         }

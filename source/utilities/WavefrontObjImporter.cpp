@@ -33,6 +33,15 @@ namespace ZookieWizard
             && (vertex.r == r) && (vertex.g == g) && (vertex.b == b);
     }
 
+    void WavefrontObjImporterVertex::applyMatrix(eMatrix4x4 &model_matrix)
+    {
+        ePoint4 point = model_matrix * ePoint4(x, y, z, 1.0f);
+
+        x = point.x;
+        y = point.y;
+        z = point.z;
+    }
+
     WavefrontObjImporterFace::WavefrontObjImporterFace()
     {
         material_id = (-1);
@@ -54,10 +63,26 @@ namespace ZookieWizard
 
     WavefrontObjImporterMaterial::~WavefrontObjImporterMaterial()
     {
-        if (nullptr != material)
+        material->decRef();
+    }
+
+    WavefrontObjImporterMaterial& WavefrontObjImporterMaterial::operator = (const WavefrontObjImporterMaterial &other)
+    {
+        if ((&other) != this)
         {
+            name = other.name;
+
             material->decRef();
+
+            material = other.material;
+
+            if (nullptr != material)
+            {
+                material->incRef();
+            }
         }
+
+        return (*this);
     }
 
 
@@ -67,6 +92,9 @@ namespace ZookieWizard
     WavefrontObjImporter::WavefrontObjImporter()
     {
         parentGroup = nullptr;
+        appendNameToMeshes = true;
+        regroupMeshesWithMaterials = true;
+        makeMaterialsTwoSided = true;
 
         objVertices = nullptr;
         objVerticesCount = 0;
@@ -93,6 +121,9 @@ namespace ZookieWizard
         objGroupsMaxLength = 0;
 
         referencedVertices = nullptr;
+
+        importedVertices = 0;
+        importedMeshes = 0;
     }
 
 
@@ -149,24 +180,88 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // WavefrontObjImporter: open file and set working directory
+    // WavefrontObjImporter: prepare to import the mesh
     ////////////////////////////////////////////////////////////////
-    bool WavefrontObjImporter::openObj(eString filename, eGroup* target)
+    void WavefrontObjImporter::begin(eString obj_fullpath, eGroup* target, int32_t flags, eSRP &srp)
     {
-        char* text = filename.getText();
+        char bufor[LARGE_BUFFER_SIZE];
 
-        if (false == target->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+        /****************/
+
+        if (!target->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
         {
             throw ErrorMessage
             (
-                "WavefrontObjImporter::open():\n" \
+                "WavefrontObjImporter::begin():\n" \
                 "Selected object is not a \"eGroup\" type!"
             );
-
-            return false;
         }
 
+        /****************/
+
         parentGroup = target;
+
+        appendNameToMeshes         = ((0x01 << 0) & flags);
+        regroupMeshesWithMaterials = ((0x01 << 1) & flags);
+        makeMaterialsTwoSided      = ((0x01 << 2) & flags);
+
+        appliedTransform = srp;
+
+        /****************/
+
+        sprintf_s
+        (
+            bufor, LARGE_BUFFER_SIZE,
+            " WavefrontObjImporter(\"%s\").\n",
+            obj_fullpath.getText()
+        );
+
+        theLog.print(bufor);
+
+        /****************/
+
+        if (openObj(obj_fullpath))
+        {
+            workingDirectory = obj_fullpath.getPath();
+            fileName = obj_fullpath.getFilename(false);
+
+            /****************/
+
+            objVerticesCount = 0;
+            objMappingCount = 0;
+            objNormalsCount = 0;
+            objFacesCount = 0;
+            objMaterialsCount = 0;
+            objGroupsCount = 0;
+
+            readModelData();
+
+            importedVertices = 0;
+            importedMeshes = 0;
+
+            constructTriMeshes();
+
+            /****************/
+
+            sprintf_s
+            (
+                bufor, LARGE_BUFFER_SIZE,
+                " WavefrontObjImporter finished: %d vertices in %d meshes.\n",
+                importedVertices,
+                importedMeshes
+            );
+
+            theLog.print(bufor);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // WavefrontObjImporter: open the OBJ file
+    ////////////////////////////////////////////////////////////////
+    bool WavefrontObjImporter::openObj(eString fullpath)
+    {
+        char* text = fullpath.getText();
 
         if (!myFiles[0].open(text, (FILE_OPERATOR_MODE_READ | FILE_OPERATOR_MODE_BINARY)))
         {
@@ -179,9 +274,6 @@ namespace ZookieWizard
 
             return false;
         }
-
-        workingDirectory = filename.getPath();
-        fileName = filename.getFilename(false);
 
         return true;
     }
@@ -349,10 +441,6 @@ namespace ZookieWizard
                 for (i = 0; i < objMaterialsCount; i++)
                 {
                     temp[i] = objMaterials[i];
-
-                    /* Material name reference is increased when copying elements */
-                    /* However, we need to increase "eMaterial" refCounter manually before deleting old array! */
-                    objMaterials[i].material->incRef();
                 }
 
                 delete[](objMaterials);
@@ -397,17 +485,6 @@ namespace ZookieWizard
             objGroups[objGroupsCount] = *element;
             objGroupsCount++;
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // WavefrontObjImporter: start importing mesh
-    ////////////////////////////////////////////////////////////////
-    void WavefrontObjImporter::begin()
-    {
-        readModelData();
-
-        constructTriMeshes();
     }
 
 
@@ -466,6 +543,8 @@ namespace ZookieWizard
                         }
 
                         readMaterialInfo(keywords[1]);
+
+                        theLog.print(" Returned to the OBJ document, please wait...\n");
                     }
                 }
                 else if (keywords[0].compareExact("v", true))
@@ -595,17 +674,17 @@ namespace ZookieWizard
                                 }
                             }
 
-                            if (v_details[0].getLength() > 0)
+                            if ((d >= 1) && !(v_details[0].isEmpty()))
                             {
                                 dummy_face.v_id[a] = std::atoi(v_details[0].getText());
                             }
 
-                            if (v_details[1].getLength() > 0)
+                            if ((d >= 2) && !(v_details[1].isEmpty()))
                             {
                                 dummy_face.vt_id[a] = std::atoi(v_details[1].getText());
                             }
 
-                            if (v_details[2].getLength() > 0)
+                            if ((d >= 3) && !(v_details[2].isEmpty()))
                             {
                                 dummy_face.vn_id[a] = std::atoi(v_details[2].getText());
                             }
@@ -653,7 +732,7 @@ namespace ZookieWizard
             return;
         }
 
-        theLog.print(eString(" Parsing material library \"") + filename + "\".\n");
+        theLog.print(eString(" Parsing material library \"") + filename + "\"...\n");
 
         while (false == myFiles[1].endOfFileReached())
         {
@@ -670,21 +749,11 @@ namespace ZookieWizard
                         if (started_reading_mtl)
                         {
                             appendMaterials(&dummy_obj_mtl, 1);
+                            dummy_obj_mtl.material->decRef();
 
-                            if (nullptr != dummy_mtl_state)
-                            {
-                                dummy_mtl_state->decRef();
-                            }
-
-                            if (nullptr != dummy_texture)
-                            {
-                                dummy_texture->decRef();
-                            }
-
-                            if (nullptr != dummy_bitmap)
-                            {
-                                dummy_bitmap->decRef();
-                            }
+                            dummy_mtl_state->decRef();
+                            dummy_texture->decRef();
+                            dummy_bitmap->decRef();
                         }
                         else
                         {
@@ -707,8 +776,11 @@ namespace ZookieWizard
 
                         dummy_obj_mtl.material->setName(dummy_obj_mtl.name);
 
-                        /* 0x01 = "2-sided" */
-                        dummy_obj_mtl.material->setMaterialFlags(0x01);
+                        if (makeMaterialsTwoSided)
+                        {
+                            /* 0x01 = "2-sided" */
+                            dummy_obj_mtl.material->setMaterialFlags(0x01);
+                        }
                     }
                 }
                 else if (keywords[0].compareExact("Ka", true))
@@ -792,8 +864,8 @@ namespace ZookieWizard
 
                         if (dummy_bitmap->isTransparent())
                         {
-                            /* 0x02 = "TM_BLEND" */
-                            dummy_obj_mtl.material->setMaterialFlags(0x02);
+                            /* 0x08 = "ALPHA_TEST" */
+                            dummy_obj_mtl.material->setMaterialFlags(0x08);
                         }
 
                         /* Prepare for rendering! */
@@ -806,21 +878,11 @@ namespace ZookieWizard
         if (started_reading_mtl)
         {
             appendMaterials(&dummy_obj_mtl, 1);
+            dummy_obj_mtl.material->decRef();
 
-            if (nullptr != dummy_mtl_state)
-            {
-                dummy_mtl_state->decRef();
-            }
-
-            if (nullptr != dummy_texture)
-            {
-                dummy_texture->decRef();
-            }
-
-            if (nullptr != dummy_bitmap)
-            {
-                dummy_bitmap->decRef();
-            }
+            dummy_mtl_state->decRef();
+            dummy_texture->decRef();
+            dummy_bitmap->decRef();
         }
 
         myFiles[1].close();
@@ -864,6 +926,8 @@ namespace ZookieWizard
         ePoint4* test_normals_data = nullptr;
         ePoint4* test_colors_data = nullptr;
 
+        eMatrix4x4 model_matrix = appliedTransform.getMatrix();
+
         theLog.print(" Constructing 3D objects, please wait...\n");
 
         /********************************/
@@ -871,7 +935,12 @@ namespace ZookieWizard
         /* [0] = objVertices ID, [1] = objMapping ID, */
         /* [2] = objNormals ID, [3] = separate list of indices */
 
-        referencedVertices = new uint16_t [4 * (3 * objFacesCount)];
+        if (nullptr != referencedVertices)
+        {
+            delete[](referencedVertices);
+        }
+
+        referencedVertices = new uint16_t[4 * (3 * objFacesCount)];
 
         /********************************/
         /* Reposition "v", "vt", "vn" and "f" */
@@ -882,6 +951,8 @@ namespace ZookieWizard
             dummy_floats[1] = objVertices[j].z;
             objVertices[j].y = (-dummy_floats[1]);
             objVertices[j].z = dummy_floats[0];
+
+            objVertices[j].applyMatrix(model_matrix);
         }
 
         for (j = 0; j < objMappingCount; j++)
@@ -895,6 +966,8 @@ namespace ZookieWizard
             dummy_floats[1] = objNormals[j].z;
             objNormals[j].y = (-dummy_floats[1]);
             objNormals[j].z = dummy_floats[0];
+
+            objNormals[j] = model_matrix * objNormals[j];
         }
 
         for (j = 0; j < objFacesCount; j++)
@@ -959,7 +1032,7 @@ namespace ZookieWizard
 
         for (group_id = (-1); group_id < objGroupsCount; group_id++)
         {
-            if (groupHasMultipleMaterials(group_id))
+            if (regroupMeshesWithMaterials && groupHasMultipleMaterials(group_id))
             {
                 test_group = new eGroup;
                 test_group->incRef();
@@ -1118,22 +1191,21 @@ namespace ZookieWizard
                     test_trimesh = new eTriMesh();
                     test_trimesh->incRef();
 
-                    trimesh_name = fileName;
+                    trimesh_name = appendNameToMeshes ? fileName : eString();
 
                     if (group_id >= 0)
                     {
-                        trimesh_name += " - ";
+                        if (appendNameToMeshes)
+                        {
+                            trimesh_name += " - ";
+                        }
+
                         trimesh_name += objGroups[group_id];
                     }
 
-                    trimesh_name += " / ";
-
-                    if (mat_id < 0)
+                    if (mat_id >= 0)
                     {
-                        trimesh_name += "???";
-                    }
-                    else
-                    {
+                        trimesh_name += " / ";
                         trimesh_name += objMaterials[mat_id].name;
 
                         test_trimesh->setMaterial(objMaterials[mat_id].material);
@@ -1252,6 +1324,9 @@ namespace ZookieWizard
 
                     test_geoset->prepareForDrawing();
 
+                    importedVertices += total_vertices;
+                    importedMeshes++;
+
                     test_geoset->decRef();
                     test_trimesh->decRef();
                 }
@@ -1262,6 +1337,12 @@ namespace ZookieWizard
                 test_group->decRef();
                 test_group = nullptr;
             }
+        }
+
+        if (nullptr != referencedVertices)
+        {
+            delete[](referencedVertices);
+            referencedVertices = nullptr;
         }
     }
 

@@ -525,7 +525,7 @@ namespace ZookieWizard
             }
         }
 
-        if (b > 0)
+        if (b >= 0)
         {
             for (int a = keysCount - 1; a >= b; a--)
             {

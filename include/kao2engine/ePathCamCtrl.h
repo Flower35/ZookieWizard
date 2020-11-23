@@ -24,7 +24,7 @@ namespace ZookieWizard
             /*[0x10-0x18]*/ ePoint3 position;
             /*[0x1C]*/ float unknown_1C;
             /*[0x20-0x23]*/ uint8_t unknown_20[4];
-            /*[0x24]*/ float unknown_24;
+            /*[0x24]*/ int32_t unknown_24;
             /*[0x28]*/ float unknown_28;
             /*[0x38]*/ float unknown_38;
 
@@ -54,6 +54,9 @@ namespace ZookieWizard
 
             eCamera* getCameraLink() const;
             void setCameraLink(eCamera* new_camera);
+
+            eBezierSplineNode* getBezierLink() const;
+            void setBezierLink(eBezierSplineNode* new_bezier);
 
             ePoint3 getPosition() const;
             void setPosition(ePoint3 new_position);

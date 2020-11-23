@@ -21,12 +21,13 @@ namespace ZookieWizard
     extern const char* theNodeFlagNames[32];
 
     #define TXT_PARSING_NODE_PROPTYPE_UNKNOWN (-1)
-    #define TXT_PARSING_NODE_PROPTYPE_INTEGER 0
-    #define TXT_PARSING_NODE_PROPTYPE_FLOAT1 1
-    #define TXT_PARSING_NODE_PROPTYPE_FLOAT2 2
-    #define TXT_PARSING_NODE_PROPTYPE_FLOAT3 3
-    #define TXT_PARSING_NODE_PROPTYPE_STRING 4
-    #define TXT_PARSING_NODE_PROPTYPE_NODEREF 5
+    #define TXT_PARSING_NODE_PROPTYPE_INTEGER  0
+    #define TXT_PARSING_NODE_PROPTYPE_FLOAT1   1
+    #define TXT_PARSING_NODE_PROPTYPE_FLOAT2   2
+    #define TXT_PARSING_NODE_PROPTYPE_FLOAT3   3
+    #define TXT_PARSING_NODE_PROPTYPE_FLOAT4   4
+    #define TXT_PARSING_NODE_PROPTYPE_STRING   5
+    #define TXT_PARSING_NODE_PROPTYPE_NODEREF  6
 
     class TxtParsingNodeProp
     {
@@ -40,7 +41,7 @@ namespace ZookieWizard
             int32_t intValue;
 
             int32_t floatsCount;
-            float floatValues[3];
+            float floatValues[4];
 
             eString strValue;
 
@@ -148,7 +149,7 @@ namespace ZookieWizard
             virtual void ctrlRemoveAnimTrack(int32_t deleted_id);
 
             void setName(eString new_name);
-            eString getArchivePath() const;
+            eString getArchivePath(eNode* final_root = nullptr) const;
 
             eGroup* getRootNode() const;
             eGroup* getParentNode() const;

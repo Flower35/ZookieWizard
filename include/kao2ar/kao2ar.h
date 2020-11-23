@@ -180,9 +180,9 @@ namespace ZookieWizard
         float getLength() const;
         void normalize();
 
-        void fromEulerAngles(bool, float, float, float);
+        void fromEulerAngles(bool transposed, float alpha_rad, float beta_rad, float gamma_rad);
         void fromAxisAngle(ePoint3&, float);
-        void toEulerAngles(bool, float&, float&, float&) const;
+        void toEulerAngles(bool inverse, float &alpha_rad, float &beta_rad, float &gamma_rad) const;
     };
 
     ePoint3 operator * (const ePoint3 &pos, const eQuat &rot);

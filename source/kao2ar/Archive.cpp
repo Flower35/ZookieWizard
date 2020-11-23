@@ -17,23 +17,7 @@ namespace ZookieWizard
         if (0 == (AR_MODE_ABSOLUTE_PATH & flags))
         {
             result = media_dir;
-
-            if (result.getLength() > 0)
-            {
-                switch (result.getText()[result.getLength() - 1])
-                {
-                    case '/':
-                    case '\\':
-                    {
-                        break;
-                    }
-
-                    default:
-                    {
-                        result += "/";
-                    }
-                }
-            }
+            result.assertPath();
 
             if (AR_MODE_PARTICLES_PATH & flags)
             {
@@ -359,8 +343,6 @@ namespace ZookieWizard
 
             if ((nullptr != parentObject) && parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
             {
-                ((eNode*)parentObject)->updateDrawPassFlags(nullptr);
-
                 if (0 == (AR_MODE_SKIP_PROXIES & modeFlags))
                 {
                     ((eNode*)parentObject)->reloadXRef(mediaDirectory, engine_version);
@@ -1012,30 +994,8 @@ namespace ZookieWizard
 
     void Archive::setMediaDir(eString new_media_dir)
     {
-        char* dir_text;
-        int32_t dir_length;
-
         mediaDirectory = new_media_dir;
-
-        dir_text = mediaDirectory.getText();
-        dir_length = mediaDirectory.getLength();
-
-        if ((nullptr != dir_text) && (dir_length > 0))
-        {
-            switch (dir_text[dir_length - 1])
-            {
-                case '/':
-                case '\\':
-                {
-                    break;
-                }
-
-                default:
-                {
-                    mediaDirectory += "/";
-                }
-            }
-        }
+        mediaDirectory.assertPath();
     }
 
 }

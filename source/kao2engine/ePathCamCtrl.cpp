@@ -186,6 +186,21 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // ePathCamCtrl: get or set the bezier spline link
+    ////////////////////////////////////////////////////////////////
+
+    eBezierSplineNode* ePathCamCtrl::getBezierLink() const
+    {
+        return bezier;
+    }
+
+    void ePathCamCtrl::setBezierLink(eBezierSplineNode* new_bezier)
+    {
+        bezier = new_bezier;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // ePathCamCtrl: get or set the initial position
     ////////////////////////////////////////////////////////////////
 

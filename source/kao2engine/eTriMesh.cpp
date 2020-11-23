@@ -139,6 +139,31 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eTriMesh: export readable structure
+    ////////////////////////////////////////////////////////////////
+    void eTriMesh::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    {
+        ePhyTriMesh* phy;
+
+        /* "eGeometry": parent class */
+
+        eGeometry::writeStructureToTextFile(file, indentation, true);
+
+        /* "eTriMesh": additional info */
+
+        if (nullptr != geo)
+        {
+            phy = geo->getPhyTriMesh();
+
+            if (nullptr != phy)
+            {
+                phy->writeStructureToTextFile(file, indentation, true);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eTriMesh: dereference "eTransform" bones (if any exist)
     ////////////////////////////////////////////////////////////////
     void eTriMesh::destroyNode()

@@ -155,7 +155,7 @@ namespace ZookieWizard
         result += name;
         result += "\"";
 
-        if (anim.getLength() > 0)
+        if (!(anim.isEmpty()))
         {
             result += " (\"";
             result += anim;
@@ -348,7 +348,7 @@ namespace ZookieWizard
 
         file << name;
 
-        if (anim.getLength() > 0)
+        if (!(anim.isEmpty()))
         {
             file << " (\"";
             file << anim;

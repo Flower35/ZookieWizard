@@ -125,7 +125,7 @@ namespace ZookieWizard
         {
             /* Dimensions of the viewing frustum */
 
-            const float test = tanf((float)((TEST_CAMERA_FOV / 180.0f * M_PI) / 2.0f));
+            const float test = tanf((float)(DEG2RAD_F((float)TEST_CAMERA_FOV) / 2.0f));
 
             const float near_half_height = (float)(test * TEST_CAMERA_NEAR_PLANE);
             const float near_half_width = (float)(near_half_height * aspect_ratio);
@@ -545,7 +545,7 @@ namespace ZookieWizard
 
             for (int a = 0; a < 3; a++)
             {
-                output[3 + a] *= 180.0f / (float)M_PI;
+                output[3 + a] = RAD2DEG_F(output[3 + a]);
             }
 
             output[6] = selectedObjectNewTransform.scale;

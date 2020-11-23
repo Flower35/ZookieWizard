@@ -86,6 +86,7 @@ namespace ZookieWizard
             void setPointer(eStringBase<charT>* newPtr);
 
             /* Different text operations */
+            bool isEmpty() const;
             bool compare(const charT* str, int pos = 0, int count = (-1), bool case_sensitive = false) const;
             bool compare(const eStringPtrBase<charT>& str, int pos = 0, int count = (-1), bool case_sensitive = false) const;
             bool compareExact(const charT* str, bool case_sensitive = true) const;
@@ -97,6 +98,7 @@ namespace ZookieWizard
             eStringPtrBase<charT> getPath() const;
             eStringPtrBase<charT> getFilename(bool with_extesion) const;
             eStringPtrBase<charT> trimWhitespace() const;
+            void assertPath();
             bool isRooted() const;
     };
 

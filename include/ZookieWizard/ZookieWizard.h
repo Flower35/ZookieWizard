@@ -32,6 +32,21 @@
 #include <gl/GLU.h>
 
 
+////////////////////////////////////////////////////////////////
+// MACROS
+////////////////////////////////////////////////////////////////
+
+#define DEG2RAD(angle) ((angle) * 180.0 / (double)M_PI)
+#define RAD2DEG(angle) ((angle) * (double)M_PI / 180.0)
+
+#define DEG2RAD_F(angle) ((angle) * 180.0f / (float)M_PI)
+#define RAD2DEG_F(angle) ((angle) * (float)M_PI / 180.0f)
+
+
+////////////////////////////////////////////////////////////////
+// PROJECT NAMESPACE
+////////////////////////////////////////////////////////////////
+
 namespace ZookieWizard
 {
     extern const char* MESSAGE_TITLE_INFO;

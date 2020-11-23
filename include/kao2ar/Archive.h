@@ -160,6 +160,7 @@ namespace ZookieWizard
             void changeGlobalScene() const;
             void renderScene(uint32_t draw_flags) const;
             void changeSelectedObject(int32_t child_id, void* param);
+            void updateDrawPassFlags();
 
             void copySceneFromMe(eScene** target) const;
             void setMyParentScene(eScene* pointer);

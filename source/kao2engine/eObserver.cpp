@@ -2,6 +2,7 @@
 #include <kao2ar/Archive.h>
 
 #include <kao2engine/ePathCamCtrl.h>
+#include <kao2engine/eBezierSplineNode.h>
 
 namespace ZookieWizard
 {
@@ -301,6 +302,7 @@ namespace ZookieWizard
     int32_t eObserver::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
     {
         int32_t test;
+        eBezierSplineNode* dummy_bezier;
 
         if (1 != (test = eTransform::parsingCustomMessage(result_msg, message, params_count, params)))
         {
@@ -388,6 +390,55 @@ namespace ZookieWizard
 
             return 0;
         }
+        else if (message.compareExact("setSpline", true))
+        {
+            if (nullptr == pathCtrl)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setSpline\" message: `ePathCamCtrl` is empty!");
+                return 2;
+            }
+
+            if (0 == params_count)
+            {
+                pathCtrl->setBezierLink(nullptr);
+                return 0;
+            }
+            else if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setSpline", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setSpline", 0, TXT_PARSING_NODE_PROPTYPE_NODEREF);
+                return 2;
+            }
+
+            /********************************/
+
+            params[0].getValue(&dummy_bezier);
+
+            if (nullptr == dummy_bezier)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setSpline\" message: noderef is not set!");
+                return 2;
+            }
+
+            if (!(dummy_bezier->getType()->checkHierarchy(&E_BEZIERSPLINENODE_TYPEINFO)))
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setSpline\" message: expected the noderef to be a \"eBezierSplineNode\"!");
+                return 2;
+            }
+
+            /********************************/
+
+            pathCtrl->setBezierLink(dummy_bezier);
+            return 0;
+        }
+
 
         return 1;
     }

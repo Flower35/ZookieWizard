@@ -86,6 +86,7 @@ namespace ZookieWizard
             eNode* lastNode;
 
             int32_t noderefsCount;
+            int32_t noderefsMaxLength;
             ArCustomParserNoderef* noderefs;
 
             int32_t propsCount;
@@ -110,13 +111,15 @@ namespace ZookieWizard
 
             void insertNewProp(TxtParsingNodeProp* new_prop);
             void insertNewNoderef(eNode* new_reference, eString new_name);
+            void removeNoderef(eNode* reference);
 
             void throwError(int32_t status, const char* main_message, const char* param1) const;
 
             int32_t skipUntilNotEmpty();
 
             int32_t validatingIdentifierName(bool is_first, char x) const;
-            eNode* findNodeByIdentifier(const char* current_msg) const;
+            int32_t checkIfLastNameWasReserved() const;
+            int32_t findNodeByIdentifier(const char* current_msg, eNode** result, bool can_be_reserved) const;
 
             int32_t expectChar(char x);
             int32_t expectName();
@@ -125,7 +128,9 @@ namespace ZookieWizard
             int32_t expectProperty(const char* current_msg, TxtParsingNodeProp* result);
             int32_t expectFullProperty(const char* current_msg, TxtParsingNodeProp* result);
 
+            void collectPropertiesInParentheses(const char* current_msg, bool full_props);
             void parseTypeInfoAndIdentifier(bool can_name_be_empty, const char* current_msg, TypeInfo* &returned_type, eString &returned_name);
+
     };
 
 }

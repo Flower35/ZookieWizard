@@ -385,27 +385,14 @@ namespace ZookieWizard
             eString dummy_str(result);
             dummy_str.trimWhitespace();
 
-            if (false == (display_warning = (dummy_str.getLength() <= 0)))
+            if (false == (display_warning = dummy_str.isEmpty()))
             {
                 switch (id)
                 {
                     case 1: // "MediaDir"
                     case 2: // "DenisDir"
                     {
-                        switch (dummy_str.getText()[dummy_str.getLength() - 1])
-                        {
-                            case '/':
-                            case '\\':
-                            {
-                                break;
-                            }
-
-                            default:
-                            {
-                                dummy_str += "/";
-                            }
-                        }
-
+                        dummy_str.assertPath();
                         break;
                     }
                 }
@@ -759,7 +746,7 @@ namespace ZookieWizard
 
         compile_strings[1] = eString(denisLevelName).trimWhitespace();
 
-        if (compile_strings[1].getLength() <= 0)
+        if (compile_strings[1].isEmpty())
         {
             denisLevelName[0] = '\0';
 
@@ -1211,7 +1198,7 @@ namespace ZookieWizard
         try
         {
             filename = eString(denisLevelName).trimWhitespace();
-            empty_name = (filename.getLength() <= 0);
+            empty_name = filename.isEmpty();
             sprintf_s(denisLevelName, LARGE_BUFFER_SIZE, empty_name ? "" : filename.getText());
 
             if (!empty_name)

@@ -77,6 +77,7 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
 
             eString getLogPrintMessage() const override;
+            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             /* << ePhyTriMesh >> */

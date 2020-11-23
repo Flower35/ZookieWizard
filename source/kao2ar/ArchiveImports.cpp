@@ -107,15 +107,13 @@ namespace ZookieWizard
     void Archive::appendToSelectedObjectFromObjFile(eString filename)
     {
         WavefrontObjImporter importer;
+        eSRP default_srp;
 
         if (nullptr != selectedObject)
         {
-            if (importer.openObj(filename, (eGroup*)selectedObject))
-            {
-                importer.begin();
+            importer.begin(filename, (eGroup*)selectedObject, WAVEFRONT_OBJ_IMPORTER_DEFAULT_FLAGS, default_srp);
 
-                changeSelectedObject(NODES_LISTBOX_UPDATE_CURRENT, nullptr);
-            }
+            changeSelectedObject(NODES_LISTBOX_UPDATE_CURRENT, nullptr);
         }
     }
 

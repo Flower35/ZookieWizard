@@ -1054,6 +1054,18 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // Ar: update "DrawPass" flags (working from the selected node)
+    ////////////////////////////////////////////////////////////////
+    void Archive::updateDrawPassFlags()
+    {
+        if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
+        {
+            ((eNode*)selectedObject)->updateDrawPassFlags(nullptr);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Ar: copy scene pointer (used by eXRefTarget)
     ////////////////////////////////////////////////////////////////
     void Archive::copySceneFromMe(eScene** target) const

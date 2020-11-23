@@ -562,6 +562,20 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
 
     template <typename charT>
+    bool eStringPtrBase<charT>::isEmpty() const
+    {
+        if (nullptr != pString)
+        {
+            if (nullptr != pString->getText())
+            {
+                return (pString->getLength() <= 0);
+            }
+        }
+
+        return true;
+    }
+
+    template <typename charT>
     bool eStringPtrBase<charT>::compare(const charT* str, int pos, int count, bool case_sensitive) const
     {
         int otherLength = StringFunctions::getCharArrayLength(str);
@@ -723,23 +737,29 @@ namespace ZookieWizard
     template <typename charT>
     eStringPtrBase<charT> eStringPtrBase<charT>::getFilename(bool with_extesion) const
     {
-        int dot_pos = (-1);
+        int sub_length = (-1);
         int afterslash_pos = 0;
         charT* text = getText();
 
         for (int i = (getLength() - 1); (0 == afterslash_pos) && (i >= 0); i--)
         {
-            if ((!with_extesion) && (dot_pos < 0) && ('.' == text[i]))
+            if ((!with_extesion) && ('.' == text[i]))
             {
-                dot_pos = i;
+                sub_length = i;
+                with_extesion = true;
             }
             else if (('/' == text[i]) || ('\\' == text[i]))
             {
                 afterslash_pos = (1 + i);
+
+                if (sub_length > afterslash_pos)
+                {
+                    sub_length -= afterslash_pos;
+                }
             }
         }
 
-        return getSubstring(afterslash_pos, dot_pos);
+        return getSubstring(afterslash_pos, sub_length);
     }
 
     template <typename charT>
@@ -795,6 +815,30 @@ namespace ZookieWizard
     }
 
     template <typename charT>
+    void eStringPtrBase<charT>::assertPath()
+    {
+        int length = getLength();
+        charT* text = getText();
+
+        if (length > 0)
+        {
+            switch (text[length - 1])
+            {
+                case '/':
+                case '\\':
+                {
+                    break;
+                }
+
+                default:
+                {
+                    createFromOtherString(StringFunctions::addStrings((*this), "/", 1));
+                }
+            }
+        }
+    }
+
+    template <typename charT>
     bool eStringPtrBase<charT>::isRooted() const
     {
         int length = getLength();
@@ -840,7 +884,7 @@ namespace ZookieWizard
     /* eString */
     template class eStringPtrBase<char>;
 
-    /* eUnicodeString */
-    template class eStringPtrBase<wchar_t>;
+    //// /* eUnicodeString */
+    //// template class eStringPtrBase<wchar_t>;
 
 }

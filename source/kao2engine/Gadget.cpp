@@ -92,7 +92,7 @@ namespace ZookieWizard
 
         if (ar.isInReadMode())
         {
-            if ((name.getLength() <= 0) || name.compareExact(getType()->name, true))
+            if (name.isEmpty() || name.compareExact(getType()->name, true))
             {
                 ar.replaceStringDuringSerialization(name, getDefaultGadgetName());
             }

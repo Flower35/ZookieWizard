@@ -262,7 +262,7 @@ namespace ZookieWizard
             vertices[a].position[1] = (vertices[a].position[1] + new_pos_b) * 0.5f;
             vertices[a].position[2] = (vertices[a].position[2] + new_pos_c) * 0.5f;
 
-            if (new_name.getLength() > 0)
+            if (!(new_name.isEmpty()))
             {
                 vertices[a].name = new_name;
             }

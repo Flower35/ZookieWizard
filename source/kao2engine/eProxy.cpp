@@ -186,7 +186,7 @@ namespace ZookieWizard
 
         /* "eProxy": additional info */
 
-        if (targetFile.getLength() > 0)
+        if (!(targetFile.isEmpty()))
         {
             if ('?' != targetFile.getText()[0])
             {

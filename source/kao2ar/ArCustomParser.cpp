@@ -5,6 +5,8 @@
 #include <kao2engine/eScene.h>
 #include <kao2engine/NodeRefLinker.h>
 
+#include <utilities/WavefrontObjImporter.h>
+
 namespace ZookieWizard
 {
 
@@ -20,12 +22,14 @@ namespace ZookieWizard
 
     #define AR_CUSTOM_PARSER_NAME_MAXLENGTH 32
     #define AR_CUSTOM_PARSER_STRING_MAXLENGTH 512
+    #define AR_CUSTOM_PARSER_FLOATSARRAY_MAX 4
 
 
     ////////////////////////////////////////////////////////////////
     // ArCustomParserNoderef: constructor
     ////////////////////////////////////////////////////////////////
     ArCustomParserNoderef::ArCustomParserNoderef()
+    : name(-1)
     {
         reference = nullptr;
     }
@@ -75,6 +79,7 @@ namespace ZookieWizard
         lastNode = nullptr;
 
         noderefsCount = 0;
+        noderefsMaxLength = 0;
         noderefs = nullptr;
 
         propsCount = 0;
@@ -104,104 +109,6 @@ namespace ZookieWizard
         {
             delete[](props);
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // ArCustomParser: inserting new property
-    ////////////////////////////////////////////////////////////////
-    void ArCustomParser::insertNewProp(TxtParsingNodeProp* new_prop)
-    {
-        TxtParsingNodeProp* temp;
-        char bufor[LARGE_BUFFER_SIZE];
-        int32_t a;
-
-        if (nullptr == new_prop)
-        {
-            return;
-        }
-
-        eString new_name = new_prop->getName();
-
-        if (new_name.getLength() > 0)
-        {
-            for (a = 0; a < propsCount; a++)
-            {
-                if (props[a].getName().compareExact(new_name, false))
-                {
-                    sprintf_s(bufor, LARGE_BUFFER_SIZE, "Duplicate property \"%s\" found.", new_name.getText());
-
-                    throwError(AR_CUSTOM_PARSER_STATUS_OK, "An error occurred while parsing \"eNode\" properties!", bufor);
-                }
-            }
-        }
-
-        if ((propsCount + 1) > propsMaxLength)
-        {
-            temp = new TxtParsingNodeProp [propsMaxLength + 1];
-
-            if (nullptr != props)
-            {
-                for (a = 0; a < propsCount; a++)
-                {
-                    temp[a] = props[a];
-                }
-
-                delete[](props);
-            }
-
-            props = temp;
-            propsMaxLength++;
-        }
-
-        props[propsCount] = (*new_prop);
-        propsCount++;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // ArCustomParser: inserting new noderef with its identifier
-    ////////////////////////////////////////////////////////////////
-    void ArCustomParser::insertNewNoderef(eNode* new_reference, eString new_name)
-    {
-        ArCustomParserNoderef* temp;
-        char bufor[LARGE_BUFFER_SIZE];
-        int32_t a;
-
-        if (new_name.getLength() > 0)
-        {
-            for (a = 0; a < noderefsCount; a++)
-            {
-                if (noderefs[a].getName().compareExact(new_name, false))
-                {
-                    sprintf_s(bufor, LARGE_BUFFER_SIZE, "Duplicate identifier \"%s\" found.", new_name.getText());
-
-                    throwError(AR_CUSTOM_PARSER_STATUS_OK, "An error occurred while parsing NodeRef!", bufor);
-                }
-            }
-        }
-
-        if (nullptr == new_reference)
-        {
-            throwError(AR_CUSTOM_PARSER_STATUS_OK, "An error occurred while parsing NodeRef!", "\"eNode\" pointer is not assigned.");
-        }
-
-        temp = new ArCustomParserNoderef [noderefsCount + 1];
-
-        if (nullptr != noderefs)
-        {
-            for (a = 0; a < noderefsCount; a++)
-            {
-                temp[a] = noderefs[a];
-            }
-
-            delete[](noderefs);
-        }
-
-        noderefs = temp;
-
-        noderefs[noderefsCount].set(new_reference, new_name);
-        noderefsCount++;
     }
 
 
@@ -263,9 +170,10 @@ namespace ZookieWizard
         eGroup* dummy_parent;
 
         char dummy_char;
-        bool continue_with_props;
-        TxtParsingNodeProp dummy_prop;
         NodeRefLinker noderefinker;
+        WavefrontObjImporter obj_importer;
+        eSRP dummy_srp;
+        float dummy_floats[3];
 
         try
         {
@@ -312,7 +220,7 @@ namespace ZookieWizard
                                     throwError(test[0], "\"#include\": Error while reading file name", nullptr);
                                 }
 
-                                if (lastString.getLength() <= 0)
+                                if (lastString.isEmpty())
                                 {
                                     throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"#include\": File name is empty", nullptr);
                                 }
@@ -420,47 +328,7 @@ namespace ZookieWizard
                             /********************************/
                             /* "AddNode": (2) begin checking properties */
 
-                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar('(')))
-                            {
-                                throwError(test[0], "\"AddNode\": error while reading properties", "Expected `(`.");
-                            }
-
-                            propsCount = 0;
-                            continue_with_props = true;
-
-                            sprintf_s(bufor[1] , LARGE_BUFFER_SIZE, "Unknown error...");
-
-                            while (continue_with_props)
-                            {
-                                if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = skipUntilNotEmpty()))
-                                {
-                                    throwError(test[0], "\"AddNode\": error while reading properties", nullptr);
-                                }
-
-                                if (sourceFile.peek(dummy_char))
-                                {
-                                    if (')' == dummy_char)
-                                    {
-                                        characterPosition++;
-                                        sourceFile.skip(+1);
-
-                                        continue_with_props = false;
-                                    }
-                                    else
-                                    {
-                                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectFullProperty("AddNode", &dummy_prop)))
-                                        {
-                                            throwError(test[0], "\"AddNode\": error while reading properties", nullptr);
-                                        }
-
-                                        insertNewProp(&dummy_prop);
-                                    }
-                                }
-                                else
-                                {
-                                    throwError(AR_CUSTOM_PARSER_STATUS_EOF, "\"AddNode\": error while reading properties", nullptr);
-                                }
-                            }
+                            collectPropertiesInParentheses("AddNode", true);
 
                             /********************************/
                             /* "AddNode": (3) creating object and using all found properties */
@@ -480,6 +348,8 @@ namespace ZookieWizard
                             {
                                 defaultParent->appendChild(dummy_node);
                             }
+
+                            sprintf_s(bufor[1], LARGE_BUFFER_SIZE, "Unknown error...");
 
                             for (int32_t a = 0; a < propsCount; a++)
                             {
@@ -514,7 +384,7 @@ namespace ZookieWizard
                             /********************************/
                             /* "AddNode": (4) store noderef if the identifier was not empty */
 
-                            if (dummy_str[0].getLength() > 0)
+                            if (!(dummy_str[0].isEmpty()))
                             {
                                 insertNewNoderef(dummy_node, dummy_str[0]);
                             }
@@ -534,12 +404,12 @@ namespace ZookieWizard
                                 throwError(test[0], "\"NodeMsg\": error while reading node identifier", nullptr);
                             }
 
-                            if (lastName.getLength() <= 0)
+                            if (lastName.isEmpty())
                             {
                                 throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeMsg\": no node identifier defined", nullptr);
                             }
 
-                            dummy_node = findNodeByIdentifier("NodeMsg");
+                            findNodeByIdentifier("NodeMsg", &dummy_node, false);
 
                             dummy_typeinfo = dummy_node->getType();
 
@@ -551,7 +421,7 @@ namespace ZookieWizard
                                 throwError(test[0], "\"NodeMsg\": error while reading message", nullptr);
                             }
 
-                            if (lastName.getLength() <= 0)
+                            if (lastName.isEmpty())
                             {
                                 throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeMsg\": no message defined", nullptr);
                             }
@@ -561,52 +431,12 @@ namespace ZookieWizard
                             /********************************/
                             /* "NodeMsg": (3) begin checking arguments */
 
-                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar('(')))
-                            {
-                                throwError(test[0], "\"NodeMsg\": error while reading arguments", "Expected `(`.");
-                            }
-
-                            propsCount = 0;
-                            continue_with_props = true;
-
-                            sprintf_s(bufor[1] , LARGE_BUFFER_SIZE, "Unknown error...");
-
-                            while (continue_with_props)
-                            {
-                                if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = skipUntilNotEmpty()))
-                                {
-                                    throwError(test[0], "\"NodeMsg\": error while reading arguments", nullptr);
-                                }
-
-                                if (sourceFile.peek(dummy_char))
-                                {
-                                    if (')' == dummy_char)
-                                    {
-                                        characterPosition++;
-                                        sourceFile.skip(+1);
-
-                                        continue_with_props = false;
-                                    }
-                                    else
-                                    {
-                                        dummy_prop.setName(eString(-1));
-
-                                        if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectProperty("NodeMsg", &dummy_prop)))
-                                        {
-                                            throwError(test[0], "\"NodeMsg\": error while reading arguments", nullptr);
-                                        }
-
-                                        insertNewProp(&dummy_prop);
-                                    }
-                                }
-                                else
-                                {
-                                    throwError(AR_CUSTOM_PARSER_STATUS_EOF, "\"NodeMsg\": error while reading arguments", nullptr);
-                                }
-                            }
+                            collectPropertiesInParentheses("NodeMgs", false);
 
                             /********************************/
                             /* "NodeMsg": (4) sending a message with all collected arguments */
+
+                            sprintf_s(bufor[1], LARGE_BUFFER_SIZE, "Unknown error...");
 
                             if (0 != (test[0] = dummy_node->parsingCustomMessage(bufor[1], dummy_str[0], propsCount, props)))
                             {
@@ -637,52 +467,25 @@ namespace ZookieWizard
                                 throwError(test[0], "\"NodeSetCollision\": error while reading node identifier", nullptr);
                             }
 
-                            if (lastName.getLength() <= 0)
+                            if (lastName.isEmpty())
                             {
                                 throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeSetCollision\": no node identifier defined", nullptr);
                             }
 
-                            dummy_node = findNodeByIdentifier("NodeSetCollision");
+                            findNodeByIdentifier("NodeSetCollision", &dummy_node, false);
 
                             /********************************/
                             /* "NodeSetCollision": (2) desired state - number in brackets */
 
-                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar('(')))
-                            {
-                                throwError(test[0], "\"NodeSetCollision\": error while reading collision state", "Expected `(`.");
-                            }
+                            collectPropertiesInParentheses("NodeSetCollision", false);
 
-                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = skipUntilNotEmpty()))
+                            if ((propsCount >= 1) && props[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
                             {
-                                throwError(test[0], "\"NodeSetCollision\": error while reading collision state", nullptr);
-                            }
-
-                            if (sourceFile.peek(dummy_char))
-                            {
-                                if ('1' == dummy_char)
-                                {
-                                    test[1] = 1;
-                                }
-                                else if ('0' == dummy_char)
-                                {
-                                    test[1] = 0;
-                                }
-                                else
-                                {
-                                    throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeSetCollision\": error while reading collision state", "Expected `0` or `1`.");
-                                }
-
-                                characterPosition++;
-                                sourceFile.skip(+1);
+                                props[0].getValue(&(test[1]));
                             }
                             else
                             {
-                                throwError(AR_CUSTOM_PARSER_STATUS_EOF, "\"NodeSetCollision\": error while reading collision state", nullptr);
-                            }
-
-                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectChar(')')))
-                            {
-                                throwError(test[0], "\"NodeSetCollision\": error while reading collision state", "Expected `)`.");
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeSetCollision\": error while reading collision state", "Expected a boolean argument.");
                             }
 
                             /********************************/
@@ -712,12 +515,12 @@ namespace ZookieWizard
                                 throwError(test[0], "\"RemoveNode\": error while reading node identifier", nullptr);
                             }
 
-                            if (lastName.getLength() <= 0)
+                            if (lastName.isEmpty())
                             {
                                 throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"RemoveNode\": no node identifier defined", nullptr);
                             }
 
-                            dummy_node = findNodeByIdentifier("RemoveNode");
+                            findNodeByIdentifier("RemoveNode", &dummy_node, false);
 
                             /********************************/
                             /* "RemoveNode": (2) checking parent and dereferencing node */
@@ -743,7 +546,128 @@ namespace ZookieWizard
                             }
 
                             /********************************/
+                            /* "RemoveNode": (3) removing node identifier (pointer is no longer valid) */
+
+                            removeNoderef(dummy_node);
+
+                            /********************************/
                             /* "RemoveNode": finished */
+
+                            successful_messages++;
+                        }
+                        else if (lastName.compareExact("ImportWavefrontOBJ", true))
+                        {
+                            /********************************/
+                            /* "ImportWavefrontOBJ": (1) collect and check the arguments */
+
+                            collectPropertiesInParentheses("ImportWavefrontOBJ", false);
+
+                            strcpy_s(bufor[0], LARGE_BUFFER_SIZE, "\"ImportWaveFrontOBJ\": error while parsing this keyword");
+
+                            if (propsCount < 1)
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], "Expected at least one argument!");
+                            }
+                            else if (propsCount > 6)
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], "Too many arguments! (expected 1 to 6 args)");
+                            }
+
+                            dummy_parent = defaultParent;
+                            test[1] = WAVEFRONT_OBJ_IMPORTER_DEFAULT_FLAGS;
+                            dummy_srp = eSRP();
+
+                            if (!props[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+                            {
+                                TxtParsingNode_ErrorArgType(bufor[1], "ImportWavefrontOBJ", 1, TXT_PARSING_NODE_PROPTYPE_STRING);
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+                            }
+
+                            props[0].getValue(&lastString);
+
+                            if (propsCount >= 2)
+                            {
+                                if (!props[1].checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+                                {
+                                    TxtParsingNode_ErrorArgType(bufor[1], "ImportWavefrontOBJ", 2, TXT_PARSING_NODE_PROPTYPE_NODEREF);
+                                    throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+                                }
+
+                                props[1].getValue(&dummy_parent);
+
+                                if (propsCount >= 3)
+                                {
+                                    if (!props[2].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+                                    {
+                                        TxtParsingNode_ErrorArgType(bufor[1], "ImportWavefrontOBJ", 3, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                                        throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+                                    }
+
+                                    props[2].getValue(&(test[1]));
+
+                                    if (propsCount >= 4)
+                                    {
+                                        if (props[3].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+                                        {
+                                            props[3].getValue(&(test[0]));
+                                            dummy_srp.scale = (float)test[0];
+                                        }
+                                        else if (props[3].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
+                                        {
+                                            props[3].getValue(&(dummy_srp.scale));
+                                        }
+                                        else
+                                        {
+                                            TxtParsingNode_ErrorArgType(bufor[1], "ImportWavefrontOBJ", 4, TXT_PARSING_NODE_PROPTYPE_FLOAT1);
+                                            throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+                                        }
+
+                                        if (propsCount >= 5)
+                                        {
+                                            if (!props[4].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+                                            {
+                                                TxtParsingNode_ErrorArgType(bufor[1], "ImportWavefrontOBJ", 5, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+                                            }
+
+                                            props[4].getValue(dummy_floats);
+
+                                            dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
+                                            dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
+                                            dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
+                                            dummy_srp.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
+
+                                            if (propsCount >= 6)
+                                            {
+                                                if (!props[5].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+                                                {
+                                                    TxtParsingNode_ErrorArgType(bufor[1], "ImportWavefrontOBJ", 6, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                                                    throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+                                                }
+
+                                                props[5].getValue(dummy_floats);
+
+                                                dummy_srp.pos.x = dummy_floats[0];
+                                                dummy_srp.pos.y = dummy_floats[1];
+                                                dummy_srp.pos.z = dummy_floats[2];
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            /********************************/
+                            /* "ImportWavefrontOBJ": (3) calling the main importer function */
+
+                            if (!lastString.isRooted())
+                            {
+                                lastString = includedFiles[includedFileId].fileName.getPath() + lastString;
+                            }
+
+                            obj_importer.begin(lastString, dummy_parent, test[1], dummy_srp);
+
+                            /********************************/
+                            /* "ImportWavefrontOBJ": finished */
 
                             successful_messages++;
                         }
@@ -793,70 +717,146 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // ArCustomParser: parsing macro for "FindNode" and "AddNode"
+    // ArCustomParser: inserting new property
     ////////////////////////////////////////////////////////////////
-    void ArCustomParser::parseTypeInfoAndIdentifier(bool can_name_be_empty, const char* current_msg, TypeInfo* &returned_type, eString &returned_name)
+    void ArCustomParser::insertNewProp(TxtParsingNodeProp* new_prop)
     {
-        int32_t test;
-        char bufor[2][LARGE_BUFFER_SIZE];
+        TxtParsingNodeProp* temp;
+        char bufor[LARGE_BUFFER_SIZE];
+        int32_t a;
 
-        /********************************/
-        /* (1) class type */
-
-        if (AR_CUSTOM_PARSER_STATUS_OK != (test = expectName()))
+        if (nullptr == new_prop)
         {
-            sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": error while reading class type", current_msg);
-
-            throwError(test, bufor[0], nullptr);
+            return;
         }
 
-        if (lastName.getLength() > 0)
+        eString new_name = new_prop->getName();
+
+        if (!(new_name.isEmpty()))
         {
-            try
+            for (a = 0; a < propsCount; a++)
             {
-                returned_type = InterfaceManager.getTypeInfo(lastName.getText());
-            }
-            catch (ErrorMessage)
-            {
-                sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": error while reading class type", current_msg);
-                sprintf_s(bufor[1], LARGE_BUFFER_SIZE, "TypeInfo for name \"%s\" not found!", lastName.getText());
+                if (props[a].getName().compareExact(new_name, false))
+                {
+                    sprintf_s(bufor, LARGE_BUFFER_SIZE, "Duplicate property \"%s\" found.", new_name.getText());
 
-                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
-            }
-
-            if ((nullptr == returned_type) || !returned_type->checkHierarchy(&E_NODE_TYPEINFO))
-            {
-                sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": class type is not a child of \"eNode\"", current_msg);
-                sprintf_s(bufor[1], LARGE_BUFFER_SIZE, "\"%s\"", lastName.getText());
-
-                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+                    throwError(AR_CUSTOM_PARSER_STATUS_OK, "An error occurred while parsing \"eNode\" properties!", bufor);
+                }
             }
         }
-        else
-        {
-            sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": no class type defined", current_msg);
 
-            throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], nullptr);
+        if (propsCount >= propsMaxLength)
+        {
+            propsMaxLength++;
+            temp = new TxtParsingNodeProp [propsMaxLength];
+
+            if (nullptr != props)
+            {
+                for (a = 0; a < propsCount; a++)
+                {
+                    temp[a] = props[a];
+                }
+
+                delete[](props);
+            }
+
+            props = temp;
         }
 
-        /********************************/
-        /* (2) noderef name */
+        props[propsCount] = (*new_prop);
+        propsCount++;
+    }
 
-        if (AR_CUSTOM_PARSER_STATUS_OK != (test = expectName()))
+
+    ////////////////////////////////////////////////////////////////
+    // ArCustomParser: inserting new noderef with its identifier
+    ////////////////////////////////////////////////////////////////
+    void ArCustomParser::insertNewNoderef(eNode* new_reference, eString new_name)
+    {
+        ArCustomParserNoderef* temp;
+        eString temp_name;
+        char bufor[2 * LARGE_BUFFER_SIZE];
+        int32_t a;
+
+        const char* error_header = "An error occurred while parsing NodeRef!";
+
+        if (new_name.isEmpty())
         {
-            sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": error while reading node identifier", current_msg);
-
-            throwError(test, bufor[0], nullptr);
+            throwError(AR_CUSTOM_PARSER_STATUS_OK, error_header, "identifier is empty.");
         }
 
-        if ((!can_name_be_empty) && (lastName.getLength() <= 0))
+        if (nullptr == new_reference)
         {
-            sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": no node identifier defined", current_msg);
-
-            throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], nullptr);
+            throwError(AR_CUSTOM_PARSER_STATUS_OK, error_header, "\"eNode\" pointer is not assigned.");
         }
 
-        returned_name = lastName;
+        for (a = 0; a < noderefsCount; a++)
+        {
+            temp_name = noderefs[a].getName();
+
+            if (temp_name.compareExact(new_name, false))
+            {
+                sprintf_s(bufor, (2 * LARGE_BUFFER_SIZE), "Duplicate identifier \"%s\" found.", new_name.getText());
+
+                throwError(AR_CUSTOM_PARSER_STATUS_OK, error_header, bufor);
+            }
+            else if (noderefs[a].getReference() == new_reference)
+            {
+                sprintf_s(bufor, (2 * LARGE_BUFFER_SIZE), "NodeRef \"%s\" already defined as \"%s\".", new_name.getText(), temp_name.getText());
+
+                throwError(AR_CUSTOM_PARSER_STATUS_OK, error_header, bufor);
+            }
+        }
+
+        if (noderefsCount >= noderefsMaxLength)
+        {
+            noderefsMaxLength++;
+            temp = new ArCustomParserNoderef [noderefsMaxLength];
+
+            if (nullptr != noderefs)
+            {
+                for (a = 0; a < noderefsCount; a++)
+                {
+                    temp[a] = noderefs[a];
+                }
+
+                delete[](noderefs);
+            }
+
+            noderefs = temp;
+        }
+
+        noderefs[noderefsCount].set(new_reference, new_name);
+        noderefsCount++;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ArCustomParser: remove a noderef based on the pointer
+    ////////////////////////////////////////////////////////////////
+    void ArCustomParser::removeNoderef(eNode* reference)
+    {
+        int32_t a;
+
+        if (nullptr != reference)
+        {
+            for (a = 0; a < noderefsCount; a++)
+            {
+                if (noderefs[a].getReference() == reference)
+                {
+                    noderefsCount--;
+
+                    for (; a < noderefsCount; a++)
+                    {
+                        noderefs[a] = noderefs[a + 1];
+                    }
+
+                    noderefs[a].set(nullptr, eString(-1));
+
+                    return;
+                }
+            }
+        }
     }
 
 
@@ -920,7 +920,7 @@ namespace ZookieWizard
             (nullptr != reason) ? reason : "",
             (nullptr != param1) ? "\n\n" : "",
             (nullptr != param1) ? param1 : "",
-            (current_filename.getLength() > 0) ? current_filename.getText() : "",
+            current_filename.isEmpty() ? "" : current_filename.getText(),
             lineNumber, characterPosition
         );
 
@@ -1062,30 +1062,114 @@ namespace ZookieWizard
         return 2;
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // ArCustomParser: check if the `lastName` is a special (reserved) identifier.
+    // (returns 0 if the identifier is "FALSE" - case insensitive)
+    // (returns 1 if the identifier is "TRUE" - case insensitive)
+    // (returns 2 if the identifier is a keyword from the parser)
+    // (otherwise returns 3)
+    ////////////////////////////////////////////////////////////////
+    int32_t ArCustomParser::checkIfLastNameWasReserved() const
+    {
+        if (lastName.compareExact("FALSE", false))
+        {
+            return 0;
+        }
+        else if (lastName.compareExact("TRUE", false))
+        {
+            return 1;
+        }
+        else if (lastName.compareExact("FindNode", true))
+        {
+            return 2;
+        }
+        else if (lastName.compareExact("AddNode", true))
+        {
+            return 2;
+        }
+        else if (lastName.compareExact("NodeMsg", true))
+        {
+            return 2;
+        }
+        else if (lastName.compareExact("NodeSetCollision", true))
+        {
+            return 2;
+        }
+        else if (lastName.compareExact("RemoveNode", true))
+        {
+            return 2;
+        }
+        else if (lastName.compareExact("ImportWavefrontOBJ", true))
+        {
+            return 2;
+        }
+
+        return 3;
+    }
+
+
     ////////////////////////////////////////////////////////////////
     // ArCustomParser: find noderef by the `lastName`
+    // (returns 0 or 1 if the identifier is a BOOLEAN)
+    // (throws an error if the `lastName` is a keyword from the parser)
+    // (otherwise returns 2 and copies the node pointer)
     ////////////////////////////////////////////////////////////////
-    eNode* ArCustomParser::findNodeByIdentifier(const char* current_msg) const
+    int32_t ArCustomParser::findNodeByIdentifier(const char* current_msg, eNode** result, bool can_be_reserved) const
     {
         char bufor[2][LARGE_BUFFER_SIZE];
-        eNode* result = nullptr;
+        int32_t a;
 
-        for (int32_t a = 0; (nullptr == result) && (a < noderefsCount); a++)
+        if (nullptr == result)
         {
-            if (noderefs[a].getName().compareExact(lastName, true))
+            throwError(AR_CUSTOM_PARSER_STATUS_OK, nullptr, "findNodeByIdentifier(): result pointer is not assigned.");
+        }
+
+        (*result) = nullptr;
+
+        /********************************/
+
+        a = checkIfLastNameWasReserved();
+
+        switch (a)
+        {
+            case 0:
+            case 1:
             {
-                result = noderefs[a].getReference();
+                if (can_be_reserved)
+                {
+                    return a;
+                }
+
+                // no break in this case
+            }
+
+            case 2:
+            {
+                sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": error while checking node identifier", current_msg);
+                sprintf_s(bufor[1], LARGE_BUFFER_SIZE, "\"%s\" is a reserved keyword!", lastName.getText());
+                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
             }
         }
 
-        if (nullptr == result)
+        /********************************/
+
+        for (a = 0; (nullptr == (*result)) && (a < noderefsCount); a++)
+        {
+            if (noderefs[a].getName().compareExact(lastName, true))
+            {
+                (*result) = noderefs[a].getReference();
+            }
+        }
+
+        if (nullptr == (*result))
         {
             sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": error while checking node identifier", current_msg);
             sprintf_s(bufor[1], LARGE_BUFFER_SIZE, "Identifier \"%s\" not found.", lastName.getText());
             throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
         }
 
-        return result;
+        return 2;
     }
 
 
@@ -1493,7 +1577,7 @@ namespace ZookieWizard
         char test_char;
         eNode* dummy_node;
         int32_t dummy_int;
-        float dummy_floats[3];
+        float dummy_floats[AR_CUSTOM_PARSER_FLOATSARRAY_MAX];
 
         if (nullptr == result)
         {
@@ -1524,9 +1608,22 @@ namespace ZookieWizard
                     return test[0];
                 }
 
-                dummy_node = findNodeByIdentifier(current_msg);
+                test[0] = findNodeByIdentifier(current_msg, &dummy_node, true);
 
-                result->setValue(TXT_PARSING_NODE_PROPTYPE_NODEREF, &dummy_node);
+                switch (test[0])
+                {
+                    case 0:
+                    case 1:
+                    {
+                        result->setValue(TXT_PARSING_NODE_PROPTYPE_INTEGER, &(test[0]));
+                        break;
+                    }
+
+                    default:
+                    {
+                        result->setValue(TXT_PARSING_NODE_PROPTYPE_NODEREF, &dummy_node);
+                    }
+                }
 
                 return AR_CUSTOM_PARSER_STATUS_OK;
             }
@@ -1558,7 +1655,7 @@ namespace ZookieWizard
 
                 test[2] = 0;
 
-                while (test[2] <= 3)
+                while (test[2] <= AR_CUSTOM_PARSER_FLOATSARRAY_MAX)
                 {
                     if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = skipUntilNotEmpty()))
                     {
@@ -1572,17 +1669,18 @@ namespace ZookieWizard
                             characterPosition++;
                             sourceFile.skip(+1);
 
-                            if ((test[2] >= 1) && (test[2] <= 3))
+                            if ((test[2] >= 1) && (test[2] <= AR_CUSTOM_PARSER_FLOATSARRAY_MAX))
                             {
                                 result->setValue(TXT_PARSING_NODE_PROPTYPE_FLOAT1 - 1 + test[2], dummy_floats);
                             }
 
                             return AR_CUSTOM_PARSER_STATUS_OK;
                         }
-                        else if (test[2] >= 3)
+                        else if (test[2] >= AR_CUSTOM_PARSER_FLOATSARRAY_MAX)
                         {
                             sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": error while reading property", current_msg);
-                            throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], "Too many numbers in square brackets. Maximum is 3.");
+                            sprintf_s(bufor[1], LARGE_BUFFER_SIZE, "Too many numbers in square brackets. Maximum is %d.", AR_CUSTOM_PARSER_FLOATSARRAY_MAX);
+                            throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
                         }
                         else if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectNumber(test[1], dummy_int, dummy_floats[test[2]])))
                         {
@@ -1640,7 +1738,7 @@ namespace ZookieWizard
             return test;
         }
 
-        if (lastName.getLength() <= 0)
+        if (lastName.isEmpty())
         {
             sprintf_s(bufor, LARGE_BUFFER_SIZE, "\"%s\": error while reading property", current_msg);
             throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor, "Property identifier is empty.");
@@ -1665,5 +1763,152 @@ namespace ZookieWizard
 
         return expectProperty(current_msg, result);
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ArCustomParser: parsing macro for some keywords
+    ////////////////////////////////////////////////////////////////
+    void ArCustomParser::collectPropertiesInParentheses(const char* current_msg, bool full_props)
+    {
+        char bufor[LARGE_BUFFER_SIZE];
+        int32_t test;
+
+        bool continue_with_props;
+        TxtParsingNodeProp dummy_prop;
+        char dummy_char;
+
+        /********************************/
+
+        sprintf_s(bufor, LARGE_BUFFER_SIZE, "\"%s\": error while reading %s", current_msg, full_props ? "properties" : "arguments");
+
+        /********************************/
+
+        if (AR_CUSTOM_PARSER_STATUS_OK != (test = expectChar('(')))
+        {
+            throwError(test, bufor, "Expected `(`.");
+        }
+
+        propsCount = 0;
+        continue_with_props = true;
+
+        while (continue_with_props)
+        {
+            if (AR_CUSTOM_PARSER_STATUS_OK != (test = skipUntilNotEmpty()))
+            {
+                throwError(test, bufor, nullptr);
+            }
+
+            if (sourceFile.peek(dummy_char))
+            {
+                if (')' == dummy_char)
+                {
+                    characterPosition++;
+                    sourceFile.skip(+1);
+
+                    continue_with_props = false;
+                }
+                else
+                {
+                    if (full_props)
+                    {
+                        test = expectFullProperty(current_msg, &dummy_prop);
+                    }
+                    else
+                    {
+                        dummy_prop.setName(eString(-1));
+                        test = expectProperty(current_msg, &dummy_prop);
+                    }
+
+                    if (AR_CUSTOM_PARSER_STATUS_OK != test)
+                    {
+                        throwError(test, bufor, nullptr);
+                    }
+
+                    insertNewProp(&dummy_prop);
+                }
+            }
+            else
+            {
+                throwError(AR_CUSTOM_PARSER_STATUS_EOF, bufor, nullptr);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ArCustomParser: parsing macro for "FindNode" and "AddNode"
+    ////////////////////////////////////////////////////////////////
+    void ArCustomParser::parseTypeInfoAndIdentifier(bool can_name_be_empty, const char* current_msg, TypeInfo* &returned_type, eString &returned_name)
+    {
+        int32_t test;
+        char bufor[2][LARGE_BUFFER_SIZE];
+
+        /********************************/
+        /* (1) class type */
+
+        if (AR_CUSTOM_PARSER_STATUS_OK != (test = expectName()))
+        {
+            sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": error while reading class type", current_msg);
+
+            throwError(test, bufor[0], nullptr);
+        }
+
+        if (!(lastName.isEmpty()))
+        {
+            try
+            {
+                returned_type = InterfaceManager.getTypeInfo(lastName.getText());
+            }
+            catch (ErrorMessage)
+            {
+                sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": error while reading class type", current_msg);
+                sprintf_s(bufor[1], LARGE_BUFFER_SIZE, "TypeInfo for name \"%s\" not found!", lastName.getText());
+
+                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+            }
+
+            if ((nullptr == returned_type) || !returned_type->checkHierarchy(&E_NODE_TYPEINFO))
+            {
+                sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": class type is not a child of \"eNode\"", current_msg);
+                sprintf_s(bufor[1], LARGE_BUFFER_SIZE, "\"%s\"", lastName.getText());
+
+                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+            }
+        }
+        else
+        {
+            sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": no class type defined", current_msg);
+
+            throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], nullptr);
+        }
+
+        /********************************/
+        /* (2) noderef name */
+
+        if (AR_CUSTOM_PARSER_STATUS_OK != (test = expectName()))
+        {
+            sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": error while reading node identifier", current_msg);
+
+            throwError(test, bufor[0], nullptr);
+        }
+
+        if (3 != checkIfLastNameWasReserved())
+        {
+            sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": error while reading node identifier", current_msg);
+            sprintf_s(bufor[1], LARGE_BUFFER_SIZE, "\"%s\" is a reserved keyword!", lastName.getText());
+
+            throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+        }
+
+        if ((!can_name_be_empty) && (lastName.isEmpty()))
+        {
+            sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": no node identifier defined", current_msg);
+
+            throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], nullptr);
+        }
+
+        returned_name = lastName;
+    }
+
 
 }

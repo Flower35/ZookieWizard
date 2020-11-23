@@ -262,7 +262,7 @@ namespace ZookieWizard
                 target_name = actions[i].actorName;
             }
 
-            if (target_name.getLength() <= 0)
+            if (target_name.isEmpty())
             {
                 target_name = "<UNNAMED TARGET>";
             }

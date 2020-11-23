@@ -417,7 +417,7 @@ namespace ZookieWizard
     int32_t eBitmap::checkSimilarityToAnotherBitmap(const eBitmap &other) const
     {
         if (  ((&other) != this)
-            && (path.getLength() > 0)
+            && (!(path.isEmpty()))
             && path.comparePath(other.path)
             && (virtualWidth == other.virtualWidth) && (virtualHeight == other.virtualHeight)
             && (width == other.width) && (height == other.height) )
@@ -725,7 +725,7 @@ namespace ZookieWizard
 
             if (*(int16_t*)"BM" != (0x0000FFFF & a))
             {
-                throw ErrorMessage("%s%s", error_header, bitmap_error_text);
+                throw ErrorMessage("%s\"%s\"\n\n%s", error_header, full_path, bitmap_error_text);
 
                 return false;
             }
@@ -751,7 +751,7 @@ namespace ZookieWizard
             /* Check dimensions */
             if ((!ArFunctions::isValidImageWidth(new_width)) || (!ArFunctions::isValidImageWidth(new_height)))
             {
-                throw ErrorMessage("%s%s", error_header, dimensions_error);
+                throw ErrorMessage("%s\"%s\"\n\n%s", error_header, full_path, dimensions_error);
 
                 return false;
             }
@@ -824,7 +824,7 @@ namespace ZookieWizard
 
                 default:
                 {
-                    throw ErrorMessage("%sIncorrect \"Bits per Pixel\" value in BITMAP header!", error_header);
+                    throw ErrorMessage("%s\"%s\"\n\nIncorrect \"Bits per Pixel\" value in BITMAP header!", error_header, full_path);
 
                     return false;
                 }
@@ -858,7 +858,7 @@ namespace ZookieWizard
 
             if (0 != (0x000000FF & a))
             {
-                throw ErrorMessage("%s%s", error_header, targa_error_text);
+                throw ErrorMessage("%s\"%s\"\n\n%s", error_header, full_path, targa_error_text);
 
                 return false;
             }
@@ -868,7 +868,7 @@ namespace ZookieWizard
 
             if (0 != (0x000000FF & a))
             {
-                throw ErrorMessage("%s%s", error_header, targa_error_text);
+                throw ErrorMessage("%s\"%s\"\n\n%s", error_header, full_path, targa_error_text);
 
                 return false;
             }
@@ -879,7 +879,7 @@ namespace ZookieWizard
 
             if (2 != (0x000000FF & a))
             {
-                throw ErrorMessage("%sCompressed TARGA images are NOT supported!", error_header);
+                throw ErrorMessage("%s\"%s\"\n\nCompressed TARGA images are NOT supported!", error_header, full_path);
 
                 return false;
             }
@@ -891,7 +891,7 @@ namespace ZookieWizard
 
                 if (0 != (0x000000FF & a))
                 {
-                    throw ErrorMessage("%s%s", error_header, targa_error_text);
+                    throw ErrorMessage("%s\"%s\"\n\n%s", error_header, full_path, targa_error_text);
 
                     return false;
                 }
@@ -902,7 +902,7 @@ namespace ZookieWizard
 
             if (0 != (0x0000FFFF & a))
             {
-                throw ErrorMessage("%s%s", error_header, targa_error_text);
+                throw ErrorMessage("%s\"%s\"\n\n%s", error_header, full_path, targa_error_text);
 
                 return false;
             }
@@ -912,7 +912,7 @@ namespace ZookieWizard
 
             if (0 != (0x0000FFFF & a))
             {
-                throw ErrorMessage("%s%s", error_header, targa_error_text);
+                throw ErrorMessage("%s\"%s\"\n\n%s", error_header, full_path, targa_error_text);
 
                 return false;
             }
@@ -930,7 +930,7 @@ namespace ZookieWizard
             /* Check dimensions */
             if ((!ArFunctions::isValidImageWidth(new_width)) || (!ArFunctions::isValidImageWidth(new_height)))
             {
-                throw ErrorMessage("%s%s", error_header, dimensions_error);
+                throw ErrorMessage("%s\"%s\"\n\n%s", error_header, full_path, dimensions_error);
 
                 return false;
             }
@@ -942,7 +942,7 @@ namespace ZookieWizard
 
             if ((32 != bpp) && (24 != bpp))
             {
-                throw ErrorMessage("%sIncorrect \"Bits per Pixel\" value in TARGA header!", error_header);
+                throw ErrorMessage("%s\"%s\"\n\nIncorrect \"Bits per Pixel\" value in TARGA header!", error_header, full_path);
 
                 return false;
             }
@@ -958,7 +958,7 @@ namespace ZookieWizard
 
                 if ((0x08 != b) && (0x00 != b))
                 {
-                    throw ErrorMessage("%s%s", error_header, targa_error_text);
+                    throw ErrorMessage("%s\"%s\"\n\n%s", error_header, full_path, targa_error_text);
 
                     return false;
                 }
@@ -967,7 +967,7 @@ namespace ZookieWizard
             {
                 if (0x00 != b)
                 {
-                    throw ErrorMessage("%s%s", error_header, targa_error_text);
+                    throw ErrorMessage("%s\"%s\"\n\n%s", error_header, full_path, targa_error_text);
 
                     return false;
                 }
@@ -1031,7 +1031,7 @@ namespace ZookieWizard
         }
         else
         {
-            throw ErrorMessage("%sUnsupported file extension! [%s]", error_header, path.getText());
+            throw ErrorMessage("%s\"%s\"\n\nUnsupported file extension! [%s]", error_header, full_path, path.getText());
 
             return false;
         }

@@ -157,9 +157,9 @@ namespace ZookieWizard
         test_srp.rot.fromEulerAngles
         (
             true,
-            ((-kaoRot[2]) & 0x0000FFFF) / float(0x8000) * float(M_PI),
-            ((-kaoRot[0]) & 0x0000FFFF) / float(0x8000) * float(M_PI),
-            ((-kaoRot[1]) & 0x0000FFFF) / float(0x8000) * float(M_PI)
+            ((-kaoRot[2]) & 0x0000FFFF) / (float)0x8000 * (float)M_PI,
+            ((-kaoRot[0]) & 0x0000FFFF) / (float)0x8000 * (float)M_PI,
+            ((-kaoRot[1]) & 0x0000FFFF) / (float)0x8000 * (float)M_PI
         );
 
         test_proxy = new eProxy();

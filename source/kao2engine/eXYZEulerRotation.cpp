@@ -183,7 +183,7 @@ namespace ZookieWizard
 
         if (0x01 == param)
         {
-            new_value.toEulerAngles(false, angles[0], angles[1], angles[2]);
+            new_value.toEulerAngles(true, angles[0], angles[1], angles[2]);
 
             if (nullptr != xCtrl)
             {
@@ -279,7 +279,7 @@ namespace ZookieWizard
 
         if (0 != param)
         {
-            new_data.toEulerAngles(false, angles[0], angles[1], angles[2]);
+            new_data.toEulerAngles(true, angles[0], angles[1], angles[2]);
 
             if (nullptr == xCtrl)
             {
