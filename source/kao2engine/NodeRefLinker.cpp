@@ -35,7 +35,46 @@ namespace ZookieWizard
         linkType = nullptr;
     }
 
-    NodeRefLinker::~NodeRefLinker() {}
+    NodeRefLinker::~NodeRefLinker()
+    {}
+
+
+    ////////////////////////////////////////////////////////////////
+    // NodeRefLinker: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void NodeRefLinker::createFromOtherObject(const NodeRefLinker &other)
+    {
+        actor = nullptr;
+        passedMask = eString(-1);
+        passedName = eString(-1);
+        linkType = nullptr;
+    }
+
+    NodeRefLinker::NodeRefLinker(const NodeRefLinker &other)
+    : eObject(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    NodeRefLinker& NodeRefLinker::operator = (const NodeRefLinker &other)
+    {
+        if ((&other) != this)
+        {
+            eObject::operator = (other);
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* NodeRefLinker::cloneFromMe() const
+    {
+        return new NodeRefLinker(*this);
+    }
 
 
     ////////////////////////////////////////////////////////////////

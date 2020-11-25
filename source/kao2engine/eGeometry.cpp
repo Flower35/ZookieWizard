@@ -105,6 +105,8 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGeometry::serialize(Archive &ar)
     {
+        int32_t a;
+
         eNode::serialize(ar);
 
         /* Material */
@@ -113,8 +115,16 @@ namespace ZookieWizard
         /* Bounding box */
         if (ar.getVersion() < 0x82)
         {
-            eObject* o = nullptr;
-            ar.serialize(&o, nullptr);
+            a = 0x01;
+            ar.readOrWrite(&a, 0x04);
+            if (0x01 != a)
+            {
+                throw ErrorMessage
+                (
+                    "eGeometry::serialize():\n" \
+                    "non-empty object is not supported!"
+                );
+            }
         }
         else
         {

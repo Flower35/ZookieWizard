@@ -226,6 +226,20 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // Actor: find reference to some node when deleting it
+    ////////////////////////////////////////////////////////////////
+    void Actor::findAndDereference(eNode* target)
+    {
+        if (nullptr != script)
+        {
+            script->removeNoderefsWithSpecifiedLink(target);
+        }
+
+        unknown_04DC.findAndDeleteChild(target);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Actor: custom TXT parser methods
     ////////////////////////////////////////////////////////////////
 

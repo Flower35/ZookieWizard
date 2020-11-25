@@ -8,6 +8,7 @@
 namespace ZookieWizard
 {
     class VoidInstruction;
+    class eNode;
 
     ////////////////////////////////////////////////////////////////
     // New Gadgets structure
@@ -97,6 +98,8 @@ namespace ZookieWizard
             void saveStateToTextFile(FileOperator &file, int32_t indentation) const;
 
             State* getOwner() const;
+
+            void removeNoderefsWithSpecifiedLink(eNode* target);
 
         private:
 

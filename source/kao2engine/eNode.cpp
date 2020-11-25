@@ -62,6 +62,49 @@ namespace ZookieWizard
     TxtParsingNodeProp::TxtParsingNodeProp()
     {
         type = TXT_PARSING_NODE_PROPTYPE_UNKNOWN;
+
+        nodeValue = nullptr;
+    }
+
+    TxtParsingNodeProp::~TxtParsingNodeProp()
+    {
+        nodeValue->decRef();
+    }
+
+    void TxtParsingNodeProp::createFromOtherObject(const TxtParsingNodeProp &other)
+    {
+        type = other.type;
+        name = other.name;
+
+        intValue = other.intValue;
+        floatValues[0] = other.floatValues[0];
+        floatValues[1] = other.floatValues[1];
+        floatValues[2] = other.floatValues[2];
+        floatValues[3] = other.floatValues[3];
+        strValue = other.strValue;
+
+        nodeValue = other.nodeValue;
+        if (nullptr != nodeValue)
+        {
+            nodeValue->incRef();
+        }
+    }
+
+    TxtParsingNodeProp::TxtParsingNodeProp(const TxtParsingNodeProp &other)
+    {
+        createFromOtherObject(other);
+    }
+
+    TxtParsingNodeProp& TxtParsingNodeProp::operator = (const TxtParsingNodeProp &other)
+    {
+        if ((&other) != this)
+        {
+            nodeValue->decRef();
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
     }
 
     eString TxtParsingNodeProp::getName() const
@@ -192,7 +235,14 @@ namespace ZookieWizard
 
             case TXT_PARSING_NODE_PROPTYPE_NODEREF:
             {
+                nodeValue->decRef();
+
                 nodeValue = *(eNode**)new_value_ptr;
+                if (nullptr != nodeValue)
+                {
+                    nodeValue->incRef();
+                }
+
                 break;
             }
 
@@ -582,32 +632,18 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eNode::serialize(Archive &ar)
     {
-        char bufor[LARGE_BUFFER_SIZE];
         ePoint3 test_boundary[2];
 
-        /* Node name and node parent */
-
+        /* [0x14] Node Name */
         ar.serializeString(name);
 
+        /* [0x10] Node Parent Link */
         ar.serialize((eObject**)&parent, &E_GROUP_TYPEINFO);
 
-        if (ar.isInDebugMode() && (nullptr == parent))
-        {
-            if ((false == getType()->checkHierarchy(&E_SCENE_TYPEINFO))
-              && (false == ar.compareWithMyRoot(this)))
-            {
-                sprintf_s
-                (
-                    bufor, LARGE_BUFFER_SIZE,
-                    "eNode::serialize():\n" \
-                    "there is no parent attached to this node!\n" \
-                    "\"%s\"",
-                    name.getText()
-                );
+        /* ASSERTIONS */
+        ar.setLastSerializedNode(this);
 
-                GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_WARNING, bufor);
-            }
-        }
+        /* Serializing other values */
 
         ar.readOrWrite(&unknown_0C, 0x04);
 
@@ -811,6 +847,16 @@ namespace ZookieWizard
         {
             (*parent_flags) |= (0x70000000 & flags);
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eGroup")
+    ////////////////////////////////////////////////////////////////
+    bool eNode::removeEmptyAndUnreferencedGroups()
+    {
+        /* Not a Group in the first place */
+        return false;
     }
 
 
@@ -1368,6 +1414,14 @@ namespace ZookieWizard
             last_parent = test_parent;
 
             test_parent = test_parent->getParentNode();
+        }
+
+        if (nullptr == last_parent)
+        {
+            if (getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+            {
+                return (eGroup*)this;
+            }
         }
 
         return last_parent;

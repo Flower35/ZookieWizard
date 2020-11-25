@@ -160,8 +160,8 @@ namespace ZookieWizard
         eSRP test_srp;
 
         TypeInfo* test_typeinfo = nullptr;
-        eGroup* test_group;
-        eNode *test_root, *test_node = nullptr;
+        eGroup *test_group, *test_root;
+        eNode *test_node = nullptr;
         eTransform* parent_xform = nullptr;
         eGeometry* test_geometry;
         eMaterial* test_material;
@@ -369,21 +369,13 @@ namespace ZookieWizard
 
                     if (nullptr != test_group)
                     {
+                        /* Remember the option from this switch case */
+
                         c = child_id;
 
                         /* Find current child ID to set selection in listbox */
 
-                        child_id = (-1);
-
-                        b = test_group->getNodesCount();
-
-                        for (a = 0; (child_id < 0) && (a < b); a++)
-                        {
-                            if (test_group->getIthChild(a) == test_node)
-                            {
-                                child_id = a;
-                            }
-                        }
+                        child_id = test_group->findChildId(test_node);
 
                         if (NODES_LISTBOX_DELETE_CURRENT == c)
                         {
@@ -443,7 +435,7 @@ namespace ZookieWizard
             case NODES_LISTBOX_DELETE_CHILDREN:
             case NODES_LISTBOX_DELETE_SELECTED:
             {
-                if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
                 {
                     test_group = (eGroup*)selectedObject;
 
@@ -473,6 +465,8 @@ namespace ZookieWizard
                         }
 
                         test_root = test_group->getRootNode();
+
+                        test_group->deleteNodesWithMultiRefs(false, test_root);
 
                         while (test_group->getNodesCount() > 0)
                         {
@@ -509,6 +503,11 @@ namespace ZookieWizard
 
                             if (nullptr != (test_root = test_group->getRootNode()))
                             {
+                                if (test_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                                {
+                                    ((eGroup*)test_node)->deleteNodesWithMultiRefs(false, test_root);
+                                }
+
                                 test_root->findAndDereference(test_node);
                             }
                         }
@@ -540,7 +539,7 @@ namespace ZookieWizard
 
             case NODES_LISTBOX_MOVE_UP:
             {
-                if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
                 {
                     if (markedChildId >= 0)
                     {
@@ -566,7 +565,7 @@ namespace ZookieWizard
 
             case NODES_LISTBOX_MOVE_DOWN:
             {
-                if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
                 {
                     if (markedChildId >= 0)
                     {
@@ -594,7 +593,7 @@ namespace ZookieWizard
 
             case NODES_LISTBOX_MOVE_OUT:
             {
-                if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
                 {
                     if (markedChildId >= 0)
                     {
@@ -624,11 +623,13 @@ namespace ZookieWizard
 
             case NODES_LISTBOX_MOVE_IN:
             {
-                if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
+                if (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
                 {
                     if (markedChildId >= 1)
                     {
                         test_group = (eGroup*)selectedObject;
+                        b = test_group->getNodesCount() - 2;
+
                         test_node = test_group->getIthChild(markedChildId);
                         test_group = (eGroup*)test_group->getIthChild(markedChildId - 1);
 
@@ -638,7 +639,8 @@ namespace ZookieWizard
                             {
                                 test_group->appendChild(test_node);
 
-                                child_id = (markedChildId - 1);
+                                /* Keep the marked child ID (helpful when moving many nodes) */
+                                child_id = (markedChildId > b) ? b : markedChildId;
 
                                 update_list = true;
                             }
@@ -771,6 +773,60 @@ namespace ZookieWizard
             case NODES_EDITING_MATERIAL_OPTIMIZE:
             {
                 GUI::materialsManager_ReduceSimilarMaterials(test_node);
+
+                break;
+            }
+
+            case NODES_EDITING_GROUPS_DPFLAGS:
+            {
+                if (nullptr != test_node)
+                {
+                    test_node->updateDrawPassFlags(nullptr);
+
+                    child_id = (-1);
+                    update_list = true;
+                }
+
+                break;
+            }
+
+            case NODES_EDITING_GROUPS_UNREF:
+            {
+                if (nullptr != test_node)
+                {
+                    a = theNodesCounter;
+
+                    test_node->removeEmptyAndUnreferencedGroups();
+
+                    a -= theNodesCounter;
+
+                    if (a > 0)
+                    {
+                        sprintf_s
+                        (
+                            bufor, LARGE_BUFFER_SIZE,
+                            "Removed %d unreferenced groups!",
+                            a
+                        );
+
+                        child_id = (-1);
+                        update_list = true;
+                    }
+                    else
+                    {
+                        sprintf_s
+                        (
+                            bufor, LARGE_BUFFER_SIZE,
+                            "No groups removed..."
+                        );
+                    }
+
+                    GUI::theWindowsManager.displayMessage
+                    (
+                        WINDOWS_MANAGER_MESSAGE_INFO,
+                        bufor
+                    );
+                }
 
                 break;
             }
@@ -1049,18 +1105,6 @@ namespace ZookieWizard
                     markedChildId = child_id;
                 }
             }
-        }
-    }
-
-
-    ////////////////////////////////////////////////////////////////
-    // Ar: update "DrawPass" flags (working from the selected node)
-    ////////////////////////////////////////////////////////////////
-    void Archive::updateDrawPassFlags()
-    {
-        if ((nullptr != selectedObject) && selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
-        {
-            ((eNode*)selectedObject)->updateDrawPassFlags(nullptr);
         }
     }
 

@@ -53,6 +53,8 @@ namespace ZookieWizard
 
             /* << eNode >> */
 
+            void findAndDereference(eNode* target) override;
+
             void editingNewNodeSetup() override;
 
             int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;

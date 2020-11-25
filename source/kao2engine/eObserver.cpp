@@ -205,6 +205,21 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eObserver: find reference to some node when deleting it
+    ////////////////////////////////////////////////////////////////
+    void eObserver::findAndDereference(eNode* target)
+    {
+        if (nullptr != pathCtrl)
+        {
+            if (pathCtrl->getBezierLink() == target)
+            {
+                pathCtrl->setBezierLink(nullptr);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eObserver: preparing just-created node
     ////////////////////////////////////////////////////////////////
     void eObserver::editingNewNodeSetup()

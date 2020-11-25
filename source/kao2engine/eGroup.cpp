@@ -45,7 +45,7 @@ namespace ZookieWizard
         int32_t i;
         eNode* child_node;
 
-        deleteNodesWithMultiRefs(true);
+        deleteNodesWithMultiRefs(true, getRootNode());
 
         /* Failsafe (marks children as "invalid", as they no longer have a parent node link) */
 
@@ -113,9 +113,28 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::serialize(Archive &ar)
     {
+        eNode* child_node;
+
+        /* Node base seriialization */
+
         eNode::serialize(ar);
 
+        /* Children nodes serialization */
+
         nodes.serialize(ar, &E_NODE_TYPEINFO);
+
+        /* ASSERTION */
+
+        if (ar.isInReadMode())
+        {
+            for (int32_t a = 0; a < nodes.getSize(); a++)
+            {
+                if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
+                {
+                    child_node->setParentNode(this);
+                }
+            }
+        }
     }
 
 
@@ -305,19 +324,45 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::updateDrawPassFlags(uint32_t* parent_flags)
     {
+        eNode* child_node;
+
         flags &= (~ 0x70000000);
 
         for (int32_t a = 0; a < nodes.getSize(); a++)
         {
-            eNode* child_node = (eNode*)nodes.getIthChild(a);
-
-            if (nullptr != child_node)
+            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
             {
                 child_node->updateDrawPassFlags(&flags);
             }
         }
 
         eNode::updateDrawPassFlags(parent_flags);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: removing unused groups
+    // (that have no children and only one reference on the counter)
+    ////////////////////////////////////////////////////////////////
+    bool eGroup::removeEmptyAndUnreferencedGroups()
+    {
+        eNode* child_node;
+
+        for (int32_t a = 0; a < nodes.getSize(); a++)
+        {
+            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
+            {
+                if (child_node->removeEmptyAndUnreferencedGroups())
+                {
+                    deleteIthChild(a);
+                    a--;
+                }
+            }
+        }
+
+        /* Notify the caller whether this group qualifies to be removed */
+
+        return ((referenceCount < 2) && (nodes.getSize() < 1));
     }
 
 
@@ -490,6 +535,34 @@ namespace ZookieWizard
 
             return 0;
         }
+        else if (message.compareExact("updateDrawPassFlags", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "updateDrawPassFlags", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            updateDrawPassFlags(nullptr);
+
+            return 0;
+        }
+        else if (message.compareExact("removeUnreferencedGroups", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "removeUnreferencedGroups", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            removeEmptyAndUnreferencedGroups();
+
+            return 0;
+        }
 
         return 1;
     }
@@ -612,6 +685,26 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eGroup: find child index (if it exist in this group)
+    ////////////////////////////////////////////////////////////////
+    int32_t eGroup::findChildId(eNode* o) const
+    {
+        if (nullptr != o)
+        {
+            for (int32_t a = 0; a < nodes.getSize(); a++)
+            {
+                if (nodes.getIthChild(a) == o)
+                {
+                    return a;
+                }
+            }
+        }
+
+        return (-1);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eGroup: get i-th node
     ////////////////////////////////////////////////////////////////
     eNode* eGroup::getIthChild(int32_t i) const
@@ -696,16 +789,8 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::findAndDeleteChild(eNode* o)
     {
-        int32_t i;
-
-        for (i = 0; i < nodes.getSize(); i++)
-        {
-            if (nodes.getIthChild(i) == o)
-            {
-                deleteIthChild(i);
-                return;
-            }
-        }
+        int32_t i = findChildId(o);
+        deleteIthChild(i);
     }
 
 
@@ -736,13 +821,12 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eGroup: remove nodes with multiple references
     ////////////////////////////////////////////////////////////////
-    void eGroup::deleteNodesWithMultiRefs(bool canBeInvalid)
+    void eGroup::deleteNodesWithMultiRefs(bool can_be_invalid, eGroup* root_node)
     {
         int32_t a;
-        eNode *root, *child_node;
-        eGroup* test_group;
+        eNode* child_node;
 
-        if ((referenceCount <= 0) && (false == canBeInvalid))
+        if ((referenceCount <= 0) && !can_be_invalid)
         {
             return;
         }
@@ -755,8 +839,7 @@ namespace ZookieWizard
 
                 if (child_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
                 {
-                    test_group = (eGroup*)child_node;
-                    test_group->deleteNodesWithMultiRefs(false);
+                    ((eGroup*)child_node)->deleteNodesWithMultiRefs(false, root_node);
                 }
             }
         }
@@ -769,18 +852,7 @@ namespace ZookieWizard
 
                 if (child_node->getReferenceCount() >= 2)
                 {
-                    root = child_node->getRootNode();
-
-                    if (nullptr == root)
-                    {
-                        root = getRootNode();
-                    }
-
-                    if (nullptr != root)
-                    {
-                        root->findAndDereference(child_node);
-                        /* (--dsp--) delete from scripts as well! */
-                    }
+                    root_node->findAndDereference(child_node);
                 }
             }
         }

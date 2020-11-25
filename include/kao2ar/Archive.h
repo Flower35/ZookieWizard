@@ -14,6 +14,8 @@ namespace ZookieWizard
 
     class eObject;
     class eRefCounter;
+    class eNode;
+    class eGroup;
     class eScene;
 
 
@@ -75,6 +77,8 @@ namespace ZookieWizard
     #define NODES_EDITING_MATERIAL_DELETE   (-26)
     #define NODES_EDITING_MATERIAL_CHANGE   (-27)
     #define NODES_EDITING_MATERIAL_OPTIMIZE (-28)
+    #define NODES_EDITING_GROUPS_DPFLAGS    (-29)
+    #define NODES_EDITING_GROUPS_UNREF      (-30)
 
     class Archive
     {
@@ -101,6 +105,8 @@ namespace ZookieWizard
             eRefCounter* parentObject;
             eObject* selectedObject;
             int32_t markedChildId;
+
+            eNode* lastSerializedNode;
 
             eString mediaDirectory;
 
@@ -145,10 +151,15 @@ namespace ZookieWizard
             bool addTempStr(eStringBase<char>* str);
 
             void readOrWrite(void* pointer, int size);
+            void assertObjectType(const TypeInfo* expected_type, const TypeInfo* current_type) const;
             void serialize(eObject** o, TypeInfo* t);
             void serializeString(eString &s);
             void replaceStringDuringSerialization(eString &oldStr, eString newStr);
-            bool compareWithMyRoot(eRefCounter* object) const;
+
+            bool compareWithMyRoot(const eRefCounter* object) const;
+            eNode* getLastSerializedNode() const;
+            void setLastSerializedNode(eNode* node);
+            bool assertLastSerializedNode(const eNode* node) const;
 
             void checkTypeInfo(TypeInfo** t);
 
@@ -160,7 +171,6 @@ namespace ZookieWizard
             void changeGlobalScene() const;
             void renderScene(uint32_t draw_flags) const;
             void changeSelectedObject(int32_t child_id, void* param);
-            void updateDrawPassFlags();
 
             void copySceneFromMe(eScene** target) const;
             void setMyParentScene(eScene* pointer);

@@ -96,4 +96,18 @@ namespace ZookieWizard
         }
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // eSndEmiter: removing unused groups
+    ////////////////////////////////////////////////////////////////
+    bool eSndEmiter::removeEmptyAndUnreferencedGroups()
+    {
+        if (eGroup::removeEmptyAndUnreferencedGroups())
+        {
+            return (controllers.getSize() <= 0);
+        }
+
+        return false;
+    }
+
 }

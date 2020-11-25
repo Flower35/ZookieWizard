@@ -585,6 +585,37 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // State: remove NodeRefs that contain the linked node
+    ////////////////////////////////////////////////////////////////
+    void State::removeNoderefsWithSpecifiedLink(eNode* target)
+    {
+        int32_t a;
+        NodeRef* node_ref;
+        State* sub_state;
+
+        for (a = 0; a < nodeRefs.getSize(); a++)
+        {
+            if (nullptr != (node_ref = (NodeRef*)nodeRefs.getIthChild(a)))
+            {
+                if (node_ref->getLinkedNode() == target)
+                {
+                    nodeRefs.deleteIthChild(a);
+                    a--;
+                }
+            }
+        }
+
+        for (a = 0; a < subStates.getSize(); a++)
+        {
+            if (nullptr != (sub_state = (State*)subStates.getIthChild(a)))
+            {
+                sub_state->removeNoderefsWithSpecifiedLink(target);
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // State: clear this object
     ////////////////////////////////////////////////////////////////
     void State::clearNewState()

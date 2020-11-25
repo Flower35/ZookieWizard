@@ -322,7 +322,11 @@ namespace ZookieWizard
 
         tempItemsCount = 0;
 
+        lastSerializedNode = nullptr;
+
         ArFunctions::serialize_eRefCounter(*this, &parentObject, &E_REFCOUNTER_TYPEINFO);
+
+        lastSerializedNode = nullptr;
 
         if (isInWriteMode())
         {
@@ -572,6 +576,32 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // Archive: assert the correct object type during serialiation
+    // (this check is NOT present in the games!)
+    ////////////////////////////////////////////////////////////////
+    void Archive::assertObjectType(const TypeInfo* expected_type, const TypeInfo* current_type) const
+    {
+        if (nullptr != expected_type)
+        {
+            if (!current_type->checkHierarchy(expected_type))
+            {
+                throw ErrorMessage
+                (
+                    "Archive::serialize():\n" \
+                    "Wrong object type in archive!\n\n" \
+                    "Expected: 0x%08X - %s\n" \
+                    "TypeInfo: 0x%08X - %s.",
+                    expected_type->id,
+                    expected_type->name,
+                    current_type->id,
+                    current_type->name
+                );
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Archive: Main serializaion function
     // <kao2.00464D00>
     ////////////////////////////////////////////////////////////////
@@ -597,27 +627,7 @@ namespace ZookieWizard
 
                     current_type = InterfaceManager.getTypeInfo(a);
 
-                    /* Safety check (NOT PRESENT IN GAME): is the new object a subclass of certain type? */
-
-                    if (nullptr != t)
-                    {
-                        if (!current_type->checkHierarchy(t))
-                        {
-                            throw ErrorMessage
-                            (
-                                "Archive::serialize():\n" \
-                                "Wrong object type in archive!\n\n" \
-                                "Expected: 0x%08X - %s\n" \
-                                "TypeInfo: 0x%08X - %s.",
-                                t->id,
-                                t->name,
-                                current_type->id,
-                                current_type->name
-                            );
-
-                            return;
-                        }
-                    }
+                    assertObjectType(t, current_type);
 
                     /* Create, store back, then check object */
 
@@ -669,29 +679,7 @@ namespace ZookieWizard
 
                     current_object = (eObject*)getItem((a - 2), AR_ITEM_TYPE_OBJECT);
 
-                    /* Safety check (NOT PRESENT IN GAME): is the new object a subclass of certain type? */
-
-                    current_type = current_object->getType();
-
-                    if (nullptr != t)
-                    {
-                        if (!current_type->checkHierarchy(t))
-                        {
-                            throw ErrorMessage
-                            (
-                                "Archive::serialize():\n" \
-                                "Wrong object type in archive!\n\n" \
-                                "Expected: 0x%08X - %s\n" \
-                                "TypeInfo: 0x%08X - %s.",
-                                t->id,
-                                t->name,
-                                current_type->id,
-                                current_type->name
-                            );
-
-                            return;
-                        }
-                    }
+                    assertObjectType(t, current_object->getType());
 
                     (*o) = current_object;
 
@@ -840,61 +828,58 @@ namespace ZookieWizard
         }
         else
         {
-            if (nullptr != s.getPointer())
+            if (nullptr == s.getPointer())
             {
-                /* Find identical Strings to save up memory */
+                /* Kao2 engine doesn't accept Strings with `NULLPTR` bases, */
+                /* so we will have to replace them with new zero-length text. */
 
-                for (a = 0; a < tempItemsCount; a++)
+                s = eString(0);
+            }
+
+            /* Find identical Strings to save up memory */
+
+            for (a = 0; a < tempItemsCount; a++)
+            {
+                if (AR_ITEM_TYPE_STRING == tempItemsTypes[a])
                 {
-                    if (AR_ITEM_TYPE_STRING == tempItemsTypes[a])
+                    if (s.getPointer() != tempItemsList[a])
                     {
-                        if (s.getPointer() != tempItemsList[a])
+                        test_str.setPointer((eStringBase<char>*)tempItemsList[a]);
+
+                        if (s.compareExact(test_str, true))
                         {
-                            test_str.setPointer((eStringBase<char>*)tempItemsList[a]);
+                            /* Copy constructor takes care of both reference counters */
+                            s = test_str;
 
-                            if (s.compareExact(test_str, true))
-                            {
-                                /* Copy constructor takes care of both reference counters */
-                                s = test_str;
-
-                                /* Break out of the loop */
-                                a = tempItemsCount;
-                            }
-
-                            /* Manually destroy the test string, because deconstructor would decrease refCounter! */
-                            test_str.setPointer(nullptr);
+                            /* Break out of the loop */
+                            a = tempItemsCount;
                         }
+
+                        /* Manually destroy the test string, because deconstructor would decrease refCounter! */
+                        test_str.setPointer(nullptr);
                     }
                 }
+            }
 
-                /* Continue with normal deserialization */
+            /* Continue with normal deserialization */
 
-                a = findItem(s.getPointer());
+            a = findItem(s.getPointer());
 
-                if (a < 0)
-                {
-                    addItem(s.getPointer(), AR_ITEM_TYPE_STRING);
+            if (a < 0)
+            {
+                addItem(s.getPointer(), AR_ITEM_TYPE_STRING);
 
-                    a = 0x00;
-                    readOrWrite(&a, 0x04);
+                a = 0x00;
+                readOrWrite(&a, 0x04);
 
-                    ArFunctions::writeString(*this, s);
+                ArFunctions::writeString(*this, s);
 
-                    return;
-                }
-                else
-                {
-                    a += 2;
-                    readOrWrite(&a, 0x04);
-                }
+                return;
             }
             else
             {
-                throw ErrorMessage
-                (
-                    "Archive::serializeString():\n" \
-                    "Empty String pointers are not supported by Kao2 engine!"
-                );
+                a += 2;
+                readOrWrite(&a, 0x04);
             }
         }
     }
@@ -932,11 +917,27 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Archive: Compare some object with current root
+    // Archive: Asserting objects in read mode
     ////////////////////////////////////////////////////////////////
-    bool Archive::compareWithMyRoot(eRefCounter* object) const
+
+    bool Archive::compareWithMyRoot(const eRefCounter* object) const
     {
         return (parentObject == object);
+    }
+
+    eNode* Archive::getLastSerializedNode() const
+    {
+        return lastSerializedNode;
+    }
+
+    void Archive::setLastSerializedNode(eNode* node)
+    {
+        lastSerializedNode = node;
+    }
+
+    bool Archive::assertLastSerializedNode(const eNode* node) const
+    {
+        return (node == lastSerializedNode);
     }
 
 

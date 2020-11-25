@@ -16,7 +16,6 @@ namespace ZookieWizard
 
     class NodeRefLinker : public eObject
     {
-
         /*** Properties ***/
 
         protected:
@@ -29,25 +28,41 @@ namespace ZookieWizard
 
         /*** Methods ***/
 
-        private:
-
-            void throwErrorMessage(const char* reason) const;
-            eNode* findLinkByFormat(eNode* node, eString mask) const;
-
         public:
 
             NodeRefLinker();
             ~NodeRefLinker();
 
+        private:
+
+            void createFromOtherObject(const NodeRefLinker &other);
+
+        public:
+
+            NodeRefLinker(const NodeRefLinker &other);
+            NodeRefLinker& operator = (const NodeRefLinker &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
 
-            eNode* findLink(eNode* root, eNode* current_node, eString link_name, eString mask, TypeInfo* type_info);
+            /* << NodeRefLinker >> */
+
+            private:
+
+                void throwErrorMessage(const char* reason) const;
+                eNode* findLinkByFormat(eNode* node, eString mask) const;
+
+            public:
+
+                eNode* findLink(eNode* root, eNode* current_node, eString link_name, eString mask, TypeInfo* type_info);
     };
 
 
     ////////////////////////////////////////////////////////////////
     // NodeRefLinker TypeInfo
-    // <kao2.005A01E0> (registration)
+    // <kao2.005A01B0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_NODEREFLINKER_ID = 0x07EA0022;

@@ -433,8 +433,6 @@ namespace ZookieWizard
                         if (nullptr != (test_group[1] = test_group[0]->getRootNode()))
                         {
                             test_group[1]->findAndDereference(test_node);
-
-                            /* (--dsp--) delete from "Actors" as well! */
                         }
                     }
                 }

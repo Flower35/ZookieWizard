@@ -267,6 +267,21 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eProxy: removing unused groups
+    ////////////////////////////////////////////////////////////////
+    bool eProxy::removeEmptyAndUnreferencedGroups()
+    {
+        if (eGroup::removeEmptyAndUnreferencedGroups())
+        {
+            /* Is not a Hero Spawnpoint, and has no valid filename */
+            return ((1 != category) && targetFile.trimWhitespace().isEmpty());
+        }
+
+        return false;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eProxy: render this node
     ////////////////////////////////////////////////////////////////
     void eProxy::renderNode(eDrawContext &draw_context) const

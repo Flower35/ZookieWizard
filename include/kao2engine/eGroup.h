@@ -53,6 +53,8 @@ namespace ZookieWizard
 
             void setPreviousTransformGradually(eTransform* last_xform) override;
             void updateDrawPassFlags(uint32_t* parent_flags) override;
+            bool removeEmptyAndUnreferencedGroups() override;
+
             void updateBeforeRendering(eDrawContext &draw_context) override;
             void renderNode(eDrawContext &draw_context) const override;
 
@@ -75,6 +77,7 @@ namespace ZookieWizard
             /* << eGroup >> */
 
             int32_t getNodesCount() const;
+            int32_t findChildId(eNode* o) const;
             eNode* getIthChild(int32_t i) const;
 
             void appendChild(eNode* o);
@@ -85,7 +88,7 @@ namespace ZookieWizard
             void swapForward(int32_t i);
             void swapBackward(int32_t i);
 
-            void deleteNodesWithMultiRefs(bool canBeInvalid);
+            void deleteNodesWithMultiRefs(bool can_be_invalid, eGroup* root_node);
     };
 
 

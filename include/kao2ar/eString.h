@@ -51,7 +51,7 @@ namespace ZookieWizard
 
         public:
 
-            eStringPtrBase(int count = 0);
+            eStringPtrBase(int count = (-1));
             eStringPtrBase(const charT* str);
             eStringPtrBase(const eStringPtrBase<charT>& str);
             ~eStringPtrBase();

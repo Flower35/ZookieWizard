@@ -368,9 +368,6 @@ namespace ZookieWizard
     template <typename charT>
     eStringPtrBase<charT>::eStringPtrBase(int count)
     {
-        /* Kao2 engine doesn't accept NULLPTR Strings... */
-        /* So it will be empty only when `count < 0` */
-
         if (count >= 0)
         {
             pString = new eStringBase<charT>(count);

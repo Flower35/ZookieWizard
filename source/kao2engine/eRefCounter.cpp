@@ -126,10 +126,7 @@ namespace ZookieWizard
     {
         if (ar.isInReadMode())
         {
-            if (nullptr != (*o))
-            {
-                (*o)->decRef();
-            }
+            (*o)->decRef();
         }
 
         ar.serialize((eObject**)o, t);

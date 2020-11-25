@@ -29,6 +29,16 @@ namespace ZookieWizard
         public:
 
             ArCustomParserNoderef();
+            ~ArCustomParserNoderef();
+
+        private:
+
+            void createFromOtherObject(const ArCustomParserNoderef &other);
+
+        public:
+
+            ArCustomParserNoderef(const ArCustomParserNoderef &other);
+            ArCustomParserNoderef& operator = (const ArCustomParserNoderef &other);
 
             void set(eNode* new_reference, eString new_name);
 

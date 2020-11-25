@@ -39,12 +39,8 @@ namespace ZookieWizard
             eString name;
 
             int32_t intValue;
-
-            int32_t floatsCount;
             float floatValues[4];
-
             eString strValue;
-
             eNode* nodeValue;
 
         /*** Methods ***/
@@ -52,6 +48,16 @@ namespace ZookieWizard
         public:
 
             TxtParsingNodeProp();
+            ~TxtParsingNodeProp();
+
+        private:
+
+            void createFromOtherObject(const TxtParsingNodeProp &other);
+
+        public:
+
+            TxtParsingNodeProp(const TxtParsingNodeProp &other);
+            TxtParsingNodeProp& operator = (const TxtParsingNodeProp &other);
 
             eString getName() const;
             void setName(eString new_name);
@@ -69,6 +75,7 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // eNode interface
+    // <kao2.005D08B0> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class eNode : public ePrimitive
@@ -124,6 +131,8 @@ namespace ZookieWizard
 
             virtual void setPreviousTransformGradually(eTransform* last_xform);
             virtual void updateDrawPassFlags(uint32_t* parent_flags);
+            virtual bool removeEmptyAndUnreferencedGroups();
+
             virtual void updateBeforeRendering(eDrawContext &draw_context);
             virtual void renderNode(eDrawContext &draw_context) const;
 

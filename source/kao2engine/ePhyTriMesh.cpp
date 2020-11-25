@@ -124,11 +124,14 @@ namespace ZookieWizard
     void ePhyTriMesh::serialize(Archive &ar)
     {
         int32_t i;
+        eNode* prev_node_in_ar;
 
         /* Vertices with bone weights */
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&vertices, &E_GEOARRAY_EPHYVERTEX_TYPEINFO);
 
         /* Bones with matrices */
+
+        prev_node_in_ar = ar.getLastSerializedNode();
 
         if (ar.isInReadMode())
         {
@@ -158,6 +161,8 @@ namespace ZookieWizard
             }
         }
 
+        ar.setLastSerializedNode(prev_node_in_ar);
+
         /* eGeoSet link (empty in KAO_TW, required in KAO2) */
 
         ar.serialize((eObject**)&geo, &E_GEOSET_TYPEINFO);
@@ -165,6 +170,17 @@ namespace ZookieWizard
         /* eTriMesh link */
 
         ar.serialize((eObject**)&tri, &E_TRIMESH_TYPEINFO);
+
+        /* ASSERTION */
+
+        if (!ar.assertLastSerializedNode(tri))
+        {
+            throw ErrorMessage
+            (
+                "ePhyTriMesh::serialize():\n" \
+                "incorrect TriMesh linked to this PhyTriMesh!"
+            );
+        }
 
         if (ar.isInReadMode())
         {
@@ -179,6 +195,15 @@ namespace ZookieWizard
             else
             {
                 geo = tri->getGeoset();
+
+                if (nullptr == geo)
+                {
+                    throw ErrorMessage
+                    (
+                        "ePhyTriMesh::serialize():\n" \
+                        "eGeoSet link cannot be empty!"
+                    );
+                }
             }
         }
 

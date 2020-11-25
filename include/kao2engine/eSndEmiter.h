@@ -42,6 +42,10 @@ namespace ZookieWizard
 
             TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
+
+            /* << eNode >> */
+
+            bool removeEmptyAndUnreferencedGroups() override;
     };
 
 

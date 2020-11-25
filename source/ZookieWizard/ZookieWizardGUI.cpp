@@ -26,7 +26,7 @@ namespace ZookieWizard
         static const char* nodesList_ActionNames[nodesList_ActionsCount] =
         {
             "Browsing the Archive", "Moving Nodes", "Deleting Nodes", "Cloning Nodes",
-            "Managing Materials", "Modifying 3D meshes", "Parsing instructions"
+            "Managing Materials", "Modifying 3D meshes", "Modifying Groups"
         };
 
 
@@ -53,7 +53,7 @@ namespace ZookieWizard
             }
         }
 
-        void menuFunc_ArOpen(WPARAM wParam, LPARAM lParam, void* custom_param)
+        void menuFunc_ArMenuBar(WPARAM wParam, LPARAM lParam, void* custom_param)
         {
             int32_t function = (int32_t)custom_param;
 
@@ -75,21 +75,25 @@ namespace ZookieWizard
             }
             else if (4 == function)
             {
-                ArMenuOptions_ExportScripts();
+                ArMenuOptions_ChangeNodesWithTxt();
             }
             else if (5 == function)
             {
-                ArMenuOptions_ExportProxies();
+                ArMenuOptions_ExportScripts();
             }
             else if (6 == function)
             {
-                ArMenuOptions_BulkArchiveConverter();
+                ArMenuOptions_ExportProxies();
             }
             else if (7 == function)
             {
-                ArMenuOptions_WriteStructureToTextFile();
+                ArMenuOptions_BulkArchiveConverter();
             }
             else if (8 == function)
+            {
+                ArMenuOptions_WriteStructureToTextFile();
+            }
+            else if (9 == function)
             {
                 ArMenuOptions_ExportArToCollada();
             }
@@ -293,14 +297,6 @@ namespace ZookieWizard
                 else if (1 == (int32_t)custom_param)
                 {
                     ArMenuOptions_ImportTrimeshFromObj();
-                }
-                else if (2 == (int32_t)custom_param)
-                {
-                    ArMenuOptions_ChangeNodesWithTxt();
-                }
-                else if (3 == (int32_t)custom_param)
-                {
-                    myARs[currentArId].updateDrawPassFlags();
                 }
             }
         }
@@ -924,15 +920,16 @@ namespace ZookieWizard
             AppendMenu(menu_bar, MF_POPUP, (UINT_PTR)test_menu, "Game &version");
 
             test_menu = CreateMenu();
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)0), "&Open Archive");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)1), "&Save Archive");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)2), "&Close Archive");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)3), "Generate &empty scene");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)4), "Export S&cripts");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)5), "Export &proxies");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)6), "&Bulk archive converter");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)7), "Export &readable structure");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArOpen, (void*)8), "Export COLLADA &dae");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)0), "&Open Archive");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)1), "&Save Archive");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)2), "&Close Archive");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)3), "Generate &empty scene");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)4), "Parse &instructions");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)5), "Export S&cripts");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)6), "Export &proxies");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)7), "&Bulk archive converter");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)8), "Export &readable structure");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)9), "Export COLLADA &dae");
             AppendMenu(menu_bar, MF_POPUP, (UINT_PTR)test_menu, "Kao the Kangaroo: Round 2");
 
             SetMenu(main_window, menu_bar);
@@ -1505,12 +1502,12 @@ namespace ZookieWizard
             nodesList_ActionIds[6][0] = 21;
             nodesList_ActionIds[6][1] = 22;
 
-            if (0 == (nodesList_Windows[1 + 21] = theWindowsManager.addWindow("Change Nodes with \"ArCustomParser\"", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)2, 0)))
+            if (0 == (nodesList_Windows[1 + 21] = theWindowsManager.addWindow("Update \"DrawPass\" flags", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_DPFLAGS, 0)))
             {
                 return false;
             }
 
-            if (0 == (nodesList_Windows[1 + 22] = theWindowsManager.addWindow("Update \"DrawPass\" flags from Current Node", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)3, 0x01)))
+            if (0 == (nodesList_Windows[1 + 22] = theWindowsManager.addWindow("Remove empty and unreferenced Groups", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_UNREF, 0x01)))
             {
                 return false;
             }

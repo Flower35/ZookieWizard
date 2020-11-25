@@ -35,15 +35,69 @@ namespace ZookieWizard
         node = nullptr;
     }
 
-    NodeRef::~NodeRef() {}
+    NodeRef::~NodeRef()
+    {
+        node->decRef();
+    }
 
 
     ////////////////////////////////////////////////////////////////
-    // NodeRef serialization
+    // NodeRef: cloning the object
+    ////////////////////////////////////////////////////////////////
+
+    void NodeRef::createFromOtherObject(const NodeRef &other)
+    {
+        name = other.name;
+        nodeName = other.nodeName;
+        nodeType = other.nodeType;
+
+        node = other.node;
+        if (nullptr != node)
+        {
+            node->incRef();
+        }
+
+        unknown_new_id = other.unknown_new_id;
+    }
+
+    NodeRef::NodeRef(const NodeRef &other)
+    : eRefCounter(other)
+    {
+        createFromOtherObject(other);
+    }
+
+    NodeRef& NodeRef::operator = (const NodeRef &other)
+    {
+        if ((&other) != this)
+        {
+            eRefCounter::operator = (other);
+
+            /****************/
+
+            node->decRef();
+
+            /****************/
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
+    }
+
+    eObject* NodeRef::cloneFromMe() const
+    {
+        return new NodeRef(*this);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // NodeRef: serialization
     // <kao2.005A0750>
     ////////////////////////////////////////////////////////////////
     void NodeRef::serialize(Archive &ar)
     {
+        eNode* previous_node_in_ar;
+
         /* [0x08] reference name */
         ar.serializeString(name);
 
@@ -56,7 +110,7 @@ namespace ZookieWizard
         /* [0x10/0x0C] object type */
         ar.checkTypeInfo(&nodeType);
 
-        /* Sanity check */
+        /* ASSERTION */
         if (nullptr != nodeType)
         {
             if (false == nodeType->checkHierarchy(&E_NODE_TYPEINFO))
@@ -72,8 +126,12 @@ namespace ZookieWizard
 
         if (ar.getVersion() <= 0x88)
         {
+            previous_node_in_ar = ar.getLastSerializedNode();
+
             /* [0x14] actual object link */
-            ar.serialize((eObject**)&node, nodeType);
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&node, nodeType);
+
+            ar.setLastSerializedNode(previous_node_in_ar);
         }
         else if (ar.getVersion() >= 0x89)
         {
@@ -117,6 +175,15 @@ namespace ZookieWizard
         result += "\")";
 
         return result;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // NodeRef: get linked node
+    ////////////////////////////////////////////////////////////////
+    eNode* NodeRef::getLinkedNode() const
+    {
+        return node;
     }
 
 }

@@ -50,7 +50,9 @@ namespace ZookieWizard
     }
 
     ePathCamCtrl::~ePathCamCtrl()
-    {}
+    {
+        bezier->decRef();
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -63,6 +65,10 @@ namespace ZookieWizard
         camera = nullptr;
 
         bezier = other.bezier;
+        if (nullptr != bezier)
+        {
+            bezier->incRef();
+        }
 
         position = other.position;
 
@@ -94,6 +100,10 @@ namespace ZookieWizard
 
             /****************/
 
+            bezier->decRef();
+
+            /****************/
+
             createFromOtherObject(other);
         }
 
@@ -117,6 +127,16 @@ namespace ZookieWizard
         /* [0x08] eCamera link */
         ar.serialize((eObject**)&camera, &E_CAMERA_TYPEINFO);
 
+        /* ASSERTION */
+        if (!ar.assertLastSerializedNode(camera))
+        {
+            throw ErrorMessage
+            (
+                "ePathCamCtrl::serialize():\n" \
+                "incorrect Camera linked to this PathCameraCtrl!"
+            );
+        }
+
         /* Empty object link */
         i = 0x01;
         ar.readOrWrite(&i, 0x04);
@@ -136,7 +156,7 @@ namespace ZookieWizard
         ar.readOrWrite(&unknown_24, 0x04);
 
         /* [0x0C] eBezierSplineNode link */
-        ar.serialize((eObject**)&bezier, &E_BEZIERSPLINENODE_TYPEINFO);
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&bezier, &E_BEZIERSPLINENODE_TYPEINFO);
 
         /* [0x1C] unknown */
         ar.readOrWrite(&unknown_1C, 0x04);
@@ -196,7 +216,17 @@ namespace ZookieWizard
 
     void ePathCamCtrl::setBezierLink(eBezierSplineNode* new_bezier)
     {
-        bezier = new_bezier;
+        if (bezier != new_bezier)
+        {
+            bezier->decRef();
+
+            bezier = new_bezier;
+
+            if (nullptr != bezier)
+            {
+                bezier->incRef();
+            }
+        }
     }
 
 

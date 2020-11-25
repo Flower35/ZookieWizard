@@ -9,11 +9,11 @@ namespace ZookieWizard
 
     ////////////////////////////////////////////////////////////////
     // NodeRef interface
+    // <kao2.005D8738> (vptr)
     ////////////////////////////////////////////////////////////////
 
     class NodeRef : public eRefCounter
     {
-
         /*** Properties ***/
 
         protected:
@@ -31,17 +31,33 @@ namespace ZookieWizard
             NodeRef();
             ~NodeRef();
 
-            void serialize(Archive &ar) override;
+        private:
+
+            void createFromOtherObject(const NodeRef &other);
+
+        public:
+
+            NodeRef(const NodeRef &other);
+            NodeRef& operator = (const NodeRef &other);
+            eObject* cloneFromMe() const override;
+
+            /* << eObject >> */
+
             TypeInfo* getType() const override;
+            void serialize(Archive &ar) override;
 
             eString getStringRepresentation() const override;
             eString generateScriptText() const override;
+
+            /* << NodeRef >> */
+
+            eNode* getLinkedNode() const;
     };
 
 
     ////////////////////////////////////////////////////////////////
     // NodeRef TypeInfo
-    // <kao2.005A07F0> (registration)
+    // <kao2.005A07C0> (registration)
     ////////////////////////////////////////////////////////////////
 
     static const int E_NODEREF_ID = 0x07EA0002;

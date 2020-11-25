@@ -26,12 +26,50 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // ArCustomParserNoderef: constructor
+    // ArCustomParserNoderef: constructor and destructor
     ////////////////////////////////////////////////////////////////
+
     ArCustomParserNoderef::ArCustomParserNoderef()
-    : name(-1)
     {
         reference = nullptr;
+    }
+
+    ArCustomParserNoderef::~ArCustomParserNoderef()
+    {
+        reference->decRef();
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ArCustomParserNoderef: assigning the object
+    ////////////////////////////////////////////////////////////////
+
+    void ArCustomParserNoderef::createFromOtherObject(const ArCustomParserNoderef &other)
+    {
+        name = other.name;
+
+        reference = other.reference;
+        if (nullptr != reference)
+        {
+            reference->incRef();
+        }
+    }
+
+    ArCustomParserNoderef::ArCustomParserNoderef(const ArCustomParserNoderef &other)
+    {
+        createFromOtherObject(other);
+    }
+
+    ArCustomParserNoderef& ArCustomParserNoderef::operator = (const ArCustomParserNoderef &other)
+    {
+        if ((&other) != this)
+        {
+            reference->decRef();
+
+            createFromOtherObject(other);
+        }
+
+        return (*this);
     }
 
 
@@ -40,8 +78,16 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void ArCustomParserNoderef::set(eNode* new_reference, eString new_name)
     {
-        reference = new_reference;
         name = new_name;
+
+        reference->decRef();
+
+        reference = new_reference;
+
+        if (nullptr != reference)
+        {
+            reference->incRef();
+        }
     }
 
 
@@ -533,17 +579,9 @@ namespace ZookieWizard
                                 throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], nullptr);
                             }
 
-                            test[1] = dummy_parent->getNodesCount();
+                            test[0] = dummy_parent->findChildId(dummy_node);
 
-                            for (test[0] = 0; test[0] < test[1]; test[0]++)
-                            {
-                                if (dummy_parent->getIthChild(test[0]) == dummy_node)
-                                {
-                                    defaultParent = (eGroup*)nodesManager_RemoveChild(dummy_parent, test[0], defaultParent);
-
-                                    test[0] = test[1];
-                                }
-                            }
+                            defaultParent = (eGroup*)nodesManager_RemoveChild(dummy_parent, test[0], defaultParent);
 
                             /********************************/
                             /* "RemoveNode": (3) removing node identifier (pointer is no longer valid) */

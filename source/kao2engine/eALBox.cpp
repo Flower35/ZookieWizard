@@ -128,8 +128,28 @@ namespace ZookieWizard
         /* [0x08] Link to a local "eScene" (that contains "eCollisionMgr") */
         ar.serialize((eObject**)&myScene, &E_SCENE_TYPEINFO);
 
+        /* ASSERTION */
+        if (!ar.compareWithMyRoot(myScene))
+        {
+            throw ErrorMessage
+            (
+                "eALBox::serialize():\n" \
+                "scene link is not set!"
+            );
+        }
+
         /* [0x0C] "eBoxZone" or "eTriMesh" link */
         ar.serialize((eObject**)&parentNode, &E_NODE_TYPEINFO);
+
+        /* ASSERTION */
+        if (!ar.assertLastSerializedNode(parentNode))
+        {
+            throw ErrorMessage
+            (
+                "eALBox::serialize():\n" \
+                "incorrect Node linked to this AxisListBox!"
+            );
+        }
 
         /* set [0x8C] (unknown) */
 

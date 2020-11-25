@@ -182,6 +182,20 @@ namespace ZookieWizard
         file << bufor;
         ArFunctions::writeNewLine(file, 0);
 
+        if (nullptr != ctrl)
+        {
+            sprintf_s
+            (
+                bufor, 128,
+                " - xform ctrl: [%s]",
+                ctrl->getType()->name
+            );
+
+            ArFunctions::writeIndentation(file, indentation);
+            file << bufor;
+            ArFunctions::writeNewLine(file, 0);
+        }
+
         /****************/
 
         if (!group_written)
