@@ -37,7 +37,9 @@ namespace ZookieWizard
         void materialsManager_DeleteTexture(eTexture* texture);
         void materialsManager_DeleteBitmap(eBitmap* bitmap);
 
-        void materialsManager_ReduceSimilarMaterials(eNode* root_node);
+        void materialsManager_ReduceSimilarBitmaps(bool silent);
+        void materialsManager_ReduceSimilarTexturesAndStates(bool silent);
+        void materialsManager_ReduceSimilarMaterials(eNode* root_node, bool silent);
 
         void materialsManager_ParseMouse(float pos_x, float pos_y, int click);
         void materialsManager_Render();

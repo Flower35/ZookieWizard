@@ -450,11 +450,6 @@ namespace ZookieWizard
                                 throwError(test[0], "\"NodeMsg\": error while reading node identifier", nullptr);
                             }
 
-                            if (lastName.isEmpty())
-                            {
-                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeMsg\": no node identifier defined", nullptr);
-                            }
-
                             findNodeByIdentifier("NodeMsg", &dummy_node, false);
 
                             dummy_typeinfo = dummy_node->getType();
@@ -513,11 +508,6 @@ namespace ZookieWizard
                                 throwError(test[0], "\"NodeSetCollision\": error while reading node identifier", nullptr);
                             }
 
-                            if (lastName.isEmpty())
-                            {
-                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"NodeSetCollision\": no node identifier defined", nullptr);
-                            }
-
                             findNodeByIdentifier("NodeSetCollision", &dummy_node, false);
 
                             /********************************/
@@ -559,11 +549,6 @@ namespace ZookieWizard
                             if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectName()))
                             {
                                 throwError(test[0], "\"RemoveNode\": error while reading node identifier", nullptr);
-                            }
-
-                            if (lastName.isEmpty())
-                            {
-                                throwError(AR_CUSTOM_PARSER_STATUS_OK, "\"RemoveNode\": no node identifier defined", nullptr);
                             }
 
                             findNodeByIdentifier("RemoveNode", &dummy_node, false);
@@ -706,6 +691,52 @@ namespace ZookieWizard
 
                             /********************************/
                             /* "ImportWavefrontOBJ": finished */
+
+                            successful_messages++;
+                        }
+                        else if (lastName.compareExact("OptimizeBitmaps", true))
+                        {
+                            /********************************/
+                            /* "OptimizeBitmaps": running the optimization function */
+
+                            GUI::materialsManager_ReduceSimilarBitmaps(true);
+
+                            /********************************/
+                            /* "OptimizeBitmaps": finished */
+
+                            successful_messages++;
+                        }
+                        else if (lastName.compareExact("OptimizeTextures", true))
+                        {
+                            /********************************/
+                            /* "OptimizeTextures": running the optimization function */
+
+                            GUI::materialsManager_ReduceSimilarTexturesAndStates(true);
+
+                            /********************************/
+                            /* "OptimizeTextures": finished */
+
+                            successful_messages++;
+                        }
+                        else if (lastName.compareExact("OptimizeMaterials", true))
+                        {
+                            /********************************/
+                            /* "OptimizeMaterials": (1) identifier name */
+
+                            if (AR_CUSTOM_PARSER_STATUS_OK != (test[0] = expectName()))
+                            {
+                                throwError(test[0], "\"OptimizeMaterials\": error while reading node identifier", nullptr);
+                            }
+
+                            findNodeByIdentifier("OptimizeMaterials", &dummy_node, false);
+
+                            /********************************/
+                            /* "OptimizeMaterials": (2) running the optimization function */
+
+                            GUI::materialsManager_ReduceSimilarMaterials(dummy_node, true);
+
+                            /********************************/
+                            /* "OptimizeMaterials": finished */
 
                             successful_messages++;
                         }
@@ -1142,6 +1173,18 @@ namespace ZookieWizard
         {
             return 2;
         }
+        else if (lastName.compareExact("OptimizeBitmaps", true))
+        {
+            return 2;
+        }
+        else if (lastName.compareExact("OptimizeTextures", true))
+        {
+            return 2;
+        }
+        else if (lastName.compareExact("OptimizeMaterials", true))
+        {
+            return 2;
+        }
 
         return 3;
     }
@@ -1164,6 +1207,12 @@ namespace ZookieWizard
         }
 
         (*result) = nullptr;
+
+        if (lastName.isEmpty())
+        {
+            sprintf_s(bufor[0], LARGE_BUFFER_SIZE, "\"%s\": no node identifier defined", current_msg);
+            throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], nullptr);
+        }
 
         /********************************/
 

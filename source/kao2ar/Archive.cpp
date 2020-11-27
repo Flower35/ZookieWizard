@@ -611,6 +611,9 @@ namespace ZookieWizard
         TypeInfo* current_type;
         eObject* current_object;
 
+        eNode* stacked_node = nullptr;
+        bool has_node_type;
+
         if (isInReadMode())
         {
             /* Get instruction type */
@@ -628,6 +631,8 @@ namespace ZookieWizard
                     current_type = InterfaceManager.getTypeInfo(a);
 
                     assertObjectType(t, current_type);
+
+                    has_node_type = current_type->checkHierarchy(&E_NODE_TYPEINFO);
 
                     /* Create, store back, then check object */
 
@@ -654,11 +659,16 @@ namespace ZookieWizard
 
                     /* Serialize object */
 
+                    if (has_node_type)
+                    {
+                        stacked_node = lastSerializedNode;
+                    }
+
                     current_object->serialize(*this);
 
-                    if (isInDebugMode())
+                    if (has_node_type)
                     {
-                        theLog.print(current_object);
+                        lastSerializedNode = stacked_node;
                     }
 
                     return;
@@ -703,6 +713,8 @@ namespace ZookieWizard
 
                     current_type = (*o)->getType();
 
+                    has_node_type = current_type->checkHierarchy(&E_NODE_TYPEINFO);
+
                     if (nullptr == current_type)
                     {
                         throw ErrorMessage
@@ -720,7 +732,17 @@ namespace ZookieWizard
 
                     /* Deserialize object */
 
+                    if (has_node_type)
+                    {
+                        stacked_node = lastSerializedNode;
+                    }
+
                     (*o)->serialize(*this);
+
+                    if (has_node_type)
+                    {
+                        lastSerializedNode = stacked_node;
+                    }
 
                     return;
                 }

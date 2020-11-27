@@ -193,7 +193,27 @@ namespace ZookieWizard
 
         prop_name = property.getName();
 
-        if (prop_name.compareExact("materialCollision", true))
+        if (prop_name.compareExact("materialFlags", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "materialFlags", TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            property.getValue(&(test[0]));
+
+            if (nullptr == material)
+            {
+                setMaterial(new eMaterial(nullptr));
+            }
+
+            material->unsetMaterialFlags(0xFF);
+            material->setMaterialFlags((uint8_t)test[0]);
+
+            return 0;
+        }
+        else if (prop_name.compareExact("materialCollision", true))
         {
             if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
             {
@@ -209,7 +229,7 @@ namespace ZookieWizard
             {
                 if (dummy_name.compareExact(theMaterialTypes[test[1]].name, true))
                 {
-                    test[0] = theMaterialTypes[test[1]].id;
+                    test[0] = test[1];
                 }
             }
 
@@ -218,6 +238,8 @@ namespace ZookieWizard
                 sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Unknown collision type for \"materialCollision\" property!");
                 return 2;
             }
+
+            test[0] = theMaterialTypes[test[0]].id;
 
             if (nullptr == material)
             {
@@ -244,7 +266,7 @@ namespace ZookieWizard
             {
                 if (dummy_name.compareExact(theMaterialSounds[test[1]].name, true))
                 {
-                    test[0] = theMaterialSounds[test[1]].id;
+                    test[0] = test[1];
                 }
             }
 
@@ -253,6 +275,8 @@ namespace ZookieWizard
                 sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Unknown sound type for \"materialSound\" property!");
                 return 2;
             }
+
+            test[0] = theMaterialSounds[test[0]].id;
 
             if (nullptr == material)
             {
@@ -269,7 +293,8 @@ namespace ZookieWizard
 
     int32_t eGeometry::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
     {
-        int32_t test[1];
+        int32_t test[2];
+        eString dummy_name;
 
         if (1 != (test[0] = eNode::parsingCustomMessage(result_msg, message, params_count, params)))
         {
@@ -287,6 +312,133 @@ namespace ZookieWizard
             /********************************/
 
             editingRebuildCollision();
+            return 0;
+        }
+        else if (message.compareExact("setMaterialFlags", true))
+        {
+            if (nullptr == material)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setMaterialFlags\" message: `Material` is empty!");
+                return 2;
+            }
+
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setMaterialFlags", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setMaterialFlags", 0, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            /********************************/
+
+            params[0].getValue(&(test[0]));
+
+            material->unsetMaterialFlags(0xFF);
+            material->setMaterialFlags((uint8_t)test[0]);
+
+            return 0;
+        }
+        else if (message.compareExact("setMaterialCollision", true))
+        {
+            if (nullptr == material)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setMaterialCollision\" message: `Material` is empty!");
+                return 2;
+            }
+
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setMaterialCollision", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setMaterialCollision", 0, TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            /********************************/
+
+            params[0].getValue(&dummy_name);
+
+            test[0] = (-1);
+
+            for (test[1] = 0; ((-1) == test[0]) && (test[1] < KAO2_MATERIAL_TYPES_COUNT); test[1]++)
+            {
+                if (dummy_name.compareExact(theMaterialTypes[test[1]].name, true))
+                {
+                    test[0] = test[1];
+                }
+            }
+
+            if ((-1) == test[0])
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setMaterialCollision\": Unknown collision type!");
+                return 2;
+            }
+
+            test[0] = theMaterialTypes[test[0]].id;
+
+            material->setCollisionType(test[0]);
+
+            return 0;
+        }
+        else if (message.compareExact("setMaterialSound", true))
+        {
+            if (nullptr == material)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setMaterialSound\" message: `Material` is empty!");
+                return 2;
+            }
+
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setMaterialSound", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setMaterialSound", 0, TXT_PARSING_NODE_PROPTYPE_STRING);
+                return 2;
+            }
+
+            /********************************/
+
+            params[0].getValue(&dummy_name);
+
+            test[0] = (-1);
+
+            for (test[1] = 0; ((-1) == test[0]) && (test[1] < KAO2_MATERIAL_SOUNDS_COUNT); test[1]++)
+            {
+                if (dummy_name.compareExact(theMaterialSounds[test[1]].name, true))
+                {
+                    test[0] = test[1];
+                }
+            }
+
+            if ((-1) == test[0])
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setMaterialSound\" message: Unknown sound type!");
+                return 2;
+            }
+
+            test[0] = theMaterialSounds[test[0]].id;
+
+            material->setSoundType((uint16_t)test[0]);
+
             return 0;
         }
 

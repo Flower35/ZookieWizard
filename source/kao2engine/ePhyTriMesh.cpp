@@ -124,14 +124,10 @@ namespace ZookieWizard
     void ePhyTriMesh::serialize(Archive &ar)
     {
         int32_t i;
-        eNode* prev_node_in_ar;
-
         /* Vertices with bone weights */
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&vertices, &E_GEOARRAY_EPHYVERTEX_TYPEINFO);
 
         /* Bones with matrices */
-
-        prev_node_in_ar = ar.getLastSerializedNode();
 
         if (ar.isInReadMode())
         {
@@ -160,8 +156,6 @@ namespace ZookieWizard
                 bones[i].serializeBone(ar);
             }
         }
-
-        ar.setLastSerializedNode(prev_node_in_ar);
 
         /* eGeoSet link (empty in KAO_TW, required in KAO2) */
 

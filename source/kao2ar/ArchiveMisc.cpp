@@ -772,7 +772,7 @@ namespace ZookieWizard
 
             case NODES_EDITING_MATERIAL_OPTIMIZE:
             {
-                GUI::materialsManager_ReduceSimilarMaterials(test_node);
+                GUI::materialsManager_ReduceSimilarMaterials(test_node, false);
 
                 break;
             }

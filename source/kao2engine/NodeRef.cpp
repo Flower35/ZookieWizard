@@ -96,8 +96,6 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void NodeRef::serialize(Archive &ar)
     {
-        eNode* previous_node_in_ar;
-
         /* [0x08] reference name */
         ar.serializeString(name);
 
@@ -126,12 +124,8 @@ namespace ZookieWizard
 
         if (ar.getVersion() <= 0x88)
         {
-            previous_node_in_ar = ar.getLastSerializedNode();
-
             /* [0x14] actual object link */
             ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&node, nodeType);
-
-            ar.setLastSerializedNode(previous_node_in_ar);
         }
         else if (ar.getVersion() >= 0x89)
         {

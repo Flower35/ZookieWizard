@@ -2335,7 +2335,7 @@ namespace ZookieWizard
         // Materials manager: optimizations (removing duplicate objects)
         ////////////////////////////////////////////////////////////////
 
-        void materialsManager_ReduceSimilarBitmaps()
+        void materialsManager_ReduceSimilarBitmaps(bool silent)
         {
             char bufor[(LARGE_BUFFER_SIZE / 2)];
             int32_t a, b, count;
@@ -2357,25 +2357,28 @@ namespace ZookieWizard
                 }
             }
 
-            count = (matMgr_BmpList_Count - count);
+            if (!silent)
+            {
+                count = (matMgr_BmpList_Count - count);
 
-            if (count < 0)
-            {
-                sprintf_s(bufor, (LARGE_BUFFER_SIZE / 2), "%d \"Bitmaps\" were removed!", (0 - count));
-            }
-            else if (count > 0)
-            {
-                sprintf_s(bufor, (LARGE_BUFFER_SIZE / 2), "There are now %d more \"Bitmaps\"... THIS SHOULD NEVER HAPPEN!", count);
-            }
-            else
-            {
-                sprintf_s(bufor, (LARGE_BUFFER_SIZE / 2), "No similar \"Bitmaps\" found.");
-            }
+                if (count < 0)
+                {
+                    sprintf_s(bufor, (LARGE_BUFFER_SIZE / 2), "%d \"Bitmaps\" were removed!", (0 - count));
+                }
+                else if (count > 0)
+                {
+                    sprintf_s(bufor, (LARGE_BUFFER_SIZE / 2), "There are now %d more \"Bitmaps\"... THIS SHOULD NEVER HAPPEN!", count);
+                }
+                else
+                {
+                    sprintf_s(bufor, (LARGE_BUFFER_SIZE / 2), "No similar \"Bitmaps\" found.");
+                }
 
-            theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+                theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+            }
         }
 
-        void materialsManager_ReduceSimilarTexturesAndStates()
+        void materialsManager_ReduceSimilarTexturesAndStates(bool silent)
         {
             char bufor_a[2][(LARGE_BUFFER_SIZE / 2)];
             char bufor_b[LARGE_BUFFER_SIZE];
@@ -2399,41 +2402,44 @@ namespace ZookieWizard
                 }
             }
 
-            count[0] = (matMgr_TexList_Count - count[0]);
-            count[1] = (theMaterialStatesCounter - count[1]);
+            if (!silent)
+            {
+                count[0] = (matMgr_TexList_Count - count[0]);
+                count[1] = (theMaterialStatesCounter - count[1]);
 
-            if (count[0] < 0)
-            {
-                sprintf_s(bufor_a[0], (LARGE_BUFFER_SIZE / 2), "%d \"Textures\" were removed!", (0 - count[0]));
-            }
-            else if (count[0] > 0)
-            {
-                sprintf_s(bufor_a[0], (LARGE_BUFFER_SIZE / 2), "There are now %d more \"Textures\"... THIS SHOULD NEVER HAPPEN!", count[0]);
-            }
-            else
-            {
-                sprintf_s(bufor_a[0], (LARGE_BUFFER_SIZE / 2), "No similar \"Textures\" found.");
-            }
+                if (count[0] < 0)
+                {
+                    sprintf_s(bufor_a[0], (LARGE_BUFFER_SIZE / 2), "%d \"Textures\" were removed!", (0 - count[0]));
+                }
+                else if (count[0] > 0)
+                {
+                    sprintf_s(bufor_a[0], (LARGE_BUFFER_SIZE / 2), "There are now %d more \"Textures\"... THIS SHOULD NEVER HAPPEN!", count[0]);
+                }
+                else
+                {
+                    sprintf_s(bufor_a[0], (LARGE_BUFFER_SIZE / 2), "No similar \"Textures\" found.");
+                }
 
-            if (count[1] < 0)
-            {
-                sprintf_s(bufor_a[1], (LARGE_BUFFER_SIZE / 2), "%d \"Material States\" were removed!", (0 - count[1]));
-            }
-            else if (count[1] > 0)
-            {
-                sprintf_s(bufor_a[1], (LARGE_BUFFER_SIZE / 2), "There are now %d more \"Material States\"... THIS SHOULD NEVER HAPPEN!", count[1]);
-            }
-            else
-            {
-                sprintf_s(bufor_a[1], (LARGE_BUFFER_SIZE / 2), "No similar \"Material States\" found.");
-            }
+                if (count[1] < 0)
+                {
+                    sprintf_s(bufor_a[1], (LARGE_BUFFER_SIZE / 2), "%d \"Material States\" were removed!", (0 - count[1]));
+                }
+                else if (count[1] > 0)
+                {
+                    sprintf_s(bufor_a[1], (LARGE_BUFFER_SIZE / 2), "There are now %d more \"Material States\"... THIS SHOULD NEVER HAPPEN!", count[1]);
+                }
+                else
+                {
+                    sprintf_s(bufor_a[1], (LARGE_BUFFER_SIZE / 2), "No similar \"Material States\" found.");
+                }
 
-            sprintf_s(bufor_b, LARGE_BUFFER_SIZE, "%s\n\n%s", bufor_a[0], bufor_a[1]);
+                sprintf_s(bufor_b, LARGE_BUFFER_SIZE, "%s\n\n%s", bufor_a[0], bufor_a[1]);
 
-            theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor_b);
+                theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor_b);
+            }
         }
 
-        void materialsManager_ReduceSimilarMaterials(eNode* root_node)
+        void materialsManager_ReduceSimilarMaterials(eNode* root_node, bool silent)
         {
             char bufor[(LARGE_BUFFER_SIZE / 2)];
             int32_t a, b, count[2];
@@ -2465,22 +2471,25 @@ namespace ZookieWizard
                 }
             }
 
-            count[0] = (matMgr_MatList_Count - count[0]);
+            if (!silent)
+            {
+                count[0] = (matMgr_MatList_Count - count[0]);
 
-            if (count[0] < 0)
-            {
-                sprintf_s(bufor, (LARGE_BUFFER_SIZE / 2), "%d \"Materials\" were removed!", (0 - count[0]));
-            }
-            else if (count[0] > 0)
-            {
-                sprintf_s(bufor, (LARGE_BUFFER_SIZE / 2), "There are now %d more \"Materials\"... THIS SHOULD NEVER HAPPEN!", count[0]);
-            }
-            else
-            {
-                sprintf_s(bufor, (LARGE_BUFFER_SIZE / 2), "No similar \"Materials\" found.");
-            }
+                if (count[0] < 0)
+                {
+                    sprintf_s(bufor, (LARGE_BUFFER_SIZE / 2), "%d \"Materials\" were removed!", (0 - count[0]));
+                }
+                else if (count[0] > 0)
+                {
+                    sprintf_s(bufor, (LARGE_BUFFER_SIZE / 2), "There are now %d more \"Materials\"... THIS SHOULD NEVER HAPPEN!", count[0]);
+                }
+                else
+                {
+                    sprintf_s(bufor, (LARGE_BUFFER_SIZE / 2), "No similar \"Materials\" found.");
+                }
 
-            theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+                theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+            }
         }
 
 
@@ -3469,14 +3478,14 @@ namespace ZookieWizard
                     {
                         case MATMGR_INFO_WINDOW_OPTIMIZE_BMPBTN:
                         {
-                            materialsManager_ReduceSimilarBitmaps();
+                            materialsManager_ReduceSimilarBitmaps(false);
 
                             break;
                         }
 
                         case MATMGR_INFO_WINDOW_OPTIMIZE_TEXBTN:
                         {
-                            materialsManager_ReduceSimilarTexturesAndStates();
+                            materialsManager_ReduceSimilarTexturesAndStates(false);
 
                             break;
                         }
