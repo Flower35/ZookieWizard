@@ -493,20 +493,15 @@ namespace ZookieWizard
         /*[0x30]*/ flagsCollisionResponse = 0x00FF;
         /*[0x34]*/ visCtrl = nullptr;
         /*[0x38]*/ visRate = 1.0f;
-        sphBound[0] = 0;
-        sphBound[1] = 0;
-        sphBound[2] = 0;
-        /*[0x2C]*/ sphBound[3] = -1.0f;
+        /*[0x2C]*/ sphBound.w = (-1.0f);
 
         visGroup = (-1);
     }
 
     eNode::~eNode()
     {
-        //// eString result;
-        //// char bufor[16];
-
         visCtrl->decRef();
+
         axisListBox->decRef();
 
         /****************/
@@ -525,17 +520,6 @@ namespace ZookieWizard
             }
         #endif
 
-        /* Leave a message! */
-
-        //// sprintf_s(bufor, 16, "%d", theNodesCounter);
-
-        //// result += " - node \"";
-        //// result += name;
-        //// result += "\" destroyed! [";
-        //// result += bufor;
-        //// result += " still exist]\n";
-
-        //// theLog.print(result);
     }
 
 
@@ -564,10 +548,7 @@ namespace ZookieWizard
 
         flags = other.flags;
 
-        sphBound[0] = other.sphBound[0];
-        sphBound[1] = other.sphBound[1];
-        sphBound[2] = other.sphBound[2];
-        sphBound[3] = other.sphBound[3];
+        sphBound = other.sphBound;
 
         flagsCollisionResponse = other.flagsCollisionResponse;
 
@@ -671,10 +652,7 @@ namespace ZookieWizard
 
         ar.readOrWrite(&flags, 0x04);
 
-        ar.readOrWrite(&(sphBound[0]), 0x04);
-        ar.readOrWrite(&(sphBound[1]), 0x04);
-        ar.readOrWrite(&(sphBound[2]), 0x04);
-        ar.readOrWrite(&(sphBound[3]), 0x04);
+        sphBound.serialize(ar);
 
         /* Node's visibility controller (`GL_DIFFUSE` alpha channel, from 0 to 1.0) */
 
@@ -741,7 +719,7 @@ namespace ZookieWizard
             "[%08X] %s (\"%s\")",
             info->id,
             info->name,
-            name.getSubstring(0, 1024 - 64).getText()
+            getDebugName(1024 - 64).getText()
         );
 
         ArFunctions::writeNewLine(file, indentation);
@@ -799,11 +777,21 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eNode: get name for debug purposes
+    // (no whitespaces, trimmed if too long)
+    ////////////////////////////////////////////////////////////////
+    eString eNode::getDebugName(int32_t trim) const
+    {
+        return name.trimWhitespace().getSubstring(0, trim);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eNode: destroy before dereferencing
     ////////////////////////////////////////////////////////////////
     void eNode::destroyNode()
     {
-        editingClearCollision();
+        editingClearCollision(true);
     }
 
 
@@ -858,6 +846,13 @@ namespace ZookieWizard
         /* Not a Group in the first place */
         return false;
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eNode: empty function (for "eGroup" / "eDirectionalLight" / "eCamera")
+    ////////////////////////////////////////////////////////////////
+    void eNode::assertNodeLinksSameArchive()
+    {}
 
 
     ////////////////////////////////////////////////////////////////
@@ -933,12 +928,14 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eNode: (editor function) clear collision
     ////////////////////////////////////////////////////////////////
-    void eNode::editingClearCollision()
+    void eNode::editingClearCollision(bool create_empty_pointer)
     {
         if (nullptr != axisListBox)
         {
             axisListBox->decRef();
-            axisListBox = nullptr;
+
+            /* "Nodes Manager" compatibility */
+            axisListBox = create_empty_pointer ? (new eALBox()) : nullptr;
         }
 
         flagsCollisionResponse = 0x00FF;

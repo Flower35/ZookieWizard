@@ -7,6 +7,20 @@ namespace ZookieWizard
 {
 
     ////////////////////////////////////////////////////////////////
+    // eGroup macros
+    ////////////////////////////////////////////////////////////////
+
+    #define MACRO_KAO2_GROUP_FOREACH_NODE(code_block) \
+        for (a = 0; a < nodes.getSize(); a++) \
+        { \
+            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a))) \
+            { \
+                code_block \
+            } \
+        }
+
+
+    ////////////////////////////////////////////////////////////////
     // eGroup interface
     // <kao2.005D0F88> (vptr)
     ////////////////////////////////////////////////////////////////
@@ -54,12 +68,13 @@ namespace ZookieWizard
             void setPreviousTransformGradually(eTransform* last_xform) override;
             void updateDrawPassFlags(uint32_t* parent_flags) override;
             bool removeEmptyAndUnreferencedGroups() override;
+            void assertNodeLinksSameArchive() override;
 
             void updateBeforeRendering(eDrawContext &draw_context) override;
             void renderNode(eDrawContext &draw_context) const override;
 
             void editingRebuildCollision() override;
-            void editingClearCollision() override;
+            void editingClearCollision(bool create_empty_pointer) override;
             void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id) override;
 
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;

@@ -259,7 +259,7 @@ namespace ZookieWizard
                 edges = new eGeoArray<ePoint4>();
             }
 
-            editingClearCollision();
+            editingClearCollision(false);
 
             return 0;
         }

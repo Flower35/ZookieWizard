@@ -222,7 +222,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Nodes Manager: Rebuild missing ALBoxes for a chosen set of nodes
     ////////////////////////////////////////////////////////////////
-    int32_t nodesManager_RebuildAxisListBoxes(bool silent_and_fake)
+    int32_t nodesManager_RebuildAxisListBoxes()
     {
         int32_t a, result = 0;
         char bufor[LARGE_BUFFER_SIZE];
@@ -231,11 +231,7 @@ namespace ZookieWizard
         {
             if (nullptr != nodesMgr_ALBoxesRefs[a])
             {
-                if (silent_and_fake)
-                {
-                    nodesMgr_ALBoxesRefs[a]->setAxisListBox(new eALBox());
-                }
-                else if (nodesMgr_ALBoxesRefs[a]->createCollisionEntry())
+                if (nodesMgr_ALBoxesRefs[a]->createCollisionEntry())
                 {
                     result++;
                 }
@@ -247,18 +243,15 @@ namespace ZookieWizard
 
         /****************/
 
-        if (false == silent_and_fake)
-        {
-            sprintf_s
-            (
-                bufor, LARGE_BUFFER_SIZE,
-                    "[Zookie Wizard, Nodes Manager]\n" \
-                    "Rebuilded %d/%d \"Axis List Boxes\" for cloned nodes.",
-                result, nodesMgr_ALBoxesCount
-            );
+        sprintf_s
+        (
+            bufor, LARGE_BUFFER_SIZE,
+                "[Zookie Wizard, Nodes Manager]\n" \
+                "Rebuilded %d/%d \"Axis List Boxes\" for cloned nodes.",
+            result, nodesMgr_ALBoxesCount
+        );
 
-            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
-        }
+        GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
 
         /****************/
 
@@ -317,29 +310,11 @@ namespace ZookieWizard
         if (nullptr != nodesMgr_ClonedNode)
         {
             nodesMgr_ClonedNode->decRef();
-            nodesMgr_ClonedNode = nullptr;
         }
 
-        try
-        {
-            nodesMgr_ClonedNode = (eNode*)test_node->cloneFromMe();
-        }
-        catch (ErrorMessage &err)
-        {
-            err.display();
-        }
-
-        if (nodesMgr_ALBoxesCount > 0)
-        {
-            nodesManager_RebuildAxisListBoxes(true);
-        }
-
-        if (nullptr == nodesMgr_ClonedNode)
-        {
-            return false;
-        }
-
+        nodesMgr_ClonedNode = test_node;
         nodesMgr_ClonedNode->incRef();
+
         return true;
     }
 
@@ -350,6 +325,7 @@ namespace ZookieWizard
     bool nodesManager_PasteLastClone(void* parent_node)
     {
         eGroup* test_group = (eGroup*)parent_node;
+        eNode* new_node;
 
         if (nullptr == nodesMgr_ClonedNode)
         {
@@ -376,9 +352,13 @@ namespace ZookieWizard
 
         try
         {
-            test_group->appendChild((eNode*)nodesMgr_ClonedNode->cloneFromMe());
+            new_node = (eNode*)nodesMgr_ClonedNode->cloneFromMe();
 
-            test_group->reloadXRef(getEditorString(1, false), currentGameVersion);
+            test_group->appendChild(new_node);
+
+            new_node->assertNodeLinksSameArchive();
+
+            new_node->reloadXRef(getEditorString(1, false), currentGameVersion);
         }
         catch (ErrorMessage &err)
         {
@@ -387,7 +367,7 @@ namespace ZookieWizard
 
         if (nodesMgr_ALBoxesCount > 0)
         {
-            nodesManager_RebuildAxisListBoxes(false);
+            nodesManager_RebuildAxisListBoxes();
         }
 
         return true;

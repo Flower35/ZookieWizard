@@ -52,6 +52,7 @@ namespace ZookieWizard
             void findAndDereference(eNode* target) override;
 
             bool removeEmptyAndUnreferencedGroups() override;
+            void assertNodeLinksSameArchive() override;
 
             void renderNode(eDrawContext &draw_context) const override;
 

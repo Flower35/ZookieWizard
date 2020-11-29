@@ -149,6 +149,19 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eDirectionalLight: fixups after Node Clone pasting
+    ////////////////////////////////////////////////////////////////
+    void eDirectionalLight::assertNodeLinksSameArchive()
+    {
+        if ((nullptr != target) && (getRootNode() != target->getRootNode()))
+        {
+            target->decRef();
+            target = nullptr;
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eDirectionalLight: render this node (light source position)
     ////////////////////////////////////////////////////////////////
     void eDirectionalLight::renderNode(eDrawContext &draw_context) const

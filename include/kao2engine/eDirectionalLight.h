@@ -47,6 +47,8 @@ namespace ZookieWizard
 
             /* << eNode >> */
 
+            void assertNodeLinksSameArchive() override;
+
             void renderNode(eDrawContext &draw_context) const override;
 
             ePoint3 editingGetCenterPoint() const override;

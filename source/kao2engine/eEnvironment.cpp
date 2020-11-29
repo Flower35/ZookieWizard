@@ -154,7 +154,7 @@ namespace ZookieWizard
     {
         int32_t a, b;
         float dummy_floats[3];
-        eNode* test_node;
+        eNode* child_node;
         eString light_path;
         const char* light_type;
         char bufor[LARGE_BUFFER_SIZE];
@@ -169,10 +169,10 @@ namespace ZookieWizard
 
         for (a = 0; a < b; a++)
         {
-            if (nullptr != (test_node = (eNode*)lights.getIthChild(a)))
+            if (nullptr != (child_node = (eNode*)lights.getIthChild(a)))
             {
-                light_path = test_node->getArchivePath();
-                light_type = test_node->getType()->name;
+                light_path = child_node->getArchivePath();
+                light_type = child_node->getType()->name;
             }
             else
             {
@@ -234,13 +234,7 @@ namespace ZookieWizard
 
         if (!group_written)
         {
-            for (a = 0; a < nodes.getSize(); a++)
-            {
-                if (nullptr != (test_node = (eNode*)nodes.getIthChild(a)))
-                {
-                    test_node->writeStructureToTextFile(file, (indentation + 1), false);
-                }
-            }
+            MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->writeStructureToTextFile(file, (indentation + 1), false); })
         }
     }
 
@@ -253,6 +247,31 @@ namespace ZookieWizard
         lights.findAndDeleteChild((eRefCounter*)target);
 
         eGroup::findAndDereference(target);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eEnvironment: fixups after Node Clone pasting
+    ////////////////////////////////////////////////////////////////
+    void eEnvironment::assertNodeLinksSameArchive()
+    {
+        int32_t a;
+        eLight* dummy_light;
+        eGroup* root = getRootNode();
+
+        for (a = 0; a < lights.getSize(); a++)
+        {
+            if (nullptr != (dummy_light = (eLight*)lights.getIthChild(a)))
+            {
+                if (dummy_light->getRootNode() != root)
+                {
+                    lights.deleteIthChild(a);
+                    a--;
+                }
+            }
+        }
+
+        eGroup::assertNodeLinksSameArchive();
     }
 
 

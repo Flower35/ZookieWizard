@@ -305,14 +305,14 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eTriMesh: (editor function) clear collision
     ////////////////////////////////////////////////////////////////
-    void eTriMesh::editingClearCollision()
+    void eTriMesh::editingClearCollision(bool create_empty_pointer)
     {
         if (nullptr != geo)
         {
             geo->clearAabbTree();
         }
 
-        eGeometry::editingClearCollision();
+        eGeometry::editingClearCollision(create_empty_pointer);
     }
 
 

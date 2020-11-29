@@ -15,7 +15,6 @@ namespace ZookieWizard
     void nodesManager_ClearProxies();
 
     bool nodesManager_InsertNodeWithMissingAxisListBox(void* node);
-    int32_t nodesManager_RebuildAxisListBoxes(bool silent_and_fake);
     void nodesManager_ClearALBoxesRefs();
 
     bool nodesManager_CloneChild(void* parent_node, int32_t child_id);

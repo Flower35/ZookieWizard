@@ -116,7 +116,7 @@ namespace ZookieWizard
     void ePivot::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
     {
         int32_t a;
-        eNode* test_node;
+        eNode* child_node;
         eTrack* test_track;
 
         char bufor[128];
@@ -152,13 +152,7 @@ namespace ZookieWizard
 
         if (!group_written)
         {
-            for (a = 0; a < nodes.getSize(); a++)
-            {
-                if (nullptr != (test_node = (eNode*)nodes.getIthChild(a)))
-                {
-                    test_node->writeStructureToTextFile(file, (indentation + 1), false);
-                }
-            }
+            MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->writeStructureToTextFile(file, (indentation + 1), false); })
         }
     }
 

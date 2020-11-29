@@ -33,10 +33,7 @@ namespace ZookieWizard
     {
         /*[0x0214]*/ soundEmiter = nullptr;
 
-        /*[0x0020]*/ sphBound[0] = 0;
-        /*[0x0024]*/ sphBound[1] = 0;
-        /*[0x0028]*/ sphBound[2] = 0;
-        /*[0x002C]*/ sphBound[3] = 128.0f;
+        /*[0x002C]*/ sphBound.w = 128.0f;
         /*[0x001C]*/ flags &= 0xFFFFFF7F;
 
         /*[0x01F1]*/ unknown_01F1 = 0x00;

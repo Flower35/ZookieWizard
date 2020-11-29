@@ -90,7 +90,7 @@ namespace ZookieWizard
             /*[0x14]*/ eString name;
             /*[0x18]*/ eALBox* axisListBox;
             /*[0x1C]*/ uint32_t flags;
-            /*[0x20-0x2C]*/ float sphBound[4];
+            /*[0x20-0x2C]*/ ePoint4 sphBound;
             /*[0x30]*/ uint16_t flagsCollisionResponse;
             /*[0x34]*/ eCtrl<float>* visCtrl;
             /*[0x38]*/ float visRate;
@@ -125,6 +125,8 @@ namespace ZookieWizard
 
             /* << eNode >> */
 
+            eString getDebugName(int32_t trim = 64) const;
+
             virtual void destroyNode();
             virtual void findAndDereference(eNode* target);
             virtual eNode* findNode(eString &searched_name) const;
@@ -132,6 +134,7 @@ namespace ZookieWizard
             virtual void setPreviousTransformGradually(eTransform* last_xform);
             virtual void updateDrawPassFlags(uint32_t* parent_flags);
             virtual bool removeEmptyAndUnreferencedGroups();
+            virtual void assertNodeLinksSameArchive();
 
             virtual void updateBeforeRendering(eDrawContext &draw_context);
             virtual void renderNode(eDrawContext &draw_context) const;
@@ -140,7 +143,7 @@ namespace ZookieWizard
 
             virtual ePoint3 editingGetCenterPoint() const;
             virtual void editingRebuildCollision();
-            virtual void editingClearCollision();
+            virtual void editingClearCollision(bool create_empty_pointer);
             virtual void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id);
             virtual void editingNewNodeSetup();
 

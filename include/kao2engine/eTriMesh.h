@@ -52,7 +52,7 @@ namespace ZookieWizard
             void renderNode(eDrawContext &draw_context) const override;
 
             void editingRebuildCollision() override;
-            void editingClearCollision() override;
+            void editingClearCollision(bool create_empty_pointer) override;
             void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id) override;
 
             /* << eTriMesh >> */

@@ -42,20 +42,14 @@ namespace ZookieWizard
 
     eGroup::~eGroup()
     {
-        int32_t i;
+        int32_t a;
         eNode* child_node;
 
         deleteNodesWithMultiRefs(true, getRootNode());
 
         /* Failsafe (marks children as "invalid", as they no longer have a parent node link) */
 
-        for (i = 0; i < nodes.getSize(); i++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(i)))
-            {
-                child_node->setParentNode(nullptr);
-            }
-        }
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->setParentNode(nullptr); })
     }
 
 
@@ -65,20 +59,13 @@ namespace ZookieWizard
 
     void eGroup::createFromOtherObject(const eGroup &other)
     {
-        int32_t a, b;
-        eNode* dummy_node;
+        int32_t a;
+        eNode* child_node;
 
         /* All new nodes are "deep clones" with the Reference Counter of 1 */
         nodes.deepCopy(other.nodes);
-        b = nodes.getSize();
 
-        for (a = 0; a < b; a++)
-        {
-            if (nullptr != (dummy_node = (eNode*)nodes.getIthChild(a)))
-            {
-                dummy_node->setParentNode(this);
-            }
-        }
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->setParentNode(this); })
     }
 
     eGroup::eGroup(const eGroup &other)
@@ -113,6 +100,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::serialize(Archive &ar)
     {
+        int32_t a;
         eNode* child_node;
 
         /* Node base seriialization */
@@ -127,13 +115,7 @@ namespace ZookieWizard
 
         if (ar.isInReadMode())
         {
-            for (int32_t a = 0; a < nodes.getSize(); a++)
-            {
-                if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
-                {
-                    child_node->setParentNode(this);
-                }
-            }
+            MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->setParentNode(this); })
         }
     }
 
@@ -143,6 +125,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
     {
+        int32_t a;
         eNode* child_node;
 
         /* "eNode": parent class */
@@ -153,13 +136,7 @@ namespace ZookieWizard
 
         if (!group_written)
         {
-            for (int32_t a = 0; a < nodes.getSize(); a++)
-            {
-                if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
-                {
-                    child_node->writeStructureToTextFile(file, (indentation + 1), false);
-                }
-            }
+            MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->writeStructureToTextFile(file, (indentation + 1), false); })
         }
     }
 
@@ -169,7 +146,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::writeNodeToXmlFile(ColladaExporter &exporter) const
     {
-        int32_t i;
+        int32_t a;
         char bufor[64];
         eNode* child_node;
 
@@ -185,14 +162,7 @@ namespace ZookieWizard
             case COLLADA_EXPORTER_STATE_ANIMATIONS:
             {
                 /* Collecting objects for COLLADA libraries... */
-
-                for (i = 0; i < nodes.getSize(); i++)
-                {
-                    if (nullptr != (child_node = (eNode*)nodes.getIthChild(i)))
-                    {
-                        child_node->writeNodeToXmlFile(exporter);
-                    }
-                }
+                MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->writeNodeToXmlFile(exporter); })
 
                 break;
             }
@@ -203,20 +173,13 @@ namespace ZookieWizard
 
                 exporter.openTag("node");
 
-                i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_NODE, this, true);
-                sprintf_s(bufor, 64, "Node%d", i);
+                a = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_NODE, this, true);
+                sprintf_s(bufor, 64, "Node%d", a);
                 exporter.insertTagAttrib("id", bufor);
                 exporter.insertTagAttrib("name", name);
 
                 /* Iterate child nodes as usual */
-
-                for (i = 0; i < nodes.getSize(); i++)
-                {
-                    if (nullptr != (child_node = (eNode*)nodes.getIthChild(i)))
-                    {
-                        child_node->writeNodeToXmlFile(exporter);
-                    }
-                }
+                MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->writeNodeToXmlFile(exporter); })
 
                 exporter.closeTag(); // "node"
 
@@ -231,15 +194,10 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::destroyNode()
     {
+        int32_t a;
         eNode* child_node;
 
-        for (int32_t a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
-            {
-                child_node->destroyNode();
-            }
-        }
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->destroyNode(); })
 
         eNode::destroyNode();
     }
@@ -250,21 +208,15 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::findAndDereference(eNode* target)
     {
+        int32_t a;
         eNode* child_node;
 
         if (referenceCount <= 0)
         {
-            /* This group is invalid (for instance, it is being deleted) */
             return;
         }
 
-        for (int32_t a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
-            {
-                child_node->findAndDereference(target);
-            }
-        }
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->findAndDereference(target); })
     }
 
 
@@ -274,27 +226,23 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     eNode* eGroup::findNode(eString &searched_name) const
     {
-        eNode* test_node;
+        int32_t a;
+        eNode* child_node = eNode::findNode(searched_name);
 
-        test_node = eNode::findNode(searched_name);
-
-        if (nullptr != test_node)
+        if (nullptr != child_node)
         {
-            return test_node;
+            return child_node;
         }
 
-        for (int32_t a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (test_node = (eNode*)nodes.getIthChild(a)))
+        MACRO_KAO2_GROUP_FOREACH_NODE
+        ({
+            child_node = child_node->findNode(searched_name);
+
+            if (nullptr != child_node)
             {
-                test_node = test_node->findNode(searched_name);
-
-                if (nullptr != test_node)
-                {
-                    return test_node;
-                }
+                return child_node;
             }
-        }
+        })
 
         return nullptr;
     }
@@ -305,15 +253,10 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::setPreviousTransformGradually(eTransform* last_xform)
     {
+        int32_t a;
         eNode* child_node;
 
-        for (int32_t a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
-            {
-                child_node->setPreviousTransformGradually(last_xform);
-            }
-        }
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->setPreviousTransformGradually(last_xform); })
 
         previousTransform = last_xform;
     }
@@ -324,17 +267,12 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::updateDrawPassFlags(uint32_t* parent_flags)
     {
+        int32_t a;
         eNode* child_node;
 
         flags &= (~ 0x70000000);
 
-        for (int32_t a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
-            {
-                child_node->updateDrawPassFlags(&flags);
-            }
-        }
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->updateDrawPassFlags(&flags); })
 
         eNode::updateDrawPassFlags(parent_flags);
     }
@@ -346,23 +284,33 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     bool eGroup::removeEmptyAndUnreferencedGroups()
     {
+        int32_t a;
         eNode* child_node;
 
-        for (int32_t a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
+        MACRO_KAO2_GROUP_FOREACH_NODE
+        ({
+            if (child_node->removeEmptyAndUnreferencedGroups())
             {
-                if (child_node->removeEmptyAndUnreferencedGroups())
-                {
-                    deleteIthChild(a);
-                    a--;
-                }
+                deleteIthChild(a);
+                a--;
             }
-        }
+        })
 
         /* Notify the caller whether this group qualifies to be removed */
 
         return ((referenceCount < 2) && (nodes.getSize() < 1));
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eGroup: fixups after Node Clone pasting
+    ////////////////////////////////////////////////////////////////
+    void eGroup::assertNodeLinksSameArchive()
+    {
+        int32_t a;
+        eNode* child_node;
+
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->assertNodeLinksSameArchive(); })
     }
 
 
@@ -381,21 +329,18 @@ namespace ZookieWizard
         previous_marked_id = draw_context.getMarekedId();
         is_marked = draw_context.setMarkedForGroupNode();
 
-        for (a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
+        MACRO_KAO2_GROUP_FOREACH_NODE
+        ({
+            if (0x0408 == (child_node->getFlags() & 0x0408))
             {
-                if (0x0408 == (child_node->getFlags() & 0x0408))
+                if (!is_marked)
                 {
-                    if (!is_marked)
-                    {
-                        draw_context.setMarkedForChildNode(previous_marked_id == a);
-                    }
-
-                    child_node->updateBeforeRendering(draw_context);
+                    draw_context.setMarkedForChildNode(previous_marked_id == a);
                 }
+
+                child_node->updateBeforeRendering(draw_context);
             }
-        }
+        })
 
         draw_context.setMarkedId(previous_marked_id);
     }
@@ -406,26 +351,24 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::renderNode(eDrawContext &draw_context) const
     {
+        int32_t a;
         eNode* child_node;
 
         int32_t previous_marked_id = draw_context.getMarekedId();
         bool is_marked = draw_context.setMarkedForGroupNode();
 
-        for (int32_t a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
+        MACRO_KAO2_GROUP_FOREACH_NODE
+        ({
+            if (draw_context.checkNodeFlags(child_node->getFlags(), child_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO)))
             {
-                if (draw_context.checkNodeFlags(child_node->getFlags(), child_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO)))
+                if (!is_marked)
                 {
-                    if (!is_marked)
-                    {
-                        draw_context.setMarkedForChildNode(previous_marked_id == a);
-                    }
-
-                    child_node->renderNode(draw_context);
+                    draw_context.setMarkedForChildNode(previous_marked_id == a);
                 }
+
+                child_node->renderNode(draw_context);
             }
-        }
+        })
 
         draw_context.setMarkedId(previous_marked_id);
     }
@@ -436,40 +379,26 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::editingRebuildCollision()
     {
-        int32_t i;
+        int32_t a;
         eNode* child_node;
 
-        for (i = 0; i < nodes.getSize(); i++)
-        {
-            child_node = (eNode*)nodes.getIthChild(i);
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->editingRebuildCollision(); })
 
-            if (nullptr != child_node)
-            {
-                child_node->editingRebuildCollision();
-            }
-        }
+        /* Collision rebuilding supported only for "eGeometry" and "eZone" classes. */
     }
 
 
     ////////////////////////////////////////////////////////////////
     // eGroup: (editor option) clear collision
     ////////////////////////////////////////////////////////////////
-    void eGroup::editingClearCollision()
+    void eGroup::editingClearCollision(bool create_empty_pointer)
     {
-        int32_t i;
+        int32_t a;
         eNode* child_node;
 
-        for (i = 0; i < nodes.getSize(); i++)
-        {
-            child_node = (eNode*)nodes.getIthChild(i);
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->editingClearCollision(create_empty_pointer); })
 
-            if (nullptr != child_node)
-            {
-                child_node->editingClearCollision();
-            }
-        }
-
-        eNode::editingClearCollision();
+        eNode::editingClearCollision(create_empty_pointer);
     }
 
 
@@ -478,14 +407,10 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::editingApplyNewTransform(eSRP &new_transform, int32_t marked_id)
     {
+        int32_t a;
         eNode* child_node;
 
-        child_node = (eNode*)nodes.getIthChild(marked_id);
-
-        if (nullptr != child_node)
-        {
-            child_node->editingApplyNewTransform(new_transform, (-1));
-        }
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->editingApplyNewTransform(new_transform, (-1)); })
     }
 
 
@@ -573,15 +498,10 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::collectNodesOfSomeType(const TypeInfo* type, Collection<ArFunctions::serialize_eRefCounter> &collection)
     {
+        int32_t a;
         eNode* child_node;
 
-        for (int32_t a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
-            {
-                child_node->collectNodesOfSomeType(type, collection);
-            }
-        }
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->collectNodesOfSomeType(type, collection); })
 
         eNode::collectNodesOfSomeType(type, collection);
     }
@@ -592,15 +512,10 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::exportScripts(const eString &media_dir) const
     {
+        int32_t a;
         eNode* child_node;
 
-        for (int32_t a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
-            {
-                child_node->exportScripts(media_dir);
-            }
-        }
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->exportScripts(media_dir); })
     }
 
 
@@ -610,28 +525,18 @@ namespace ZookieWizard
 
     void eGroup::reloadXRef(const eString &media_dir, int32_t engine_version)
     {
+        int32_t a;
         eNode* child_node;
 
-        for (int32_t a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
-            {
-                child_node->reloadXRef(media_dir, engine_version);
-            }
-        }
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->reloadXRef(media_dir, engine_version); })
     }
 
     void eGroup::exportXRef(const eString &media_dir, int32_t engine_version) const
     {
+        int32_t a;
         eNode* child_node;
 
-        for (int32_t a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
-            {
-                child_node->exportXRef(media_dir, engine_version);
-            }
-        }
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->exportXRef(media_dir, engine_version); })
     }
 
 
@@ -640,15 +545,10 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::ctrlExpandAnimTracks(int32_t new_size)
     {
+        int32_t a;
         eNode* child_node;
 
-        for (int32_t a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
-            {
-                child_node->ctrlExpandAnimTracks(new_size);
-            }
-        }
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->ctrlExpandAnimTracks(new_size); })
 
         /* Checking the `visTrack` */
         eNode::ctrlExpandAnimTracks(new_size);
@@ -660,15 +560,10 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eGroup::ctrlRemoveAnimTrack(int32_t deleted_id)
     {
+        int32_t a;
         eNode* child_node;
 
-        for (int32_t a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
-            {
-                child_node->ctrlRemoveAnimTrack(deleted_id);
-            }
-        }
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->ctrlRemoveAnimTrack(deleted_id); })
 
         /* Checking the `visTrack` */
         eNode::ctrlRemoveAnimTrack(deleted_id);
@@ -719,7 +614,6 @@ namespace ZookieWizard
     void eGroup::appendChild(eNode* o)
     {
         eGroup* previous_parent;
-        eTransform* previous_xform;
 
         if (nullptr != o)
         {
@@ -734,10 +628,7 @@ namespace ZookieWizard
 
             if (nullptr != previous_parent)
             {
-                if (previous_parent->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
-                {
-                    previous_parent->findAndDetachChild(o);
-                }
+                previous_parent->findAndDetachChild(o);
             }
 
             nodes.appendChild(o);
@@ -747,23 +638,12 @@ namespace ZookieWizard
 
             /****************/
 
-            previous_xform = nullptr;
-
-            previous_parent = parent;
-
-            while ((nullptr == previous_xform) && (nullptr != previous_parent))
-            {
-                if (previous_parent->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
-                {
-                    previous_xform = (eTransform*)previous_parent;
-                }
-                else
-                {
-                    previous_parent = previous_parent->getParentNode();
-                }
-            }
-
-            o->setPreviousTransformGradually(previous_xform);
+            o->setPreviousTransformGradually
+            (
+                getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO)
+                ? (eTransform*)this
+                : previousTransform
+            );
         }
     }
 
@@ -831,31 +711,25 @@ namespace ZookieWizard
             return;
         }
 
-        for (a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
+        MACRO_KAO2_GROUP_FOREACH_NODE
+        ({
+            /* Search recursively */
+
+            if (child_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
             {
-                /* Search recursively */
-
-                if (child_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
-                {
-                    ((eGroup*)child_node)->deleteNodesWithMultiRefs(false, root_node);
-                }
+                ((eGroup*)child_node)->deleteNodesWithMultiRefs(false, root_node);
             }
-        }
+        })
 
-        for (a = 0; a < nodes.getSize(); a++)
-        {
-            if (nullptr != (child_node = (eNode*)nodes.getIthChild(a)))
+        MACRO_KAO2_GROUP_FOREACH_NODE
+        ({
+            /* Look for other objects referencing this child node */
+
+            if (child_node->getReferenceCount() >= 2)
             {
-                /* Look for other objects referencing this child node */
-
-                if (child_node->getReferenceCount() >= 2)
-                {
-                    root_node->findAndDereference(child_node);
-                }
+                root_node->findAndDereference(child_node);
             }
-        }
+        })
     }
 
 }

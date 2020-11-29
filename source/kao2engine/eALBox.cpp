@@ -128,26 +128,29 @@ namespace ZookieWizard
         /* [0x08] Link to a local "eScene" (that contains "eCollisionMgr") */
         ar.serialize((eObject**)&myScene, &E_SCENE_TYPEINFO);
 
-        /* ASSERTION */
-        if (!ar.compareWithMyRoot(myScene))
-        {
-            throw ErrorMessage
-            (
-                "eALBox::serialize():\n" \
-                "scene link is not set!"
-            );
-        }
-
         /* [0x0C] "eBoxZone" or "eTriMesh" link */
         ar.serialize((eObject**)&parentNode, &E_NODE_TYPEINFO);
 
-        /* ASSERTION */
+        /* ASSERTIONS */
+
         if (!ar.assertLastSerializedNode(parentNode))
         {
             throw ErrorMessage
             (
                 "eALBox::serialize():\n" \
                 "incorrect Node linked to this AxisListBox!"
+            );
+        }
+
+        if (!ar.compareWithMyRoot(myScene))
+        {
+            throw ErrorMessage
+            (
+                "eALBox::serialize():\n" \
+                "scene link is not set!\n" \
+                "([%s] \"%s\")",
+                parentNode->getType()->name,
+                parentNode->getDebugName().getText()
             );
         }
 
@@ -530,7 +533,6 @@ namespace ZookieWizard
     void eALBox::function_004A9C80()
     {
         int32_t i;
-
         eCollisionMgr* test_manager;
 
         /* connecting with Collision Manager */
@@ -545,7 +547,7 @@ namespace ZookieWizard
             axis_list[i][0].alboxEntryId = collisionEntryId;
         }
 
-        /* */
+        /* (...) */
 
         test_manager = myScene->getCollisionManager();
 

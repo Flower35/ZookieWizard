@@ -196,6 +196,19 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eCamera: fixups after Node Clone pasting
+    ////////////////////////////////////////////////////////////////
+    void eCamera::assertNodeLinksSameArchive()
+    {
+        if ((nullptr != camTarget) && (getRootNode() != camTarget->getRootNode()))
+        {
+            camTarget->decRef();
+            camTarget = nullptr;
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eCamera: render this node
     ////////////////////////////////////////////////////////////////
     void eCamera::renderNode(eDrawContext &draw_context) const

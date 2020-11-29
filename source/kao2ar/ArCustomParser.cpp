@@ -533,7 +533,7 @@ namespace ZookieWizard
                             }
                             else
                             {
-                                dummy_node->editingClearCollision();
+                                dummy_node->editingClearCollision(false);
                             }
 
                             /********************************/

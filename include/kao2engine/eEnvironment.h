@@ -51,6 +51,8 @@ namespace ZookieWizard
 
             void findAndDereference(eNode* target) override;
 
+            void assertNodeLinksSameArchive() override;
+
             void renderNode(eDrawContext &draw_context) const override;
 
             int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;

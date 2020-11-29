@@ -344,7 +344,7 @@ namespace ZookieWizard
             {
                 if (nullptr != test_node)
                 {
-                    test_node->editingClearCollision();
+                    test_node->editingClearCollision(false);
                 }
 
                 break;
@@ -386,7 +386,7 @@ namespace ZookieWizard
                                     "(%s) \"%s\"\n\n" \
                                     "This operation cannot be undone! Are you sure you want to continue?",
                                 test_node->getType()->name,
-                                test_node->getStringRepresentation().getSubstring(0, 64).getText()
+                                test_node->getDebugName().getText()
                             );
 
                             if (false == GUI::theWindowsManager.askQuestion(bufor))
@@ -456,7 +456,7 @@ namespace ZookieWizard
                                 "(%s) \"%s\"\n\n" \
                                 "This operation cannot be undone! Are you sure you want to continue?",
                             test_group->getType()->name,
-                            test_group->getStringRepresentation().getSubstring(0, 64).getText()
+                            test_group->getDebugName().getText()
                         );
 
                         if (false == GUI::theWindowsManager.askQuestion(bufor))
@@ -493,7 +493,7 @@ namespace ZookieWizard
                                     "(%s) \"%s\"\n\n" \
                                     "This operation cannot be undone! Are you sure you want to continue?",
                                 test_node->getType()->name,
-                                test_node->getStringRepresentation().getSubstring(0, 64).getText()
+                                test_node->getDebugName().getText()
                             );
 
                             if (false == GUI::theWindowsManager.askQuestion(bufor))
@@ -658,10 +658,10 @@ namespace ZookieWizard
                     sprintf_s
                     (
                         bufor, LARGE_BUFFER_SIZE,
-                            "Successfully cloned this node:\n\n" \
+                            "Successfully increased reference to this node:\n\n" \
                             "(%s) \"%s\"",
                         test_node->getType()->name,
-                        test_node->getStringRepresentation().getSubstring(0, 64).getText()
+                        test_node->getDebugName().getText()
                     );
 
                     GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
@@ -683,10 +683,10 @@ namespace ZookieWizard
                         sprintf_s
                         (
                             bufor, LARGE_BUFFER_SIZE,
-                            "Successfully cloned a child node of this group:\n\n" \
+                            "Successfully increased reference to a child node of this group:\n\n" \
                             "(%s) \"%s\"",
                             test_group->getType()->name,
-                            test_group->getStringRepresentation().getSubstring(0, 64).getText()
+                            test_group->getDebugName().getText()
                         );
                     }
                     else
@@ -694,10 +694,10 @@ namespace ZookieWizard
                         sprintf_s
                         (
                             bufor, LARGE_BUFFER_SIZE,
-                            "Successfully cloned this node:\n\n" \
+                            "Successfully increased reference to this node:\n\n" \
                             "(%s) \"%s\"",
                             test_node->getType()->name,
-                            test_node->getStringRepresentation().getSubstring(0, 64).getText()
+                            test_node->getDebugName().getText()
                         );
                     }
 
