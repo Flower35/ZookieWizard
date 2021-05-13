@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLightBlinker::getType() const
+    const TypeInfo* eLightBlinker::getType() const
     {
         return &E_LIGHTBLINKER_TYPEINFO;
     }

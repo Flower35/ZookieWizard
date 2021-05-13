@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFSMB::getType() const
+    const TypeInfo* eFSMB::getType() const
     {
         return &E_FSMB_TYPEINFO;
     }

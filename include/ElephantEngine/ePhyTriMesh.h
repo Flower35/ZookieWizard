@@ -42,9 +42,9 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x08]*/ eTriMesh* tri;
-            /*[0x0C]*/ eGeoSet* geo;
-            /*[0x10]*/ eGeoArray<ePhyVertex>* vertices;
+            /*[0x08]*/ eTriMesh* trimeshLink;
+            /*[0x0C]*/ eGeoSet* geosetLink;
+            /*[0x10]*/ eGeoArray<ePhyVertex>* phyVertices;
 
             /*[0x14]*/ int32_t bonesCount;
             /*[0x18]*/ int32_t bonesMaxLength;
@@ -73,10 +73,9 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
-            eString getLogPrintMessage() const override;
             void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 

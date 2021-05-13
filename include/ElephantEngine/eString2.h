@@ -26,7 +26,7 @@ namespace ZookieWizard
             ~eString2();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
 
             eString getStringRepresentation() const override;
     };

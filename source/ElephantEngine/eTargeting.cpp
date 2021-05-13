@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTargeting::getType() const
+    const TypeInfo* eTargeting::getType() const
     {
         return &E_TARGETING_TYPEINFO;
     }

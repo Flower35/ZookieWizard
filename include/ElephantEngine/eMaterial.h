@@ -9,6 +9,7 @@ namespace ZookieWizard
 {
     class eTexture;
     class eMaterialState;
+    class eShaderData;
 
     ////////////////////////////////////////////////////////////////
     // eMaterial helper definitions
@@ -47,7 +48,7 @@ namespace ZookieWizard
         protected:
 
             /*[0x08-0x10]*/ Collection<ArFunctions::serialize_eRefCounter> textures;
-            /*[0x14]*/ uint8_t materialFlags;
+            /*[0x14]*/ uint16_t materialFlags;
             /*[0x18]*/ eMaterialState* state;
             /*[0x1C]*/ uint32_t collisionType;
             /*[0x20]*/ uint16_t unknown_20;
@@ -56,6 +57,7 @@ namespace ZookieWizard
             /*[0x28]*/ int32_t transpLayer;
             /*[0x2C]*/ float alphaTestRef;
 
+            /*[0x34]*/ eShaderData* shaderData;
 
         /*** Methods ***/
 
@@ -76,7 +78,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             eString getStringRepresentation() const override;
@@ -99,9 +101,9 @@ namespace ZookieWizard
 
             bool matchesPath(eString &searched_path) const;
 
-            uint8_t getMaterialFlags() const;
-            void setMaterialFlags(uint8_t bits_to_apply);
-            void unsetMaterialFlags(uint8_t bits_to_erase);
+            uint16_t getMaterialFlags() const;
+            void setMaterialFlags(uint16_t bits_to_apply);
+            void unsetMaterialFlags(uint16_t bits_to_erase);
 
             eMaterialState* getMaterialState() const;
             void setMaterialState(eMaterialState* new_mtl_state);

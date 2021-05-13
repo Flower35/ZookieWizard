@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCollisionMgr::getType() const
+    const TypeInfo* eCollisionMgr::getType() const
     {
         return &E_COLLISIONMGR_TYPEINFO;
     }
@@ -35,7 +35,7 @@ namespace ZookieWizard
     eCollisionMgr::~eCollisionMgr()
     {
         /* DEBUG: prevents memory leaks */
-        debug_AlreadyDestroyed = true;
+        lockedFlag = 0x02;
 
         if (nullptr != seriesB)
         {
@@ -48,13 +48,13 @@ namespace ZookieWizard
 
         ArFunctions::destroy_AxisList_pointers(&(unknown_14), 8, 3);
 
-        if (nullptr != seriesA)
+        if (nullptr != availableIndices)
         {
-            delete[](seriesA);
+            delete[](availableIndices);
 
-            seriesA = nullptr;
-            seriesA_MaxLength = 0;
-            seriesA_Count = 0;
+            availableIndices = nullptr;
+            availableIndices_MaxLength = 0;
+            availableIndices_Count = 0;
         }
     }
 
@@ -106,13 +106,13 @@ namespace ZookieWizard
 
             /****************/
 
-            if (nullptr != seriesA)
+            if (nullptr != availableIndices)
             {
-                delete[](seriesA);
-                seriesA = nullptr;
+                delete[](availableIndices);
+                availableIndices = nullptr;
             }
 
-            seriesA_Count = 0;
+            availableIndices_Count = 0;
 
             /****************/
 
@@ -136,44 +136,42 @@ namespace ZookieWizard
     {
         int32_t i;
 
-        /* [0x04] Unknown group */
+        /* [0x04] Left-out indices to give out for new AxisListBoxes */
 
         if (ar.isInReadMode())
         {
-            if (nullptr != seriesA)
+            if (nullptr != availableIndices)
             {
-                delete[](seriesA);
-                seriesA = nullptr;
+                delete[](availableIndices);
+                availableIndices = nullptr;
 
-                seriesA_Count = 0;
+                availableIndices_Count = 0;
             }
 
-            ar.readOrWrite(&seriesA_MaxLength, 0x04);
+            ar.readOrWrite(&availableIndices_MaxLength, 0x04);
 
-            seriesA = new int32_t [seriesA_MaxLength];
+            availableIndices = new int32_t [availableIndices_MaxLength];
 
-            for (i = 0; i < seriesA_MaxLength; i++)
+            for (availableIndices_Count = 0; availableIndices_Count < availableIndices_MaxLength; availableIndices_Count++)
             {
-                seriesA_Count = (i+1);
-
-                ar.readOrWrite(&(seriesA[i]), 0x04);
+                ar.readOrWrite(&(availableIndices[availableIndices_Count]), 0x04);
             }
         }
         else
         {
-            ar.readOrWrite(&seriesA_Count, 0x04);
+            ar.readOrWrite(&availableIndices_Count, 0x04);
 
-            for (i = 0; i < seriesA_Count; i++)
+            for (i = 0; i < availableIndices_Count; i++)
             {
-                ar.readOrWrite(&(seriesA[i]), 0x04);
+                ar.readOrWrite(&(availableIndices[i]), 0x04);
             }
         }
 
-        /* [0x10] unknown ID */
+        /* [0x10] Largest ALBox ID ever generated in this session */
 
-        ar.readOrWrite(&unknown_10, 0x04);
+        ar.readOrWrite(&largestBoxCount, 0x04);
 
-        /* [0x2C] Unknown group */
+        /* [0x2C] Collection of AxisListBoxes (populate the array with null pointers) */
 
         if (ar.isInReadMode())
         {
@@ -185,15 +183,13 @@ namespace ZookieWizard
                 seriesB_Count = 0;
             }
 
-            seriesB_MaxLength = unknown_10;
+            seriesB_MaxLength = largestBoxCount;
 
             seriesB = new eALBox* [seriesB_MaxLength];
 
-            for (i = 0; i < seriesB_MaxLength; i++)
+            for (seriesB_Count = 0; seriesB_Count < seriesB_MaxLength; seriesB_Count++)
             {
-                seriesB_Count = (i + 1);
-
-                seriesB[i] = nullptr;
+                seriesB[seriesB_Count] = nullptr;
             }
         }
     }
@@ -252,18 +248,18 @@ namespace ZookieWizard
         }
         else
         {
-            some_id = seriesA[seriesA_Count - 1];
+            some_id = availableIndices[availableIndices_Count - 1];
 
-            seriesA_Count--;
+            availableIndices_Count--;
 
-            if (0 == seriesA_Count)
+            if (0 == availableIndices_Count)
             {
-                insertNewItem_seriesA(some_id + 1);
+                appendAvailableId(some_id + 1);
             }
 
-            if (some_id > unknown_10)
+            if (some_id > largestBoxCount)
             {
-                unknown_10 = some_id;
+                largestBoxCount = some_id;
             }
         }
 
@@ -314,27 +310,31 @@ namespace ZookieWizard
         int32_t a;
 
         /* DEBUG: prevents memory leaks */
-        if (false == debug_AlreadyDestroyed)
+        if (0x02 != lockedFlag)
         {
-            if ((seriesA_Count + 1) > seriesA_MaxLength)
+            if ((availableIndices_Count + 1) > availableIndices_MaxLength)
             {
-                insertNewItem_seriesA(0);
-
-                seriesA_Count--;
+                appendAvailableId(offset);
+            }
+            else
+            {
+                availableIndices[availableIndices_Count] = offset;
+                availableIndices_Count++;
             }
 
-            if (nullptr != seriesA)
+            save_ALBox(offset, nullptr);
+
+            if (0x01 != lockedFlag)
             {
-                a = seriesA[seriesA_Count];
+                for (a = 0; a < seriesB_Count; a++)
+                {
+                    if (nullptr != seriesB[a])
+                    {
+                        return;
+                    }
+                }
 
-                seriesA[seriesA_Count] = offset;
-
-                seriesA_Count++;
-            }
-
-            if (nullptr != seriesB)
-            {
-                save_ALBox(offset, nullptr);
+                resetCounters();
             }
         }
     }
@@ -388,35 +388,35 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eCollisionMgr: make space in "seriesA" array
+    // eCollisionMgr: make space in "availableIndices" array
     ////////////////////////////////////////////////////////////////
-    void eCollisionMgr::insertNewItem_seriesA(int32_t item)
+    void eCollisionMgr::appendAvailableId(int32_t item)
     {
         int32_t i;
         int32_t* temp;
 
-        if ((seriesA_Count + 1) > seriesA_MaxLength)
+        if ((availableIndices_Count + 1) > availableIndices_MaxLength)
         {
-            temp = new int32_t [seriesA_MaxLength + 1];
+            temp = new int32_t [availableIndices_MaxLength + 1];
 
-            if (nullptr != seriesA)
+            if (nullptr != availableIndices)
             {
-                for (i = 0; i < seriesA_Count; i++)
+                for (i = 0; i < availableIndices_Count; i++)
                 {
-                    temp[i] = seriesA[i];
+                    temp[i] = availableIndices[i];
                 }
 
-                delete[](seriesA);
+                delete[](availableIndices);
             }
 
-            seriesA = temp;
+            availableIndices = temp;
 
-            seriesA_MaxLength++;
+            availableIndices_MaxLength++;
         }
 
-        seriesA[seriesA_Count] = item;
+        availableIndices[availableIndices_Count] = item;
 
-        seriesA_Count++;
+        availableIndices_Count++;
     }
 
 
@@ -454,22 +454,35 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eCollisionMgr: reset first array (used in eScene)
+    // eCollisionMgr: reset the data for ID-generator (used in eScene)
     ////////////////////////////////////////////////////////////////
-    void eCollisionMgr::reset()
+    void eCollisionMgr::resetCounters()
     {
-        if (nullptr != seriesA)
+        largestBoxCount = 0;
+        seriesB_Count = 0;
+
+        availableIndices_Count = 0;
+
+        if (availableIndices_MaxLength >= 1)
         {
-            delete[](seriesA);
-            seriesA = nullptr;
-
-            seriesA_MaxLength = 0;
-            seriesA_Count = 0;
+            availableIndices[0] = 0;
+            availableIndices_Count = 1;
         }
+        else
+        {
+            appendAvailableId(0);
+        }
+    }
 
-        unknown_10 = 0;
 
-        insertNewItem_seriesA(0);
+    ////////////////////////////////////////////////////////////////
+    // eCollisionMgr: manipulate locked-flag (used in eScene)
+    ////////////////////////////////////////////////////////////////
+    void eCollisionMgr::lockDuringSerialize(bool state)
+    {
+        /* 0: serialization complete */
+        /* 1: serialization in proccess, do not modify "seriesB" */
+        lockedFlag = (uint8_t)state;
     }
 
 
@@ -478,15 +491,14 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eCollisionMgr::clearNewCollisionMgr()
     {
-        /* DEBUG: "eScene" ("eGroup") deconstuctor is not finished. */
-        /* "eALZone" should have `nullptr` link to a scene, when destroying a level. */
-        debug_AlreadyDestroyed = false;
+        lockedFlag = 0x00;
 
-        /*[0x04]*/ seriesA_Count = 0;
-        /*[0x08]*/ seriesA_MaxLength = 0;
-        /*[0x0C]*/ seriesA = nullptr;
+        /*[0x04]*/ availableIndices_Count = 1;
+        /*[0x08]*/ availableIndices_MaxLength = 1;
+        /*[0x0C]*/ availableIndices = new int32_t [1];
+        availableIndices[0] = 0;
 
-        /*[0x10]*/ unknown_10 = 0;
+        /*[0x10]*/ largestBoxCount = 0;
 
         ArFunctions::generate_AxisList_pointers(&(unknown_14), 8, 3);
 

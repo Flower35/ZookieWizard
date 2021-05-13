@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGroupCtrl::getType() const
+    const TypeInfo* eGroupCtrl::getType() const
     {
         return &E_GROUPCTRL_TYPEINFO;
     }

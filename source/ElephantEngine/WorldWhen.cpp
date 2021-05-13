@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* WorldWhen::getType() const
+    const TypeInfo* WorldWhen::getType() const
     {
         return &E_WORLDWHEN_TYPEINFO;
     }

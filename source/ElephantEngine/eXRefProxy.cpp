@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eXRefProxy::getType() const
+    const TypeInfo* eXRefProxy::getType() const
     {
         return &E_XREFPROXY_TYPEINFO;
     }

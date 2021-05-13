@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoSet::getType() const
+    const TypeInfo* eGeoSet::getType() const
     {
         return &E_GEOSET_TYPEINFO;
     }
@@ -56,19 +56,28 @@ namespace ZookieWizard
         }
 
         /*[0x3C]*/ colorsArray = nullptr;
-        /*[0x58]*/ phy = nullptr;
+        /*[0x58]*/ modifier = nullptr;
         /*[0x5C]*/ aabbTree = nullptr;
 
         /*[0x08]*/ unknown_08 = 0;
         /*[0x50]*/ displayList = 0;
-        /*[0x54]*/ currentSet = 0;
         /*[0x10]*/ texCoordsCount = 1;
 
         /*[0x40-0x4C]*/
         for (i = 0; i < 4; i++)
         {
-            texCoordsId[i] = 0;
+            texMappingTypes[i] = 0;
         }
+
+        unknown_points[0] = nullptr;
+        unknown_points[1] = nullptr;
+
+        /*[0x61]*/ unknown_61 = 0;
+        /*[0x62]*/ unknown_62 = 0;
+        /*[0x63]*/ unknown_63 = 0;
+        /*[0x64]*/ unknown_64 = nullptr;
+
+        /*[0x6C]*/ phyVertices = nullptr;
     }
 
     eGeoSet::~eGeoSet()
@@ -151,7 +160,7 @@ namespace ZookieWizard
 
         for (a = 0; a < texCoordsCount; a++)
         {
-            texCoordsId[a] = other.texCoordsId[a];
+            texMappingTypes[a] = other.texMappingTypes[a];
 
             if (nullptr != other.texCoordsArray[a])
             {
@@ -167,7 +176,7 @@ namespace ZookieWizard
         for (a = texCoordsCount; a < 4; a++)
         {
             texCoordsArray[a] = nullptr;
-            texCoordsId[a] = 0;
+            texMappingTypes[a] = 0;
         }
 
         /****************/
@@ -186,12 +195,10 @@ namespace ZookieWizard
 
         displayList = 0;
 
-        currentSet = 0;
-
         /****************/
 
         /* << MUST BE RESOLVED! >> */
-        phy = nullptr;
+        modifier = nullptr;
 
         /****************/
 
@@ -203,6 +210,55 @@ namespace ZookieWizard
         else
         {
             aabbTree = nullptr;
+        }
+
+        /****************/
+
+        for (a = 0; a < 2; a++)
+        {
+            if (nullptr != other.unknown_points[a])
+            {
+                unknown_points[a] = new eGeoArray<ePoint3>(*(other.unknown_points[a]));
+            }
+            else
+            {
+                unknown_points[a] = nullptr;
+            }
+        }
+
+        /****************/
+
+        unknown_61 = other.unknown_61;
+        unknown_62 = other.unknown_62;
+        unknown_63 = other.unknown_63;
+
+        if (0 != (a = unknown_62 * defaultVertexCount))
+        {
+            unknown_64 = new uint8_t [a];
+
+            if (nullptr != other.unknown_64)
+            {
+                std::memcpy(unknown_64, other.unknown_64, a);
+            }
+            else
+            {
+                std::memset(unknown_64, 0x00, a);
+            }
+        }
+        else
+        {
+            unknown_64 = nullptr;
+        }
+
+        /****************/
+
+        if (nullptr != other.phyVertices)
+        {
+            phyVertices = new eGeoArray<ePhyVertex>(*(other.phyVertices));
+        }
+        else
+        {
+            phyVertices = nullptr;
         }
     }
 
@@ -276,20 +332,23 @@ namespace ZookieWizard
         }
 
         /* Arrays: UV coordinates */
+        /* Types: [0] = normal UV, [1] = reflection (env) mapping */
 
         for (i = 0; i < texCoordsCount; i++)
         {
             ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&(texCoordsArray[i]), &E_GEOARRAY_EPOINT2_TYPEINFO);
 
-            ar.readOrWrite(&(texCoordsId[i]), 0x04);
+            ar.readOrWrite(&(texMappingTypes[i]), 0x04);
         }
 
         if (ar.isInReadMode())
         {
             for (i = texCoordsCount; i < 4; i++)
             {
+                texCoordsArray[i]->decRef();
                 texCoordsArray[i] = nullptr;
-                texCoordsId[i] = 0;
+
+                texMappingTypes[i] = 0;
             }
         }
 
@@ -307,7 +366,91 @@ namespace ZookieWizard
 
         /* PhyTriMesh */
 
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&phy, &E_PHYTRIMESH_TYPEINFO);
+        if (ar.getVersion() >= 0x9E)
+        {
+            ArFunctions::serialize_e3fXArray(ar, &(normalsArray[1]));
+            ArFunctions::serialize_e3fXArray(ar, &(verticesArray[1]));
+
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&phyVertices, &E_GEOARRAY_EPHYVERTEX_TYPEINFO);
+        }
+        else
+        {
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&modifier, &E_PHYTRIMESH_TYPEINFO);
+        }
+
+        /* Unknown parameters */
+
+        if (ar.getVersion() >= 0x9B)
+        {
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&(unknown_points[0]), &E_GEOARRAY_EPOINT3_TYPEINFO);
+        }
+
+        if (ar.getVersion() >= 0x9D)
+        {
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&(unknown_points[1]), &E_GEOARRAY_EPOINT3_TYPEINFO);
+        }
+
+        if (ar.getVersion() >= 0xAD)
+        {
+            ar.readOrWrite(&unknown_63, 0x01);
+        }
+        else
+        {
+            unknown_63 = 0x00;
+        }
+
+        if (ar.getVersion() >= 0xAB)
+        {
+            ar.readOrWrite(&unknown_62, 0x01);
+            ar.readOrWrite(&unknown_61, 0x01);
+
+            i = unknown_62 * defaultVertexCount;
+
+            if (ar.isInReadMode())
+            {
+                if (nullptr != unknown_64)
+                {
+                    delete[](unknown_64);
+                }
+
+                if (0 != i)
+                {
+                    unknown_64 = new uint8_t [i];
+                    ar.readOrWrite(unknown_64, i);
+                }
+                else
+                {
+                    unknown_64 = nullptr;
+                }
+
+                if (0x03 == unknown_61)
+                {
+                    throw ErrorMessage
+                    (
+                        "eGeoSet::serialize():\n" \
+                        "not supported setting! (ar verison >= 171)"
+                    );
+                }
+            }
+            else
+            {
+                ar.readOrWrite(unknown_64, i);
+
+                if (0x03 == unknown_61)
+                {
+                    throw ErrorMessage
+                    (
+                        "eGeoSet::serialize():\n" \
+                        "not supported setting! (ar verison >= 171)"
+                    );
+                }
+            }
+        }
+        else
+        {
+            unknown_62 = 0x00;
+            unknown_61 = 0x00;
+        }
     }
 
 
@@ -327,10 +470,10 @@ namespace ZookieWizard
             }
             else
             {
-                if (nullptr != phy)
+                if (nullptr != modifier)
                 {
-                    phy->prepareMatrices(GUI::drawFlags::DRAW_FLAG_ANIMS & draw_flags);
-                    phy->animateVertices();
+                    modifier->prepareMatrices(GUI::drawFlags::DRAW_FLAG_ANIMS & draw_flags);
+                    modifier->animateVertices();
                 }
 
                 displayVertexBufferObject(texID, GUI::drawFlags::DRAW_FLAG_COLORS & draw_flags);
@@ -374,61 +517,59 @@ namespace ZookieWizard
 
     int32_t eGeoSet::getTextureCoordsCount() const
     {
-        if (0 == texCoordsCount)
-        {
-            return 1;
-        }
-
         return texCoordsCount;
     }
 
-    int32_t eGeoSet::getTextureId(int32_t i) const
-    {
-        if ((i >= 0) && (i < 4))
-        {
-            return texCoordsId[i];
-        }
-
-        return 0;
-    }
-
 
     ////////////////////////////////////////////////////////////////
-    // eGeoSet: set arrays
+    // eGeoSet: set arrays and properties
     ////////////////////////////////////////////////////////////////
 
-    void eGeoSet::setVerticesArray(eGeoArray<ePoint4>* new_vertices_array)
+    void eGeoSet::setVerticesArray(int32_t i, eGeoArray<ePoint4>* new_vertices_array)
     {
-        if (verticesArray[0] != new_vertices_array)
+        if (i < 0) i = 0; else if (i > 1) i = 1;
+
+        if (verticesArray[i] != new_vertices_array)
         {
-            if (nullptr != verticesArray[0])
-            {
-                verticesArray[0]->decRef();
-            }
+            verticesArray[i]->decRef();
 
-            verticesArray[0] = new_vertices_array;
+            verticesArray[i] = new_vertices_array;
 
-            if (nullptr != verticesArray[0])
+            if (nullptr != verticesArray[i])
             {
-                verticesArray[0]->incRef();
+                verticesArray[i]->incRef();
             }
         }
     }
 
-    void eGeoSet::setNormalsArray(eGeoArray<ePoint4>* new_normals_array)
+    void eGeoSet::setNormalsArray(int32_t i, eGeoArray<ePoint4>* new_normals_array)
     {
-        if (normalsArray[0] != new_normals_array)
+        if (i < 0) i = 0; else if (i > 1) i = 1;
+
+        if (normalsArray[i] != new_normals_array)
         {
-            if (nullptr != normalsArray[0])
+            normalsArray[i]->decRef();
+
+            normalsArray[i] = new_normals_array;
+
+            if (nullptr != normalsArray[i])
             {
-                normalsArray[0]->decRef();
+                normalsArray[i]->incRef();
             }
+        }
+    }
 
-            normalsArray[0] = new_normals_array;
+    void eGeoSet::setPhyVertices(eGeoArray<ePhyVertex>* new_phyvertices)
+    {
+        if (phyVertices != new_phyvertices)
+        {
+            phyVertices->decRef();
 
-            if (nullptr != normalsArray[0])
+            phyVertices = new_phyvertices;
+
+            if (nullptr != phyVertices)
             {
-                normalsArray[0]->incRef();
+                phyVertices->incRef();
             }
         }
     }
@@ -437,10 +578,7 @@ namespace ZookieWizard
     {
         if (indicesOffsets != new_indices_offets)
         {
-            if (nullptr != indicesOffsets)
-            {
-                indicesOffsets->decRef();
-            }
+            indicesOffsets->decRef();
 
             indicesOffsets = new_indices_offets;
 
@@ -455,10 +593,7 @@ namespace ZookieWizard
     {
         if (indicesArray != new_indices_array)
         {
-            if (nullptr != indicesArray)
-            {
-                indicesArray->decRef();
-            }
+            indicesArray->decRef();
 
             indicesArray = new_indices_array;
 
@@ -469,54 +604,60 @@ namespace ZookieWizard
         }
     }
 
-    void eGeoSet::setTextureCoordsArray(eGeoArray<ePoint2>* new_uv_array)
+    void eGeoSet::setTextureCoordsArray(int32_t i, eGeoArray<ePoint2>* new_uv_array)
     {
-        int32_t i;
+        if (i > 3) i = 3; else if (i < 0) i = 0;
 
-        if (texCoordsArray[0] != new_uv_array)
+        if (texCoordsArray[i] != new_uv_array)
         {
-            for (i = 0; i < 4; i++)
+            texCoordsArray[i]->decRef();
+
+            texCoordsArray[i] = new_uv_array;
+
+            if (nullptr != texCoordsArray[i])
             {
-                if (nullptr != texCoordsArray[i])
-                {
-                    texCoordsArray[i]->decRef();
-
-                    texCoordsArray[i] = nullptr;
-                }
-
-                texCoordsId[i] = 0;
-            }
-
-            texCoordsArray[0] = new_uv_array;
-            texCoordsId[0] = 0;
-
-            if (nullptr != texCoordsArray[0])
-            {
-                texCoordsArray[0]->incRef();
-
-                texCoordsCount = 1;
-            }
-            else
-            {
-                texCoordsCount = 0;
+                texCoordsArray[i]->incRef();
             }
         }
+
+        for (i = 3; i >= 0; i--)
+        {
+            if (nullptr != texCoordsArray[i])
+            {
+                texCoordsCount = i + 1;
+                return;
+            }
+        }
+
+        texCoordsCount = 0;
     }
 
     void eGeoSet::setColorsArray(eGeoArray<ePoint4>* new_colors_array)
     {
         if (colorsArray != new_colors_array)
         {
-            if (nullptr != colorsArray)
-            {
-                colorsArray->decRef();
-            }
+            colorsArray->decRef();
 
             colorsArray = new_colors_array;
 
             if (nullptr != colorsArray)
             {
                 colorsArray->incRef();
+            }
+        }
+    }
+
+    void eGeoSet::setPhyTriMesh(ePhyTriMesh* new_modifier)
+    {
+        if (modifier != new_modifier)
+        {
+            modifier->decRef();
+
+            modifier = new_modifier;
+
+            if (nullptr != modifier)
+            {
+                modifier->incRef();
             }
         }
     }
@@ -532,22 +673,34 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eGeoSet: get arrays
+    // eGeoSet: get arrays and properties
     ////////////////////////////////////////////////////////////////
 
-    eGeoArray<ePoint4>* eGeoSet::getVerticesArray() const
+    eGeoArray<ePoint4>* eGeoSet::getVerticesArray(int32_t i) const
     {
-        return verticesArray[currentSet];
+        if (i < 0) i = 0; else if (i > 1) i = 1;
+
+        return verticesArray[i];
     }
 
-    eGeoArray<ePoint4>* eGeoSet::getNormalsArray() const
+    eGeoArray<ePoint4>* eGeoSet::getNormalsArray(int32_t i) const
     {
-        return normalsArray[currentSet];
+        if (i < 0) i = 0; else if (i > 1) i = 1;
+
+        return normalsArray[i];
     }
 
-    eGeoArray<ePoint2>* eGeoSet::getTextureCoordsArray() const
+    eGeoArray<ePhyVertex>* eGeoSet::getPhyVertices() const
     {
-        return texCoordsArray[0];
+        return phyVertices;
+    }
+
+    eGeoArray<ePoint2>* eGeoSet::getTextureCoordsArray(int32_t i) const
+    {
+        if (i >= texCoordsCount) i = texCoordsCount - 1;
+        else if (i < 0) i = 0;
+
+        return texCoordsArray[i];
     }
 
     eGeoArray<ePoint4>* eGeoSet::getColorsArray() const
@@ -567,7 +720,7 @@ namespace ZookieWizard
 
     ePhyTriMesh* eGeoSet::getPhyTriMesh() const
     {
-        return phy;
+        return modifier;
     }
 
 
@@ -651,7 +804,7 @@ namespace ZookieWizard
 
         /********************************/
         /* Look for all the triangles in the mesh */
-        /* (--dsp--) optimize for quads */
+        /* (--TODO--) optimize for quads */
 
         for (i = 0; i < 2; i++)
         {
@@ -924,13 +1077,34 @@ namespace ZookieWizard
 
         /****************/
 
+        phyVertices->decRef();
+        phyVertices = nullptr;
+
+        /****************/
+
+        if (nullptr != unknown_64)
+        {
+            delete[](unknown_64);
+            unknown_64 = nullptr;
+        }
+
+        /****************/
+
+        for (a = 0; a < 2; a++)
+        {
+            unknown_points[a]->decRef();
+            unknown_points[a] = nullptr;
+        }
+
+        /****************/
+
         aabbTree->decRef();
         aabbTree = nullptr;
 
         /****************/
 
-        phy->decRef();
-        phy = nullptr;
+        modifier->decRef();
+        modifier = nullptr;
 
         /****************/
 
@@ -990,7 +1164,7 @@ namespace ZookieWizard
             0x04,
             GL_FLOAT,
             0,
-            verticesArray[currentSet]->getData()
+            verticesArray[0]->getData()
         );
 
         /* TEXTURE */
@@ -1010,7 +1184,7 @@ namespace ZookieWizard
 
         /* NORMALS */
 
-        if (nullptr != normalsArray[currentSet])
+        if (nullptr != normalsArray[0])
         {
             glEnableClientState(GL_NORMAL_ARRAY);
 
@@ -1018,7 +1192,7 @@ namespace ZookieWizard
             (
                 GL_FLOAT,
                 0x10,
-                normalsArray[currentSet]->getData()
+                normalsArray[0]->getData()
             );
         };
 

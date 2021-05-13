@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLisajoux::getType() const
+    const TypeInfo* eLisajoux::getType() const
     {
         return &E_LISAJOUX_TYPEINFO;
     }

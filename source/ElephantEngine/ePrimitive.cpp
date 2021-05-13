@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePrimitive::getType() const
+    const TypeInfo* ePrimitive::getType() const
     {
         return &E_PRIMITIVE_TYPEINFO;
     }

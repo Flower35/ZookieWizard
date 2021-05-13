@@ -42,7 +42,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;

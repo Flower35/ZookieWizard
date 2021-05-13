@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eALZoneSensor::getType() const
+    const TypeInfo* eALZoneSensor::getType() const
     {
         return &E_ALZONESENSOR_TYPEINFO;
     }
@@ -89,11 +89,11 @@ namespace ZookieWizard
     void eALZoneSensor::serialize(Archive &ar)
     {
         int32_t a;
-        TypeInfo* t;
+        const TypeInfo* t;
 
         eALBox::serialize(ar);
 
-        /* Deprecated type */
+        /* Deprecated type-check */
         /* Egngine suggests "Actor" TypeInfo, but levels use "ePivot" */
         t = &E_PIVOT_TYPEINFO;
         ar.checkTypeInfo(&t);

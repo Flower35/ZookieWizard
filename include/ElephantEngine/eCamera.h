@@ -20,10 +20,11 @@ namespace ZookieWizard
 
             /*[0x01CC]*/ bool followCurrentActor;
             /*[0x01D0]*/ eTransform* camTarget;
+            /*[0x01D4]*/ eLeafCtrl<float>* unknown_01D4;
             /*[0x01D8-0x01E4]*/ float unknown_01D8[4];
 
             eLeafCtrl<float>* unknown_01E0;
-            int32_t unknown_01DC;
+            float unknown_01DC;
 
         /*** Methods ***/
 
@@ -44,7 +45,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             /* << eNode >> */

@@ -25,7 +25,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eProxy::getType() const
+    const TypeInfo* eProxy::getType() const
     {
         return &E_PROXY_TYPEINFO;
     }
@@ -346,7 +346,7 @@ namespace ZookieWizard
     {
         eTransform::editingNewNodeSetup();
 
-        reloadXRef(getEditorString(1, false), currentGameVersion);
+        reloadXRef(getEditorString(1, false), currentArchiveVersion);
     }
 
 
@@ -507,7 +507,7 @@ namespace ZookieWizard
                 externalContentLink = nullptr;
             }
 
-            reloadXRef(getEditorString(1, false), currentGameVersion);
+            reloadXRef(getEditorString(1, false), currentArchiveVersion);
 
             return 0;
         }
@@ -520,7 +520,7 @@ namespace ZookieWizard
     // eProxy: loading or exporting Proxies
     ////////////////////////////////////////////////////////////////
 
-    void eProxy::reloadXRef(const eString &media_dir, int32_t engine_version)
+    void eProxy::reloadXRef(const eString &media_dir, int32_t ar_version)
     {
         int32_t ar_flags;
 
@@ -549,7 +549,7 @@ namespace ZookieWizard
             test_xref_taget[0] = new eXRefTarget;
             test_xref_taget[0]->incRef();
 
-            if (test_xref_taget[1] = test_xref_taget[0]->loadTarget(media_dir, targetFile, engine_version, ar_flags))
+            if (test_xref_taget[1] = test_xref_taget[0]->loadTarget(media_dir, targetFile, ar_version, ar_flags))
             {
                 test_xref_proxy = new eXRefProxy(test_xref_taget[1]);
                 test_xref_proxy->incRef();
@@ -565,10 +565,10 @@ namespace ZookieWizard
 
         /********************************/
 
-        eGroup::reloadXRef(media_dir, engine_version);
+        eGroup::reloadXRef(media_dir, ar_version);
     }
 
-    void eProxy::exportXRef(const eString &media_dir, int32_t engine_version) const
+    void eProxy::exportXRef(const eString &media_dir, int32_t ar_version) const
     {
         int32_t ar_flags, a, b = nodes.getSize();
 
@@ -600,7 +600,7 @@ namespace ZookieWizard
                 {
                     if (nullptr != (test_xref_taget = test_xref_proxy->getXRefTarget()))
                     {
-                        test_xref_taget->exportTarget(media_dir, engine_version, ar_flags);
+                        test_xref_taget->exportTarget(media_dir, ar_version, ar_flags);
                     }
                 }
             }
@@ -608,7 +608,7 @@ namespace ZookieWizard
 
         /********************************/
 
-        eGroup::exportXRef(media_dir, engine_version);
+        eGroup::exportXRef(media_dir, ar_version);
     }
 
 

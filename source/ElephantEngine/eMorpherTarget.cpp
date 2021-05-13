@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMorpherTarget::getType() const
+    const TypeInfo* eMorpherTarget::getType() const
     {
         return &E_MORPHERTARGET_TYPEINFO;
     }

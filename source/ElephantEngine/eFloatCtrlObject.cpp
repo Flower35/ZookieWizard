@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFloatCtrlObject::getType() const
+    const TypeInfo* eFloatCtrlObject::getType() const
     {
         return &E_FLOATCTRLOBJECT_TYPEINFO;
     }

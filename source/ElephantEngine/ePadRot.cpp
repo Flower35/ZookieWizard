@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePadRot::getType() const
+    const TypeInfo* ePadRot::getType() const
     {
         return &E_PADROT_TYPEINFO;
     }

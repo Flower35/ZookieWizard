@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGoUpAndDown::getType() const
+    const TypeInfo* eGoUpAndDown::getType() const
     {
         return &E_GOUPANDDOWN_TYPEINFO;
     }

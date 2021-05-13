@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFSOp::getType() const
+    const TypeInfo* eFSOp::getType() const
     {
         return &E_FSOP_TYPEINFO;
     }

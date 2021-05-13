@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSkyManager::getType() const
+    const TypeInfo* eSkyManager::getType() const
     {
         return &E_SKYMANAGER_TYPEINFO;
     }

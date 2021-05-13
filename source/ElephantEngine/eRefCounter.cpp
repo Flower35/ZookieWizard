@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eRefCounter::getType() const
+    const TypeInfo* eRefCounter::getType() const
     {
         return &E_REFCOUNTER_TYPEINFO;
     }
@@ -122,21 +122,42 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Archive: macro for objects with reference counters
     ////////////////////////////////////////////////////////////////
-    void ArFunctions::serialize_eRefCounter(Archive &ar, eRefCounter** o, TypeInfo* t)
+    void ArFunctions::serialize_eRefCounter(Archive &ar, eRefCounter** o, const TypeInfo* t)
     {
         if (ar.isInReadMode())
         {
             (*o)->decRef();
+            (*o) = nullptr;
         }
 
-        ar.serialize((eObject**)o, t);
-
-        if (ar.isInReadMode())
+        try
         {
-            if (nullptr != (*o))
+            ar.serialize((eObject**)o, t);
+        }
+        catch (std::bad_alloc)
+        {
+            if (ar.isInReadMode() && (nullptr != (*o)))
             {
                 (*o)->incRef();
             }
+
+            /* Catch "std::bad_alloc" in `Archive::serialize()`! */
+            throw;
+        }
+        catch (ErrorMessage)
+        {
+            if (ar.isInReadMode() && (nullptr != (*o)))
+            {
+                (*o)->incRef();
+            }
+
+            /* Catch "ErrorMessage" in `Archive::serialize()`! */
+            throw;
+        }
+
+        if (ar.isInReadMode() && (nullptr != (*o)))
+        {
+            (*o)->incRef();
         }
     }
 

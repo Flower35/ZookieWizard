@@ -15,7 +15,7 @@ namespace ZookieWizard
         // Function takes care of `incRef()` and `decRef()` instructions
         ////////////////////////////////////////////////////////////////
         template <typename T>
-        void serializeKnownObject(Archive &ar, eRefCounter** o, TypeInfo* t)
+        void serializeKnownObject(Archive &ar, eRefCounter** o, const TypeInfo* t)
         {
             int32_t a;
 
@@ -34,11 +34,11 @@ namespace ZookieWizard
                     {
                         (*o) = new T;
 
+                        (*o)->incRef();
+
                         ar.addItem((*o), AR_ITEM_TYPE_OBJECT);
 
                         (*o)->serialize(ar);
-
-                        (*o)->incRef();
 
                         return;
                     }

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePadSeqeunce::getType() const
+    const TypeInfo* ePadSeqeunce::getType() const
     {
         return &E_PADSEQEUNCE_TYPEINFO;
     }

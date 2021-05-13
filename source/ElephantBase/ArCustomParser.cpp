@@ -1,5 +1,6 @@
 #include <ElephantBase/ArCustomParser.h>
 
+#include <ElephantBase/Archive.h>
 #include <ElephantEngine/eNode.h>
 #include <ElephantEngine/eGroup.h>
 #include <ElephantEngine/eScene.h>
@@ -210,7 +211,7 @@ namespace ZookieWizard
         eString dummy_str[2];
         char bufor[2][LARGE_BUFFER_SIZE];
 
-        TypeInfo* dummy_typeinfo;
+        const TypeInfo* dummy_typeinfo;
         eNode* root_node = ArFunctions::getCurrentScene();
         eNode* dummy_node;
         eGroup* dummy_parent;
@@ -219,7 +220,7 @@ namespace ZookieWizard
         NodeRefLinker noderefinker;
         WavefrontObjImporter obj_importer;
         eSRP dummy_srp;
-        float dummy_floats[3];
+        float dummy_floats[4];
 
         try
         {
@@ -647,18 +648,32 @@ namespace ZookieWizard
 
                                         if (propsCount >= 5)
                                         {
-                                            if (!props[4].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+                                            if (props[4].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
                                             {
-                                                TxtParsingNode_ErrorArgType(bufor[1], "ImportWavefrontOBJ", 5, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                                                props[4].getValue(dummy_floats);
+
+                                                dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
+                                                dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
+                                                dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
+
+                                                dummy_srp.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
+                                            }
+                                            else if (props[4].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT4))
+                                            {
+                                                props[4].getValue(dummy_floats);
+
+                                                dummy_srp.rot.x = dummy_floats[0];
+                                                dummy_srp.rot.y = dummy_floats[1];
+                                                dummy_srp.rot.z = dummy_floats[2];
+                                                dummy_srp.rot.w = dummy_floats[3];
+
+                                                dummy_srp.rot.normalize();
+                                            }
+                                            else
+                                            {
+                                                TxtParsingNode_ErrorArgType(bufor[1], "ImportWavefrontOBJ", 5, TXT_PARSING_NODE_PROPTYPE_FLOAT4);
                                                 throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
                                             }
-
-                                            props[4].getValue(dummy_floats);
-
-                                            dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
-                                            dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
-                                            dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
-                                            dummy_srp.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
 
                                             if (propsCount >= 6)
                                             {
@@ -737,6 +752,217 @@ namespace ZookieWizard
 
                             /********************************/
                             /* "OptimizeMaterials": finished */
+
+                            successful_messages++;
+                        }
+                        else if (lastName.compareExact("IgnoreCurrentSymbols", true))
+                        {
+                            /********************************/
+                            /* "IgnoreCurrentSymbols": just set counters to zeroes! */
+
+                            noderefsCount = 0;
+
+                            /********************************/
+                            /* "IgnoreCurrentSymbols": finished */
+
+                            successful_messages++;
+                        }
+                        else if (lastName.compareExact("SwitchAr", true))
+                        {
+                            /********************************/
+                            /* "SwitchAr": (1) invalidate current symbols and current parent node */
+
+                            noderefsCount = 0;
+                            defaultParent = nullptr;
+                            root_node = nullptr;
+
+                            /********************************/
+                            /* "SwitchAr": (2) collect the paths */
+
+                            collectPropertiesInParentheses("SwitchAr", false);
+
+                            strcpy_s(bufor[0], LARGE_BUFFER_SIZE, "\"SwitchAr\": error while parsing this keyword");
+
+                            if (propsCount < 1)
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], "Expected at least one argument!");
+                            }
+                            else if (propsCount > 2)
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], "Too many arguments! (expected no more than 2 args)");
+                            }
+
+                            if (!props[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+                            {
+                                TxtParsingNode_ErrorArgType(bufor[1], "SwitchAr", 1, TXT_PARSING_NODE_PROPTYPE_STRING);
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+                            }
+
+                            props[0].getValue(&(dummy_str[0]));
+
+                            if (propsCount >= 2)
+                            {
+                                if (!props[1].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+                                {
+                                    TxtParsingNode_ErrorArgType(bufor[1], "SwitchAr", 2, TXT_PARSING_NODE_PROPTYPE_STRING);
+                                    throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+                                }
+
+                                props[1].getValue(&(dummy_str[1]));
+                                dummy_str[1] = dummy_str[1].getSubstring(0, (LARGE_BUFFER_SIZE - 1));
+                                strcpy_s(mediaDirectory, LARGE_BUFFER_SIZE, dummy_str[1].getText());
+                            }
+
+                            /********************************/
+                            /* "SwitchAr": (3) calling the ZookieWizard Menu option */
+
+                            if (false == dummy_str[0].isRooted())
+                            {
+                                dummy_str[0] = includedFiles[includedFileId].fileName.getPath() + dummy_str[0];
+                            }
+
+                            ArMenuOptions_OpenOrSaveAr(dummy_str[0].getText(), AR_MODE_READ);
+
+                            root_node = ArFunctions::getCurrentScene();
+
+                            /********************************/
+                            /* "SwitchAr": finished */
+
+                            successful_messages++;
+                        }
+                        else if (lastName.compareExact("SaveAr", true))
+                        {
+                            /********************************/
+                            /* "SaveAr": (1) collect the path and the optional version override */
+
+                            collectPropertiesInParentheses("SaveAr", false);
+
+                            strcpy_s(bufor[0], LARGE_BUFFER_SIZE, "\"SaveAr\": error while parsing this keyword");
+
+                            if (propsCount < 1)
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], "Expected at least one argument!");
+                            }
+                            else if (propsCount > 2)
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], "Too many arguments! (expected no more than 2 args)");
+                            }
+
+                            if (!props[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+                            {
+                                TxtParsingNode_ErrorArgType(bufor[1], "SaveAr", 1, TXT_PARSING_NODE_PROPTYPE_STRING);
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+                            }
+
+                            props[0].getValue(&lastString);
+
+                            if (propsCount >= 2)
+                            {
+                                if (!props[1].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+                                {
+                                    TxtParsingNode_ErrorArgType(bufor[1], "SaveAr", 2, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                                    throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+                                }
+
+                                props[1].getValue(&(test[0]));
+                                currentArchiveVersion = test[0];
+                            }
+                            else
+                            {
+                                currentArchiveVersion = myARs[currentArId].getVersion();
+                            }
+
+                            /********************************/
+                            /* "SaveAr": (3) calling the ZookieWizard Menu option */
+
+                            if (!lastString.isRooted())
+                            {
+                                lastString = includedFiles[includedFileId].fileName.getPath() + lastString;
+                            }
+
+                            ArMenuOptions_OpenOrSaveAr(lastString.getText(), AR_MODE_WRITE);
+
+                            /********************************/
+                            /* "SaveAr": finished */
+
+                            successful_messages++;
+                        }
+                        else if (lastName.compareExact("CloseAr", true))
+                        {
+                            /********************************/
+                            /* "CloseAr": clear current archive slot */
+
+                            noderefsCount = 0;
+                            defaultParent = nullptr;
+                            root_node = nullptr;
+
+                            ArMenuOptions_CloseAr(true);
+
+                            /********************************/
+                            /* "CloseAr": finished */
+
+                            successful_messages++;
+                        }
+                        else if (lastName.compareExact("GenerateEmptyScene", true))
+                        {
+                            /********************************/
+                            /* "GenerateEmptyScene": (1) invalidate current symbols and current parent node */
+
+                            noderefsCount = 0;
+                            defaultParent = nullptr;
+                            root_node = nullptr;
+
+                            /********************************/
+                            /* "GenerateEmptyScene": (2) collect the level name */
+
+                            collectPropertiesInParentheses("GenerateEmptyScene", false);
+
+                            strcpy_s(bufor[0], LARGE_BUFFER_SIZE, "\"GenerateEmptyScene\": error while parsing this keyword");
+
+                            if (propsCount < 1)
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], "Expected at least one argument!");
+                            }
+                            else if (propsCount > 2)
+                            {
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], "Too many arguments! (expected no more than 2 args)");
+                            }
+
+                            if (!props[0].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+                            {
+                                TxtParsingNode_ErrorArgType(bufor[1], "GenerateEmptyScene", 1, TXT_PARSING_NODE_PROPTYPE_STRING);
+                                throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+                            }
+
+                            props[0].getValue(&(dummy_str[0]));
+                            dummy_str[0] = dummy_str[0].getSubstring(0, (LARGE_BUFFER_SIZE - 1));
+                            strcpy_s(denisLevelName, LARGE_BUFFER_SIZE, dummy_str[0].getText());
+
+                            /********************************/
+                            /* "GenerateEmptyScene": (3) overriding MediaDir */
+
+                            if (propsCount >= 2)
+                            {
+                                if (!props[1].checkType(TXT_PARSING_NODE_PROPTYPE_STRING))
+                                {
+                                    TxtParsingNode_ErrorArgType(bufor[1], "GenerateEmptyScene", 2, TXT_PARSING_NODE_PROPTYPE_STRING);
+                                    throwError(AR_CUSTOM_PARSER_STATUS_OK, bufor[0], bufor[1]);
+                                }
+
+                                props[1].getValue(&(dummy_str[1]));
+                                dummy_str[1] = dummy_str[1].getSubstring(0, (LARGE_BUFFER_SIZE - 1));
+                                strcpy_s(mediaDirectory, LARGE_BUFFER_SIZE, dummy_str[1].getText());
+                            }
+
+                            /********************************/
+                            /* "GenerateEmptyScene": (4) calling the ZookieWizard Menu option */
+
+                            ArMenuOptions_GenerateEmptyScene(true);
+
+                            root_node = ArFunctions::getCurrentScene();
+
+                            /********************************/
+                            /* "GenerateEmptyScene": finished */
 
                             successful_messages++;
                         }
@@ -1141,6 +1367,20 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     int32_t ArCustomParser::checkIfLastNameWasReserved() const
     {
+        int32_t i;
+
+        const char* keywords[] =
+        {
+            "FindNode", "AddNode", "NodeMsg",
+            "NodeSetCollision", "RemoveNode",
+            "ImportWavefrontOBJ", "OptimizeBitmaps",
+            "OptimizeTextures", "OptimizeMaterials",
+            "IgnoreCurrentSymbols", "SwitchAr",
+            "SaveAr", "CloseAr", "GenerateEmptyScene"
+        };
+
+        const int32_t keys_count = sizeof(keywords) / sizeof(const char*);
+
         if (lastName.compareExact("FALSE", false))
         {
             return 0;
@@ -1149,41 +1389,15 @@ namespace ZookieWizard
         {
             return 1;
         }
-        else if (lastName.compareExact("FindNode", true))
+        else
         {
-            return 2;
-        }
-        else if (lastName.compareExact("AddNode", true))
-        {
-            return 2;
-        }
-        else if (lastName.compareExact("NodeMsg", true))
-        {
-            return 2;
-        }
-        else if (lastName.compareExact("NodeSetCollision", true))
-        {
-            return 2;
-        }
-        else if (lastName.compareExact("RemoveNode", true))
-        {
-            return 2;
-        }
-        else if (lastName.compareExact("ImportWavefrontOBJ", true))
-        {
-            return 2;
-        }
-        else if (lastName.compareExact("OptimizeBitmaps", true))
-        {
-            return 2;
-        }
-        else if (lastName.compareExact("OptimizeTextures", true))
-        {
-            return 2;
-        }
-        else if (lastName.compareExact("OptimizeMaterials", true))
-        {
-            return 2;
+            for (i = 0; i < keys_count; i++)
+            {
+                if (lastName.compareExact(keywords[i], true))
+                {
+                    return 2;
+                }
+            }
         }
 
         return 3;
@@ -1925,7 +2139,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // ArCustomParser: parsing macro for "FindNode" and "AddNode"
     ////////////////////////////////////////////////////////////////
-    void ArCustomParser::parseTypeInfoAndIdentifier(bool can_name_be_empty, const char* current_msg, TypeInfo* &returned_type, eString &returned_name)
+    void ArCustomParser::parseTypeInfoAndIdentifier(bool can_name_be_empty, const char* current_msg, const TypeInfo* &returned_type, eString &returned_name)
     {
         int32_t test;
         char bufor[2][LARGE_BUFFER_SIZE];
@@ -1944,7 +2158,7 @@ namespace ZookieWizard
         {
             try
             {
-                returned_type = InterfaceManager.getTypeInfo(lastName.getText());
+                returned_type = theElephantInterfaces.getTypeInfo(lastName.getText());
             }
             catch (ErrorMessage)
             {
@@ -1996,6 +2210,5 @@ namespace ZookieWizard
 
         returned_name = lastName;
     }
-
 
 }

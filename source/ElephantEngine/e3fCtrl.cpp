@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* e3fCtrl::getType() const
+    const TypeInfo* e3fCtrl::getType() const
     {
         return &E_3FCTRL_TYPEINFO;
     }

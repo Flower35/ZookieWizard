@@ -23,7 +23,10 @@ namespace ZookieWizard
 
         extern OPENFILENAME ofn;
 
-        extern int currentGameVersion;
+        static const int ARCHIVE_VERSION_MIN = 0x67;
+        static const int ARCHIVE_VERSION_MAX = 0xB1;
+        extern int currentArchiveVersion;
+
         extern char mediaDirectory[LARGE_BUFFER_SIZE];
         extern char denisDirectory[LARGE_BUFFER_SIZE];
         extern char denisLevelName[LARGE_BUFFER_SIZE];
@@ -35,15 +38,16 @@ namespace ZookieWizard
 
         const char* getEditorString(int32_t id, bool silent);
 
-        void setGameVersion(int32_t engine_version);
+        void setMaxArchiveVersion(int32_t ar_version);
 
         bool checkArFilenameExtensions(const char* name, int32_t length);
 
-        void ArMenuOptions_OpenOrSaveAr(int32_t mode);
-        void ArMenuOptions_CloseAr();
-        void ArMenuOptions_GenerateEmptyScene();
+        void ArMenuOptions_OpenOrSaveAr(const char* auto_path, int32_t mode);
+        void ArMenuOptions_CloseAr(bool automatic);
+        void ArMenuOptions_GenerateEmptyScene(bool automatic);
         void ArMenuOptions_ExportScripts();
         void ArMenuOptions_ExportProxies();
+        void ArMenuOptions_ReloadProxies();
         void ArMenuOptions_BulkArchiveConverter();
         void ArMenuOptions_WriteStructureToTextFile();
         void ArMenuOptions_ExportArToCollada();

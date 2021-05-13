@@ -21,7 +21,7 @@ namespace ZookieWizard
         public:
 
             /*[0x00]*/ eString name;
-            /*[0x04]*/ TypeInfo* gadgetType;
+            /*[0x04]*/ const TypeInfo* gadgetType;
             /*[0x08]*/ eRefCounter* unknown;
             /*[0x0C]*/ int32_t id;
 
@@ -87,7 +87,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             eString getStringRepresentation() const override;

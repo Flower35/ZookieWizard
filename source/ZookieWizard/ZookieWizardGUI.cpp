@@ -34,68 +34,71 @@ namespace ZookieWizard
         // List of static functions
         ////////////////////////////////////////////////////////////////
 
-        void menuFunc_SetGameVersion(WPARAM wParam, LPARAM lParam, void* custom_param)
-        {
-            setGameVersion((int32_t)custom_param);
-        }
+        #define MENUFUNC_DENISCONVERT_OPENLVL  0
+        #define MENUFUNC_DENISCONVERT_CONVERT  1
 
         void menuFunc_DenisConvert(WPARAM wParam, LPARAM lParam, void* custom_param)
         {
-            int32_t function = (int32_t)custom_param;
-
-            if (0 == function)
+            switch ((int32_t)custom_param)
             {
-                DenisMenuOptions_OpenDenisLevel();
-            }
-            else if (1 == function)
-            {
-                DenisMenuOptions_ConvertDenisLevel();
+                case MENUFUNC_DENISCONVERT_OPENLVL:
+                    DenisMenuOptions_OpenDenisLevel();
+                    return;
+                case MENUFUNC_DENISCONVERT_CONVERT:
+                    DenisMenuOptions_ConvertDenisLevel();
+                    return;
             }
         }
 
+        #define MENUFUNC_ARMENUBAR_OPEN          0
+        #define MENUFUNC_ARMENUBAR_SAVE          1
+        #define MENUFUNC_ARMENUBAR_CLOSE         2
+        #define MENUFUNC_ARMENUBAR_GENERATE      3
+        #define MENUFUNC_ARMENUBAR_PARSER        4
+        #define MENUFUNC_ARMENUBAR_SAVESCRIPTS   5
+        #define MENUFUNC_ARMENUBAR_SAVEXREF      6
+        #define MENUFUNC_ARMENUBAR_LOADXREF      7
+        #define MENUFUNC_ARMENUBAR_BULKCONVERT   8
+        #define MENUFUNC_ARMENUBAR_SAVESTRUCT    9
+        #define MENUFUNC_ARMENUBAR_SAVECOLLADA  10
+
         void menuFunc_ArMenuBar(WPARAM wParam, LPARAM lParam, void* custom_param)
         {
-            int32_t function = (int32_t)custom_param;
-
-            if (0 == function)
+            switch ((int32_t)custom_param)
             {
-                ArMenuOptions_OpenOrSaveAr(AR_MODE_READ);
-            }
-            else if (1 == function)
-            {
-                ArMenuOptions_OpenOrSaveAr(AR_MODE_WRITE);
-            }
-            else if (2 == function)
-            {
-                ArMenuOptions_CloseAr();
-            }
-            else if (3 == function)
-            {
-                ArMenuOptions_GenerateEmptyScene();
-            }
-            else if (4 == function)
-            {
-                ArMenuOptions_ChangeNodesWithTxt();
-            }
-            else if (5 == function)
-            {
-                ArMenuOptions_ExportScripts();
-            }
-            else if (6 == function)
-            {
-                ArMenuOptions_ExportProxies();
-            }
-            else if (7 == function)
-            {
-                ArMenuOptions_BulkArchiveConverter();
-            }
-            else if (8 == function)
-            {
-                ArMenuOptions_WriteStructureToTextFile();
-            }
-            else if (9 == function)
-            {
-                ArMenuOptions_ExportArToCollada();
+                case MENUFUNC_ARMENUBAR_OPEN:
+                    ArMenuOptions_OpenOrSaveAr(nullptr, AR_MODE_READ);
+                    return;
+                case MENUFUNC_ARMENUBAR_SAVE:
+                    ArMenuOptions_OpenOrSaveAr(nullptr, AR_MODE_WRITE);
+                    return;
+                case MENUFUNC_ARMENUBAR_CLOSE:
+                    ArMenuOptions_CloseAr(false);
+                    return;
+                case MENUFUNC_ARMENUBAR_GENERATE:
+                    ArMenuOptions_GenerateEmptyScene(false);
+                    return;
+                case MENUFUNC_ARMENUBAR_PARSER:
+                    ArMenuOptions_ChangeNodesWithTxt();
+                    return;
+                case MENUFUNC_ARMENUBAR_SAVESCRIPTS:
+                    ArMenuOptions_ExportScripts();
+                    return;
+                case MENUFUNC_ARMENUBAR_SAVEXREF:
+                    ArMenuOptions_ExportProxies();
+                    return;
+                case MENUFUNC_ARMENUBAR_LOADXREF:
+                    ArMenuOptions_ReloadProxies();
+                    return;
+                case MENUFUNC_ARMENUBAR_BULKCONVERT:
+                    ArMenuOptions_BulkArchiveConverter();
+                    return;
+                case MENUFUNC_ARMENUBAR_SAVESTRUCT:
+                    ArMenuOptions_WriteStructureToTextFile();
+                    return;
+                case MENUFUNC_ARMENUBAR_SAVECOLLADA:
+                    ArMenuOptions_ExportArToCollada();
+                    return;
             }
         }
 
@@ -134,11 +137,9 @@ namespace ZookieWizard
 
                     /****************/
 
-                    if (myARs[currentArId].isNotEmpty() && (SendMessage((HWND)lParam, LB_GETTEXTLEN, (WPARAM)currentArId, 0) < 64))
+                    if (myARs[currentArId].isNotEmpty())
                     {
-                        SendMessage((HWND)lParam, LB_GETTEXT, (WPARAM)currentArId, (LPARAM)bufor);
-
-                        dummy_str = bufor;
+                        dummy_str = myARs[currentArId].getBaseFileName();
 
                         if (checkArFilenameExtensions(dummy_str.getText(), dummy_str.getLength()))
                         {
@@ -147,6 +148,94 @@ namespace ZookieWizard
                     }
 
                     GUI::updateArSettingsText(2, dummy_str.getText());
+
+                    /****************/
+
+                    setMaxArchiveVersion(myARs[currentArId].getVersion());
+
+                    sprintf_s(bufor, 64, "%i", currentArchiveVersion);
+
+                    GUI::updateArSettingsText(7, bufor);
+
+                    /****************/
+
+                    break;
+                }
+            }
+        }
+
+        void buttonFunc_ArchiveVersionsEdit(WPARAM wParam, LPARAM lParam, void* custom_param)
+        {
+            int32_t new_version;
+            bool invalid_version = false;
+            bool lost_focus = (EN_KILLFOCUS == HIWORD(wParam));
+            char bufor[16];
+
+            if (!updatingEditboxesNotByUser && ((EN_CHANGE == HIWORD(wParam)) || lost_focus))
+            {
+                GetWindowText((HWND)lParam, bufor, 16);
+
+                new_version = std::atoi(bufor);
+
+                if (new_version < ARCHIVE_VERSION_MIN)
+                {
+                    new_version = ARCHIVE_VERSION_MIN;
+                    invalid_version = true;
+                }
+                else if (new_version > ARCHIVE_VERSION_MAX)
+                {
+                    new_version = ARCHIVE_VERSION_MAX;
+                    invalid_version = true;
+                }
+
+                if (lost_focus && invalid_version)
+                {
+                    updatingEditboxesNotByUser = true;
+
+                    sprintf_s(bufor, 16, "%i", new_version);
+                    SetWindowText((HWND)lParam, bufor);
+
+                    updatingEditboxesNotByUser = false;
+                }
+
+                currentArchiveVersion = new_version;
+            }
+        }
+
+        void buttonFunc_ArchiveVersionsList(WPARAM wParam, LPARAM lParam, void* custom_param)
+        {
+            int32_t a;
+            char bufor[16];
+
+            const int ELEPHANT_ENGINES = 7;
+
+            const int AR_VERSIONS[ELEPHANT_ENGINES] =
+            {
+                0x87, 0x89, 0x90, 0x93, 0x9A, 0xA0, 0xB1
+            };
+
+            switch (HIWORD(wParam))
+            {
+                case LBN_SELCHANGE:
+                {
+                    a = SendMessage((HWND)lParam, LB_GETCURSEL, 0, 0);
+
+                    if (a < 0)
+                    {
+                        a = 0;
+                    }
+                    else if (a >= ELEPHANT_ENGINES)
+                    {
+                        a = (ELEPHANT_ENGINES - 1);
+                    }
+
+                    /****************/
+
+                    setMaxArchiveVersion(AR_VERSIONS[a]);
+
+                    sprintf_s(bufor, 16, "%i", currentArchiveVersion);
+
+                    GUI::updateArSettingsText(7, bufor);
 
                     /****************/
 
@@ -653,6 +742,7 @@ namespace ZookieWizard
         // (4) "CameraRotationSpeed"
         // (5) "DrawFlags" (CheckBoxes)
         // (6) "BackgroundColor"
+        // (7) "ArchiveVersion"
         ////////////////////////////////////////////////////////////////
         void updateArSettingsText(int32_t id, const char* new_text)
         {
@@ -733,7 +823,7 @@ namespace ZookieWizard
                     return;
                 }
 
-                case 6: // BackgroundColor
+                case 6: // "BackgroundColor"
                 {
                     colors_str[4] = new_text;
 
@@ -764,6 +854,20 @@ namespace ZookieWizard
                         }
 
                         updateSceneBackgroundColor();
+
+                        updatingEditboxesNotByUser = false;
+                    }
+
+                    return;
+                }
+
+                case 7: // "ArchiveVersion"
+                {
+                    if (NULL != (dummy_window = theWindowsManager.getSpecificWindow(1, 11)))
+                    {
+                        updatingEditboxesNotByUser = true;
+
+                        SetWindowText(dummy_window, new_text);
 
                         updatingEditboxesNotByUser = false;
                     }
@@ -908,28 +1012,22 @@ namespace ZookieWizard
             menu_bar = CreateMenu();
 
             test_menu = CreateMenu();
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_DenisConvert, (void*)0), "&Open level");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_DenisConvert, (void*)1), "&Convert level");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_DenisConvert, (void*)MENUFUNC_DENISCONVERT_OPENLVL), "&Open level");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_DenisConvert, (void*)MENUFUNC_DENISCONVERT_CONVERT), "&Convert level");
             AppendMenu(menu_bar, MF_POPUP, (UINT_PTR)test_menu, "Denis the Kangaroo");
 
             test_menu = CreateMenu();
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_KAO2_PL_PC), "&1) Kangurek Kao: Runda 2 [PL, Retail] [PC]");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_KAO2_EUR_PC), "&2) Kao the Kangaroo: Round 2 [EU, Digital] [PC]");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_KAO_TW_PC), "&3) Kao: Tajemnica Wulkanu [PC]");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_SetGameVersion, (void*)GAME_VERSION_ASTERIX_XXL2_PSP), "&4) Asterix && Obelix XXL 2: Mission Wifix [PSP]");
-            AppendMenu(menu_bar, MF_POPUP, (UINT_PTR)test_menu, "Game &version");
-
-            test_menu = CreateMenu();
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)0), "&Open Archive");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)1), "&Save Archive");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)2), "&Close Archive");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)3), "Generate &empty scene");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)4), "Parse &instructions");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)5), "Export S&cripts");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)6), "Export &proxies");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)7), "&Bulk archive converter");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)8), "Export &readable structure");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)9), "Export COLLADA &dae");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_OPEN),        "Open Archive");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_SAVE),        "Save Archive");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_CLOSE),       "Close Archive");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_GENERATE),    "Generate empty scene");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_PARSER),      "Parse instructions");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_SAVESCRIPTS), "Export Scripts");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_SAVEXREF),    "Export Proxies");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_LOADXREF),    "Reload Proxies");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_BULKCONVERT), "Bulk Archive Converter");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_SAVESTRUCT),  "Export readable structure");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_SAVECOLLADA), "Export COLLADA dae");
             AppendMenu(menu_bar, MF_POPUP, (UINT_PTR)test_menu, "Kao the Kangaroo: Round 2");
 
             SetMenu(main_window, menu_bar);
@@ -943,7 +1041,7 @@ namespace ZookieWizard
             theWindowsManager.updateReturningPosition();
 
             /********************************/
-            /* [PAGE 0] (0 ï¿½ 16) Create checkboxes */
+            /* [PAGE 0] (0 – 16) Create checkboxes */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_AUTOCHECKBOX);
@@ -1308,6 +1406,63 @@ namespace ZookieWizard
             SendMessage(dummy_window, LB_SETCURSEL, (WPARAM)0, 0);
 
             /********************************/
+            /* [PAGE 1] (9) Create line decoration */
+
+            if (!createWindow_linePause())
+            {
+                return false;
+            }
+
+            /********************************/
+            /* [PAGE 1] (10) Create dummy label */
+
+            theWindowsManager.setCurrentClassName("STATIC");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD);
+
+            if (0 == theWindowsManager.addWindow("Current Archive (engine) version:", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01))
+            {
+                return false;
+            }
+
+            /********************************/
+            /* [PAGE 1] (11) Create editbox */
+
+            theWindowsManager.setCurrentClassName("EDIT");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | ES_AUTOHSCROLL);
+
+            sprintf_s(bufor, 64, "%d", ARCHIVE_VERSION_MAX);
+
+            theWindowsManager.addEdgesToNextWindow();
+            if (0 == theWindowsManager.addWindow(bufor, SMALL_EDITBOX_WIDTH, WINDOW_HEIGHT, buttonFunc_ArchiveVersionsEdit, nullptr, 0x01))
+            {
+                return false;
+            }
+
+            theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING_SMALL);
+
+            /********************************/
+            /* [PAGE 1] (12) Create listbox */
+
+            theWindowsManager.setCurrentClassName("LISTBOX");
+            theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_HSCROLL | WS_VSCROLL | LBS_DISABLENOSCROLL | LBS_HASSTRINGS | LBS_NOTIFY);
+
+            theWindowsManager.addEdgesToNextWindow();
+            if (0 == (dummy_window = theWindowsManager.addWindow("", RECT_TABS_X2, 128, buttonFunc_ArchiveVersionsList, nullptr, 0x01)))
+            {
+                return false;
+            }
+
+            SendMessage(dummy_window, LB_SETHORIZONTALEXTENT, (WPARAM)384, 0);
+
+            SendMessage(dummy_window, LB_ADDSTRING, 0, (LPARAM)"\"Kangurek Kao: Runda 2\" (2003, PC);");
+            SendMessage(dummy_window, LB_ADDSTRING, 0, (LPARAM)"\"Kao the Kangaroo: Round 2\"  (2003, PC);");
+            SendMessage(dummy_window, LB_ADDSTRING, 0, (LPARAM)"\"Kao: Tajemnica Wulkanu\"  (2006, PC);");
+            SendMessage(dummy_window, LB_ADDSTRING, 0, (LPARAM)"\"Asterix & Obelix XXL 2: Mission WiFix\"  (2006, PSP);)");
+            SendMessage(dummy_window, LB_ADDSTRING, 0, (LPARAM)"\"Lanfeust of Troy\"  (2008, PSP);");
+            SendMessage(dummy_window, LB_ADDSTRING, 0, (LPARAM)"\"My Horse and Me 2\"  (2008, PC);");
+            SendMessage(dummy_window, LB_ADDSTRING, 0, (LPARAM)"\"The Saddle Club\"  (2010, PC);");
+
+            /********************************/
             /* [PAGE 2] */
 
             theWindowsManager.addPage("Nodes list", menuFunc_NodesListEnter, nullptr);
@@ -1334,7 +1489,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [PAGE 2] (2 ï¿½ 4) Create action switching buttons */
+            /* [PAGE 2] (2 – 4) Create action switching buttons */
 
             nodesList_CurrentAction = 0;
 
@@ -1364,7 +1519,7 @@ namespace ZookieWizard
             theWindowsManager.getCurrentPosition(&x, &y);
 
             /********************************/
-            /* [PAGE 2] (5 ï¿½ 23) Create buttons */
+            /* [PAGE 2] (5 – 23) Create buttons */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON | BS_MULTILINE);
@@ -1563,7 +1718,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 3] (2 ï¿½ 3) Create buttons */
+            /* [PAGE 3] (2 – 3) Create buttons */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON);
@@ -1620,7 +1775,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [PAGE 3] (7 ï¿½ 38) Create checkboxes */
+            /* [PAGE 3] (7 – 38) Create checkboxes */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_AUTOCHECKBOX);

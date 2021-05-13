@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMultiCtrl<eSRP>::getType() const
+    const TypeInfo* eMultiCtrl<eSRP>::getType() const
     {
         return &E_MULTICTRL_ESRP_TYPEINFO;
     }
@@ -40,7 +40,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMultiCtrl<float>::getType() const
+    const TypeInfo* eMultiCtrl<float>::getType() const
     {
         return &E_MULTICTRL_FLOAT_TYPEINFO;
     }

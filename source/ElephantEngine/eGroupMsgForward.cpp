@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGroupMsgForward::getType() const
+    const TypeInfo* eGroupMsgForward::getType() const
     {
         return &E_GROUPMSGFORWARD_TYPEINFO;
     }

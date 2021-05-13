@@ -15,943 +15,943 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\source\kao2ar\Archive.cpp">
+    <ClCompile Include="..\source\ElephantBase\Archive.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\eObject.cpp">
+    <ClCompile Include="..\source\ElephantBase\eObject.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\eString.cpp">
+    <ClCompile Include="..\source\ElephantBase\eString.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\kao2ar.cpp">
+    <ClCompile Include="..\source\ElephantBase\kao2ar.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\TypeInfo.cpp">
+    <ClCompile Include="..\source\ElephantBase\TypeInfo.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eRefCounter.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eRefCounter.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="..\source\ZookieWizard\ZookieWizard.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eNode.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eNode.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGroup.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGroup.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\Collection.cpp">
+    <ClCompile Include="..\source\ElephantBase\Collection.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTransform.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTransform.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCtrlBase.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCtrlBase.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eAnimState.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eAnimState.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTrack.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTrack.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePivot.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePivot.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eScene.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eScene.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCollisionMgr.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCollisionMgr.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eLeafCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eLeafCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSRPCombineCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSRPCombineCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\Actor.cpp">
+    <ClCompile Include="..\source\ElephantEngine\Actor.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\Namespace.cpp">
+    <ClCompile Include="..\source\ElephantEngine\Namespace.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\State.cpp">
+    <ClCompile Include="..\source\ElephantEngine\State.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\StringProperty.cpp">
+    <ClCompile Include="..\source\ElephantEngine\StringProperty.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\StringSection.cpp">
+    <ClCompile Include="..\source\ElephantEngine\StringSection.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\Gadget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\Gadget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\NodeRef.cpp">
+    <ClCompile Include="..\source\ElephantEngine\NodeRef.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\VoidInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\VoidInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\When.cpp">
+    <ClCompile Include="..\source\ElephantEngine\When.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eEnvironment.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eEnvironment.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFogEnv.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFogEnv.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eLight.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eLight.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eBillboard.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eBillboard.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eDirectionalLight.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eDirectionalLight.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMultiCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMultiCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eXYZPoint3Ctrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eXYZPoint3Ctrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eBitmap.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eBitmap.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTexTransform.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTexTransform.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTexture.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTexture.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMaterialState.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMaterialState.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMaterial.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMaterial.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGeometry.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGeometry.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTriMesh.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTriMesh.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGeoArray.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGeoArray.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGeoSet.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGeoSet.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eModifier.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eModifier.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\Property.cpp">
+    <ClCompile Include="..\source\ElephantEngine\Property.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eBlockIndexCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eBlockIndexCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMultiBlockIndexCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMultiBlockIndexCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMorpherMod.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMorpherMod.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMorpherTarget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMorpherTarget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePhyTriMesh.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePhyTriMesh.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSoundCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSoundCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSndEmiter.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSndEmiter.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSndEmiterAmb.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSndEmiterAmb.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eProxy.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eProxy.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eXYZEulerRotation.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eXYZEulerRotation.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eAmbientLight.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eAmbientLight.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eActionTable.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eActionTable.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eZone.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eZone.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eBoxZone.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eBoxZone.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eALBox.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eALBox.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eALZoneSensor.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eALZoneSensor.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSpline3D.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSpline3D.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eBezierSplineNode.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eBezierSplineNode.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eOmniLight.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eOmniLight.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGeoEdge.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGeoEdge.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ShiftInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ShiftInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFloatTriple.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFloatTriple.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\Anim.cpp">
+    <ClCompile Include="..\source\ElephantEngine\Anim.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\BlockInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\BlockInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\NodeRefSendInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\NodeRefSendInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eObserver.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eObserver.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCameraCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCameraCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePathCamCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePathCamCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCamera.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCamera.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\EmptyVoidInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\EmptyVoidInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\WorldWhen.cpp">
+    <ClCompile Include="..\source\ElephantEngine\WorldWhen.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\BaseMsgInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\BaseMsgInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\MsgInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\MsgInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eParticleManager.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eParticleManager.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\AfterInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\AfterInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCollision.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCollision.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCollisionMesh.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCollisionMesh.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\Timer.cpp">
+    <ClCompile Include="..\source\ElephantEngine\Timer.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eActorCollision.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eActorCollision.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCylNode.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCylNode.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSnd.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSnd.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eEnemyMapUpgrader.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eEnemyMapUpgrader.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\IfInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\IfInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\StatusInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\StatusInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\BaseStatusInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\BaseStatusInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\BoolInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\BoolInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePersistentFloatRef.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePersistentFloatRef.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\Float.cpp">
+    <ClCompile Include="..\source\ElephantEngine\Float.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFloat.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFloat.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\AndInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\AndInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ActorClassWhen.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ActorClassWhen.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\MeWhen.cpp">
+    <ClCompile Include="..\source\ElephantEngine\MeWhen.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\StaticMsgInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\StaticMsgInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\StaticPool.cpp">
+    <ClCompile Include="..\source\ElephantBase\StaticPool.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\Rnd.cpp">
+    <ClCompile Include="..\source\ElephantEngine\Rnd.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFSMB.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFSMB.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFSSprite.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFSSprite.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMusicManager.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMusicManager.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\Key.cpp">
+    <ClCompile Include="..\source\ElephantEngine\Key.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\Log.cpp">
+    <ClCompile Include="..\source\ElephantEngine\Log.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFSOp.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFSOp.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eString2.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eString2.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFloatPair.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFloatPair.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eLevelChanger.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eLevelChanger.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eXRefProxy.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eXRefProxy.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eXRefTarget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eXRefTarget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGlobalCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGlobalCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eLinearCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eLinearCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eParticleEmiter.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eParticleEmiter.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePlaneEmiter.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePlaneEmiter.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eParticleSet.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eParticleSet.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eParticleGeometry.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eParticleGeometry.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eOscilationCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eOscilationCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePosCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePosCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eRotCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eRotCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eColorCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eColorCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\e3fCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\e3fCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePointEmiter.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePointEmiter.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTextWriterEx.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTextWriterEx.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTextWriter.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTextWriter.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSplineWalk.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSplineWalk.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSplineBase.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSplineBase.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGroundTest.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGroundTest.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCylinderShape.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCylinderShape.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePrimitive.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePrimitive.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eDemoPlayer.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eDemoPlayer.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\GadgetInstanceWhen.cpp">
+    <ClCompile Include="..\source\ElephantEngine\GadgetInstanceWhen.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSpeaking.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSpeaking.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSndEmiterOmni.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSndEmiterOmni.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eBoids.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eBoids.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMultiTransform.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMultiTransform.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eLineEmiter.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eLineEmiter.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eLookAtMeKao.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eLookAtMeKao.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\OwnerUpdateInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\OwnerUpdateInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCameraShaker.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCameraShaker.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCinemaMode.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCinemaMode.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\GadgetClassWhen.cpp">
+    <ClCompile Include="..\source\ElephantEngine\GadgetClassWhen.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePadGadget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePadGadget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFollowCameraCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFollowCameraCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCameraTarget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCameraTarget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eObjectLinker.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eObjectLinker.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eLinkToObject.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eLinkToObject.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\StateDumper.cpp">
+    <ClCompile Include="..\source\ElephantEngine\StateDumper.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePathConstrainCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePathConstrainCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eXRefManager.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eXRefManager.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCollisionSphere.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCollisionSphere.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCollisionPrimitive.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCollisionPrimitive.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eLisajoux.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eLisajoux.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMoveTo.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMoveTo.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePowerUp.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePowerUp.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSpringTrunk2.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSpringTrunk2.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eNPCMap.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eNPCMap.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGroupManager.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGroupManager.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eRain.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eRain.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSnow.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSnow.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eStaticSnd.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eStaticSnd.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eAddPowerUp.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eAddPowerUp.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\AxisList.cpp">
+    <ClCompile Include="..\source\ElephantBase\AxisList.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSphereEmiter.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSphereEmiter.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eEggsFactory.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eEggsFactory.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMultiTargetThrower.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMultiTargetThrower.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGravitation.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGravitation.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eEggTarget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eEggTarget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eParticleCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eParticleCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eNeckCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eNeckCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eLookAtCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eLookAtCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCollisionCylinder.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCollisionCylinder.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSphNode.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSphNode.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eKolec.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eKolec.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\StaticStatusInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\StaticStatusInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eKaoKiller.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eKaoKiller.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGloveTarget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGloveTarget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eDirectionCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eDirectionCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\NotInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\NotInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePathCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePathCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eEmptyCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eEmptyCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTargeting.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTargeting.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCameraZonePacket.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCameraZonePacket.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eAnimNotyfier.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eAnimNotyfier.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFlock.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFlock.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eHitForceCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eHitForceCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eEggsNotStatic.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eEggsNotStatic.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\IfElseInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\IfElseInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSecondCameraTarget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSecondCameraTarget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\McastInstanceInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\McastInstanceInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\SendInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\SendInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eRealTimeClock.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eRealTimeClock.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eDisableGeo.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eDisableGeo.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePathFinder.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePathFinder.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\SuperInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\SuperInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eAskYesNo.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eAskYesNo.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSwitelikKao.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSwitelikKao.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\SessionFloat.cpp">
+    <ClCompile Include="..\source\ElephantEngine\SessionFloat.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eNaviPoint.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eNaviPoint.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\MsgDumper.cpp">
+    <ClCompile Include="..\source\ElephantEngine\MsgDumper.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSndEmiterBox.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSndEmiterBox.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eButterfly.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eButterfly.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eShadowCaster.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eShadowCaster.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGroupCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGroupCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFlyingObjectCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFlyingObjectCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eWaterCircles.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eWaterCircles.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eBeeAttack.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eBeeAttack.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSpider.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSpider.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCylinderIsectGadget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCylinderIsectGadget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFloatCtrlObject.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFloatCtrlObject.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFloatObject.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFloatObject.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCloneChild.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCloneChild.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFlyingTarget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFlyingTarget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTeleportCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTeleportCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eRndNavi.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eRndNavi.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eNaviCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eNaviCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTraceGadget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTraceGadget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ActorInstanceWhen.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ActorInstanceWhen.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCollisionCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCollisionCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGameCamera.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGameCamera.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSkyManager.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSkyManager.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eForrestFlakes.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eForrestFlakes.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eHeroParent.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eHeroParent.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eBasePhysics.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eBasePhysics.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eIcePhysics.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eIcePhysics.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePhysics.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePhysics.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eHistory.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eHistory.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGravity.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGravity.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eJumpPhysics.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eJumpPhysics.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eEnergy.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eEnergy.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePowerBar.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePowerBar.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eExtraAlbox.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eExtraAlbox.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eWalk.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eWalk.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eWalkWPF.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eWalkWPF.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eEnumNavi.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eEnumNavi.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eVisibilityCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eVisibilityCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eDoubleCameraTarget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eDoubleCameraTarget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFlockEx.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFlockEx.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFollowWPF.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFollowWPF.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eWalkingPhysics.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eWalkingPhysics.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eVibrate.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eVibrate.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eDirectionCtrlEx.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eDirectionCtrlEx.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eStrafeCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eStrafeCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eNearestNavi.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eNearestNavi.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eAddNode.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eAddNode.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eIceCubeMarks.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eIceCubeMarks.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMarks.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMarks.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePushableObject.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePushableObject.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePadRot.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePadRot.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eElectricity.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eElectricity.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFlockAway.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFlockAway.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eRollCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eRollCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\McastClassInstruction.cpp">
+    <ClCompile Include="..\source\ElephantEngine\McastClassInstruction.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCameraFOVCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCameraFOVCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTouchSensor.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTouchSensor.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSnowCameraCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSnowCameraCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSnowboardPhysics.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSnowboardPhysics.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSnowboardJumpPhysics.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSnowboardJumpPhysics.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSnowboardOrientation.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSnowboardOrientation.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSnowboardRampPhysics.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSnowboardRampPhysics.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSimpleCR.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSimpleCR.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eLavaFlakes.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eLavaFlakes.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTimerGadget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTimerGadget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTextWriterFields2.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTextWriterFields2.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eKasztanCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eKasztanCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFootPrints.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFootPrints.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSplineSwim.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSplineSwim.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePlaszczka.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePlaszczka.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eWaterTarget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eWaterTarget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eWhalePhysics.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eWhalePhysics.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eWaterPhysics.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eWaterPhysics.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eBubbleFlakes.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eBubbleFlakes.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePlanktonFlakes.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePlanktonFlakes.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eReadySteadyGo.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eReadySteadyGo.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGroupMsgForward.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGroupMsgForward.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eObjectChain.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eObjectChain.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSetCollisionFlags.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSetCollisionFlags.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eDzwig.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eDzwig.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMotorboatCameraCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMotorboatCameraCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eWhaleManager.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eWhaleManager.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMotorowki.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMotorowki.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eStrafeTarget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eStrafeTarget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTargetGenerator.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTargetGenerator.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSetRotation.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSetRotation.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eBaseballBieg.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eBaseballBieg.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eBonusBieg.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eBonusBieg.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eOctopussy2ndTarget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eOctopussy2ndTarget.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eOMB.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eOMB.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\ePadSeqeunce.cpp">
+    <ClCompile Include="..\source\ElephantEngine\ePadSeqeunce.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eScreenCounter.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eScreenCounter.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eSplineHintFollowCameraCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eSplineHintFollowCameraCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\AnimDumper.cpp">
+    <ClCompile Include="..\source\ElephantEngine\AnimDumper.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eBombaExplodujaca.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eBombaExplodujaca.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eParentListener.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eParentListener.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eLightBlinker.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eLightBlinker.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eActivate.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eActivate.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFreeRotate.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFreeRotate.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCredits.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCredits.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eKalmar.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eKalmar.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTurnCollisionOff.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTurnCollisionOff.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eTorpedoMode.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eTorpedoMode.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\e3fXArray.cpp">
+    <ClCompile Include="..\source\ElephantEngine\e3fXArray.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\GadgetRef.cpp">
+    <ClCompile Include="..\source\ElephantEngine\GadgetRef.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGlobalLightCtrl.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGlobalLightCtrl.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardGUI.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eGoUpAndDown.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eGoUpAndDown.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eFocMill471Deflector.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eFocMill471Deflector.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eCameraDeflector.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eCameraDeflector.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eMotorboatCameraCtrl4.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eMotorboatCameraCtrl4.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eBonusShooting.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eBonusShooting.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\eAnimate.cpp">
+    <ClCompile Include="..\source\ElephantBase\eAnimate.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="..\source\denis\DenisLevelMap.cpp">
@@ -1008,7 +1008,7 @@
     <ClCompile Include="..\source\utilities\ColladaExporter.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\TriMeshExporting.cpp">
+    <ClCompile Include="..\source\ElephantEngine\TriMeshExporting.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="..\source\utilities\WavefrontObjExporter.cpp">
@@ -1017,7 +1017,7 @@
     <ClCompile Include="..\source\utilities\WavefrontObjImporter.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\ArchiveMisc.cpp">
+    <ClCompile Include="..\source\ElephantBase\ArchiveMisc.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="..\source\ZookieWizard\WindowsManager.cpp">
@@ -1026,34 +1026,43 @@
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardSpecialModels.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\ArchiveImports.cpp">
+    <ClCompile Include="..\source\ElephantBase\ArchiveImports.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardMaterials.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\NodeRefLinker.cpp">
+    <ClCompile Include="..\source\ElephantEngine\NodeRefLinker.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\TextFilesParsing.cpp">
+    <ClCompile Include="..\source\ElephantBase\TextFilesParsing.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\eDrawContext.cpp">
+    <ClCompile Include="..\source\ElephantBase\eDrawContext.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2ar\ArCustomParser.cpp">
+    <ClCompile Include="..\source\ElephantBase\ArCustomParser.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="..\source\ZookieWizard\ZookieWizardNodes.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eOrtho2D.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eOrtho2D.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eAnimBillboardProxy.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eAnimBillboardProxy.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\kao2engine\eAnimBillboardTarget.cpp">
+    <ClCompile Include="..\source\ElephantEngine\eAnimBillboardTarget.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\ElephantEngine\eShaderData.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\ElephantEngine\eShaderDesc.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\ElephantEngine\eWSGroup.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
   </ItemGroup>

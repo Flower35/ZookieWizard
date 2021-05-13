@@ -375,14 +375,14 @@ namespace ZookieWizard
                 test_vertices_data = new ePoint4 [total_vertices];
                 test_vertices_array = new eGeoArray<ePoint4>();
                 test_vertices_array->setup(total_vertices, test_vertices_data);
-                test_geoset->setVerticesArray(test_vertices_array);
+                test_geoset->setVerticesArray(0, test_vertices_array);
 
                 test_indices_array_data = new ushort [total_indices];
                 test_indices_array = new eGeoArray<ushort>();
                 test_indices_array->setup(total_indices, test_indices_array_data);
                 test_geoset->setIndicesArray(test_indices_array);
 
-                test_geoset->setTextureCoordsArray(nullptr);
+                test_geoset->setTextureCoordsArray(0, nullptr);
 
                 /********************************/
                 /* Fill vertices array and indices array, update normals */

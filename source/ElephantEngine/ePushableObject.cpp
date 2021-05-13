@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePushableObject::getType() const
+    const TypeInfo* ePushableObject::getType() const
     {
         return &E_PUSHABLEOBJECT_TYPEINFO;
     }

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFlyingTarget::getType() const
+    const TypeInfo* eFlyingTarget::getType() const
     {
         return &E_FLYINGTARGET_TYPEINFO;
     }

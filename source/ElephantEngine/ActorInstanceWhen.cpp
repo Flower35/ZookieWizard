@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ActorInstanceWhen::getType() const
+    const TypeInfo* ActorInstanceWhen::getType() const
     {
         return &E_ACTORINSTANCEWHEN_TYPEINFO;
     }

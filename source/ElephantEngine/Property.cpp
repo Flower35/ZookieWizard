@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Property::getType() const
+    const TypeInfo* Property::getType() const
     {
         return &E_PROPERTY_TYPEINFO;
     }
@@ -170,7 +170,7 @@ namespace ZookieWizard
     // <kao2.00596500>: Group template
     ////////////////////////////////////////////////////////////////
 
-    void ArFunctions::serialize_Property(Archive &ar, eRefCounter** o, TypeInfo* t)
+    void ArFunctions::serialize_Property(Archive &ar, eRefCounter** o, const TypeInfo* t)
     {
         serializeKnownObject<Property>(ar, o, t);
     }

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBombaExplodujaca::getType() const
+    const TypeInfo* eBombaExplodujaca::getType() const
     {
         return &E_BOMBAEXPLODUJACA_TYPEINFO;
     }

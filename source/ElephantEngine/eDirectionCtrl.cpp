@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eDirectionCtrl::getType() const
+    const TypeInfo* eDirectionCtrl::getType() const
     {
         return &E_DIRECTIONCTRL_TYPEINFO;
     }

@@ -30,7 +30,7 @@ namespace ZookieWizard
             eMaterial* previousMaterial;
             int32_t previousTextureID;
             eTexture* previousTexture;
-            int32_t previousMaterialFlags;
+            uint32_t previousMaterialFlags;
             float previousAlphaTest;
 
             int32_t lightsCount;

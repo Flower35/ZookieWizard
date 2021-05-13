@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCtrl<eSRP>::getType() const
+    const TypeInfo* eCtrl<eSRP>::getType() const
     {
         return &E_CTRL_ESRP_TYPEINFO;
     }
@@ -37,7 +37,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCtrl<ePoint3>::getType() const
+    const TypeInfo* eCtrl<ePoint3>::getType() const
     {
         return &E_CTRL_EPOINT3_TYPEINFO;
     }
@@ -53,7 +53,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCtrl<eQuat>::getType() const
+    const TypeInfo* eCtrl<eQuat>::getType() const
     {
         return &E_CTRL_EQUAT_TYPEINFO;
     }
@@ -69,7 +69,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCtrl<float>::getType() const
+    const TypeInfo* eCtrl<float>::getType() const
     {
         return &E_CTRL_FLOAT_TYPEINFO;
     }

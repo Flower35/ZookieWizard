@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eAskYesNo::getType() const
+    const TypeInfo* eAskYesNo::getType() const
     {
         return &E_ASKYESNO_TYPEINFO;
     }

@@ -1340,7 +1340,6 @@ namespace ZookieWizard
             float alpha_test_ref;
             uint32_t test32;
             uint16_t test16;
-            uint8_t test8;
 
             matMgr_MatList_Current = selected_id;
 
@@ -1386,14 +1385,14 @@ namespace ZookieWizard
 
                     /* Update Rendering Flags Checkboxes */
 
-                    test8 = material->getMaterialFlags();
+                    test16 = material->getMaterialFlags();
 
                     for (a = MATMGR_MATERIALS_WINDOW_FLAGSCHECK1; a <= MATMGR_MATERIALS_WINDOW_FLAGSCHECK4; a++)
                     {
                         EnableWindow(matMgr_Windows[a], TRUE);
-                        SendMessage(matMgr_Windows[a], BM_SETCHECK, (WPARAM)((test8 & 0x01) ? BST_CHECKED : BST_UNCHECKED), 0);
+                        SendMessage(matMgr_Windows[a], BM_SETCHECK, (WPARAM)((test16 & 0x01) ? BST_CHECKED : BST_UNCHECKED), 0);
 
-                        test8 >>= 1;
+                        test16 >>= 1;
                     }
 
                     /* Update Collision Type Listbox */
@@ -1934,7 +1933,7 @@ namespace ZookieWizard
             }
         }
 
-        void materialsManager_ChangeMaterialProp_Flags(bool set_or_unset, uint8_t some_bit)
+        void materialsManager_ChangeMaterialProp_Flags(bool set_or_unset, uint16_t some_bit)
         {
             eMaterial* material;
 
@@ -2816,6 +2815,7 @@ namespace ZookieWizard
 
         eString materialsManager_AssignWorkingDirectory(eString directory)
         {
+            directory = directory.trimWhitespace();
             directory.assertPath();
             return directory;
         }
@@ -3043,11 +3043,11 @@ namespace ZookieWizard
 
         void materialsManager_BulkTexturesExport()
         {
-            int result_textures, result_archives, engine_version, test_id;
+            int result_textures, result_archives, test_id;
             char bufor[LARGE_BUFFER_SIZE];
 
             eString output_dir;
-            eString keywords[3];
+            eString input_str;
             Archive dummy_ar;
 
             FileOperator list;
@@ -3060,12 +3060,12 @@ namespace ZookieWizard
                 (
                     WINDOWS_MANAGER_MESSAGE_INFO,
                     "Select a text file structured in a following way:\n\n" \
-                    "First line: [game version] [media directory]\n" \
+                    "First line: [media directory]\n" \
                     "Second line: [output directory]\n" \
                     "next lines: file names (in reference to media directory)\n" \
                     "\n--------------------------------\n" \
                     "    EXAMPLE:\n\n" \
-                    "[1] 1 C:\\Program Files (x86)\\Kangurek Kao - Runda 2\\media\n" \
+                    "[1] C:\\Program Files (x86)\\Kangurek Kao - Runda 2\\media\n" \
                     "[2] C:\\Kao2 Textures\n" \
                     "[3] build/pc/00_hub.ar\n" \
                     "[4] build/pc/02_forest_of_canada.ar\n"
@@ -3077,8 +3077,8 @@ namespace ZookieWizard
 
                 ofn.lpstrFile = bufor;
                 ofn.nMaxFile = LARGE_BUFFER_SIZE;
-                ofn.lpstrTitle = "Opening a list file..";
-                ofn.lpstrFilter = "Text files (*.txt)\0*.txt\0";
+                ofn.lpstrTitle = "Opening a list file...";
+                ofn.lpstrFilter = "Text files (*.txt;*.def;*.log)\0*.txt;*.def;*.log\0All files (*.*)\0*.*\0";
                 ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
 
                 if (0 == GetOpenFileName(&ofn))
@@ -3101,37 +3101,8 @@ namespace ZookieWizard
 
                 /* Reading the first two lines */
 
-                keywords[2] << list;
-
-                ArFunctions::splitString(keywords[2], keywords, 2);
-
-                /* [1.1] Game engine version */
-
-                engine_version = std::atoi(keywords[0].getText());
-
-                switch (engine_version)
-                {
-                    case GAME_VERSION_KAO2_PL_PC:
-                    case GAME_VERSION_KAO2_EUR_PC:
-                    case GAME_VERSION_KAO_TW_PC:
-                    case GAME_VERSION_ASTERIX_XXL2_PSP:
-                    {
-                        break;
-                    }
-
-                    default:
-                    {
-                        throw ErrorMessage
-                        (
-                            "Error while parsing the beginning of the list:\n" \
-                            "Incorrect game version number!"
-                        );
-                    }
-                }
-
-                /* [1.2] and [2] - Working directories */
-
-                dummy_ar.setMediaDir(keywords[1]);
+                input_str << list;
+                dummy_ar.setMediaDir(input_str);
 
                 output_dir << list;
                 output_dir = materialsManager_AssignWorkingDirectory(output_dir);
@@ -3143,34 +3114,31 @@ namespace ZookieWizard
 
                 while (!list.endOfFileReached())
                 {
-                    keywords[1] << list;
+                    input_str << list;
+                    input_str = ArFunctions::removeComment(input_str, true).trimWhitespace();
 
-                    if (ArFunctions::splitString(keywords[1], keywords, 1) >= 1)
+                    /* Minimal length of three characters [*.ar] */
+
+                    if (input_str.getLength() > 3)
                     {
-                        /* "*.ar" */
+                        /* Source archive */
 
-                        if ((keywords[0].getLength() > 3) && ('#' != keywords[0].getText()[0]))
-                        {
-                            /* Source archive */
+                        test_id = matMgr_BmpList_Count;
 
-                            test_id = matMgr_BmpList_Count;
+                        dummy_ar.open
+                        (
+                            dummy_ar.getMediaDir() + input_str,
+                            (AR_MODE_SKIP_PROXIES | AR_MODE_READ),
+                            0
+                        );
 
-                            dummy_ar.open
-                            (
-                                dummy_ar.getMediaDir() + keywords[0],
-                                (AR_MODE_SKIP_PROXIES | AR_MODE_READ),
-                                engine_version,
-                                0
-                            );
+                        /* Export all bitmaps */
 
-                            /* Export all bitmaps */
+                        result_textures += materialsManager_ExportAllBitmaps(test_id, output_dir, true);
 
-                            result_textures += materialsManager_ExportAllBitmaps(test_id, output_dir, true);
+                        dummy_ar.close(true);
 
-                            dummy_ar.close(true);
-
-                            result_archives++;
-                        }
+                        result_archives++;
                     }
                 }
 
@@ -3210,11 +3178,11 @@ namespace ZookieWizard
 
         void materialsManager_BulkTexturesReimport()
         {
-            int result_textures, result_archives, engine_version, archive_version, test_id;
+            int result_textures, result_archives, ar_version, test_id;
             char bufor[LARGE_BUFFER_SIZE];
 
-            eString input_dir;
-            eString keywords[3];
+            eString input_str;
+            eString images_dir;
             Archive dummy_ar;
 
             FileOperator list;
@@ -3227,12 +3195,12 @@ namespace ZookieWizard
                 (
                     WINDOWS_MANAGER_MESSAGE_INFO,
                     "Select a text file structured in a following way:\n\n" \
-                    "First line: [game version] [media directory]\n" \
-                    "Second line: [input directory]\n" \
+                    "First line: [media directory]\n" \
+                    "Second line: [images directory]\n" \
                     "next lines: file names (in reference to the input directory)\n" \
                     "\n--------------------------------\n" \
                     "    EXAMPLE:\n\n" \
-                    "[1] 1 C:\\Program Files (x86)\\Kangurek Kao - Runda 2\\media\n" \
+                    "[1] C:\\Program Files (x86)\\Kangurek Kao - Runda 2\\media\n" \
                     "[2] C:\\Kao2 Textures\n" \
                     "[3] build/pc/00_hub.ar\n" \
                     "[4] build/pc/02_forest_of_canada.ar\n"
@@ -3245,7 +3213,7 @@ namespace ZookieWizard
                 ofn.lpstrFile = bufor;
                 ofn.nMaxFile = LARGE_BUFFER_SIZE;
                 ofn.lpstrTitle = "Opening a list file..";
-                ofn.lpstrFilter = "Text files (*.txt)\0*.txt\0";
+                ofn.lpstrFilter = "Text files (*.txt;*.def;*.log)\0*.txt;*.def;*.log\0All files (*.*)\0*.*\0";
                 ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
 
                 if (0 == GetOpenFileName(&ofn))
@@ -3266,42 +3234,13 @@ namespace ZookieWizard
                     throw ErrorMessage("Could not open file: \"%s\".", bufor);
                 }
 
-                /* Read the first line */
+                /* Read the first two lines */
 
-                keywords[2] << list;
+                input_str << list;
+                dummy_ar.setMediaDir(input_str.trimWhitespace());
 
-                ArFunctions::splitString(keywords[2], keywords, 2);
-
-                /* [1.1] Game engine version */
-
-                engine_version = std::atoi(keywords[0].getText());
-
-                switch (engine_version)
-                {
-                    case GAME_VERSION_KAO2_PL_PC:
-                    case GAME_VERSION_KAO2_EUR_PC:
-                    case GAME_VERSION_KAO_TW_PC:
-                    case GAME_VERSION_ASTERIX_XXL2_PSP:
-                    {
-                        break;
-                    }
-
-                    default:
-                    {
-                        throw ErrorMessage
-                        (
-                            "Error while parsing the beginning of the list:\n" \
-                            "Incorrect game version number!"
-                        );
-                    }
-                }
-
-                /* [1.2] and [2] - Working directories */
-
-                dummy_ar.setMediaDir(keywords[1]);
-
-                input_dir << list;
-                input_dir = materialsManager_AssignWorkingDirectory(input_dir);
+                images_dir << list;
+                images_dir = materialsManager_AssignWorkingDirectory(images_dir);
 
                 /* Begin the conversion... */
 
@@ -3310,48 +3249,44 @@ namespace ZookieWizard
 
                 while (!list.endOfFileReached())
                 {
-                    keywords[1] << list;
+                    input_str << list;
+                    input_str = ArFunctions::removeComment(input_str, true).trimWhitespace();
 
-                    if (ArFunctions::splitString(keywords[1], keywords, 1) >= 1)
+                    /* Minimal length of three characters [*.ar] */
+
+                    if (input_str.getLength() > 3)
                     {
-                        /* "*.ar" */
+                        input_str = dummy_ar.getMediaDir() + input_str;
 
-                        if ((keywords[0].getLength() > 3) && ('#' != keywords[0].getText()[0]))
-                        {
-                            keywords[0] = dummy_ar.getMediaDir() + keywords[0];
+                        /* Source archive */
 
-                            /* Source archive */
+                        test_id = matMgr_BmpList_Count;
 
-                            test_id = matMgr_BmpList_Count;
+                        dummy_ar.open
+                        (
+                            input_str,
+                            (AR_MODE_SKIP_PROXIES | AR_MODE_READ),
+                            0
+                        );
 
-                            dummy_ar.open
-                            (
-                                keywords[0],
-                                (AR_MODE_SKIP_PROXIES | AR_MODE_READ),
-                                engine_version,
-                                0
-                            );
+                        ar_version = dummy_ar.getVersion();
 
-                            archive_version = dummy_ar.getVersion();
+                        /* Reimport all found bitmaps */
 
-                            /* Reimport all found bitmaps */
+                        result_textures += materialsManager_ReimportAllBitmaps(test_id, images_dir, true);
 
-                            result_textures += materialsManager_ReimportAllBitmaps(test_id, input_dir, true);
+                        /* Destination archive */
 
-                            /* Destination archive */
+                        dummy_ar.open
+                        (
+                            input_str,
+                            (AR_MODE_WRITE),
+                            ar_version
+                        );
 
-                            dummy_ar.open
-                            (
-                                keywords[0],
-                                (AR_MODE_WRITE),
-                                engine_version,
-                                archive_version
-                            );
+                        dummy_ar.close(true);
 
-                            dummy_ar.close(true);
-
-                            result_archives++;
-                        }
+                        result_archives++;
                     }
                 }
 

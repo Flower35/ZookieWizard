@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eScene::getType() const
+    const TypeInfo* eScene::getType() const
     {
         return &E_SCENE_TYPEINFO;
     }
@@ -40,6 +40,8 @@ namespace ZookieWizard
         /*[0x0180]*/ ambient[1] = 0;
         /*[0x0184]*/ ambient[2] = 0;
         /*[0x0188]*/ ambient[3] = 1.0f;
+
+        /*(kao3)[0x02A8]*/ visGroups_unknown = 0x00;
 
         /*(kao3)[0x02AC]*/ visSetA_count = 0;
         /*(kao3)[0x02B0]*/ visSetA_maxLength = 0;
@@ -293,18 +295,22 @@ namespace ZookieWizard
             function_00498B20();
         }
 
+        collision.lockDuringSerialize(true);
+
         /* Collision Manager */
         collision.serialize(ar);
 
-        /* Pivot */
+        /* Pivot (animation tracks, transformation and children nodes) */
         ePivot::serialize(ar);
 
         if (ar.isInReadMode())
         {
             collision.prepare_ALBox_links();
 
-            //// (--dsp--) call eScene::[[vptr]+0x44], two times.
+            //// (--TODO--) call eScene::[[vptr]+0x44], two times.
         }
+
+        collision.lockDuringSerialize(false);
 
         /* [0x0170] Scene background colors */
         ar.readOrWrite(&(color[0]), 0x04);
@@ -607,6 +613,37 @@ namespace ZookieWizard
 
             return 0;
         }
+        else if (message.compareExact("clearVisPortals", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "clearVisPortals", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            visGroups.clear();
+            visGroups_unknown = 0x00;
+
+            if (nullptr != visSetA)
+            {
+                delete[](visSetA);
+                visSetA = nullptr;
+            }
+
+            visSetA_maxLength = 0;
+            visSetA_count = 0;
+
+            if (nullptr != visSetB)
+            {
+                delete[](visSetB);
+                visSetB = nullptr;
+            }
+
+            visSetB_maxLength = 0;
+            visSetB_count = 0;
+        }
 
         return 1;
     }
@@ -664,10 +701,10 @@ namespace ZookieWizard
 
         for (i = 0; i < nodes.getSize(); i++)
         {
-            //// (--dsp--) eScene::[[vptr]+0x74](arg1 = nodes.getChild[i]);
+            //// (--TODO--) eScene::[[vptr]+0x74](arg1 = nodes.getChild[i]);
         }
 
-        collision.reset();
+        collision.resetCounters();
     }
 
 

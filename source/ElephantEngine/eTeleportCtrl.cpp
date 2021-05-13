@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTeleportCtrl::getType() const
+    const TypeInfo* eTeleportCtrl::getType() const
     {
         return &E_TELEPORTCTRL_TYPEINFO;
     }

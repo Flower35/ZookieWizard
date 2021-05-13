@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eDzwig::getType() const
+    const TypeInfo* eDzwig::getType() const
     {
         return &E_DZWIG_TYPEINFO;
     }

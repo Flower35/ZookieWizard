@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* BlockInstruction::getType() const
+    const TypeInfo* BlockInstruction::getType() const
     {
         return &E_BLOCKINSTRUCTION_TYPEINFO;
     }

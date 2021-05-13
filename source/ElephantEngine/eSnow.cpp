@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSnow::getType() const
+    const TypeInfo* eSnow::getType() const
     {
         return &E_SNOW_TYPEINFO;
     }

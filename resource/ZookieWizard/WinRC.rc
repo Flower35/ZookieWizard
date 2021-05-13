@@ -15,8 +15,8 @@ IDM_BITMAP BITMAP "logo.bmp"
 // Wersja pliku
 ////////////////////////////////////////////////////////////////
 
-#define Wersja_Num 0,0,1,0
-#define Wersja_Txt "0.0.1.0\0"
+#define Wersja_Num 0,0,3,0
+#define Wersja_Txt "0.0.3.0\0"
 
 1 VERSIONINFO
 
@@ -43,11 +43,11 @@ FILEFLAGS 0
 		// Character set = 1252 (Multilingual)
 		BLOCK "041504E4"
 		{
-            VALUE "FileDescription", "Zookie Wizard — ""Kao the Kangaroo: Round 2"" editor"
+            VALUE "FileDescription", "Zookie Wizard — ""Elephant Engine"" editor"
             VALUE "ProductName", "Zookie Wizard"
 
             VALUE "CompanyName", "Flower35 (Radek Krzyœków)"
-            VALUE "LegalCopyright", "(c) Radek Krzyœków (2020)"
+            VALUE "LegalCopyright", "(c) Radek Krzyœków (2021)"
 
             VALUE "FileVersion", Wersja_Txt
 			VALUE "ProductVersion", Wersja_Txt

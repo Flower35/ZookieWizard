@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLavaFlakes::getType() const
+    const TypeInfo* eLavaFlakes::getType() const
     {
         return &E_LAVAFLAKES_TYPEINFO;
     }

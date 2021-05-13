@@ -28,7 +28,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTriMesh::getType() const
+    const TypeInfo* eTriMesh::getType() const
     {
         return &E_TRIMESH_TYPEINFO;
     }
@@ -37,13 +37,16 @@ namespace ZookieWizard
     : eGeometry("", nullptr)
     {
         /*[0x58]*/ geo = nullptr;
+        /*[0x64]*/ modifier = nullptr;
 
+        /* Collision enabled by default for all TriMeshes! */
         /*[0x30]*/ flagsCollisionResponse = 0;
     }
 
     eTriMesh::~eTriMesh()
     {
         /*[0x58]*/ geo->decRef();
+        /*[0x64]*/ modifier->decRef();
     }
 
 
@@ -62,6 +65,11 @@ namespace ZookieWizard
         {
             geo = nullptr;
         }
+
+        /****************/
+
+        /* << MUST BE RESOLVED! >> */
+        modifier = nullptr;
     }
 
     eTriMesh::eTriMesh(const eTriMesh &other)
@@ -78,6 +86,7 @@ namespace ZookieWizard
 
             /****************/
 
+            modifier->decRef();
             geo->decRef();
 
             /****************/
@@ -110,6 +119,36 @@ namespace ZookieWizard
 
         /* [0x58] Geo Set */
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&geo, &E_GEOSET_TYPEINFO);
+
+        if (nullptr == geo)
+        {
+            throw ErrorMessage
+            (
+                "eTriMesh::serialize():\n" \
+                "Missing the \"eGeoSet\" object!"
+            );
+        }
+
+        if (ar.getVersion() >= 0x9E)
+        {
+            /* [0x64] Modifier with bones table (moved from "eGeoSet") */
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&modifier, &E_PHYTRIMESH_TYPEINFO);
+
+            if (ar.isInReadMode())
+            {
+                geo->setPhyTriMesh(modifier);
+            }
+        }
+        else
+        {
+            if (ar.isInReadMode())
+            {
+                if (nullptr != (modifier = geo->getPhyTriMesh()))
+                {
+                    modifier->incRef();
+                }
+            }
+        }
 
         /* Checking material name for "invisible" */
         if (ar.isInReadMode())
@@ -189,7 +228,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eTriMesh::renderNode(eDrawContext &draw_context) const
     {
-        int32_t i, draw_flags;
+        int32_t i, uv_maps, draw_flags;
         bool is_selected_or_marked;
         bool use_outline;
         float color[3];
@@ -248,14 +287,19 @@ namespace ZookieWizard
             glColor3f(color[0], color[1], color[2]);
         }
 
-        /* `i < geo->getTextureCoordsCount()` */
+        uv_maps = geo->getTextureCoordsCount();
 
-        for (i = 0; i < 1; i++)
+        if ((0 == uv_maps) || (0 == (GUI::drawFlags::DRAW_FLAG_BLENDING & draw_flags)))
+        {
+            uv_maps = 1;
+        }
+
+        for (i = 0; i < uv_maps; i++)
         {
             draw_context.useMaterial
             (
                 use_outline ? nullptr : material,
-                geo->getTextureId(i)
+                i
             );
 
             geo->draw

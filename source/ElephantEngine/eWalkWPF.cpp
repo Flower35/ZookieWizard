@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eWalkWPF::getType() const
+    const TypeInfo* eWalkWPF::getType() const
     {
         return &E_WALKWPF_TYPEINFO;
     }

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMarks::getType() const
+    const TypeInfo* eMarks::getType() const
     {
         return &E_MARKS_TYPEINFO;
     }

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBoids::getType() const
+    const TypeInfo* eBoids::getType() const
     {
         return &E_BOIDS_TYPEINFO;
     }

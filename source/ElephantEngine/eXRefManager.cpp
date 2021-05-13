@@ -25,7 +25,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eXRefManager::getType() const
+    const TypeInfo* eXRefManager::getType() const
     {
         return &E_XREFMANAGER_TYPEINFO;
     }
@@ -143,7 +143,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefManager: exporting Proxies
     ////////////////////////////////////////////////////////////////
-    void eXRefManager::exportXRef(const eString &media_dir, int32_t engine_version) const
+    void eXRefManager::exportXRef(const eString &media_dir, int32_t ar_version) const
     {
         eXRefTarget* test_xref_taget;
 
@@ -156,7 +156,7 @@ namespace ZookieWizard
                 test_xref_taget->exportTarget
                 (
                     media_dir,
-                    engine_version,
+                    ar_version,
                     AR_MODE_XREF_PATH
                 );
             }

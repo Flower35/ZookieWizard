@@ -17,7 +17,7 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x10]*/ TypeInfo* unknown_10;
+            /*[0x10]*/ const TypeInfo* unknown_10;
 
         /*** Methods ***/
 
@@ -27,7 +27,7 @@ namespace ZookieWizard
             ~GadgetClassWhen();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
 
             void saveWhenToTextFile(FileOperator &file, int32_t indentation) const override;
     };

@@ -358,7 +358,7 @@ namespace ZookieWizard
 
             new_node->assertNodeLinksSameArchive();
 
-            new_node->reloadXRef(getEditorString(1, false), currentGameVersion);
+            new_node->reloadXRef(getEditorString(1, false), currentArchiveVersion);
         }
         catch (ErrorMessage &err)
         {

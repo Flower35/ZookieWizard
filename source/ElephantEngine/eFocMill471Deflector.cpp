@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFocMill471Deflector::getType() const
+    const TypeInfo* eFocMill471Deflector::getType() const
     {
         return &E_FOCMILL471DEFLECTOR_TYPEINFO;
     }

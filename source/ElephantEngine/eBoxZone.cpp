@@ -22,7 +22,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBoxZone::getType() const
+    const TypeInfo* eBoxZone::getType() const
     {
         return &E_BOXZONE_TYPEINFO;
     }

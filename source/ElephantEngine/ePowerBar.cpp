@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePowerBar::getType() const
+    const TypeInfo* ePowerBar::getType() const
     {
         return &E_POWERBAR_TYPEINFO;
     }

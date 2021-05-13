@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eObject::getType() const
+    const TypeInfo* eObject::getType() const
     {
         return &E_OBJECT_TYPEINFO;
     }
@@ -93,7 +93,7 @@ namespace ZookieWizard
     eString eObject::getLogPrintMessage() const
     {
         char bufor[64];
-        TypeInfo* info = getType();
+        const TypeInfo* info = getType();
 
         sprintf_s(bufor, 64, "( 0x%08X - %s )", info->id, info->name);
 
@@ -107,7 +107,7 @@ namespace ZookieWizard
     void eObject::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
     {
         char bufor[64];
-        TypeInfo* info = getType();
+        const TypeInfo* info = getType();
 
         sprintf_s(bufor, 64, "[%08X] %s", info->id, info->name);
 

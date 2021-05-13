@@ -114,7 +114,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;

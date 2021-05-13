@@ -52,38 +52,46 @@ namespace ZookieWizard
     extern const char* MESSAGE_TITLE_INFO;
     extern const char* MESSAGE_TITLE_ERROR;
 
-    #define LARGE_BUFFER_SIZE 256
+    #define LARGE_BUFFER_SIZE  256
 
     ////////////////////////////////////////////////////////////////
     // FILE OPERATOR STRUCTURE
     ////////////////////////////////////////////////////////////////
 
-    #define FILE_OPERATOR_MODE_READ 0x01
-    #define FILE_OPERATOR_MODE_BINARY 0x02
+    #define FILE_OPERATOR_MODE_READ    (0x01 << 0)
+    #define FILE_OPERATOR_MODE_BINARY  (0x01 << 1)
 
     struct FileOperator
     {
-        std::fstream file;
-        char* currentPath;
+        /*** Properties ***/
 
-        FileOperator();
-        ~FileOperator();
+        public:
 
-        bool open(const char* filename, int mode);
-        void close();
+            std::fstream file;
+            char* currentPath;
 
-        bool read(void* pointer, int size);
-        bool write(void* pointer, int size);
-        bool peek(char &next_char);
+        /*** Methods ***/
 
-        void setDir(char* filename);
-        bool createDir();
+        public:
 
-        int getPointer();
-        void setPointer(int offset);
-        void skip(int size);
+            FileOperator();
+            ~FileOperator();
 
-        bool endOfFileReached();
+            bool open(const char* filename, int mode);
+            void close();
+
+            bool read(void* pointer, int size);
+            bool write(void* pointer, int size);
+            bool peek(char &next_char);
+
+            void setDir(char* filename);
+            bool createDir();
+
+            int getPointer();
+            void setPointer(int offset);
+            void skip(int size);
+
+            bool endOfFileReached();
     };
 
 
@@ -93,13 +101,21 @@ namespace ZookieWizard
 
     class ErrorMessage
     {
+        /*** Properties ***/
+
         private:
 
-            char text[2 * LARGE_BUFFER_SIZE];
+            char message[2 * LARGE_BUFFER_SIZE];
+            bool header;
+
+        /*** Methods ***/
 
         public:
 
-            ErrorMessage(const char* message, ...);
+            ErrorMessage(const char* c_format, ...);
+
+            void appendHeader(const char* c_format, ...);
+            bool wasHeaderAppended() const;
 
             void display();
     };

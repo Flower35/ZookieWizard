@@ -27,7 +27,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGroup::getType() const
+    const TypeInfo* eGroup::getType() const
     {
         return &E_GROUP_TYPEINFO;
     }
@@ -523,20 +523,20 @@ namespace ZookieWizard
     // eGroup: loading or exporting Proxies
     ////////////////////////////////////////////////////////////////
 
-    void eGroup::reloadXRef(const eString &media_dir, int32_t engine_version)
+    void eGroup::reloadXRef(const eString &media_dir, int32_t ar_version)
     {
         int32_t a;
         eNode* child_node;
 
-        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->reloadXRef(media_dir, engine_version); })
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->reloadXRef(media_dir, ar_version); })
     }
 
-    void eGroup::exportXRef(const eString &media_dir, int32_t engine_version) const
+    void eGroup::exportXRef(const eString &media_dir, int32_t ar_version) const
     {
         int32_t a;
         eNode* child_node;
 
-        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->exportXRef(media_dir, engine_version); })
+        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->exportXRef(media_dir, ar_version); })
     }
 
 

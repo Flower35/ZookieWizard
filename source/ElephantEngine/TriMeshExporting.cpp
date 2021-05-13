@@ -32,10 +32,10 @@ namespace ZookieWizard
         ePoint2* array_data2 = nullptr;
         int32_t total_indices;
         int32_t total_triangles;
-        eGeoArray<ePoint4>* vertices = geo->getVerticesArray();
+        eGeoArray<ePoint4>* vertices = geo->getVerticesArray(0);
         eGeoArray<ePoint4>* colors =  geo->getColorsArray();
-        eGeoArray<ePoint4>* normals =  geo->getNormalsArray();
-        eGeoArray<ePoint2>* mapping = geo->getTextureCoordsArray();
+        eGeoArray<ePoint4>* normals =  geo->getNormalsArray(0);
+        eGeoArray<ePoint2>* mapping = geo->getTextureCoordsArray(0);
         eGeoArray<ushort>* indices_offsets = geo->getIndicesOffsets();
         eGeoArray<ushort>* indices = geo->getIndicesArray();
 
@@ -512,8 +512,8 @@ namespace ZookieWizard
         eMatrix4x4 parent_matrix;
         eTransform* test_transform;
 
-        int32_t v_length = vertices->getLength();
-        ePhyVertex* v_data = vertices->getData();
+        int32_t v_length = phyVertices->getLength();
+        ePhyVertex* v_data = phyVertices->getData();
 
         if (exporter.objectRefAlreadyExists(COLLADA_EXPORTER_OBJ_ARMATURE, this))
         {
@@ -528,16 +528,16 @@ namespace ZookieWizard
 
         exporter.openTag("skin");
 
-        i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_GEOMETRY, geo, false);
+        i = exporter.getObjectRefId(COLLADA_EXPORTER_OBJ_GEOMETRY, geosetLink, false);
         sprintf_s(bufor, 64, "#TriMesh%d", i);
         exporter.insertTagAttrib("source", bufor);
 
         /********************************/
         /* Info about position and orientation of the base mesh before binding */
 
-        if (nullptr != tri)
+        if (nullptr != trimeshLink)
         {
-            test_transform = tri->getPreviousTransform();
+            test_transform = trimeshLink->getPreviousTransform();
 
             if (nullptr != test_transform)
             {

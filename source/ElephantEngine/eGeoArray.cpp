@@ -19,7 +19,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoArray<ushort>::getType() const
+    const TypeInfo* eGeoArray<ushort>::getType() const
     {
         return &E_GEOARRAY_USHORT_TYPEINFO;
     }
@@ -35,7 +35,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoArray<ePoint2>::getType() const
+    const TypeInfo* eGeoArray<ePoint2>::getType() const
     {
         return &E_GEOARRAY_EPOINT2_TYPEINFO;
     }
@@ -51,7 +51,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoArray<ePoint3>::getType() const
+    const TypeInfo* eGeoArray<ePoint3>::getType() const
     {
         return &E_GEOARRAY_EPOINT3_TYPEINFO;
     }
@@ -67,7 +67,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoArray<ePoint4>::getType() const
+    const TypeInfo* eGeoArray<ePoint4>::getType() const
     {
         return &E_GEOARRAY_EPOINT4_TYPEINFO;
     }
@@ -83,7 +83,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoArray<eABB>::getType() const
+    const TypeInfo* eGeoArray<eABB>::getType() const
     {
         return &E_GEOARRAY_EABB_TYPEINFO;
     }
@@ -99,7 +99,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoArray<ePhyVertex>::getType() const
+    const TypeInfo* eGeoArray<ePhyVertex>::getType() const
     {
         return &E_GEOARRAY_EPHYVERTEX_TYPEINFO;
     }
@@ -261,6 +261,8 @@ namespace ZookieWizard
     template class eGeoArray<ushort>;
 
     template class eGeoArray<ePoint2>;
+
+    template class eGeoArray<ePoint3>;
 
     template class eGeoArray<ePoint4>;
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFogEnv::getType() const
+    const TypeInfo* eFogEnv::getType() const
     {
         return &E_FOGENV_TYPEINFO;
     }

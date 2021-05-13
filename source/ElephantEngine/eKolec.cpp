@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eKolec::getType() const
+    const TypeInfo* eKolec::getType() const
     {
         return &E_KOLEC_TYPEINFO;
     }

@@ -117,7 +117,7 @@ namespace ZookieWizard
 
     namespace StringFunctions
     {
-        void convertString(eString& deestination, const eUnicodeString& source);
+        void convertString(eString& destination, const eUnicodeString& source);
         void convertString(eUnicodeString& destination, const eString& source);
 
         template <typename charT>

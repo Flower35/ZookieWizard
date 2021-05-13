@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eXYZPoint3Ctrl::getType() const
+    const TypeInfo* eXYZPoint3Ctrl::getType() const
     {
         return &E_XYZPOINT3CTRL_TYPEINFO;
     }

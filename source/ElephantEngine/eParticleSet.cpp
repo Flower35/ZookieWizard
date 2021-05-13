@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eParticleSet::getType() const
+    const TypeInfo* eParticleSet::getType() const
     {
         return &E_PARTICLESET_TYPEINFO;
     }
@@ -66,6 +66,9 @@ namespace ZookieWizard
         /*[0x011E]*/ unknown_011E = 0x00;
         /*[0x012C]*/ unknown_012C = 0.5f;
         /*[0x0131]*/ unknown_0131 = 0x00;
+
+        /*[0x013C]*/ unknown_013C = 0.5f;
+        /*[0x0140]*/ unknown_0140 = 0x00;
 
         /*(...)*/
 
@@ -159,6 +162,10 @@ namespace ZookieWizard
         unknown_011C = other.unknown_011C;
         unknown_011D = other.unknown_011D;
         unknown_0120 = other.unknown_0120;
+
+        unknown_0134 = other.unknown_0134;
+        unknown_013C = other.unknown_013C;
+        unknown_0140 = other.unknown_0140;
     }
 
     eParticleSet::eParticleSet(const eParticleSet &other)
@@ -300,13 +307,25 @@ namespace ZookieWizard
 
         ar.readOrWrite(&unknown_00E4, 0x04);
         ar.readOrWrite(&unknown_BC, 0x04);
-        ar.readOrWrite(&unknown_00E8, 0x04);
+        ar.readOrWrite(&unknown_00E8, 0x04);  // "particle set count"
         ar.readOrWrite(&unknown_00EC, 0x04);
         ar.readOrWrite(&unknown_00F0, 0x04);
 
         /* unknown values */
 
         ar.readOrWrite(&unknown_00F4, 0x04);
+
+        if (ar.getVersion() >= 0x97)
+        {
+            ar.serializeString(unknown_0134);
+            ar.readOrWrite(&unknown_013C, 0x04);
+        }
+
+        if (ar.getVersion() >= 0xA2)
+        {
+            ar.readOrWrite(&unknown_0140, 0x01);
+        }
+
         ar.readOrWrite(&unknown_00FC, 0x04);
         ar.readOrWrite(&unknown_00F8, 0x04);
         ar.readOrWrite(&unknown_0100, 0x04);

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eOrtho2D::getType() const
+    const TypeInfo* eOrtho2D::getType() const
     {
         return &E_ORTHO2D_TYPEINFO;
     }

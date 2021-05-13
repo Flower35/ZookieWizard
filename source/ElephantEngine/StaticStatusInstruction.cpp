@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* StaticStatusInstruction::getType() const
+    const TypeInfo* StaticStatusInstruction::getType() const
     {
         return &E_STATICSTATUSINSTRUCTION_TYPEINFO;
     }
@@ -44,7 +44,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void StaticStatusInstruction::serialize(Archive &ar)
     {
-        StaticPool.serializeGadget(ar, &link);
+        theElephantStaticPool.serializeGadget(ar, &link);
 
         BaseStatusInstruction::serialize(ar);
     }

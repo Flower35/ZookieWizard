@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eRndNavi::getType() const
+    const TypeInfo* eRndNavi::getType() const
     {
         return &E_RNDNAVI_TYPEINFO;
     }

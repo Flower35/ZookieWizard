@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBonusBieg::getType() const
+    const TypeInfo* eBonusBieg::getType() const
     {
         return &E_BONUSBIEG_TYPEINFO;
     }

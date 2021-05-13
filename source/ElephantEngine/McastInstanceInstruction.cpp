@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* McastInstanceInstruction::getType() const
+    const TypeInfo* McastInstanceInstruction::getType() const
     {
         return &E_MCASTINSTANCEINSTRUCTION_TYPEINFO;
     }

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTraceGadget::getType() const
+    const TypeInfo* eTraceGadget::getType() const
     {
         return &E_TRACEGADGET_TYPEINFO;
     }

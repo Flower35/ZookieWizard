@@ -20,14 +20,27 @@ namespace ZookieWizard
         }
     }
 
+
     ////////////////////////////////////////////////////////////////
     // Archive: export all proxies
     ////////////////////////////////////////////////////////////////
-    void Archive::exportProxies() const
+    void Archive::exportProxies(int32_t version_override) const
     {
         if ((nullptr != parentObject) && parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
         {
-            ((eNode*)parentObject)->exportXRef(getMediaDir(), engineOpenedWith);
+            ((eNode*)parentObject)->exportXRef(getMediaDir(), version_override);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Archive: reload all proxies
+    ////////////////////////////////////////////////////////////////
+    void Archive::reloadProxies(int32_t version_override) const
+    {
+        if ((nullptr != parentObject) && parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
+        {
+            ((eNode*)parentObject)->reloadXRef(getMediaDir(), version_override);
         }
     }
 

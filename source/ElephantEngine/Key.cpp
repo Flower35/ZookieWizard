@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Key::getType() const
+    const TypeInfo* Key::getType() const
     {
         return &E_KEY_TYPEINFO;
     }

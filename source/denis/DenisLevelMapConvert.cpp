@@ -96,11 +96,6 @@ namespace ZookieWizard
         result_scene->appendChild(global_env);
 
         /********************************/
-        /* Add one collision entry (REQUIRED BY KAO2 ENGINE) */
-
-        test_collision->insertNewItem_seriesA(0);
-
-        /********************************/
         /* Convert static meshes */
 
         for (i = 0; i < objectsCount[DENIS_LEVEL_OBJECT_TYPE_STATIC]; i++)

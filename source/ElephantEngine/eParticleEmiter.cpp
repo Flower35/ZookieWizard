@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eParticleEmiter::getType() const
+    const TypeInfo* eParticleEmiter::getType() const
     {
         return &E_PARTICLEEMITER_TYPEINFO;
     }
@@ -48,6 +48,11 @@ namespace ZookieWizard
 
         /*[0x0048]*/ unknown_0048 = (-1.0f);
         /*[0x0218]*/ unknown_0218 = 0x00;
+
+        /*[0x0258]*/ unknown_0258 = 0x00;
+        /*[0x0259]*/ unknown_0259 = 0x00;
+        /*[0x0260]*/ unknown_0260 = 0;
+        /*[0x0264]*/ unknown_0264 = 0;
     }
 
     eParticleEmiter::~eParticleEmiter()
@@ -94,6 +99,11 @@ namespace ZookieWizard
         {
             soundEmiter->incRef();
         }
+
+        unknown_0258 = other.unknown_0258;
+        unknown_0259 = other.unknown_0259;
+        unknown_0260 = other.unknown_0260;
+        unknown_0264 = other.unknown_0264;
     }
 
     eParticleEmiter::eParticleEmiter(const eParticleEmiter &other)
@@ -140,6 +150,7 @@ namespace ZookieWizard
         ar.readOrWrite(&unknown_004C, 0x04);
         ar.readOrWrite(&unknown_0050, 0x04);
         ar.readOrWrite(&unknown_0054, 0x04);
+
         ar.readOrWrite(&unknown_0058, 0x04);
         ar.readOrWrite(&unknown_005C, 0x04);
         ar.readOrWrite(&unknown_0060, 0x04);
@@ -191,17 +202,35 @@ namespace ZookieWizard
 
                 /* [0x0210] Sound emiter file name */
 
-                soundEmiterFileName = eString(0);
+                soundEmiterFileName = eString();
 
                 /* [0x214] Sound emiter */
 
-                if (nullptr != soundEmiter)
-                {
-                    soundEmiter->decRef();
-
-                    soundEmiter = nullptr;
-                }
+                soundEmiter->decRef();
+                soundEmiter = nullptr;
             }
+        }
+
+        if (ar.getVersion() < 0x94)
+        {
+            unknown_0258 = 0x00;
+            unknown_0259 = 0x00;
+        }
+        else
+        {
+            ar.readOrWrite(&unknown_0258, 0x01);
+            ar.readOrWrite(&unknown_0259, 0x01);
+        }
+
+        if (ar.getVersion() < 0xA4)
+        {
+            unknown_0260 = 0;
+            unknown_0264 = 0;
+        }
+        else
+        {
+            ar.readOrWrite(&unknown_0260, 0x04);
+            ar.readOrWrite(&unknown_0264, 0x04);
         }
     }
 

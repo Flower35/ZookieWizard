@@ -22,7 +22,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCylNode::getType() const
+    const TypeInfo* eCylNode::getType() const
     {
         return &E_CYLNODE_TYPEINFO;
     }

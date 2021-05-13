@@ -4,10 +4,12 @@
 #include <ElephantBase/TypeInfo.h>
 #include <ElephantBase/StaticPool.h>
 
+#include <ElephantBase/ArCustomParser.h>
+
 namespace ZookieWizard
 {
-    const char* MESSAGE_TITLE_INFO = "Zookie Wizard ï¿½ info";
-    const char* MESSAGE_TITLE_ERROR = "Zookie Wizard ï¿½ error";
+    const char* MESSAGE_TITLE_INFO = "Zookie Wizard — info";
+    const char* MESSAGE_TITLE_ERROR = "Zookie Wizard — error";
 
     ////////////////////////////////////////////////////////////////
     // File Operator functions
@@ -173,20 +175,40 @@ namespace ZookieWizard
     // Error Message functions
     ////////////////////////////////////////////////////////////////
 
-    ErrorMessage::ErrorMessage(const char* message, ...)
+    ErrorMessage::ErrorMessage(const char* c_format, ...)
     {
         va_list args;
 
-        va_start(args, message);
-
-        vsprintf_s(text, 512, message, args);
-
+        va_start(args, c_format);
+        vsprintf_s(message, (2 * LARGE_BUFFER_SIZE), c_format, args);
         va_end(args);
+
+        header = false;
+    }
+
+    void ErrorMessage::appendHeader(const char* c_format, ...)
+    {
+        char test[2][LARGE_BUFFER_SIZE];
+        va_list args;
+
+        va_start(args, c_format);
+        vsprintf_s(test[0], LARGE_BUFFER_SIZE, c_format, args);
+        va_end(args);
+
+        strcpy_s(test[1], LARGE_BUFFER_SIZE, message);
+        sprintf_s(message, (2 * LARGE_BUFFER_SIZE), "%s\n\n%s", test[0], test[1]);
+
+        header = true;
+    }
+
+    bool ErrorMessage::wasHeaderAppended() const
+    {
+        return header;
     }
 
     void ErrorMessage::display()
     {
-        GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_ERROR, text);
+        GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_ERROR, message);
     }
 
 
@@ -194,27 +216,57 @@ namespace ZookieWizard
     // Zookie Wizard: Start
     ////////////////////////////////////////////////////////////////
 
-    int32_t Start(HINSTANCE hInstance)
+    int32_t Start(HINSTANCE hInstance, int argsCount, char** args)
     {
         int32_t test_value = 0;
         bool prepared_special_models = false;
         bool prepared_materials_viewer = false;
         bool prepared_nodes_mgr = false;
+        const char* autoparser_path = nullptr;
+        eString dummy_str;
+        ArCustomParser autoparser;
 
         /********************************/
         /* Prepare Kao2 engine! */
 
         try
         {
-            InterfaceManager.registerInterfaces();
+            theElephantInterfaces.registerInterfaces();
 
-            StaticPool.registerStaticGadgets();
+            theElephantStaticPool.registerStaticElements();
         }
         catch (ErrorMessage &e)
         {
             e.display();
 
             test_value = (-1);
+        }
+
+        /********************************/
+        /* Look for special launch commands */
+
+        while (argsCount > 0)
+        {
+            dummy_str = eString(*args);
+
+            if (dummy_str.compareExact("/AUTOPARSER", false))
+            {
+                argsCount--;
+                args++;
+
+                if (argsCount > 0)
+                {
+                    autoparser_path = (*args);
+
+                    argsCount--;
+                    args++;
+                }
+            }
+            else
+            {
+                argsCount--;
+                args++;
+            }
         }
 
         /********************************/
@@ -298,45 +350,65 @@ namespace ZookieWizard
             prepared_materials_viewer = true;
         }
 
-        if (0 == test_value)
-        {
-            if (!GUI::prepareSpecialModels())
-            {
-                ErrorMessage
-                (
-                    "FATAL ERROR!\n" \
-                    "Could not prepare \"Special 3D Models\"."
-                )
-                .display();
-
-                test_value = (-1);
-            }
-
-            prepared_special_models = true;
-        }
-
-        if (0 == test_value)
-        {
-            loadEditorSettings();
-        }
-
         /********************************/
-        /* Enter main loop */
+        /* Should AutoParser be launched instead of GUI? */
 
         if (0 == test_value)
         {
-            try
+            if (nullptr != autoparser_path)
             {
-                while (GUI::isAppRunning())
+                try
                 {
-                    GUI::render();
+                    if (autoparser.openFile(autoparser_path, nullptr))
+                    {
+                        test_value = autoparser.beginParsing();
+                    }
+
+                }
+                catch (ErrorMessage &e)
+                {
+                    e.display();
+
+                    test_value = (-1);
                 }
             }
-            catch (ErrorMessage &e)
+            else
             {
-                e.display();
+                if (!GUI::prepareSpecialModels())
+                {
+                    ErrorMessage
+                    (
+                        "FATAL ERROR!\n" \
+                        "Could not prepare \"Special 3D Models\"."
+                    )
+                        .display();
 
-                test_value = (-1);
+                    test_value = (-1);
+                }
+
+                prepared_special_models = true;
+
+                /********************************/
+                /* Load last settings and enter the main loop */
+
+                if (0 == test_value)
+                {
+                    loadEditorSettings();
+
+                    try
+                    {
+                        while (GUI::isAppRunning())
+                        {
+                            GUI::render();
+                        }
+                    }
+                    catch (ErrorMessage &e)
+                    {
+                        e.display();
+
+                        test_value = (-1);
+                    }
+                }
             }
         }
 
@@ -360,7 +432,10 @@ namespace ZookieWizard
 
         GUI::closeWindows();
 
-        saveEditorSettings();
+        if (nullptr != autoparser_path)
+        {
+            saveEditorSettings();
+        }
 
         return test_value;
     }
@@ -372,7 +447,7 @@ namespace ZookieWizard
 // Main
 ////////////////////////////////////////////////////////////////
 
-int main()
+int main(int argc, char** argv)
 {
-    return ZookieWizard::Start(GetModuleHandle(NULL));
+    return ZookieWizard::Start(GetModuleHandle(NULL), (argc - 1), (argv + 1));
 }

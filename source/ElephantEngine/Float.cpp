@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Float::getType() const
+    const TypeInfo* Float::getType() const
     {
         return &E_FLOAT_GADGET_TYPEINFO;
     }

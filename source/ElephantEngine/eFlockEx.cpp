@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFlockEx::getType() const
+    const TypeInfo* eFlockEx::getType() const
     {
         return &E_FLOCKEX_TYPEINFO;
     }

@@ -31,7 +31,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePhyTriMesh::getType() const
+    const TypeInfo* ePhyTriMesh::getType() const
     {
         return &E_PHYTRIMESH_TYPEINFO;
     }
@@ -124,8 +124,21 @@ namespace ZookieWizard
     void ePhyTriMesh::serialize(Archive &ar)
     {
         int32_t i;
-        /* Vertices with bone weights */
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&vertices, &E_GEOARRAY_EPHYVERTEX_TYPEINFO);
+
+        if (ar.getVersion() < 0x9E)
+        {
+            /* Bone weights for each vertex */
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&phyVertices, &E_GEOARRAY_EPHYVERTEX_TYPEINFO);
+
+            if (nullptr == phyVertices)
+            {
+                throw ErrorMessage
+                (
+                    "ePhyTriMesh::serialize():\n" \
+                    "Missing the PhyVertices Array!"
+                );
+            }
+        }
 
         /* Bones with matrices */
 
@@ -157,17 +170,17 @@ namespace ZookieWizard
             }
         }
 
-        /* eGeoSet link (empty in KAO_TW, required in KAO2) */
+        /* "eGeoSet" link (empty from "KaoTW" onwards, required in "Kao2") */
 
-        ar.serialize((eObject**)&geo, &E_GEOSET_TYPEINFO);
+        ar.serialize((eObject**)&geosetLink, &E_GEOSET_TYPEINFO);
 
-        /* eTriMesh link */
+        /* "eTriMesh" link */
 
-        ar.serialize((eObject**)&tri, &E_TRIMESH_TYPEINFO);
+        ar.serialize((eObject**)&trimeshLink, &E_TRIMESH_TYPEINFO);
 
         /* ASSERTION */
 
-        if (!ar.assertLastSerializedNode(tri))
+        if (!ar.assertLastSerializedNode(trimeshLink))
         {
             throw ErrorMessage
             (
@@ -178,7 +191,7 @@ namespace ZookieWizard
 
         if (ar.isInReadMode())
         {
-            if (nullptr == tri)
+            if (nullptr == trimeshLink)
             {
                 throw ErrorMessage
                 (
@@ -188,9 +201,9 @@ namespace ZookieWizard
             }
             else
             {
-                geo = tri->getGeoset();
+                geosetLink = trimeshLink->getGeoset();
 
-                if (nullptr == geo)
+                if (nullptr == geosetLink)
                 {
                     throw ErrorMessage
                     (
@@ -201,10 +214,83 @@ namespace ZookieWizard
             }
         }
 
-        /* [0x24] [0x20] serialize default normals and default vertices */
+        /* Serializing default vertices and solving the compatibility issue */
 
-        ArFunctions::serialize_e3fXArray(ar, &defaultNormals);
-        ArFunctions::serialize_e3fXArray(ar, &defaultVertices);
+        if (ar.getVersion() < 0x9E)
+        {
+            ArFunctions::serialize_e3fXArray(ar, &defaultNormals);
+
+            if (nullptr == defaultNormals)
+            {
+                throw ErrorMessage
+                (
+                    "ePhyTriMesh::serialize():\n"
+                    "Missing the Default Normals Array!"
+                );
+            }
+
+            ArFunctions::serialize_e3fXArray(ar, &defaultVertices);
+
+            if (nullptr == defaultVertices)
+            {
+                throw ErrorMessage
+                (
+                    "ePhyTriMesh::serialize():\n"
+                    "Missing the Default Vertices Array!"
+                );
+            }
+
+            if (ar.isInReadMode())
+            {
+                geosetLink->setNormalsArray(1, defaultNormals);
+                geosetLink->setVerticesArray(1, defaultVertices);
+                geosetLink->setPhyVertices(phyVertices);
+            }
+        }
+        else
+        {
+            if (ar.isInReadMode())
+            {
+                if (nullptr != (defaultNormals = geosetLink->getNormalsArray(1)))
+                {
+                    defaultNormals->incRef();
+                }
+                else
+                {
+                    throw ErrorMessage
+                    (
+                        "ePhyTriMesh::serialize():\n"
+                        "Default Normals Array missing from \"eGeoSet\"! (ar version >= 158)"
+                    );
+                }
+
+                if (nullptr != (defaultVertices = geosetLink->getVerticesArray(1)))
+                {
+                    defaultVertices->incRef();
+                }
+                else
+                {
+                    throw ErrorMessage
+                    (
+                        "ePhyTriMesh::serialize():\n"
+                        "Default Vertices Array missing from \"eGeoSet\"! (ar version >= 158)"
+                    );
+                }
+
+                if (nullptr != (phyVertices = geosetLink->getPhyVertices()))
+                {
+                    phyVertices->incRef();
+                }
+                else
+                {
+                    throw ErrorMessage
+                    (
+                        "ePhyTriMesh::serialize():\n"
+                        "PhyVertices Array missing from \"eGeoSet\"! (ar version >= 158)"
+                    );
+                }
+            }
+        }
 
         /* Sanity check */
 
@@ -220,15 +306,15 @@ namespace ZookieWizard
             }
 
             bool test = false;
-            int length = vertices->getLength();
+            int length = phyVertices->getLength();
 
             if (false == (test = (defaultVertices->getLength() != length)))
             {
                 if (false == (test = (defaultNormals->getLength() != length)))
                 {
-                    if (false == (test = (geo->getVerticesArray()->getLength() != length)))
+                    if (false == (test = (geosetLink->getVerticesArray(0)->getLength() != length)))
                     {
-                        test = (geo->getNormalsArray()->getLength() != length);
+                        test = (geosetLink->getNormalsArray(0)->getLength() != length);
                     }
                 }
             }
@@ -263,41 +349,14 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // ePhyTriMesh: print
-    ////////////////////////////////////////////////////////////////
-    eString ePhyTriMesh::getLogPrintMessage() const
-    {
-        int32_t i;
-
-        eString result = eObject::getLogPrintMessage();
-
-        result += "\n";
-
-        for (i = 0; i < bonesCount; i++)
-        {
-            result += "\n bone: ";
-
-            result += bones[i].xform->getStringRepresentation();
-        }
-
-        return result;
-    }
-
-
-    ////////////////////////////////////////////////////////////////
     // ePhyTriMesh: export readable structure
     ////////////////////////////////////////////////////////////////
     void ePhyTriMesh::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
     {
         int32_t a, b;
         char bufor[2 * LARGE_BUFFER_SIZE];
-        eNode* trimesh_parent = nullptr;
+        eNode* trimesh_parent = trimeshLink->getParentNode();
         eString bone_path;
-
-        if (nullptr != tri)
-        {
-            trimesh_parent = tri->getParentNode();
-        }
 
         for (a = 0; a < bonesCount; a++)
         {
@@ -395,7 +454,7 @@ namespace ZookieWizard
             }
         }
 
-        /* (--dsp--) update "eMorhperMod"! */
+        /* (--TODO--) update "eMorhperMod"! */
     }
 
 
@@ -413,17 +472,14 @@ namespace ZookieWizard
         eTransform* test_xform;
         eSRP test_srp;
 
-        /* (--dsp--) check "eMorpherMod" <kao2.006030C0> */
+        /* (--TODO--) check "eMorpherMod" <kao2.006030C0> */
 
         /* Load prior transformation with inverse matrix */
 
-        if (nullptr != tri)
+        if (nullptr != (test_xform = trimeshLink->getPreviousTransform()))
         {
-            if (nullptr != (test_xform = tri->getPreviousTransform()))
-            {
-                test_srp = test_xform->getXForm(true);
-                parent_matrix = test_srp.getInverseMatrix();
-            }
+            test_srp = test_xform->getXForm(true);
+            parent_matrix = test_srp.getInverseMatrix();
         }
 
         /* Prepare bone matrices */
@@ -461,40 +517,40 @@ namespace ZookieWizard
         int32_t bone_index;
         float bone_weight;
 
-        ePoint4 newVertex;
-        ePoint4 newNormal;
-        ePoint4 tempVertex;
-        ePoint4 tempNormal;
+        ePoint4 new_vertex;
+        ePoint4 new_normal;
+        ePoint4 temp_vertex;
+        ePoint4 temp_normal;
 
         /* Set arrays */
 
-        int32_t length = vertices->getLength();
-        ePhyVertex* phyVertices = vertices->getData();
+        int32_t length = phyVertices->getLength();
+        ePhyVertex* vertex_weights = phyVertices->getData();
 
-        ePoint4* sourceVertices = defaultVertices->getData();
-        ePoint4* sourceNormals = defaultNormals->getData();
-        ePoint4* destinationVertices = geo->getVerticesArray()->getData();
-        ePoint4* destinationNormals = geo->getNormalsArray()->getData();
+        ePoint4* source_vertices = defaultVertices->getData();
+        ePoint4* source_normals = defaultNormals->getData();
+        ePoint4* destination_vertices = geosetLink->getVerticesArray(0)->getData();
+        ePoint4* destination_normals = geosetLink->getNormalsArray(0)->getData();
 
-        if (nullptr == sourceVertices)
+        if (nullptr == source_vertices)
         {
-            sourceVertices = destinationVertices;
+            source_vertices = destination_vertices;
         }
 
-        if (nullptr == sourceNormals)
+        if (nullptr == source_normals)
         {
-            sourceNormals = destinationNormals;
+            source_normals = destination_normals;
         }
 
-        /* (--dsp--) Skip "eMorhperMod" because it will result in reusing same vertices */
+        /* (--TODO--) Skip "eMorhperMod" because it will result in reusing same vertices */
         /* This will make sense once we finish "eMorpherMod" call from matrices function */
         if ((false) && (nullptr != morph))
         {
-            sourceVertices = destinationVertices;
-            sourceNormals = destinationNormals;
+            source_vertices = destination_vertices;
+            source_normals = destination_normals;
         }
 
-        if ((nullptr == destinationVertices) || (nullptr == destinationNormals))
+        if ((nullptr == destination_vertices) || (nullptr == destination_normals))
         {
             return;
         }
@@ -503,30 +559,30 @@ namespace ZookieWizard
 
         for (i = 0; i < length; i++)
         {
-            tempVertex = sourceVertices[i];
-            tempNormal = sourceNormals[i];
+            temp_vertex = source_vertices[i];
+            temp_normal = source_normals[i];
 
-            newVertex = {0};
-            newNormal = {0};
+            new_vertex = {0};
+            new_normal = {0};
 
             for (j = 0; j < 3; j++)
             {
-                bone_index = phyVertices[i].index[j];
+                bone_index = vertex_weights[i].index[j];
 
                 if (!(0x80 & bone_index))
                 {
-                    bone_weight = phyVertices[i].weight[j];
+                    bone_weight = vertex_weights[i].weight[j];
 
-                    newVertex = ((theBonesMatrices[bone_index] * tempVertex) * bone_weight) + newVertex;
-                    newNormal = ((theBonesMatrices[bone_index] * tempNormal) * bone_weight) + newNormal;
+                    new_vertex = ((theBonesMatrices[bone_index] * temp_vertex) * bone_weight) + new_vertex;
+                    new_normal = ((theBonesMatrices[bone_index] * temp_normal) * bone_weight) + new_normal;
                 }
                 else
                 {
                     if (0 == j)
                     {
                         // Kao2 actually expects all vertices to be rigged
-                        newVertex = tempVertex;
-                        newNormal = tempNormal;
+                        new_vertex = temp_vertex;
+                        new_normal = temp_normal;
                     }
 
                     j = 3; // break loop
@@ -535,15 +591,15 @@ namespace ZookieWizard
 
             /* Vertices Safety */
 
-            newVertex.w = 1.0f;
+            new_vertex.w = 1.0f;
 
-            newNormal.w = 0;
-            newNormal.normalize();
+            new_normal.w = 0;
+            new_normal.normalize();
 
-            /* This replaces "eGeoSet" arrays */
+            /* This replaces data in "eGeoSet" arrays */
 
-            destinationVertices[i] = newVertex;
-            destinationNormals[i] = newNormal;
+            destination_vertices[i] = new_vertex;
+            destination_normals[i] = new_normal;
         }
     }
 
@@ -558,9 +614,9 @@ namespace ZookieWizard
 
         /* Bones in array are not sorted by default! */
 
-        if (nullptr != tri)
+        if (nullptr != trimeshLink)
         {
-            test_xform = tri->getPreviousTransform();
+            test_xform = trimeshLink->getPreviousTransform();
 
             if (nullptr != test_xform)
             {
@@ -603,7 +659,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void ePhyTriMesh::clearNewPhyTriMesh(eTriMesh* x, eGeoSet* y)
     {
-        /*[0x10]*/ vertices = nullptr;
+        /*[0x10]*/ phyVertices = nullptr;
         /*[0x14]*/ bonesCount = 0;
         /*[0x18]*/ bonesMaxLength = 0;
         /*[0x1C]*/ bones = nullptr;
@@ -611,8 +667,8 @@ namespace ZookieWizard
         /*[0x24]*/ defaultNormals = nullptr;
         /*[0x28]*/ morph = nullptr;
 
-        /*[0x08]*/ tri = x;
-        /*[0x0C]*/ geo = y;
+        /*[0x08]*/ trimeshLink = x;
+        /*[0x0C]*/ geosetLink = y;
     }
 
 
@@ -632,8 +688,8 @@ namespace ZookieWizard
 
         deleteBones();
 
-        vertices->decRef();
-        vertices = nullptr;
+        phyVertices->decRef();
+        phyVertices = nullptr;
     }
 
 }

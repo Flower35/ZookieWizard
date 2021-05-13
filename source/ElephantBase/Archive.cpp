@@ -10,7 +10,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // AR HELPER FUNCTION: get path based on game version
     ////////////////////////////////////////////////////////////////
-    eString ArFunctions::getFullArchivePath(const eString &filename, const eString &media_dir, int32_t engine_version, int32_t flags)
+    eString ArFunctions::getFullArchivePath(const eString &filename, const eString &media_dir, int32_t ar_version, int32_t flags)
     {
         eString result;
 
@@ -25,19 +25,13 @@ namespace ZookieWizard
             }
             else if (0 == (AR_MODE_XREF_PATH & flags))
             {
-                switch (engine_version)
+                if (ar_version >= 0x8B)
                 {
-                    case GAME_VERSION_ASTERIX_XXL2_PSP:
-                    case GAME_VERSION_KAO_TW_PC:
-                    {
-                        result += "build/pc/";
-                        break;
-                    }
-
-                    default:
-                    {
-                        result += "build/win32/";
-                    }
+                    result += "build/pc/";
+                }
+                else
+                {
+                    result += "build/win32/";
                 }
             }
         }
@@ -69,9 +63,6 @@ namespace ZookieWizard
         selectedObject = nullptr;
         markedChildId = (-1);
 
-        engineOpenedWith = (-1);
-        engineSavedWith = (-1);
-
         /* Set working directory */
 
         setMediaDir(new_media_dir);
@@ -87,6 +78,8 @@ namespace ZookieWizard
 
         if (nullptr != tempStrList)
         {
+            deleteTempStrPtrs();
+
             delete[](tempStrList);
             tempStrList = nullptr;
         }
@@ -117,77 +110,25 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Archive: open for reading or writing
     ////////////////////////////////////////////////////////////////
-    bool Archive::open(eString path, int32_t mode, int32_t engine_version, int32_t ver_max_override)
+    bool Archive::open(eString path, int32_t mode, int32_t version_override)
     {
         int32_t a;
-        int32_t ver_min;
-        int32_t ver_max;
 
-        switch (engine_version)
-        {
-            case GAME_VERSION_KAO2_PL_PC:
-            {
-                ver_min = 0x67;
-                ver_max = 0x87;
-
-                break;
-            }
-
-            case GAME_VERSION_KAO2_EUR_PC:
-            {
-                ver_min = 0x67;
-                ver_max = 0x89;
-
-                break;
-            }
-
-            case GAME_VERSION_KAO_TW_PC:
-            {
-                ver_min = 0x8B;
-                ver_max = 0x90;
-
-                break;
-            }
-
-            case GAME_VERSION_ASTERIX_XXL2_PSP:
-            {
-                ver_min = 0x8B;
-                ver_max = 0x93;
-
-                break;
-            }
-
-            default:
-            {
-                throw ErrorMessage
-                (
-                    "Archive::open():\n" \
-                    "Engine version has not been set!\n" \
-                    "Please select one from a drop-down menu."
-                );
-
-                return false;
-            }
-        }
-
-        /* Remember mode flags, construct file path, remember engine version, open file. */
+        /* Remember mode flags, construct file path, open file. */
 
         modeFlags = mode;
+
+        baseFileName = path.getFilename(true);
 
         if (isInReadMode())
         {
             theLog.print(eString(" @ ARCHIVE: READING \"") + path + "\"\n");
-
-            engineOpenedWith = engine_version;
-            engineSavedWith = engine_version;
 
             a = (FILE_OPERATOR_MODE_BINARY | FILE_OPERATOR_MODE_READ);
         }
         else if (isInWriteMode())
         {
             theLog.print(eString(" @ ARCHIVE: SAVING \"") + path + "\"\n");
-
-            engineSavedWith = engine_version;
 
             a = (FILE_OPERATOR_MODE_BINARY);
         }
@@ -202,6 +143,7 @@ namespace ZookieWizard
             return false;
         }
 
+        /* NOT in Read mode = Write OR Export modes */
         if (false == isInReadMode())
         {
             myFile.setDir(path.getText());
@@ -233,7 +175,7 @@ namespace ZookieWizard
             (
                 "[%s]\n" \
                 "invalid archive magic. Expected \"tate\".",
-                path.getFilename(true).getText()
+                baseFileName.getText()
             );
 
             return false;
@@ -243,24 +185,30 @@ namespace ZookieWizard
 
         if (false == isInReadMode())
         {
-            if ((ver_max_override >= ver_min) && (ver_max_override < ver_max))
+            if ((version_override >= ARCHIVE_VERSION_MIN) && (version_override < ARCHIVE_VERSION_MAX))
             {
-                ver_max = ver_max_override;
+                version = version_override;
             }
-
-            version = ver_max;
+            else
+            {
+                version = ARCHIVE_VERSION_MAX;
+            }
         }
 
         readOrWrite(&version, 0x04);
 
-        if (isInReadMode() && ((version < ver_min) || (version > ver_max)))
+        if (isInReadMode() && ((version < ARCHIVE_VERSION_MIN) || (version > ARCHIVE_VERSION_MAX)))
         {
             throw ErrorMessage
             (
-                "[%s]\n" \
-                "invalid archive version %i\n" \
-                "(current version: %i, minimum: %i).",
-                path.getFilename(true).getText(), version, ver_max, ver_min
+                    "[%s]\n" \
+                    "invalid archive version [%i] (0x%02X) !!!\n" \
+                    "minimal supported version: [%i] (0x%02X)\n" \
+                    "maximal supported version: [%i] (0x%02X)",
+                path.getText(),
+                version, version,
+                ARCHIVE_VERSION_MIN, ARCHIVE_VERSION_MIN,
+                ARCHIVE_VERSION_MAX, ARCHIVE_VERSION_MAX
             );
 
             return false;
@@ -279,7 +227,7 @@ namespace ZookieWizard
                 "[%s]\n" \
                 "Incorrect number of temporary class fields.\n" \
                 "(max: %d)",
-                path.getFilename(true).getText(),
+                path.getText(),
                 AR_MAX_ITEMS
             );
 
@@ -340,16 +288,13 @@ namespace ZookieWizard
 
         if (isInReadMode())
         {
-            /* Now we can just set output version to the maximum supported by current engine */
-            version = ver_max;
-
             selectedObject = parentObject;
 
             if ((nullptr != parentObject) && parentObject->getType()->checkHierarchy(&E_NODE_TYPEINFO))
             {
                 if (0 == (AR_MODE_SKIP_PROXIES & modeFlags))
                 {
-                    ((eNode*)parentObject)->reloadXRef(mediaDirectory, engine_version);
+                    ((eNode*)parentObject)->reloadXRef(mediaDirectory, version);
                 }
                 else
                 {
@@ -407,53 +352,6 @@ namespace ZookieWizard
     int32_t Archive::getVersion() const
     {
         return version;
-    }
-
-    bool Archive::checkGameEngine(int32_t opened, int32_t saved) const
-    {
-        bool result = true;
-
-        /* Compare versions in which the Archive has been opened */
-        switch (opened)
-        {
-            case GAME_VERSION_KAO2_PL_PC:
-            case GAME_VERSION_KAO2_EUR_PC:
-            case GAME_VERSION_KAO_TW_PC:
-            case GAME_VERSION_ASTERIX_XXL2_PSP:
-            {
-                result &= (opened == engineOpenedWith);
-
-                break;
-            }
-        }
-
-        /* Compare versions in which the Archive is being saved */
-        switch (saved)
-        {
-            case GAME_VERSION_KAO2_PL_PC:
-            case GAME_VERSION_KAO2_EUR_PC:
-            case GAME_VERSION_KAO_TW_PC:
-            case GAME_VERSION_ASTERIX_XXL2_PSP:
-            {
-                result &= (saved == engineSavedWith);
-
-                break;
-            }
-        }
-
-        return result;
-    }
-
-    int32_t Archive::getCurrentEngineVersion() const
-    {
-        if (isInReadMode())
-        {
-            return engineOpenedWith;
-        }
-        else
-        {
-            return engineSavedWith;
-        }
     }
 
 
@@ -552,7 +450,6 @@ namespace ZookieWizard
         }
 
         tempStrList[tempStrCount] = str;
-
         tempStrCount++;
 
         return true;
@@ -605,165 +502,179 @@ namespace ZookieWizard
     // Archive: Main serializaion function
     // <kao2.00464D00>
     ////////////////////////////////////////////////////////////////
-    void Archive::serialize(eObject** o, TypeInfo* t)
+    void Archive::serialize(eObject** o, const TypeInfo* t)
     {
         int32_t a;
-        TypeInfo* current_type;
-        eObject* current_object;
+        const TypeInfo* current_type;
 
         eNode* stacked_node = nullptr;
         bool has_node_type;
 
-        if (isInReadMode())
+        try
         {
-            /* Get instruction type */
-
-            readOrWrite(&a, 0x04);
-
-            switch (a)
+            try
             {
-                case 0x00:
+                if (isInReadMode())
                 {
-                    /* Find object from ID */
+                    /* Get instruction type */
 
                     readOrWrite(&a, 0x04);
 
-                    current_type = InterfaceManager.getTypeInfo(a);
-
-                    assertObjectType(t, current_type);
-
-                    has_node_type = current_type->checkHierarchy(&E_NODE_TYPEINFO);
-
-                    /* Create, store back, then check object */
-
-                    current_object = current_type->create();
-
-                    (*o) = current_object;
-
-                    if (nullptr == current_object)
+                    switch (a)
                     {
-                        throw ErrorMessage
-                        (
-                            "Archive::serialize():\n" \
-                            "abstract object deserialization [TypeInfo: 0x%08X - %s]",
-                            current_type->id,
-                            current_type->name
-                        );
+                        case 0:
+                        {
+                            /* Find object from ID */
 
-                        return;
+                            readOrWrite(&a, 0x04);
+
+                            current_type = theElephantInterfaces.getTypeInfo(a);
+
+                            assertObjectType(t, current_type);
+
+                            has_node_type = current_type->checkHierarchy(&E_NODE_TYPEINFO);
+
+                            /* Create, store back, then check object */
+
+                            (*o) = current_type->create();
+
+                            if (nullptr == (*o))
+                            {
+                                throw ErrorMessage
+                                (
+                                    "Archive::serialize():\n" \
+                                    "abstract object deserialization [TypeInfo: 0x%08X - %s]",
+                                    current_type->id,
+                                    current_type->name
+                                );
+
+                                return;
+                            }
+
+                            /* Add object to the temporary list */
+
+                            addItem((*o), AR_ITEM_TYPE_OBJECT);
+
+                            /* Serialize object */
+
+                            if (has_node_type)
+                            {
+                                stacked_node = lastSerializedNode;
+                            }
+
+                            (*o)->serialize(*this);
+
+                            if (has_node_type)
+                            {
+                                lastSerializedNode = stacked_node;
+                            }
+
+                            return;
+                        }
+
+                        case 1:
+                        {
+                            /* Empty object */
+
+                            (*o) = nullptr;
+
+                            return;
+                        }
+
+                        default:
+                        {
+                            /* Get object pointer from temporary list */
+
+                            (*o) = (eObject*)getItem((a - 2), AR_ITEM_TYPE_OBJECT);
+
+                            assertObjectType(t, (*o)->getType());
+
+                            return;
+                        }
                     }
-
-                    /* Add object to the temporary list */
-
-                    addItem(current_object, AR_ITEM_TYPE_OBJECT);
-
-                    /* Serialize object */
-
-                    if (has_node_type)
-                    {
-                        stacked_node = lastSerializedNode;
-                    }
-
-                    current_object->serialize(*this);
-
-                    if (has_node_type)
-                    {
-                        lastSerializedNode = stacked_node;
-                    }
-
-                    return;
-                }
-
-                case 0x01:
-                {
-                    /* Empty object */
-
-                    (*o) = nullptr;
-
-                    return;
-                }
-
-                default:
-                {
-                    /* Get object pointer from temporary list */
-
-                    current_object = (eObject*)getItem((a - 2), AR_ITEM_TYPE_OBJECT);
-
-                    assertObjectType(t, current_object->getType());
-
-                    (*o) = current_object;
-
-                    return;
-                }
-            }
-        }
-        else
-        {
-            if (nullptr != (*o))
-            {
-                /* Check if objet ID already exists */
-
-                a = findItem(*o);
-
-                if (a < 0)
-                {
-                    /* Item was not found and it needs to be serialized */
-
-                    addItem((*o), AR_ITEM_TYPE_OBJECT);
-
-                    current_type = (*o)->getType();
-
-                    has_node_type = current_type->checkHierarchy(&E_NODE_TYPEINFO);
-
-                    if (nullptr == current_type)
-                    {
-                        throw ErrorMessage
-                        (
-                            "Archive::serialize():\n" \
-                            "abstract object serialization!"
-                        );
-
-                        return;
-                    }
-
-                    a = 0x00;
-                    readOrWrite(&a, 0x04);
-                    readOrWrite(&(current_type->id), 0x04);
-
-                    /* Deserialize object */
-
-                    if (has_node_type)
-                    {
-                        stacked_node = lastSerializedNode;
-                    }
-
-                    (*o)->serialize(*this);
-
-                    if (has_node_type)
-                    {
-                        lastSerializedNode = stacked_node;
-                    }
-
-                    return;
                 }
                 else
                 {
-                    /* Write object ID */
+                    if (nullptr != (*o))
+                    {
+                        /* Check if objet ID already exists */
 
-                    a += 2;
-                    readOrWrite(&a, 0x04);
+                        a = findItem(*o);
 
-                    return;
+                        if (a < 0)
+                        {
+                            /* Item was not found and it needs to be serialized */
+
+                            addItem((*o), AR_ITEM_TYPE_OBJECT);
+
+                            current_type = (*o)->getType();
+
+                            has_node_type = current_type->checkHierarchy(&E_NODE_TYPEINFO);
+
+                            if (nullptr == current_type)
+                            {
+                                throw ErrorMessage
+                                (
+                                    "Archive::serialize():\n" \
+                                    "abstract object serialization!"
+                                );
+
+                                return;
+                            }
+
+                            a = 0x00;
+                            readOrWrite(&a, 0x04);
+                            readOrWrite((void *)&(current_type->id), 0x04);
+
+                            /* Deserialize object */
+
+                            if (has_node_type)
+                            {
+                                stacked_node = lastSerializedNode;
+                            }
+
+                            (*o)->serialize(*this);
+
+                            if (has_node_type)
+                            {
+                                lastSerializedNode = stacked_node;
+                            }
+
+                            return;
+                        }
+                        else
+                        {
+                            /* Write object ID */
+
+                            a += 2;
+                            readOrWrite(&a, 0x04);
+
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        /* This object is empty */
+                        a = 0x01;
+                        readOrWrite(&a, 0x04);
+
+                        return;
+                    }
                 }
             }
-            else
+            catch (std::bad_alloc)
             {
-                /* This object is empty */
-                a = 0x01;
-                readOrWrite(&a, 0x04);
-
-                return;
+                throw ErrorMessage("Memory allocation error!");
             }
+        }
+        catch (ErrorMessage &err)
+        {
+            if (!err.wasHeaderAppended())
+            {
+                err.appendHeader("[%s]\n(offset 0x%08X)", myFile.currentPath, myFile.getPointer());
+            }
+
+            throw;
         }
     }
 
@@ -967,9 +878,9 @@ namespace ZookieWizard
     // Archive: Check TypeInfo without serialization
     // <kao2.00463130>
     ////////////////////////////////////////////////////////////////
-    void Archive::checkTypeInfo(TypeInfo** t)
+    void Archive::checkTypeInfo(const TypeInfo** t)
     {
-        int32_t index = 0;
+        uint32_t index = 0;
 
         if (isInReadMode())
         {
@@ -985,7 +896,7 @@ namespace ZookieWizard
             else
             {
                 /* Non-empty index */
-                (*t) = InterfaceManager.getTypeInfo(index);
+                (*t) = theElephantInterfaces.getTypeInfo(index);
 
                 return;
             }
@@ -995,7 +906,7 @@ namespace ZookieWizard
             if (nullptr != (*t))
             {
                 /* TypeInfo exists */
-                readOrWrite(&((*t)->id), 0x04);
+                readOrWrite((void*)&((*t)->id), 0x04);
             }
             else
             {
@@ -1003,6 +914,15 @@ namespace ZookieWizard
                 readOrWrite(&index, 0x04);
             }
         }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Archive: get Base File Name
+    ////////////////////////////////////////////////////////////////
+    eString Archive::getBaseFileName() const
+    {
+        return baseFileName;
     }
 
 
@@ -1017,7 +937,7 @@ namespace ZookieWizard
 
     void Archive::setMediaDir(eString new_media_dir)
     {
-        mediaDirectory = new_media_dir;
+        mediaDirectory = new_media_dir.trimWhitespace();
         mediaDirectory.assertPath();
     }
 

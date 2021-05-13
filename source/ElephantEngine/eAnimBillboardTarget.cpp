@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eAnimBillboardTarget::getType() const
+    const TypeInfo* eAnimBillboardTarget::getType() const
     {
         return &E_ANIMBILLBOARDTARGET_TYPEINFO;
     }

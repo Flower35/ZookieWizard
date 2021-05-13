@@ -10,7 +10,7 @@ namespace ZookieWizard
     // Collection: Constructor and Destructor
     ////////////////////////////////////////////////////////////////
 
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     Collection<Func>::Collection(int32_t new_size)
     {
         count = 0;
@@ -31,7 +31,7 @@ namespace ZookieWizard
         }
     }
 
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     Collection<Func>::~Collection()
     {
         clear();
@@ -47,7 +47,7 @@ namespace ZookieWizard
     // Collection: cloning the object
     ////////////////////////////////////////////////////////////////
 
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     void Collection<Func>::createFromOtherObject(const Collection<Func> &other)
     {
         if (other.count > 0)
@@ -75,13 +75,13 @@ namespace ZookieWizard
         }
     }
 
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     Collection<Func>::Collection(const Collection<Func> &other)
     {
         createFromOtherObject(other);
     }
 
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     Collection<Func>& Collection<Func>::operator = (const Collection<Func> &other)
     {
         if ((&other) != this)
@@ -103,7 +103,7 @@ namespace ZookieWizard
         return (*this);
     }
 
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     Collection<Func>& Collection<Func>::deepCopy(const Collection<Func> &other)
     {
         if ((&other) != this)
@@ -155,7 +155,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Collection: Decreasing references and clearing the collection
     ////////////////////////////////////////////////////////////////
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     void Collection<Func>::clear()
     {
         for (int32_t i = 0; i < count; i++)
@@ -174,8 +174,8 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Collection: Serialization
     ////////////////////////////////////////////////////////////////
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
-    void Collection<Func>::serialize(Archive &ar, TypeInfo* t)
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
+    void Collection<Func>::serialize(Archive &ar, const TypeInfo* t)
     {
         int32_t i;
 
@@ -228,7 +228,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Collection: Get group size
     ////////////////////////////////////////////////////////////////
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     int32_t Collection<Func>::getSize() const
     {
         return count;
@@ -238,7 +238,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Collection: Explicitly set the i-th object from the group
     ////////////////////////////////////////////////////////////////
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     void Collection<Func>::setIthChild(int32_t i, eRefCounter* o)
     {
         if ((i >= 0) && (i < count))
@@ -264,7 +264,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Collection: Get i-th object from group
     ////////////////////////////////////////////////////////////////
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     eRefCounter* Collection<Func>::getIthChild(int32_t i) const
     {
         if ((i >= 0) && (i < count))
@@ -281,7 +281,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Collection: Insert new "eRefCounter" child
     ////////////////////////////////////////////////////////////////
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     void Collection<Func>::appendChild(eRefCounter* o)
     {
         int32_t i;
@@ -320,7 +320,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Collection: Take out i-th object from group
     ////////////////////////////////////////////////////////////////
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     void Collection<Func>::deleteIthChild(int32_t i)
     {
         if ((i >= 0) && (i < count))
@@ -344,7 +344,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Collection: Take out specific object from group
     ////////////////////////////////////////////////////////////////
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     void Collection<Func>::findAndDeleteChild(eRefCounter* o)
     {
         int32_t i;
@@ -364,7 +364,7 @@ namespace ZookieWizard
     // Collection: Swap objects by one place (backwards or forwards)
     ////////////////////////////////////////////////////////////////
 
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     void Collection<Func>::swapForward(int32_t i)
     {
         eRefCounter* temp_o;
@@ -379,7 +379,7 @@ namespace ZookieWizard
         children[i + 1] = temp_o;
     }
 
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     void Collection<Func>::swapBackward(int32_t i)
     {
         eRefCounter* temp_o;

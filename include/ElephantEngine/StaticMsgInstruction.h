@@ -18,7 +18,7 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x10]*/ Gadget* link;
+            /*[0x10]*/ const Gadget* link;
 
         /*** Methods ***/
 
@@ -28,7 +28,7 @@ namespace ZookieWizard
             ~StaticMsgInstruction();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
 
             void saveInstructionToTextFile(FileOperator &file, int32_t indentation) const override;
     };

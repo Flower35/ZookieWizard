@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePathCtrl::getType() const
+    const TypeInfo* ePathCtrl::getType() const
     {
         return &E_PATHCTRL_TYPEINFO;
     }

@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* NodeRefLinker::getType() const
+    const TypeInfo* NodeRefLinker::getType() const
     {
         return &E_NODEREFLINKER_TYPEINFO;
     }
@@ -118,7 +118,7 @@ namespace ZookieWizard
         eString node_name;
         eString test_names[2];
 
-        TypeInfo* test_typeinfo;
+        const TypeInfo* test_typeinfo;
 
         if (nullptr == node)
         {
@@ -308,7 +308,7 @@ namespace ZookieWizard
     // NodeRefLinker: find link
     // <kao2.0059F7D0>
     ////////////////////////////////////////////////////////////////
-    eNode* NodeRefLinker::findLink(eNode* root, eNode* current_node, eString link_name, eString mask, TypeInfo* type_info)
+    eNode* NodeRefLinker::findLink(eNode* root, eNode* current_node, eString link_name, eString mask, const TypeInfo* type_info)
     {
         passedName = link_name;
         passedMask = mask;

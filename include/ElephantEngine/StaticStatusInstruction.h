@@ -19,7 +19,7 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x10]*/ Gadget* link;
+            /*[0x10]*/ const Gadget* link;
 
         /*** Methods ***/
 
@@ -29,7 +29,7 @@ namespace ZookieWizard
             ~StaticStatusInstruction();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
 
             eString generateScriptText() const override;
     };

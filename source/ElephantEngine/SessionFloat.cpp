@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* SessionFloat::getType() const
+    const TypeInfo* SessionFloat::getType() const
     {
         return &E_SESSIONFLOAT_TYPEINFO;
     }

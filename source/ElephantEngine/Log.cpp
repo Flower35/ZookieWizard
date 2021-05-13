@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Log::getType() const
+    const TypeInfo* Log::getType() const
     {
         return &E_LOG_TYPEINFO;
     }

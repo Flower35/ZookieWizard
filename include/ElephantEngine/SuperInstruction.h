@@ -29,7 +29,7 @@ namespace ZookieWizard
             ~SuperInstruction();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
 
             void saveInstructionToTextFile(FileOperator &file, int32_t indentation) const override;
     };

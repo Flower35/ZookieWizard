@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFollowWPF::getType() const
+    const TypeInfo* eFollowWPF::getType() const
     {
         return &E_FOLLOWWPF_TYPEINFO;
     }

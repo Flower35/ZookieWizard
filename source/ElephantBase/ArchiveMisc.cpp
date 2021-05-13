@@ -159,7 +159,7 @@ namespace ZookieWizard
         eString test_string;
         eSRP test_srp;
 
-        TypeInfo* test_typeinfo = nullptr;
+        const TypeInfo* test_typeinfo = nullptr;
         eGroup *test_group, *test_root;
         eNode *test_node = nullptr;
         eTransform* parent_xform = nullptr;
@@ -239,7 +239,7 @@ namespace ZookieWizard
                         {
                             test_group = (eGroup*)test_node;
 
-                            test_typeinfo = InterfaceManager.getTypeInfo((char*)param);
+                            test_typeinfo = theElephantInterfaces.getTypeInfo((char*)param);
 
                             if (nullptr != test_typeinfo)
                             {

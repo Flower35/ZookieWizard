@@ -35,7 +35,7 @@ namespace ZookieWizard
             ~Property();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
 
             eString generateScriptText() const override;
 

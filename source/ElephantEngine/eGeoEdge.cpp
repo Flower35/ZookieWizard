@@ -22,7 +22,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeoEdge::getType() const
+    const TypeInfo* eGeoEdge::getType() const
     {
         return &E_GEOEDGE_TYPEINFO;
     }

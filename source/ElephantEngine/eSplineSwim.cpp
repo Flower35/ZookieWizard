@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSplineSwim::getType() const
+    const TypeInfo* eSplineSwim::getType() const
     {
         return &E_SPLINESWIM_TYPEINFO;
     }

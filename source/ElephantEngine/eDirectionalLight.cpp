@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eDirectionalLight::getType() const
+    const TypeInfo* eDirectionalLight::getType() const
     {
         return &E_DIRECTIONALLIGHT_TYPEINFO;
     }
@@ -108,7 +108,7 @@ namespace ZookieWizard
     void eDirectionalLight::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
     {
         char bufor[1024];
-        TypeInfo* info;
+        const TypeInfo* type_info;
 
         /* "eLight": parent class */
 
@@ -131,13 +131,13 @@ namespace ZookieWizard
 
         if (nullptr != target)
         {
-            info = target->getType();
+            type_info = target->getType();
 
             sprintf_s
             (
                 bufor, 1024,
                 " - light target: (%s) \"%s\"",
-                info->name,
+                type_info->name,
                 target->getArchivePath().getText()
             );
 
@@ -384,7 +384,7 @@ namespace ZookieWizard
 
             if (false)
             {
-                // (--dsp--) (...) `if (nullptr != target)`
+                // (--TODO--) (...) `if (nullptr != target)`
             }
             else
             {

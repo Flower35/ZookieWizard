@@ -53,7 +53,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
@@ -83,8 +83,8 @@ namespace ZookieWizard
 
             void exportScripts(const eString &media_dir) const override;
 
-            void reloadXRef(const eString &media_dir, int32_t engine_version) override;
-            void exportXRef(const eString &media_dir, int32_t engine_version) const override;
+            void reloadXRef(const eString &media_dir, int32_t ar_version) override;
+            void exportXRef(const eString &media_dir, int32_t ar_version) const override;
 
             void ctrlExpandAnimTracks(int32_t new_size) override;
             void ctrlRemoveAnimTrack(int32_t deleted_id) override;

@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* OwnerUpdateInstruction::getType() const
+    const TypeInfo* OwnerUpdateInstruction::getType() const
     {
         return &E_OWNERUPDATEINSTRUCTION_TYPEINFO;
     }

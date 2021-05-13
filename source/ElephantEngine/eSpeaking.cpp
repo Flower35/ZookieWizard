@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSpeaking::getType() const
+    const TypeInfo* eSpeaking::getType() const
     {
         return &E_SPEAKING_TYPEINFO;
     }

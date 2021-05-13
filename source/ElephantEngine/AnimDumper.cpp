@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* AnimDumper::getType() const
+    const TypeInfo* AnimDumper::getType() const
     {
         return &E_ANIMDUMPER_TYPEINFO;
     }

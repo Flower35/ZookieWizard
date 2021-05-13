@@ -3,6 +3,7 @@
 
 #include <ElephantEngine/eTexture.h>
 #include <ElephantEngine/eMaterialState.h>
+#include <ElephantEngine/eShaderData.h>
 
 #include <utilities/ColladaExporter.h>
 
@@ -61,7 +62,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMaterial::getType() const
+    const TypeInfo* eMaterial::getType() const
     {
         return &E_MATERIAL_TYPEINFO;
     }
@@ -79,6 +80,8 @@ namespace ZookieWizard
         /*[0x28]*/ transpLayer = 0;
         /*[0x2C]*/ alphaTestRef = 0.5f;
 
+        /*[0x34]*/ shaderData = nullptr;
+
         if (nullptr != x)
         {
             textures.appendChild(x);
@@ -92,6 +95,8 @@ namespace ZookieWizard
         GUI::materialsManager_DeleteMaterial(this);
 
         state->decRef();
+
+        shaderData->decRef();
     }
 
 
@@ -126,6 +131,15 @@ namespace ZookieWizard
         transpLayer = other.transpLayer;
 
         alphaTestRef = other.alphaTestRef;
+
+        if (nullptr != other.shaderData)
+        {
+            shaderData = new eShaderData(*(other.shaderData));
+        }
+        else
+        {
+            shaderData = nullptr;
+        }
     }
 
     eMaterial::eMaterial(const eMaterial &other)
@@ -173,10 +187,11 @@ namespace ZookieWizard
         /* [0x08] Textures collection */
         textures.serialize(ar, &E_TEXTURE_TYPEINFO);
 
-        /* [0x14] unknown */
-        ar.readOrWrite(&materialFlags, 0x01);
+        /* [0x14] Material Flags */
+        test = (ar.getVersion() >= 0xA7) ? 0x02 : 0x01;
+        ar.readOrWrite(&materialFlags, test);
 
-        /* [0x18] Material state */
+        /* [0x18] Material State */
         if (ar.getVersion() >= 0x74)
         {
             ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&state, &E_MATERIALSTATE_TYPEINFO);
@@ -262,6 +277,12 @@ namespace ZookieWizard
 
         /* [0x2C] AlphaTest reference value */
         ar.readOrWrite(&alphaTestRef, 0x04);
+
+        /* [0x34] Shader Data */
+        if (ar.getVersion() >= 0xA3)
+        {
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&shaderData, &E_SHADERDATA_TYPEINFO);
+        }
     }
 
 
@@ -565,17 +586,17 @@ namespace ZookieWizard
     // eMaterial: apply or erase flag bits
     ////////////////////////////////////////////////////////////////
 
-    uint8_t eMaterial::getMaterialFlags() const
+    uint16_t eMaterial::getMaterialFlags() const
     {
         return materialFlags;
     }
 
-    void eMaterial::setMaterialFlags(uint8_t bits_to_apply)
+    void eMaterial::setMaterialFlags(uint16_t bits_to_apply)
     {
         materialFlags |= bits_to_apply;
     }
 
-    void eMaterial::unsetMaterialFlags(uint8_t bits_to_erase)
+    void eMaterial::unsetMaterialFlags(uint16_t bits_to_erase)
     {
         materialFlags &= (~bits_to_erase);
     }

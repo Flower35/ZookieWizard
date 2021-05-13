@@ -52,6 +52,11 @@ namespace ZookieWizard
 
             /*[0x0218]*/ uint8_t unknown_0218;
 
+            /*[0x0258]*/ uint8_t unknown_0258;
+            /*[0x0259]*/ uint8_t unknown_0259;
+            /*[0x0260]*/ float unknown_0260;
+            /*[0x0264]*/ float unknown_0264;
+
         /*** Methods ***/
 
         public:
@@ -71,7 +76,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
     };
 

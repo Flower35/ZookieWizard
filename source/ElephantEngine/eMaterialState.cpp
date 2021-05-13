@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMaterialState::getType() const
+    const TypeInfo* eMaterialState::getType() const
     {
         return &E_MATERIALSTATE_TYPEINFO;
     }

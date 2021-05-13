@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLight::getType() const
+    const TypeInfo* eLight::getType() const
     {
         return &E_LIGHT_TYPEINFO;
     }

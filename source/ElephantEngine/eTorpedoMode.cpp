@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTorpedoMode::getType() const
+    const TypeInfo* eTorpedoMode::getType() const
     {
         return &E_TORPEDOMODE_TYPEINFO;
     }

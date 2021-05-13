@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePointEmiter::getType() const
+    const TypeInfo* ePointEmiter::getType() const
     {
         return &E_POINTEMITER_TYPEINFO;
     }

@@ -14,7 +14,7 @@ namespace ZookieWizard
     // COLLECTION OF CLASSES
     ////////////////////////////////////////////////////////////////
 
-    template <void (*Func)(Archive&, eRefCounter**, TypeInfo*)>
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
     struct Collection
     {
         /*** Properties ***/
@@ -46,7 +46,7 @@ namespace ZookieWizard
 
             void clear();
 
-            void serialize(Archive &ar, TypeInfo* t);
+            void serialize(Archive &ar, const TypeInfo* t);
 
             int32_t getSize() const;
             void setIthChild(int32_t i, eRefCounter* o);

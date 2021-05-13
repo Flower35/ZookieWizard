@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eString2::getType() const
+    const TypeInfo* eString2::getType() const
     {
         return &E_STRING2_TYPEINFO;
     }

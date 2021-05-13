@@ -31,12 +31,12 @@ namespace ZookieWizard
         eString readString(Archive &ar);
         void writeString(Archive &ar, eString &s);
 
-        void serialize_eRefCounter(Archive &ar, eRefCounter** o, TypeInfo* t);
+        void serialize_eRefCounter(Archive &ar, eRefCounter** o, const TypeInfo* t);
 
-        void serialize_eMultiBlockIndexCtrl(Archive &ar, eRefCounter** o, TypeInfo* t);
-        void serialize_Property(Archive &ar, eRefCounter** o, TypeInfo* t);
-        void serialize_StringProperty(Archive &ar, eRefCounter** o, TypeInfo* t);
-        void serialize_StringSection(Archive &ar, eRefCounter** o, TypeInfo* t);
+        void serialize_eMultiBlockIndexCtrl(Archive &ar, eRefCounter** o, const TypeInfo* t);
+        void serialize_Property(Archive &ar, eRefCounter** o, const TypeInfo* t);
+        void serialize_StringProperty(Archive &ar, eRefCounter** o, const TypeInfo* t);
+        void serialize_StringSection(Archive &ar, eRefCounter** o, const TypeInfo* t);
 
         void writeIndentation(FileOperator &fo, int32_t indentation);
         void writeNewLine(FileOperator &fo, int32_t indentation);

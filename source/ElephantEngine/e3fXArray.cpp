@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* e3fXArray::getType() const
+    const TypeInfo* e3fXArray::getType() const
     {
         return &E_3FXARRAY_TYPEINFO;
     }
@@ -76,7 +76,7 @@ namespace ZookieWizard
         int32_t a;
 
         eGeoArray<ePoint4>* test_object;
-        TypeInfo* current_type;
+        const TypeInfo* current_type;
 
         if (ar.isInReadMode())
         {

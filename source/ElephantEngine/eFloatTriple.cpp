@@ -20,7 +20,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFloatTriple::getType() const
+    const TypeInfo* eFloatTriple::getType() const
     {
         return &E_FLOATTRIPLE_TYPEINFO;
     }

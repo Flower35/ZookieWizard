@@ -1227,7 +1227,7 @@ namespace ZookieWizard
                     test_vertices_data = new ePoint4 [total_vertices];
                     test_vertices_array = new eGeoArray<ePoint4>();
                     test_vertices_array->setup(total_vertices, test_vertices_data);
-                    test_geoset->setVerticesArray(test_vertices_array);
+                    test_geoset->setVerticesArray(0, test_vertices_array);
 
                     //// test_indices_offsets_data = new ushort [total_indices / 3];
                     //// test_indices_offsets = new eGeoArray<ushort>();
@@ -1249,11 +1249,11 @@ namespace ZookieWizard
                         test_uv_data = new ePoint2 [total_vertices];
                         test_uv_array = new eGeoArray<ePoint2>;
                         test_uv_array->setup(total_vertices, test_uv_data);
-                        test_geoset->setTextureCoordsArray(test_uv_array);
+                        test_geoset->setTextureCoordsArray(0, test_uv_array);
                     }
                     else
                     {
-                        test_geoset->setTextureCoordsArray(nullptr);
+                        test_geoset->setTextureCoordsArray(0, nullptr);
                     }
 
                     if (total_normals > 0)
@@ -1261,7 +1261,7 @@ namespace ZookieWizard
                         test_normals_data = new ePoint4 [total_vertices];
                         test_normals_array = new eGeoArray<ePoint4>();
                         test_normals_array->setup(total_vertices, test_normals_data);
-                        test_geoset->setNormalsArray(test_normals_array);
+                        test_geoset->setNormalsArray(0, test_normals_array);
                     }
 
                     /********************************/

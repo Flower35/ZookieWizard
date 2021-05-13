@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eNeckCtrl::getType() const
+    const TypeInfo* eNeckCtrl::getType() const
     {
         return &E_NECKCTRL_TYPEINFO;
     }

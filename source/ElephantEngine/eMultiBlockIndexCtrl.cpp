@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMultiBlockIndexCtrl::getType() const
+    const TypeInfo* eMultiBlockIndexCtrl::getType() const
     {
         return &E_MULTIBLOCKINDEXCTRL_TYPEINFO;
     }
@@ -108,7 +108,7 @@ namespace ZookieWizard
     // <kao2.0049FC30>: Outer serialization
     ////////////////////////////////////////////////////////////////
 
-    void ArFunctions::serialize_eMultiBlockIndexCtrl(Archive &ar, eRefCounter** o, TypeInfo* t)
+    void ArFunctions::serialize_eMultiBlockIndexCtrl(Archive &ar, eRefCounter** o, const TypeInfo* t)
     {
         serializeKnownObject<eMultiBlockIndexCtrl>(ar, o, t);
     }

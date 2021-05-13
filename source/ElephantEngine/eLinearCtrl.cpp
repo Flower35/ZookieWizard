@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLinearCtrl::getType() const
+    const TypeInfo* eLinearCtrl::getType() const
     {
         return &E_LINEARCTRL_TYPEINFO;
     }

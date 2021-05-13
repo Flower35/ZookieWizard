@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ShiftInstruction::getType() const
+    const TypeInfo* ShiftInstruction::getType() const
     {
         return &E_SHIFTINSTRUCTION_TYPEINFO;
     }

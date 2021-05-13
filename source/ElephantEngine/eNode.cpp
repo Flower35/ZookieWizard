@@ -449,7 +449,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eNode::getType() const
+    const TypeInfo* eNode::getType() const
     {
         return &E_NODE_TYPEINFO;
     }
@@ -711,14 +711,14 @@ namespace ZookieWizard
     void eNode::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
     {
         char bufor[1024];
-        TypeInfo* info = getType();
+        const TypeInfo* type_info = getType();
 
         sprintf_s
         (
             bufor, 1024,
             "[%08X] %s (\"%s\")",
-            info->id,
-            info->name,
+            type_info->id,
+            type_info->name,
             getDebugName(1024 - 64).getText()
         );
 
@@ -740,14 +740,14 @@ namespace ZookieWizard
 
         if (nullptr != parent)
         {
-            info = parent->getType();
+            type_info = parent->getType();
 
             sprintf_s
             (
                 bufor, 1024,
                 " - parent: [%08X] %s (\"%s\")",
-                info->id,
-                info->name,
+                type_info->id,
+                type_info->name,
                 parent->getStringRepresentation().getText()
             );
 
@@ -757,14 +757,14 @@ namespace ZookieWizard
 
         if (nullptr != axisListBox)
         {
-            info = axisListBox->getType();
+            type_info = axisListBox->getType();
 
             sprintf_s
             (
                 bufor, 1024,
                 " - albox: [%08X] %s (id=%08X)",
-                info->id,
-                info->name,
+                type_info->id,
+                type_info->name,
                 axisListBox->getCollisionId()
             );
 
@@ -1310,10 +1310,10 @@ namespace ZookieWizard
     // eNode: empty functions (for "eGroup" / "eProxy")
     ////////////////////////////////////////////////////////////////
 
-    void eNode::reloadXRef(const eString &media_dir, int32_t engine_version)
+    void eNode::reloadXRef(const eString &media_dir, int32_t ar_version)
     {}
 
-    void eNode::exportXRef(const eString &media_dir, int32_t engine_version) const
+    void eNode::exportXRef(const eString &media_dir, int32_t ar_version) const
     {}
 
 

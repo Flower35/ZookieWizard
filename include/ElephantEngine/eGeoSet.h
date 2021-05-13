@@ -29,12 +29,18 @@ namespace ZookieWizard
             /*[0x24-0x28]*/ eGeoArray<ePoint4>* normalsArray[2];
             /*[0x2C-0x38]*/ eGeoArray<ePoint2>* texCoordsArray[4];
             /*[0x3C]*/ eGeoArray<ePoint4>* colorsArray;
-            /*[0x40-0x4C]*/ int32_t texCoordsId[4];
+            /*[0x40-0x4C]*/ int32_t texMappingTypes[4];
             /*[0x50]*/ GLuint displayList;
-            /*[0x54]*/ int32_t currentSet;
-            /*[0x58]*/ ePhyTriMesh* phy;
+            /*[0x58]*/ ePhyTriMesh* modifier;
             /*[0x5C]*/ eGeoArray<eABB>* aabbTree;
 
+            eGeoArray<ePoint3>* unknown_points[2];
+            /*[0x61]*/ uint8_t unknown_61;
+            /*[0x62]*/ uint8_t unknown_62;
+            /*[0x63]*/ uint8_t unknown_63;
+            /*[0x64]*/ uint8_t* unknown_64;
+
+            /*[0x6C]*/ eGeoArray<ePhyVertex>* phyVertices;
 
         /*** Methods ***/
 
@@ -55,7 +61,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             /* << eGeoSet >> */
@@ -64,19 +70,21 @@ namespace ZookieWizard
             void prepareForDrawing();
 
             int32_t getTextureCoordsCount() const;
-            int32_t getTextureId(int32_t i) const;
 
-            void setVerticesArray(eGeoArray<ePoint4>* new_vertices_array);
-            void setNormalsArray(eGeoArray<ePoint4>* new_normals_array);
+            void setVerticesArray(int32_t i, eGeoArray<ePoint4>* new_vertices_array);
+            void setNormalsArray(int32_t i, eGeoArray<ePoint4>* new_normals_array);
+            void setPhyVertices(eGeoArray<ePhyVertex>* new_phyvertices);
             void setIndicesOffsets(eGeoArray<ushort>* new_indices_offets);
             void setIndicesArray(eGeoArray<ushort>* new_indices_array);
-            void setTextureCoordsArray(eGeoArray<ePoint2>* new_uv_array);
+            void setTextureCoordsArray(int32_t i, eGeoArray<ePoint2>* new_uv_array);
             void setColorsArray(eGeoArray<ePoint4>* new_colors_array);
+            void setPhyTriMesh(ePhyTriMesh* new_modifier);
             void setTwoIntegers(int32_t a, int32_t b);
 
-            eGeoArray<ePoint4>* getVerticesArray() const;
-            eGeoArray<ePoint4>* getNormalsArray() const;
-            eGeoArray<ePoint2>* getTextureCoordsArray() const;
+            eGeoArray<ePoint4>* getVerticesArray(int32_t i) const;
+            eGeoArray<ePoint4>* getNormalsArray(int32_t i) const;
+            eGeoArray<ePhyVertex>* getPhyVertices() const;
+            eGeoArray<ePoint2>* getTextureCoordsArray(int32_t i) const;
             eGeoArray<ePoint4>* getColorsArray() const;
             eGeoArray<ushort>* getIndicesOffsets() const;
             eGeoArray<ushort>* getIndicesArray() const;

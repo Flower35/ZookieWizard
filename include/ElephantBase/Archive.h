@@ -25,7 +25,7 @@ namespace ZookieWizard
 
     namespace ArFunctions
     {
-        eString getFullArchivePath(const eString &filename, const eString &media_dir, int32_t engine_version, int32_t flags);
+        eString getFullArchivePath(const eString &filename, const eString &media_dir, int32_t ar_version, int32_t flags);
     }
 
 
@@ -108,10 +108,8 @@ namespace ZookieWizard
 
             eNode* lastSerializedNode;
 
+            eString baseFileName;
             eString mediaDirectory;
-
-            int32_t engineOpenedWith;
-            int32_t engineSavedWith;
 
         /*** Methods ***/
 
@@ -130,7 +128,7 @@ namespace ZookieWizard
 
             bool isNotEmpty() const;
 
-            bool open(eString path, int32_t mode, int32_t engine_version, int32_t ver_max_override);
+            bool open(eString path, int32_t mode, int32_t version_override);
             void close(bool hide);
 
             /* << State determining >> */
@@ -142,8 +140,6 @@ namespace ZookieWizard
             /* << Serialization (reading from archives, writing to archives) >> */
 
             int32_t getVersion() const;
-            bool checkGameEngine(int32_t opened, int32_t saved) const;
-            int32_t getCurrentEngineVersion() const;
 
             bool addItem(void* item, int type);
             void* getItem(int id, int type) const;
@@ -152,7 +148,7 @@ namespace ZookieWizard
 
             void readOrWrite(void* pointer, int size);
             void assertObjectType(const TypeInfo* expected_type, const TypeInfo* current_type) const;
-            void serialize(eObject** o, TypeInfo* t);
+            void serialize(eObject** o, const TypeInfo* t);
             void serializeString(eString &s);
             void replaceStringDuringSerialization(eString &oldStr, eString newStr);
 
@@ -161,9 +157,11 @@ namespace ZookieWizard
             void setLastSerializedNode(eNode* node);
             bool assertLastSerializedNode(const eNode* node) const;
 
-            void checkTypeInfo(TypeInfo** t);
+            void checkTypeInfo(const TypeInfo** t);
 
             /* << Other functions >> */
+
+            eString getBaseFileName() const;
 
             eString getMediaDir() const;
             void setMediaDir(eString new_media_dir);
@@ -176,7 +174,8 @@ namespace ZookieWizard
             void setMyParentScene(eScene* pointer);
 
             void exportScripts() const;
-            void exportProxies() const;
+            void exportProxies(int32_t version_override) const;
+            void reloadProxies(int32_t version_override) const;
             void writeStructureToTextFile(const char* output_path) const;
             void writeStructureToXmlFile(eString filename) const;
             void writeSelectedObjectToObjFile(eString filename) const;

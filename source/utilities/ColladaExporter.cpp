@@ -484,7 +484,7 @@ namespace ZookieWizard
     {
         int32_t i;
         int32_t current_id;
-        //// (--dsp--) ColladaExporterObjRef* temp_refs;
+        //// (--TODO--) ColladaExporterObjRef* temp_refs;
 
         /* Checking if pointer was already copied */
 

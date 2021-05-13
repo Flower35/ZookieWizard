@@ -29,7 +29,7 @@ namespace ZookieWizard
             ~SendInstruction();
 
             void serialize(Archive &ar) override;
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
     };
 
 

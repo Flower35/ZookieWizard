@@ -44,15 +44,15 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             /* << eXRefTarget >> */
 
             void renderXRefScene(eDrawContext &draw_context) const;
 
-            eXRefTarget* loadTarget(const eString &media_dir, const eString &model_name, int32_t engine_version, int32_t ar_flags);
-            void exportTarget(const eString &media_dir, int32_t engine_version, int32_t ar_flags) const;
+            eXRefTarget* loadTarget(const eString &media_dir, const eString &model_name, int32_t ar_version, int32_t ar_flags);
+            void exportTarget(const eString &media_dir, int32_t ar_version, int32_t ar_flags) const;
 
             eScene* getLocalScene() const;
     };

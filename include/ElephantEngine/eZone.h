@@ -23,10 +23,6 @@ namespace ZookieWizard
             /*[0x3C-0x4C]*/ eActionTable enterActions;
             /*[0x50-0x60]*/ eActionTable leaveActions;
 
-            /*[0x64]*/
-            /*[0x68]*/
-            /*[0x6C]*/
-
             /*[0x70-0x78]*/ ePoint3 boxBoundMin;
             /*[0x7C-0x84]*/ ePoint3 boxBoundMax;
 
@@ -49,7 +45,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
@@ -58,6 +54,8 @@ namespace ZookieWizard
 
             void destroyNode() override;
             void findAndDereference(eNode* target) override;
+
+            void assertNodeLinksSameArchive() override;
 
             bool createCollisionEntry() override;
 

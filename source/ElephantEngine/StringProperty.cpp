@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* StringProperty::getType() const
+    const TypeInfo* StringProperty::getType() const
     {
         return &E_STRINGPROPERTY_TYPEINFO;
     }
@@ -59,7 +59,7 @@ namespace ZookieWizard
     // <kao2.00595E30>: Group template
     ////////////////////////////////////////////////////////////////
 
-    void ArFunctions::serialize_StringProperty(Archive &ar, eRefCounter** o, TypeInfo* t)
+    void ArFunctions::serialize_StringProperty(Archive &ar, eRefCounter** o, const TypeInfo* t)
     {
         serializeKnownObject<StringProperty>(ar, o, t);
     }

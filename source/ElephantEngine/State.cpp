@@ -28,7 +28,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* State::getType() const
+    const TypeInfo* State::getType() const
     {
         return &E_STATE_TYPEINFO;
     }

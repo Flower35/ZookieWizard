@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eRealTimeClock::getType() const
+    const TypeInfo* eRealTimeClock::getType() const
     {
         return &E_REALTIMECLOCK_TYPEINFO;
     }

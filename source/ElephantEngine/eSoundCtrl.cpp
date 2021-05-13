@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSoundCtrl::getType() const
+    const TypeInfo* eSoundCtrl::getType() const
     {
         return &E_SOUNDCTRL_TYPEINFO;
     }

@@ -33,7 +33,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTexture::getType() const
+    const TypeInfo* eTexture::getType() const
     {
         return &E_TEXTURE_TYPEINFO;
     }

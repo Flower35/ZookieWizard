@@ -6,6 +6,7 @@
 namespace ZookieWizard
 {
     class eNode;
+    class eGroup;
     class eCameraZonePacket;
 
     ////////////////////////////////////////////////////////////////
@@ -80,7 +81,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
@@ -91,6 +92,7 @@ namespace ZookieWizard
 
             void deleteIthAction(int32_t i);
             void findAndDeleteActionsWithNode(const eNode* target);
+            void removeActionsWithInvalidRoot(const eGroup* root);
 
             void clearActions();
             void addAction(eActionBase &new_action);

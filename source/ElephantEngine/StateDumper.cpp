@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* StateDumper::getType() const
+    const TypeInfo* StateDumper::getType() const
     {
         return &E_STATEDUMPER_TYPEINFO;
     }

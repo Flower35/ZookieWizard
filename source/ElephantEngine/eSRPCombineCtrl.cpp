@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSRPCombineCtrl::getType() const
+    const TypeInfo* eSRPCombineCtrl::getType() const
     {
         return &E_SRPCOMBINECTRL_TYPEINFO;
     }

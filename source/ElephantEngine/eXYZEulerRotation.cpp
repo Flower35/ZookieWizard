@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eXYZEulerRotation::getType() const
+    const TypeInfo* eXYZEulerRotation::getType() const
     {
         return &E_XYZEULERROTATION_TYPEINFO;
     }

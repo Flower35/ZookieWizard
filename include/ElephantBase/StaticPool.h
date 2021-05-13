@@ -1,44 +1,59 @@
-#ifndef H_KAO2AR_STATICPOOL
-#define H_KAO2AR_STATICPOOL
+#ifndef H_ELEPHANT_STATICPOOL
+#define H_ELEPHANT_STATICPOOL
+
+#include <ElephantBase/eString.h>
 
 namespace ZookieWizard
 {
     class Gadget;
     struct TypeInfo;
     class Archive;
+    class eShaderDesc;
 
     ////////////////////////////////////////////////////////////////
-    // KAO2 STATIC POOL
+    // ELEPHANT ENGINE: STATIC POOL
     ////////////////////////////////////////////////////////////////
 
-    static const int MAX_INSTANCES = 8;
+    static const int MAX_GADGET_INSTANCES =  8;
+    static const int MAX_SHADER_INSTANCES = 16;
 
-    struct Kao2StaticPool
+    struct ElephantStaticPool
     {
         /*** Properties ***/
 
         private:
 
             int gadgetsCount;
-            Gadget* list[MAX_INSTANCES];
+            const Gadget* gadgetsList[MAX_GADGET_INSTANCES];
+
+            int shadersCount;
+            eShaderDesc* shadersList[MAX_SHADER_INSTANCES];
 
         /*** Methods ***/
 
+        public:
+
+            ~ElephantStaticPool();
+
         private:
 
-            bool registerGadget(Gadget* gadget);
+            bool registerGadget(const Gadget* gadget);
+            int findGadget(const TypeInfo* info) const;
 
-            int findGadget(TypeInfo* info) const;
+            bool registerShader(eString name, int params_count);
 
         public:
 
-            bool registerStaticGadgets();
+            bool registerStaticElements();
 
-            void serializeGadget(Archive &ar, Gadget** gadget) const;
+            void serializeGadget(Archive &ar, const Gadget** gadget) const;
+
+            eShaderDesc* getShaderDescription(eString &name) const;
+
+            eShaderDesc* getDefaultShaderDescription() const;
     };
 
-    extern Kao2StaticPool StaticPool;
-
+    extern ElephantStaticPool theElephantStaticPool;
 }
 
 #endif

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eElectricity::getType() const
+    const TypeInfo* eElectricity::getType() const
     {
         return &E_ELECTRICITY_TYPEINFO;
     }

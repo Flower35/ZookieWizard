@@ -20,7 +20,7 @@ namespace ZookieWizard
 
             /*[0x08]*/ eString name;
             /*[0x0C]*/ eString nodeName;
-            /*[0x10]*/ TypeInfo* nodeType;
+            /*[0x10]*/ const TypeInfo* nodeType;
             /*[0x14]*/ eNode* node;
             int32_t unknown_new_id;
 
@@ -43,7 +43,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             eString getStringRepresentation() const override;

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBubbleFlakes::getType() const
+    const TypeInfo* eBubbleFlakes::getType() const
     {
         return &E_BUBBLEFLAKES_TYPEINFO;
     }

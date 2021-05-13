@@ -1,5 +1,5 @@
-#ifndef H_KAO2AR_TYPEINFO
-#define H_KAO2AR_TYPEINFO
+#ifndef H_ELEPHANT_TYPEINFO
+#define H_ELEPHANT_TYPEINFO
 
 #include <ElephantBase/kao2ar.h>
 
@@ -8,35 +8,43 @@ namespace ZookieWizard
     class eObject;
 
     ////////////////////////////////////////////////////////////////
-    // KAO2 TYPEINFO CONTAINER
+    // ELEPHANT ENGINE: TYPEINFO
     ////////////////////////////////////////////////////////////////
 
     struct TypeInfo
     {
-        /*[0x00]*/ int32_t id;
-        /*[0x04]*/ const char* name;
-        /*[0x08]*/ TypeInfo* parent;
-        /*[0x10]*/ eObject* (*create)();
+        /*** Properties ***/
 
-        TypeInfo(int _id, const char* _name, TypeInfo* _parent, eObject* (*_create)());
+        public:
 
-        bool checkHierarchy(const TypeInfo* assumed_type) const;
+            /*[0x00]*/ uint32_t id;
+            /*[0x04]*/ const char* name;
+            /*[0x08]*/ TypeInfo* parent;
+            /*[0x10]*/ eObject* (*create)();
+
+        /*** Methods ***/
+
+        public:
+
+            TypeInfo(int _id, const char* _name, TypeInfo* _parent, eObject* (*_create)());
+
+            bool checkHierarchy(const TypeInfo* assumed_type) const;
     };
 
 
     ////////////////////////////////////////////////////////////////
-    // KAO2 INTERFACES LIST
+    // ELEPHANT ENGINE: INTERFACES LIST
     ////////////////////////////////////////////////////////////////
 
     static const int MAX_INTERFACES = 288;
 
-    struct Kao2Interfaces
+    struct ElephantInterfaces
     {
         /*** Properties ***/
 
         private:
 
-            int interfacesCount;
+            int32_t interfacesCount;
             TypeInfo* list[MAX_INTERFACES];
 
         /*** Methods ***/
@@ -49,11 +57,11 @@ namespace ZookieWizard
 
             bool registerInterfaces();
 
-            TypeInfo* getTypeInfo(int id) const;
-            TypeInfo* getTypeInfo(const char* name) const;
+            const TypeInfo* getTypeInfo(int id) const;
+            const TypeInfo* getTypeInfo(const char* name) const;
     };
 
-    extern Kao2Interfaces InterfaceManager;
+    extern ElephantInterfaces theElephantInterfaces;
 
 }
 

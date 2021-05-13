@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLookAtMeKao::getType() const
+    const TypeInfo* eLookAtMeKao::getType() const
     {
         return &E_LOOKATMEKAO_TYPEINFO;
     }

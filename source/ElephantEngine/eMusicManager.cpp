@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eMusicManager::getType() const
+    const TypeInfo* eMusicManager::getType() const
     {
         return &E_MUSICMANAGER_TYPEINFO;
     }

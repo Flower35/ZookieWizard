@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Gadget::getType() const
+    const TypeInfo* Gadget::getType() const
     {
         return &E_GADGET_TYPEINFO;
     }

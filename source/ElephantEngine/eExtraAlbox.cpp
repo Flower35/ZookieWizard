@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eExtraAlbox::getType() const
+    const TypeInfo* eExtraAlbox::getType() const
     {
         return &E_EXTRAALBOX_TYPEINFO;
     }

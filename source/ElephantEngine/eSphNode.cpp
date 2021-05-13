@@ -22,7 +22,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSphNode::getType() const
+    const TypeInfo* eSphNode::getType() const
     {
         return &E_SPHNODE_TYPEINFO;
     }

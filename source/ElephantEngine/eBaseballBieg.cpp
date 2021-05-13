@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBaseballBieg::getType() const
+    const TypeInfo* eBaseballBieg::getType() const
     {
         return &E_BASEBALLBIEG_TYPEINFO;
     }

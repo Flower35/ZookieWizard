@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eActionTable::getType() const
+    const TypeInfo* eActionTable::getType() const
     {
         return &E_ACTIONTABLE_TYPEINFO;
     }
@@ -54,14 +54,13 @@ namespace ZookieWizard
     {
         if (other.actionsCount > 0)
         {
-            actionsCount = other.actionsCount;
-            actionsMaxLength = actionsCount;
+            actionsMaxLength = other.actionsCount;
 
             actions = new eActionBase [actionsMaxLength];
 
-            for (int32_t a = 0; a < actionsCount; a++)
+            for (actionsCount = 0; actionsCount < actionsMaxLength; actionsCount++)
             {
-                addAction(other.actions[a]);
+                actions[actionsCount] = other.actions[actionsCount];
             }
         }
         else
@@ -318,11 +317,28 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eActionTable::findAndDeleteActionsWithNode(const eNode* target)
     {
-        int32_t i;
-
-        for (i = 0; i < actionsCount; i++)
+        for (int32_t i = 0; i < actionsCount; i++)
         {
             if (target == actions[i].nodeTarget)
+            {
+                deleteIthAction(i);
+
+                /* Actions were shifted to the left */
+                i--;
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eActionTable: remove actions which reference
+    // the objects from a different archive
+    ////////////////////////////////////////////////////////////////
+    void eActionTable::removeActionsWithInvalidRoot(const eGroup* root)
+    {
+        for (int32_t i = 0; i < actionsCount; i++)
+        {
+            if ((nullptr != actions[i].nodeTarget) && (actions[i].nodeTarget->getRootNode() != root))
             {
                 deleteIthAction(i);
 

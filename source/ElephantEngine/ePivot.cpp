@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* ePivot::getType() const
+    const TypeInfo* ePivot::getType() const
     {
         return &E_PIVOT_TYPEINFO;
     }

@@ -50,7 +50,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
@@ -69,8 +69,8 @@ namespace ZookieWizard
             int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
             int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
 
-            void reloadXRef(const eString &media_dir, int32_t engine_version) override;
-            void exportXRef(const eString &media_dir, int32_t engine_version) const override;
+            void reloadXRef(const eString &media_dir, int32_t ar_version) override;
+            void exportXRef(const eString &media_dir, int32_t ar_version) const override;
 
             /* << eProxy >> */
 

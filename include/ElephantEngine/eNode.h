@@ -116,7 +116,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             eString getStringRepresentation() const override;
@@ -154,8 +154,8 @@ namespace ZookieWizard
 
             virtual void exportScripts(const eString &media_dir) const;
 
-            virtual void reloadXRef(const eString &media_dir, int32_t engine_version);
-            virtual void exportXRef(const eString &media_dir, int32_t engine_version) const;
+            virtual void reloadXRef(const eString &media_dir, int32_t ar_version);
+            virtual void exportXRef(const eString &media_dir, int32_t ar_version) const;
 
             virtual void ctrlExpandAnimTracks(int32_t new_size);
             virtual void ctrlRemoveAnimTrack(int32_t deleted_id);

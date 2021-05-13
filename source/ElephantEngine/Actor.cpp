@@ -25,7 +25,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Actor::getType() const
+    const TypeInfo* Actor::getType() const
     {
         return &E_ACTOR_TYPEINFO;
     }
@@ -120,8 +120,7 @@ namespace ZookieWizard
         {
             /* "Namescape" (scripting) */
 
-            if (ar.checkGameEngine(GAME_VERSION_KAO2_PL_PC, GAME_VERSION_KAO2_PL_PC)
-                || ar.checkGameEngine(GAME_VERSION_KAO2_EUR_PC, GAME_VERSION_KAO2_EUR_PC))
+            if (ar.isInReadMode() || ((nullptr != script) && (script->canBeExported() ^ (ar.getVersion() >= 0x89))))
             {
                 ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&script, &E_NAMESPACE_TYPEINFO);
             }
@@ -158,7 +157,7 @@ namespace ZookieWizard
         eNode* child_node;
         eString test_str;
 
-        char bufor[128];
+        char bufor[512];
 
         /* "ePivot": parent class */
 
@@ -180,7 +179,7 @@ namespace ZookieWizard
 
         sprintf_s
         (
-            bufor, 128,
+            bufor, 512,
             " - script: \"%s\"",
             test_str.getText()
         );

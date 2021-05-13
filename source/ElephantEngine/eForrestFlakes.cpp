@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eForrestFlakes::getType() const
+    const TypeInfo* eForrestFlakes::getType() const
     {
         return &E_FORRESTFLAKES_TYPEINFO;
     }

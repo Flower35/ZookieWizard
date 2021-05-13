@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSndEmiterBox::getType() const
+    const TypeInfo* eSndEmiterBox::getType() const
     {
         return &E_SNDEMITERBOX_TYPEINFO;
     }

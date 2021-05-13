@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGlobalLightCtrl::getType() const
+    const TypeInfo* eGlobalLightCtrl::getType() const
     {
         return &E_GLOBALLIGHTCTRL_TYPEINFO;
     }

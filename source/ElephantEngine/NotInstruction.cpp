@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* NotInstruction::getType() const
+    const TypeInfo* NotInstruction::getType() const
     {
         return &E_NOTINSTRUCTION_TYPEINFO;
     }

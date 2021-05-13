@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eXRefTarget::getType() const
+    const TypeInfo* eXRefTarget::getType() const
     {
         return &E_XREFTARGET_TYPEINFO;
     }
@@ -110,7 +110,7 @@ namespace ZookieWizard
 
         if (ar.isInReadMode())
         {
-            //// (--dsp--) <kao2.004AD0B8>
+            //// (--TODO--) <kao2.004AD0B8>
         }
     }
 
@@ -130,13 +130,13 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefTarget: set name and load target (used with eProxy)
     ////////////////////////////////////////////////////////////////
-    eXRefTarget* eXRefTarget::loadTarget(const eString &media_dir, const eString &model_name, int32_t engine_version, int32_t ar_flags)
+    eXRefTarget* eXRefTarget::loadTarget(const eString &media_dir, const eString &model_name, int32_t ar_version, int32_t ar_flags)
     {
         eXRefTarget* result = nullptr;
         eScene* previous_scene;
 
         Archive parallel_ar(media_dir);
-        eString full_path = ArFunctions::getFullArchivePath(model_name, media_dir, engine_version, ar_flags);
+        eString full_path = ArFunctions::getFullArchivePath(model_name, media_dir, ar_version, ar_flags);
 
         /* Check if this proxy already exists */
         if (nullptr != (result = (eXRefTarget*)nodesManager_GetProxyTarget(&full_path)))
@@ -163,8 +163,7 @@ namespace ZookieWizard
             (
                 full_path,
                 (AR_MODE_IS_PROXY | AR_MODE_READ),
-                engine_version,
-                0
+                ar_version
             );
 
             parallel_ar.copySceneFromMe(&scene);
@@ -194,12 +193,12 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // eXRefTarget: save external model to a separate AR file
     ////////////////////////////////////////////////////////////////
-    void eXRefTarget::exportTarget(const eString &media_dir, int32_t engine_version, int32_t ar_flags) const
+    void eXRefTarget::exportTarget(const eString &media_dir, int32_t ar_version, int32_t ar_flags) const
     {
         eScene* previous_scene;
 
         Archive parallel_ar(media_dir);
-        eString full_path = ArFunctions::getFullArchivePath(fileName, media_dir, engine_version, ar_flags);
+        eString full_path = ArFunctions::getFullArchivePath(fileName, media_dir, ar_version, ar_flags);
 
         if (nullptr != scene)
         {
@@ -218,8 +217,7 @@ namespace ZookieWizard
                 (
                     full_path,
                     (AR_MODE_IS_PROXY | AR_MODE_WRITE),
-                    engine_version,
-                    0
+                    ar_version
                 );
             }
             catch (ErrorMessage &e)

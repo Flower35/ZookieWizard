@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCinemaMode::getType() const
+    const TypeInfo* eCinemaMode::getType() const
     {
         return &E_CINEMAMODE_TYPEINFO;
     }

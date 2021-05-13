@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSphereEmiter::getType() const
+    const TypeInfo* eSphereEmiter::getType() const
     {
         return &E_SPHEREEMITER_TYPEINFO;
     }

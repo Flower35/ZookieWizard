@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eParticleCtrl::getType() const
+    const TypeInfo* eParticleCtrl::getType() const
     {
         return &E_PARTICLECTRL_TYPEINFO;
     }

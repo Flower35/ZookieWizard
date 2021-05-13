@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCameraShaker::getType() const
+    const TypeInfo* eCameraShaker::getType() const
     {
         return &E_CAMERASHAKER_TYPEINFO;
     }

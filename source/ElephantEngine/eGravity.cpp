@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGravity::getType() const
+    const TypeInfo* eGravity::getType() const
     {
         return &E_GRAVITY_TYPEINFO;
     }

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eAnimState::getType() const
+    const TypeInfo* eAnimState::getType() const
     {
         return &E_ANIMSTATE_TYPEINFO;
     }

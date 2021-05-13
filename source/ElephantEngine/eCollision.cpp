@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCollision::getType() const
+    const TypeInfo* eCollision::getType() const
     {
         return &E_COLLISION_TYPEINFO;
     }

@@ -23,7 +23,7 @@ namespace ZookieWizard
 
     OPENFILENAME ofn;
 
-    int currentGameVersion = (-1);
+    int currentArchiveVersion = ARCHIVE_VERSION_MAX;
     char mediaDirectory[LARGE_BUFFER_SIZE] = "";
     char denisDirectory[LARGE_BUFFER_SIZE] = "";
     char denisLevelName[LARGE_BUFFER_SIZE] = "";
@@ -36,7 +36,7 @@ namespace ZookieWizard
 
     const char* ZookieWizardSettingNames[ZOOKIE_WIZARD_SETTINGS_COUNT] =
     {
-        "EngineVersion", "MediaDir", "DenisDir", "LevelName",
+        "ArchiveVersion", "MediaDir", "DenisDir", "LevelName",
         "CameraMovementSpeed", "CameraRotationSpeed",
         "DrawFlags", "BackgroundColor"
     };
@@ -158,12 +158,13 @@ namespace ZookieWizard
                         {
                             switch (setting_id)
                             {
-                                case 0: // "EngineVersion"
+                                case 0: // "ArchiveVersion"
                                 {
-                                    setGameVersion(std::atoi(keywords[2].getText()));
+                                    setMaxArchiveVersion(std::atoi(keywords[2].getText()));
+                                    sprintf_s(bufor, LARGE_BUFFER_SIZE, "%i", currentArchiveVersion);
+                                    keywords[2] = bufor;
 
-                                    setting_id = (-1);
-
+                                    setting_id = 7;
                                     break;
                                 }
 
@@ -279,9 +280,9 @@ namespace ZookieWizard
             {
                 switch (setting_id)
                 {
-                    case 0: // "EngineVersion"
+                    case 0: // "ArchiveVersion"
                     {
-                        sprintf_s(bufor, LARGE_BUFFER_SIZE, "%d", currentGameVersion);
+                        sprintf_s(bufor, LARGE_BUFFER_SIZE, "%d", currentArchiveVersion);
 
                         break;
                     }
@@ -413,63 +414,21 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // miscellaneous: Set Kao2 game engine version
+    // miscellaneous: Set current archive version
+    // (saving, exporting, reimporting, files and scripts)
     ////////////////////////////////////////////////////////////////
-    void setGameVersion(int32_t engine_version)
+    void setMaxArchiveVersion(int32_t ar_version)
     {
-        const char* msg;
-
-        switch (engine_version)
+        if (ar_version < ARCHIVE_VERSION_MIN)
         {
-            case GAME_VERSION_KAO2_PL_PC:
-            {
-                msg = "Nice, you have selected:\n\n" \
-                    "\"Kangurek Kao: Runda 2\" [PL, Retail]\n\n" \
-                    "ar versions: 0x67 (103) � 0x87 (135)";
-                break;
-            }
-
-            case GAME_VERSION_KAO2_EUR_PC:
-            {
-                msg = "Nice, you have selected:\n\n" \
-                    "\"Kao the Kangaroo: Round 2\" [EUR/USA, Digital]\n\n" \
-                    "ar versions: 0x67 (103) � 0x89 (137)";
-                break;
-            }
-
-            case GAME_VERSION_KAO_TW_PC:
-            {
-                msg = "Nice, you have selected:\n\n" \
-                    "\"Kangurek Kao: Tajemnica Wulkanu\"\n\n" \
-                    "ar versions: 0x8B (139) � 0x90 (144)";
-                break;
-            }
-
-            case GAME_VERSION_ASTERIX_XXL2_PSP:
-            {
-                msg = "Nice, you have selected:\n\n" \
-                    "\"Asterix & Obelix XXL 2: Mission Wifix\"\n\n" \
-                    "ar versions: 0x8B (139) � 0x93 (147)";
-                break;
-            }
-
-            default:
-            {
-                currentGameVersion = (-1);
-
-                return;
-            }
+            ar_version = ARCHIVE_VERSION_MIN;
+        }
+        else if (ar_version > ARCHIVE_VERSION_MAX)
+        {
+            ar_version = ARCHIVE_VERSION_MAX;
         }
 
-        /* Kangurek Kao */
-
-        currentGameVersion = engine_version;
-
-        GUI::theWindowsManager.displayMessage
-        (
-            WINDOWS_MANAGER_MESSAGE_INFO,
-            msg
-        );
+        currentArchiveVersion = ar_version;
     }
 
 
@@ -502,7 +461,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // miscellaneous: Open or Save Kao2 Archive
     ////////////////////////////////////////////////////////////////
-    void ArMenuOptions_OpenOrSaveAr(int32_t mode)
+    void ArMenuOptions_OpenOrSaveAr(const char* auto_path, int32_t mode)
     {
         int32_t test;
         eString ar_name;
@@ -516,7 +475,7 @@ namespace ZookieWizard
         const char* ofn_title = nullptr;
         const char* final_msg = nullptr;
 
-        HWND listbox = GUI::theWindowsManager.getSpecificWindow(1, (-1));
+        HWND listbox = GUI::theWindowsManager.getSpecificWindow(1, 8);
 
         switch (mode)
         {
@@ -561,22 +520,31 @@ namespace ZookieWizard
             ofn.lpstrFile = bufor;
             ofn.nMaxFile = LARGE_BUFFER_SIZE;
             ofn.lpstrTitle = ofn_title;
-            ofn.lpstrFilter = "KAO2 Archive files (*.ar;*.em;*.eb)\0*.ar;*.em;*.eb\0";
+            ofn.lpstrFilter = "KAO2 Archive files (*.ar;*.em;*.eb)\0*.ar;*.em;*.eb\0All files (*.*)\0*.*\0";
             ofn.Flags = ofn_flags;
 
-            if (1 == open_or_save_dialog)
+            if (nullptr == auto_path)
             {
-                test = GetOpenFileName(&ofn);
-            }
-            else if (2 == open_or_save_dialog)
-            {
-                sprintf_s(bufor, LARGE_BUFFER_SIZE, "%s.ar", getEditorString(3, false));
+                if (1 == open_or_save_dialog)
+                {
+                    test = GetOpenFileName(&ofn);
+                }
+                else if (2 == open_or_save_dialog)
+                {
+                    sprintf_s(bufor, LARGE_BUFFER_SIZE, "%s.ar", getEditorString(3, false));
 
-                test = GetSaveFileName(&ofn);
+                    test = GetSaveFileName(&ofn);
+                }
+                else
+                {
+                    test = 0;
+                }
             }
             else
             {
-                test = 0;
+                test = (-1);
+
+                strcpy_s(bufor, LARGE_BUFFER_SIZE, auto_path);
             }
 
             if (0 == test)
@@ -616,8 +584,7 @@ namespace ZookieWizard
             (
                 ar_name,
                 archive_flags,
-                currentGameVersion,
-                0
+                currentArchiveVersion
             );
 
             nodesManager_ClearProxies();
@@ -647,20 +614,23 @@ namespace ZookieWizard
             if (NULL != listbox)
             {
                 SendMessage(listbox, LB_DELETESTRING, (WPARAM)currentArId, 0);
-                SendMessage(listbox, LB_INSERTSTRING, (WPARAM)currentArId, (LPARAM)ar_name.getFilename(true).getText());
+                SendMessage(listbox, LB_INSERTSTRING, (WPARAM)currentArId, (LPARAM)myARs[currentArId].getBaseFileName().getText());
                 SendMessage(listbox, LB_SETCURSEL, (WPARAM)currentArId, 0);
             }
 
-            /* Display message */
+            if (nullptr == auto_path)
+            {
+                /* Display message */
 
-            sprintf_s
-            (
-                bufor, 256,
-                final_msg,
-                ar_name.getText()
-            );
+                sprintf_s
+                (
+                    bufor, 256,
+                    final_msg,
+                    ar_name.getText()
+                );
 
-            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+                GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+            }
         }
         catch (ErrorMessage &err)
         {
@@ -684,11 +654,11 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // miscellaneous: Close Kao2 Archive
     ////////////////////////////////////////////////////////////////
-    void ArMenuOptions_CloseAr()
+    void ArMenuOptions_CloseAr(bool automatic)
     {
-        HWND listbox = GUI::theWindowsManager.getSpecificWindow(1, (-1));
+        HWND listbox = GUI::theWindowsManager.getSpecificWindow(1, 8);
 
-        if (myARs[currentArId].isNotEmpty())
+        if ((!automatic) && myARs[currentArId].isNotEmpty())
         {
             if (false == GUI::theWindowsManager.askQuestion
                 (
@@ -726,7 +696,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // miscellaneous: generate empty scene (custom Kao2 levels)
     ////////////////////////////////////////////////////////////////
-    void ArMenuOptions_GenerateEmptyScene()
+    void ArMenuOptions_GenerateEmptyScene(bool automatic)
     {
         char bufor[LARGE_BUFFER_SIZE];
         eString compile_strings[2];
@@ -739,7 +709,7 @@ namespace ZookieWizard
         eEnvironment* global_env = nullptr;
         eCollisionMgr* test_collision = nullptr;
 
-        HWND listbox = GUI::theWindowsManager.getSpecificWindow(1, (-1));
+        HWND listbox = GUI::theWindowsManager.getSpecificWindow(1, 8);
 
         /********************************/
         /* Check if the name is not empty */
@@ -759,15 +729,18 @@ namespace ZookieWizard
             return;
         }
 
-        if (false == GUI::theWindowsManager.askQuestion
-            (
-                "You are about to generate a new, empty KAO2 scene.\n\n" \
-                "This action will close the current Archive and any unsaved changes will be lost!\n\n" \
-                "Do you want to continue?"
-            )
-        )
+        if (!automatic)
         {
-            return;
+            if (false == GUI::theWindowsManager.askQuestion
+                (
+                    "You are about to generate a new, empty KAO2 scene.\n\n" \
+                    "This action will close the current Archive and any unsaved changes will be lost!\n\n" \
+                    "Do you want to continue?"
+                )
+            )
+            {
+                return;
+            }
         }
 
         sprintf_s(denisLevelName, LARGE_BUFFER_SIZE, compile_strings[1].getText());
@@ -824,11 +797,6 @@ namespace ZookieWizard
         new_scene->appendChild(global_env);
 
         /********************************/
-        /* Add one collision entry (REQUIRED BY KAO2 ENGINE) */
-
-        test_collision->insertNewItem_seriesA(0);
-
-        /********************************/
         /* Replace current archive */
 
         myARs[currentArId].setMyParentScene(new_scene);
@@ -843,16 +811,19 @@ namespace ZookieWizard
             "================================\n"
         );
 
-        sprintf_s
-        (
-            bufor, LARGE_BUFFER_SIZE,
-            "Empty scene for Kao2 created!\n\n" \
-            "Now you can save Archive to: \"%s/build/win32/%s.ar\"",
-            getEditorString(1, true),
-            denisLevelName
-        );
+        if (!automatic)
+        {
+            sprintf_s
+            (
+                bufor, LARGE_BUFFER_SIZE,
+                "Empty scene for Kao2 created!\n\n" \
+                "Now you can save Archive to: \"%s/build/win32/%s.ar\"",
+                getEditorString(1, true),
+                denisLevelName
+            );
 
-        GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+        }
     }
 
 
@@ -928,7 +899,7 @@ namespace ZookieWizard
         {
             myARs[currentArId].setMediaDir(getEditorString(1, false));
 
-            myARs[currentArId].exportProxies();
+            myARs[currentArId].exportProxies(currentArchiveVersion);
 
             theLog.print
             (
@@ -963,17 +934,68 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // miscellaneous: Reload Proxies in Kao2 Archive
+    ////////////////////////////////////////////////////////////////
+    void ArMenuOptions_ReloadProxies()
+    {
+        char bufor[LARGE_BUFFER_SIZE];
+
+        theLog.print
+        (
+            "================================\n" \
+            "==  ARCHIVE PROXIES RELOADING ==\n" \
+            "==            BEGIN           ==\n" \
+            "================================\n"
+        );
+
+        try
+        {
+            myARs[currentArId].setMediaDir(getEditorString(1, false));
+
+            myARs[currentArId].reloadProxies(currentArchiveVersion);
+
+            theLog.print
+            (
+                "================================\n" \
+                "==  ARCHIVE PROXIES RELOADING ==\n" \
+                "==          FINISHED          ==\n" \
+                "================================\n"
+            );
+
+            sprintf_s
+            (
+                bufor, 256,
+                "Done reloading proxies from \"%s\".",
+                myARs[currentArId].getMediaDir().getText()
+            );
+
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+        }
+        catch (ErrorMessage &err)
+        {
+            theLog.print
+            (
+                "================================\n" \
+                "==  ARCHIVE PROXIES RELOADING ==\n" \
+                "==            oops!           ==\n" \
+                "================================\n"
+            );
+
+            err.display();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // miscellaneous: Bulk Archive Converter
     ////////////////////////////////////////////////////////////////
     void ArMenuOptions_BulkArchiveConverter()
     {
-        int32_t i, j, k;
+        int32_t i, ar_version;
         char bufor[LARGE_BUFFER_SIZE];
 
-        int params[2][2];
-
-        eString media_dirs[2];
-        eString keywords[4];
+        eString input_dir;
+        eString keywords[3];
         Archive dummy_ar;
 
         FileOperator list;
@@ -986,12 +1008,13 @@ namespace ZookieWizard
             (
                 WINDOWS_MANAGER_MESSAGE_INFO,
                 "Select a text file structured in a following way:\n\n" \
-                "lines 1 & 2: [game version] [archive version] [media directory]\n" \
+                "1st line: [input media directory]\n" \
+                "2nd line: [target archive version] [output media directory]\n" \
                 "next lines: file names (in reference to media directories)\n" \
                 "\n--------------------------------\n" \
                 "    EXAMPLE:\n\n" \
-                "[1] 3 144 C:\\Program Files (x86)\\Kangurek Kao - Tajemnica Wulkanu\\media\n" \
-                "[2] 1 135 C:\\Program Files (x86)\\Kangurek Kao - Runda 2\\media\n" \
+                "[1] C:\\Program Files (x86)\\Kangurek Kao - Tajemnica Wulkanu\\media\n" \
+                "[2] 135 C:\\Program Files (x86)\\Kangurek Kao - Runda 2\\media\n" \
                 "[3] build/pc/kao.ar\n" \
                 "[4] build/pc/check_point.ar\n" \
                 "[5] particle/kao_die_killwater.ar\n"
@@ -1003,8 +1026,8 @@ namespace ZookieWizard
 
             ofn.lpstrFile = bufor;
             ofn.nMaxFile = LARGE_BUFFER_SIZE;
-            ofn.lpstrTitle = "Opening a list file..";
-            ofn.lpstrFilter = "Text files (*.txt)\0*.txt\0";
+            ofn.lpstrTitle = "Opening a list file...";
+            ofn.lpstrFilter = "Text files (*.txt;*.def;*.log)\0*.txt;*.def;*.log\0All files (*.*)\0*.*\0";
             ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
 
             if (0 == GetOpenFileName(&ofn))
@@ -1027,82 +1050,32 @@ namespace ZookieWizard
 
             /* Read first two lines (and validate) */
 
-            for (i = 0; i < 2; i++)
+            input_dir << list;
+            input_dir = ArFunctions::removeComment(input_dir, true);
+
+            keywords[2] << list;
+            keywords[2] = ArFunctions::removeComment(keywords[2], true);
+
+            if (ArFunctions::splitString(keywords[2], keywords, 2) < 2)
             {
-                keywords[3] << list;
+                throw ErrorMessage
+                (
+                    "Error while parsing the beginning of the list:\n" \
+                    "Expected the target archive version and output directory in the 2nd line!"
+                );
+            }
 
-                ArFunctions::splitString(keywords[3], keywords, 3);
+            ar_version = std::atoi(keywords[0].getText());
 
-                /* Engine number and Archive version */
-
-                params[i][0] = std::atoi(keywords[0].getText());
-
-                switch (params[i][0])
-                {
-                    case GAME_VERSION_KAO2_PL_PC:
-                    case GAME_VERSION_KAO2_EUR_PC:
-                    case GAME_VERSION_KAO_TW_PC:
-                    case GAME_VERSION_ASTERIX_XXL2_PSP:
-                    {
-                        break;
-                    }
-
-                    default:
-                    {
-                        throw ErrorMessage
-                        (
-                            "Error while parsing the beginning of the list:\n" \
-                            "Incorrect game version numbers!"
-                        );
-                    }
-                }
-
-                params[i][1] = std::atoi(keywords[1].getText());
-
-                k = j = 0;
-
-                switch (params[i][0])
-                {
-                    case GAME_VERSION_KAO2_PL_PC:
-                    {
-                        j = 0x67;
-                        k = 0x87;
-                        break;
-                    }
-
-                    case GAME_VERSION_KAO2_EUR_PC:
-                    {
-                        j = 0x67;
-                        k = 0x89;
-                        break;
-                    }
-
-                    case GAME_VERSION_KAO_TW_PC:
-                    {
-                        j = 0x8B;
-                        k = 0x90;
-                        break;
-                    }
-
-                    case GAME_VERSION_ASTERIX_XXL2_PSP:
-                    {
-                        j = 0x8B;
-                        k = 0x93;
-                        break;
-                    }
-                }
-
-                if ((params[i][1] < j) || (params[i][1] > k))
-                {
-                    throw ErrorMessage
-                    (
-                        "Error while parsing the beginning of the list:\n" \
-                        "Incorrect archive version for engine #%d!",
-                        params[i][0]
-                    );
-                }
-
-                media_dirs[i] = keywords[2];
+            if ((ar_version < ARCHIVE_VERSION_MIN) || (ar_version > ARCHIVE_VERSION_MAX))
+            {
+                throw ErrorMessage
+                (
+                    "Error while parsing the beginning of the list:\n" \
+                    "Incorrect target archive vesion %i!\n" \
+                    "(min.: %i, max.: %i)",
+                    ar_version, ARCHIVE_VERSION_MIN, ARCHIVE_VERSION_MAX
+                );
             }
 
             /* Begin the conversion... */
@@ -1111,44 +1084,40 @@ namespace ZookieWizard
 
             while (!list.endOfFileReached())
             {
-                keywords[1] << list;
+                keywords[0] << list;
+                keywords[0] = ArFunctions::removeComment(keywords[0], true).trimWhitespace();
 
-                if (ArFunctions::splitString(keywords[1], keywords, 1) >= 1)
+                /* Minimal length of three characters [*.ar] */
+
+                if (keywords[0].getLength() > 3)
                 {
-                    /* "*.ar" */
+                    /* Source archive */
 
-                    if ((keywords[0].getLength() > 3) && ('#' != keywords[0].getText()[0]))
-                    {
-                        /* Source archive */
+                    dummy_ar.setMediaDir(input_dir);
 
-                        dummy_ar.setMediaDir(media_dirs[0]);
+                    dummy_ar.open
+                    (
+                        dummy_ar.getMediaDir() + keywords[0],
+                        (AR_MODE_SKIP_PROXIES | AR_MODE_READ),
+                        0
+                    );
 
-                        dummy_ar.open
-                        (
-                            dummy_ar.getMediaDir() + keywords[0],
-                            (AR_MODE_SKIP_PROXIES | AR_MODE_READ),
-                            params[0][0],
-                            0
-                        );
+                    dummy_ar.close(false);
 
-                        dummy_ar.close(false);
+                    /* Destination archive */
 
-                        /* Destination archive */
+                    dummy_ar.setMediaDir(keywords[1]);
 
-                        dummy_ar.setMediaDir(media_dirs[1]);
+                    dummy_ar.open
+                    (
+                        dummy_ar.getMediaDir() + keywords[0],
+                        (AR_MODE_WRITE),
+                        ar_version
+                    );
 
-                        dummy_ar.open
-                        (
-                            dummy_ar.getMediaDir() + keywords[0],
-                            (AR_MODE_WRITE),
-                            params[1][0],
-                            params[1][1]
-                        );
+                    dummy_ar.close(true);
 
-                        dummy_ar.close(true);
-
-                        i++;
-                    }
+                    i++;
                 }
             }
 
@@ -1213,7 +1182,7 @@ namespace ZookieWizard
             ofn.lpstrFile = bufor;
             ofn.nMaxFile = LARGE_BUFFER_SIZE;
             ofn.lpstrTitle = "Select your destination...";
-            ofn.lpstrFilter = "Text files (*.log;*.txt)\0*.log;*.txt\0";
+            ofn.lpstrFilter = "Text files (*.log;*.def;*.txt)\0*.log;*.def;*.txt\0All files (*.*)\0*.*\0";
             ofn.Flags = OFN_OVERWRITEPROMPT;
 
             if (0 == GetSaveFileName(&ofn))
@@ -1254,7 +1223,7 @@ namespace ZookieWizard
             ofn.lpstrFile = bufor;
             ofn.nMaxFile = LARGE_BUFFER_SIZE;
             ofn.lpstrTitle = "Saving COLADA document...";
-            ofn.lpstrFilter = "COLLADA document (*.dae)\0*.dae\0";
+            ofn.lpstrFilter = "COLLADA document (*.dae)\0*.dae\0All files (*.*)\0*.*\0";
             ofn.Flags = (OFN_OVERWRITEPROMPT);
 
             if (0 == GetSaveFileName(&ofn))
@@ -1328,7 +1297,7 @@ namespace ZookieWizard
             ofn.lpstrFile = bufor;
             ofn.nMaxFile = LARGE_BUFFER_SIZE;
             ofn.lpstrTitle = "Saving OBJ document...";
-            ofn.lpstrFilter = "Wavefront OBJ document (*.obj)\0*.obj\0";
+            ofn.lpstrFilter = "Wavefront OBJ document (*.obj)\0*.obj\0All files (*.*)\0*.*\0";
             ofn.Flags = (OFN_OVERWRITEPROMPT);
 
             if (0 == GetSaveFileName(&ofn))
@@ -1402,7 +1371,7 @@ namespace ZookieWizard
             ofn.lpstrFile = bufor;
             ofn.nMaxFile = LARGE_BUFFER_SIZE;
             ofn.lpstrTitle = "Opening OBJ document...";
-            ofn.lpstrFilter = "Wavefront OBJ document (*.obj)\0*.obj\0";
+            ofn.lpstrFilter = "Wavefront OBJ document (*.obj)\0*.obj\0All files (*.*)\0*.*\0";
             ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
 
             if (0 == GetOpenFileName(&ofn))
@@ -1469,8 +1438,8 @@ namespace ZookieWizard
 
         ofn.lpstrFile = bufor[1];
         ofn.nMaxFile = LARGE_BUFFER_SIZE;
-        ofn.lpstrTitle = "Opening a TXT/DEF file...";
-        ofn.lpstrFilter = "Text files (*.txt;*.def)\0*.txt;*.def\0";
+        ofn.lpstrTitle = "Opening a text file...";
+        ofn.lpstrFilter = "Text files (*.txt;*.def;*.log)\0*.txt;*.def;*.log\0All files (*.*)\0*.*\0";
         ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
 
         if (0 == GetOpenFileName(&ofn))

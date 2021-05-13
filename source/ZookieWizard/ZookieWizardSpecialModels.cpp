@@ -185,11 +185,11 @@ namespace ZookieWizard
 
             test_vertex_array = new eGeoArray<ePoint4>;
             test_vertex_array->setup(v_count, test_vertex_data);
-            (*model)->setVerticesArray(test_vertex_array);
+            (*model)->setVerticesArray(0, test_vertex_array);
 
             test_uv_array = new eGeoArray<ePoint2>;
             test_uv_array->setup(v_count, test_uv_data);
-            (*model)->setTextureCoordsArray(test_uv_array);
+            (*model)->setTextureCoordsArray(0, test_uv_array);
 
             test_indices_array = new eGeoArray<ushort>;
             test_indices_array->setup(i_count, test_indices_data);

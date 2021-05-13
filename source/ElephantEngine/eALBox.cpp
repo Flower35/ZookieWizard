@@ -29,7 +29,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eALBox::getType() const
+    const TypeInfo* eALBox::getType() const
     {
         return &E_ALBOX_TYPEINFO;
     }
@@ -356,33 +356,33 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     bool eALBox::isParentNodeInteractive() const
     {
-        TypeInfo* info;
+        const TypeInfo* type_info;
 
         if (nullptr != parentNode)
         {
-            info = parentNode->getType();
+            type_info = parentNode->getType();
 
-            if (info->checkHierarchy(&E_OBSERVER_TYPEINFO))
+            if (type_info->checkHierarchy(&E_OBSERVER_TYPEINFO))
             {
                 return true;
             }
 
-            if (info->checkHierarchy(&E_ACTOR_TYPEINFO))
+            if (type_info->checkHierarchy(&E_ACTOR_TYPEINFO))
             {
                 return true;
             }
 
-            if (E_GROUNDTEST_ID == info->id)
+            if (E_GROUNDTEST_ID == (type_info->id))
             {
                 return true;
             }
 
-            if (E_NPCMAP_ID == info->id)
+            if (E_NPCMAP_ID == (type_info->id))
             {
                 return true;
             }
 
-            if (E_RAIN_ID == info->id)
+            if (E_RAIN_ID == (type_info->id))
             {
                 return true;
             }
@@ -567,7 +567,7 @@ namespace ZookieWizard
 
             if (0x02 == unknown_8C)
             {
-                //// (--dsp--) <kao2.004A9A90>
+                //// (--TODO--) <kao2.004A9A90>
             }
             else
             {
@@ -588,7 +588,7 @@ namespace ZookieWizard
 
         if (nullptr == other)
         {
-            /* (--dsp--) <kao2.004AA020> */
+            /* (--TODO--) <kao2.004AA020> */
         }
 
         if (0x00 != (arg2 ^ function_004AA4F0(other)))
@@ -612,7 +612,7 @@ namespace ZookieWizard
                 }
                 else
                 {
-                    /* (--dsp--) <kao2.004AA4A8> */
+                    /* (--TODO--) <kao2.004AA4A8> */
                 }
             }
         }
@@ -677,7 +677,7 @@ namespace ZookieWizard
             {
                 if ((other->parentNode) == unknown_80.getIthChild(i))
                 {
-                    /* (--dsp--) "begin overlap" */
+                    /* (--TODO--) "begin overlap" */
 
                     return;
                 }
@@ -708,7 +708,7 @@ namespace ZookieWizard
                 }
             }
 
-            /* (--dsp--) "collider not found" */
+            /* (--TODO--) "collider not found" */
         }
     }
 

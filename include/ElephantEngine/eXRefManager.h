@@ -41,7 +41,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             /* << eNode >> */
@@ -50,7 +50,7 @@ namespace ZookieWizard
 
             void renderNode(eDrawContext &draw_context) const override;
 
-            void exportXRef(const eString &media_dir, int32_t engine_version) const override;
+            void exportXRef(const eString &media_dir, int32_t ar_version) const override;
 
     };
 

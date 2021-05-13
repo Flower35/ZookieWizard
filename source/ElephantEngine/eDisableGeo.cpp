@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eDisableGeo::getType() const
+    const TypeInfo* eDisableGeo::getType() const
     {
         return &E_DISABLEGEO_TYPEINFO;
     }

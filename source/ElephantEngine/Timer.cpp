@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* Timer::getType() const
+    const TypeInfo* Timer::getType() const
     {
         return &E_TIMER_TYPEINFO;
     }

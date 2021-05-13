@@ -27,7 +27,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLeafCtrl<float>::getType() const
+    const TypeInfo* eLeafCtrl<float>::getType() const
     {
         return &E_LEAFCTRL_FLOAT_TYPEINFO;
     }
@@ -43,7 +43,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLeafCtrl<ePoint3>::getType() const
+    const TypeInfo* eLeafCtrl<ePoint3>::getType() const
     {
         return &E_LEAFCTRL_EPOINT3_TYPEINFO;
     }
@@ -59,7 +59,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eLeafCtrl<eQuat>::getType() const
+    const TypeInfo* eLeafCtrl<eQuat>::getType() const
     {
         return &E_LEAFCTRL_EQUAT_TYPEINFO;
     }
@@ -321,7 +321,7 @@ namespace ZookieWizard
 
                     case 4: // "Linear"
                     {
-                        /* (--dsp--) <kao2.004A303E> */
+                        /* (--TODO--) <kao2.004A303E> */
 
                         break;
                     }

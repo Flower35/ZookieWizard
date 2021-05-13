@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* EmptyVoidInstruction::getType() const
+    const TypeInfo* EmptyVoidInstruction::getType() const
     {
         return &E_EMPTYVOIDINSTRUCTION_TYPEINFO;
     }

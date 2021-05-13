@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eOMB::getType() const
+    const TypeInfo* eOMB::getType() const
     {
         return &E_OMB_TYPEINFO;
     }

@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* MsgInstruction::getType() const
+    const TypeInfo* MsgInstruction::getType() const
     {
         return &E_MSGINSTRUCTION_TYPEINFO;
     }

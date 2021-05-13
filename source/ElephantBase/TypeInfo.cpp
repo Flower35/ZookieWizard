@@ -2,12 +2,12 @@
 
 namespace ZookieWizard
 {
-    Kao2Interfaces InterfaceManager;
+    ElephantInterfaces theElephantInterfaces;
 }
 
 
 ////////////////////////////////////////////////////////////////
-// KAO2 INTERFACES: definitions
+// Elephant Engine: Interface definitions
 ////////////////////////////////////////////////////////////////
 
 #include <ElephantBase/eObject.h>
@@ -86,6 +86,7 @@ namespace ZookieWizard
 #include <ElephantEngine/eNode.h>
 #include <ElephantEngine/eTransform.h>
 #include <ElephantEngine/eMaterial.h>
+#include <ElephantEngine/eShaderData.h>
 #include <ElephantEngine/eEnvironment.h>
 #include <ElephantEngine/eFogEnv.h>
 #include <ElephantEngine/eOmniLight.h>
@@ -97,6 +98,7 @@ namespace ZookieWizard
 #include <ElephantEngine/eAnimBillboardProxy.h>
 #include <ElephantEngine/ePivot.h>
 #include <ElephantEngine/eScene.h>
+#include <ElephantEngine/eWSGroup.h>
 #include <ElephantEngine/eALZoneSensor.h>
 #include <ElephantEngine/eZone.h>
 #include <ElephantEngine/eBoxZone.h>
@@ -282,9 +284,8 @@ namespace ZookieWizard
 {
 
     ////////////////////////////////////////////////////////////////
-    // TYPE INFO: constructor
+    // TypeInfo: Constructor
     ////////////////////////////////////////////////////////////////
-
     TypeInfo::TypeInfo(int _id, const char* _name, TypeInfo* _parent, eObject* (*_create)())
     {
         id = _id;
@@ -295,10 +296,9 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // TYPE INFO: test hierachy
+    // TypeInfo: Hierarchy testing
     // <kao2.00462CB0>
     ////////////////////////////////////////////////////////////////
-
     bool TypeInfo::checkHierarchy(const TypeInfo* assumed_type) const
     {
         const TypeInfo* test = this;
@@ -323,10 +323,9 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // KAO2 INTERFACES: register all known types
+    // Elephant Engine Interfaces: Register all known types
     ////////////////////////////////////////////////////////////////
-
-    bool Kao2Interfaces::registerInterfaces()
+    bool ElephantInterfaces::registerInterfaces()
     {
         interfacesCount = 0;
 
@@ -399,6 +398,7 @@ namespace ZookieWizard
         registerTypeInfo(&E_GEOSET_TYPEINFO);
         registerTypeInfo(&E_GEOARRAY_USHORT_TYPEINFO);
         registerTypeInfo(&E_GEOARRAY_EPOINT2_TYPEINFO);
+        registerTypeInfo(&E_GEOARRAY_EPOINT3_TYPEINFO);
         registerTypeInfo(&E_GEOARRAY_EPOINT4_TYPEINFO);
         registerTypeInfo(&E_BITMAP_TYPEINFO);
         registerTypeInfo(&E_TEXTRANSFORM_TYPEINFO);
@@ -406,6 +406,7 @@ namespace ZookieWizard
         registerTypeInfo(&E_NODE_TYPEINFO);
         registerTypeInfo(&E_TRANSFORM_TYPEINFO);
         registerTypeInfo(&E_MATERIAL_TYPEINFO);
+        registerTypeInfo(&E_SHADERDATA_TYPEINFO);
         registerTypeInfo(&E_ENVIRONMENT_TYPEINFO);
         registerTypeInfo(&E_FOGENV_TYPEINFO);
         registerTypeInfo(&E_OMNILIGHT_TYPEINFO);
@@ -417,6 +418,7 @@ namespace ZookieWizard
         registerTypeInfo(&E_ANIMBILLBOARDPROXY_TYPEINFO);
         registerTypeInfo(&E_PIVOT_TYPEINFO);
         registerTypeInfo(&E_SCENE_TYPEINFO);
+        registerTypeInfo(&E_WSGROUP_TYPEINFO);
         registerTypeInfo(&E_ALZONESENSOR_TYPEINFO);
         registerTypeInfo(&E_ZONE_TYPEINFO);
         registerTypeInfo(&E_BOXZONE_TYPEINFO);
@@ -607,16 +609,15 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // KAO2 INTERFACES: register type
+    // Elephant Engine Interfaces: Register a new type
     ////////////////////////////////////////////////////////////////
-
-    bool Kao2Interfaces::registerTypeInfo(const TypeInfo* info)
+    bool ElephantInterfaces::registerTypeInfo(const TypeInfo* info)
     {
         if (interfacesCount >= MAX_INTERFACES)
         {
             throw ErrorMessage
             (
-                "registerTypeInfo():\n" \
+                "ElephantInterfaces::registerTypeInfo():\n" \
                 "too many interfaces. Increase MAX_INTERFACES (%i)",
                 MAX_INTERFACES
             );
@@ -630,7 +631,7 @@ namespace ZookieWizard
             {
                 throw ErrorMessage
                 (
-                    "registerTypeInfo():\n" \
+                    "ElephantInterfaces::registerTypeInfo():\n" \
                     "class/interface \"%s\" is duplicated.",
                     info->name
                 );
@@ -659,11 +660,12 @@ namespace ZookieWizard
         return true;
     }
 
+
     ////////////////////////////////////////////////////////////////
-    // KAO2 INTERFACES: find type
+    // Elephant Engine Interfaces: Find a type (by Index or by Name)
     ////////////////////////////////////////////////////////////////
 
-    TypeInfo* Kao2Interfaces::getTypeInfo(int id) const
+    const TypeInfo* ElephantInterfaces::getTypeInfo(int id) const
     {
         for (int i=0; i < interfacesCount; i++)
         {
@@ -675,7 +677,7 @@ namespace ZookieWizard
 
         throw ErrorMessage
         (
-            "getTypeInfo():\n" \
+            "ElephantInterfaces::getTypeInfo():\n" \
             "TypeInfo for Index 0x%08X not found!",
             id
         );
@@ -683,7 +685,7 @@ namespace ZookieWizard
         return nullptr;
     }
 
-    TypeInfo* Kao2Interfaces::getTypeInfo(const char* name) const
+    const TypeInfo* ElephantInterfaces::getTypeInfo(const char* name) const
     {
         for (int i=0; i < interfacesCount; i++)
         {
@@ -695,7 +697,7 @@ namespace ZookieWizard
 
         throw ErrorMessage
         (
-            "getTypeInfo():\n" \
+            "ElephantInterfaces::getTypeInfo():\n" \
             "TypeInfo for name \"%s\" not found!",
             name
         );

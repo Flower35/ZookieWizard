@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eObjectChain::getType() const
+    const TypeInfo* eObjectChain::getType() const
     {
         return &E_OBJECTCHAIN_TYPEINFO;
     }

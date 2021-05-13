@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eOscilationCtrl::getType() const
+    const TypeInfo* eOscilationCtrl::getType() const
     {
         return &E_OSCILATIONCTRL_TYPEINFO;
     }

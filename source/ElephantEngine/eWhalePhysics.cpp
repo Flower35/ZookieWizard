@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eWhalePhysics::getType() const
+    const TypeInfo* eWhalePhysics::getType() const
     {
         return &E_WHALEPHYSICS_TYPEINFO;
     }

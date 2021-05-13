@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eAnimBillboardProxy::getType() const
+    const TypeInfo* eAnimBillboardProxy::getType() const
     {
         return &E_ANIMBILLBOARDPROXY_TYPEINFO;
     }

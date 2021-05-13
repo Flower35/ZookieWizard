@@ -23,7 +23,7 @@ namespace ZookieWizard
             /*[0x04]*/ Actor* actor;
             /*[0x08]*/ eString passedMask;
             /*[0x0C]*/ eString passedName;
-            /*[0x10]*/ TypeInfo* linkType;
+            /*[0x10]*/ const TypeInfo* linkType;
             /*[0x14]*/
 
         /*** Methods ***/
@@ -45,7 +45,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
 
             /* << NodeRefLinker >> */
 
@@ -56,7 +56,7 @@ namespace ZookieWizard
 
             public:
 
-                eNode* findLink(eNode* root, eNode* current_node, eString link_name, eString mask, TypeInfo* type_info);
+                eNode* findLink(eNode* root, eNode* current_node, eString link_name, eString mask, const TypeInfo* type_info);
     };
 
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCylinderShape::getType() const
+    const TypeInfo* eCylinderShape::getType() const
     {
         return &E_CYLINDERSHAPE_TYPEINFO;
     }

@@ -19,11 +19,11 @@ namespace ZookieWizard
 
         protected:
 
-            /*[0x04]*/ int32_t seriesA_Count;
-            /*[0x08]*/ int32_t seriesA_MaxLength;
-            /*[0x0C]*/ int32_t* seriesA;
+            /*[0x04]*/ int32_t availableIndices_Count;
+            /*[0x08]*/ int32_t availableIndices_MaxLength;
+            /*[0x0C]*/ int32_t* availableIndices;
 
-            /*[0x10]*/ int32_t unknown_10;
+            /*[0x10]*/ int32_t largestBoxCount;
 
             /*[0x14]*/ AxisList* unknown_14;
             /*[0x18]*/ AxisList* unknown_18;
@@ -36,7 +36,7 @@ namespace ZookieWizard
             /*[0x30]*/ int32_t seriesB_MaxLength;
             /*[0x34]*/ eALBox** seriesB;
 
-            bool debug_AlreadyDestroyed;
+            uint8_t lockedFlag;
 
 
         /*** Methods ***/
@@ -58,7 +58,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             /* << eCollisionMgr >> */
@@ -72,10 +72,11 @@ namespace ZookieWizard
             int32_t get_ALBoxes_array_size() const;
             eALBox** get_ALBoxes_array() const;
 
-            void insertNewItem_seriesA(int32_t item);
+            void appendAvailableId(int32_t item);
             void insertNewItem_seriesB(eALBox* item);
 
-            void reset();
+            void resetCounters();
+            void lockDuringSerialize(bool state);
 
         private:
 

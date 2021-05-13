@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eZone::getType() const
+    const TypeInfo* eZone::getType() const
     {
         return &E_ZONE_TYPEINFO;
     }
@@ -194,6 +194,19 @@ namespace ZookieWizard
         enterActions.findAndDeleteActionsWithNode(target);
 
         leaveActions.findAndDeleteActionsWithNode(target);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eZone: fixups after Node Clone pasting
+    ////////////////////////////////////////////////////////////////
+    void eZone::assertNodeLinksSameArchive()
+    {
+        eGroup* root = getRootNode();
+
+        enterActions.removeActionsWithInvalidRoot(root);
+
+        leaveActions.removeActionsWithInvalidRoot(root);
     }
 
 

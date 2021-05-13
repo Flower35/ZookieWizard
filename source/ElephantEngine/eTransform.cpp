@@ -28,7 +28,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTransform::getType() const
+    const TypeInfo* eTransform::getType() const
     {
         return &E_TRANSFORM_TYPEINFO;
     }
@@ -535,7 +535,7 @@ namespace ZookieWizard
     int32_t eTransform::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
     {
         int32_t test;
-        float dummy_floats[3];
+        float dummy_floats[4];
         eString prop_name;
 
         if (1 != (test = eGroup::parsingSetProperty(result_msg, property)))
@@ -563,18 +563,32 @@ namespace ZookieWizard
         }
         else if (prop_name.compareExact("rot", true))
         {
-            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            if (property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
             {
-                TxtParsingNode_ErrorPropType(result_msg, "rot", TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                property.getValue(dummy_floats);
+
+                dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
+                dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
+                dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
+
+                defaultTransform.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
+            }
+            else if (property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT4))
+            {
+                property.getValue(dummy_floats);
+
+                defaultTransform.rot.x = dummy_floats[0];
+                defaultTransform.rot.y = dummy_floats[1];
+                defaultTransform.rot.z = dummy_floats[2];
+                defaultTransform.rot.w = dummy_floats[3];
+
+                defaultTransform.rot.normalize();
+            }
+            else
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "rot", TXT_PARSING_NODE_PROPTYPE_FLOAT4);
                 return 2;
             }
-
-            property.getValue(dummy_floats);
-
-            dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
-            dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
-            dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
-            defaultTransform.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
 
             return 0;
         }
@@ -604,7 +618,7 @@ namespace ZookieWizard
     int32_t eTransform::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
     {
         int32_t test[4];
-        float dummy_floats[4];
+        float dummy_floats[5];
         eSRP dummy_srp;
 
         if (1 != (test[0] = eGroup::parsingCustomMessage(result_msg, message, params_count, params)))
@@ -649,18 +663,33 @@ namespace ZookieWizard
 
             /********************************/
 
-            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
             {
-                TxtParsingNode_ErrorArgType(result_msg, "setRot", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
-                return 2;
+                params[0].getValue(dummy_floats);
+
+                dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
+                dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
+                dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
+
+                defaultTransform.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
             }
 
-            params[0].getValue(dummy_floats);
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT4))
+            {
+                params[0].getValue(dummy_floats);
 
-            dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
-            dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
-            dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
-            defaultTransform.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
+                defaultTransform.rot.x = dummy_floats[0];
+                defaultTransform.rot.y = dummy_floats[1];
+                defaultTransform.rot.z = dummy_floats[2];
+                defaultTransform.rot.w = dummy_floats[3];
+
+                defaultTransform.rot.normalize();
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setRot", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT4);
+                return 2;
+            }
 
             /********************************/
 
@@ -760,18 +789,33 @@ namespace ZookieWizard
 
             /********************************/
 
-            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
             {
-                TxtParsingNode_ErrorArgType(result_msg, "ctrlSetStaticRotation", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                params[0].getValue(dummy_floats);
+
+                dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
+                dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
+                dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
+
+                dummy_srp.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
+            }
+            else if (params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT4))
+            {
+                params[0].getValue(dummy_floats);
+
+                dummy_srp.rot.x = dummy_floats[0];
+                dummy_srp.rot.y = dummy_floats[1];
+                dummy_srp.rot.z = dummy_floats[2];
+                dummy_srp.rot.w = dummy_floats[3];
+
+                dummy_srp.rot.normalize();
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlSetStaticRotation", 0, TXT_PARSING_NODE_PROPTYPE_FLOAT4);
                 return 2;
             }
 
-            params[0].getValue(dummy_floats);
-
-            dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
-            dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
-            dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
-            dummy_srp.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
 
             /********************************/
 
@@ -869,11 +913,11 @@ namespace ZookieWizard
             if (params[1].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
             {
                 params[1].getValue(&(test[0]));
-                dummy_floats[3] = (float)test[0];
+                dummy_floats[4] = (float)test[0];
             }
             else if (params[1].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT1))
             {
-                params[1].getValue(&(dummy_floats[3]));
+                params[1].getValue(&(dummy_floats[4]));
             }
             else
             {
@@ -896,17 +940,32 @@ namespace ZookieWizard
 
             /********************************/
 
-            if (!params[3].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            if (params[3].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
             {
-                TxtParsingNode_ErrorArgType(result_msg, "ctrlAddKeyframe", 4, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                params[3].getValue(dummy_floats);
+
+                dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
+                dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
+                dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
+
+                dummy_srp.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
+            }
+            else if (params[3].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT4))
+            {
+                params[3].getValue(dummy_floats);
+
+                dummy_srp.rot.x = dummy_floats[0];
+                dummy_srp.rot.y = dummy_floats[1];
+                dummy_srp.rot.z = dummy_floats[2];
+                dummy_srp.rot.w = dummy_floats[3];
+
+                dummy_srp.rot.normalize();
+            }
+            else
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "ctrlAddKeyframe", 4, TXT_PARSING_NODE_PROPTYPE_FLOAT4);
                 return 2;
             }
-
-            params[3].getValue(dummy_floats);
-            dummy_floats[0] = DEG2RAD_F(dummy_floats[0]);
-            dummy_floats[1] = DEG2RAD_F(dummy_floats[1]);
-            dummy_floats[2] = DEG2RAD_F(dummy_floats[2]);
-            dummy_srp.rot.fromEulerAngles(true, dummy_floats[0], dummy_floats[1], dummy_floats[2]);
 
             /********************************/
 
@@ -937,7 +996,7 @@ namespace ZookieWizard
 
             /********************************/
 
-            ctrlAddKeyframe(test[3], dummy_floats[3], dummy_srp, test[0]);
+            ctrlAddKeyframe(test[3], dummy_floats[4], dummy_srp, test[0]);
             return 0;
         }
 

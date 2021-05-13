@@ -49,6 +49,8 @@ namespace ZookieWizard
             /*[0x24]*/ int32_t type;
             /*[0x28]*/ eString path;
 
+            /*[0x34]*/ uint8_t unknown_34;
+
             bool isLoadedFromExternalFile;
 
         /*** Methods ***/
@@ -70,7 +72,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            TypeInfo* getType() const override;
+            const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;

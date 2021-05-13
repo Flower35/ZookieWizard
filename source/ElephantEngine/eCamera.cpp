@@ -22,7 +22,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eCamera::getType() const
+    const TypeInfo* eCamera::getType() const
     {
         return &E_CAMERA_TYPEINFO;
     }
@@ -31,7 +31,7 @@ namespace ZookieWizard
     : eObserver()
     {
         /*[0x01CC]*/ followCurrentActor = true;
-
+        /*[0x01D4]*/ unknown_01D4 = nullptr;
         /*[0x01D0]*/ camTarget = nullptr;
 
         /*[0x01D8-0x01E4]*/
@@ -42,13 +42,13 @@ namespace ZookieWizard
 
         unknown_01E0 = nullptr;
 
-        unknown_01DC = 0x3FA78D36;
+        *(uint32_t*)(&unknown_01DC) = 0x3FA78D36;
     }
 
     eCamera::~eCamera()
     {
         unknown_01E0->decRef();
-
+        unknown_01D4->decRef();
         camTarget->decRef();
     }
 
@@ -65,6 +65,12 @@ namespace ZookieWizard
         if (nullptr != camTarget)
         {
             camTarget->incRef();
+        }
+
+        unknown_01D4 = other.unknown_01D4;
+        if (nullptr != unknown_01D4)
+        {
+            unknown_01D4->incRef();
         }
 
         unknown_01D8[0] = other.unknown_01D8[0];
@@ -95,6 +101,8 @@ namespace ZookieWizard
 
             /****************/
 
+            unknown_01E0->decRef();
+            unknown_01D4->decRef();
             camTarget->decRef();
 
             /****************/
@@ -117,24 +125,13 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eCamera::serialize(Archive &ar)
     {
-        int32_t i;
-
         eObserver::serialize(ar);
 
         /* Camera target point */
         ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&camTarget, &E_TRANSFORM_TYPEINFO);
 
-        /* Empty object link */
-        i = 0x01;
-        ar.readOrWrite(&i, 0x04);
-        if (0x01 != i)
-        {
-            throw ErrorMessage
-            (
-                "eCamera::serialize():\n" \
-                "non-empty object is not supported!"
-            );
-        }
+        /* Unknown track */
+        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_01D4, &E_LEAFCTRL_FLOAT_TYPEINFO);
 
         /* [0x01DC] unknown (note: different order) */
         ar.readOrWrite(&(unknown_01D8[1]), 0x04);
@@ -145,18 +142,16 @@ namespace ZookieWizard
         /* [0x01CC] Shold the camera look at the Actor with `eFollowCameraCtrl.makeCurrent()` */
         ar.readOrWrite(&followCurrentActor, 0x01);
 
+        /* Unknown camera parameters */
         if (ar.getVersion() < 0x91)
         {
-            if (nullptr != unknown_01E0)
-            {
-                unknown_01E0->decRef();
-                unknown_01E0 = nullptr;
-            }
+            unknown_01E0->decRef();
+            unknown_01E0 = nullptr;
+
+            *(uint32_t*)(&unknown_01DC) = 0x3FA78D36;
         }
         else
         {
-            /* "Asterix & Obelix XXL 2: Mission Wifix" */
-
             ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&unknown_01E0, &E_LEAFCTRL_FLOAT_TYPEINFO);
 
             ar.readOrWrite(&unknown_01DC, 0x04);

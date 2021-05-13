@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eWalk::getType() const
+    const TypeInfo* eWalk::getType() const
     {
         return &E_WALK_TYPEINFO;
     }

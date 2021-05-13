@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eSimpleCR::getType() const
+    const TypeInfo* eSimpleCR::getType() const
     {
         return &E_SIMPLECR_TYPEINFO;
     }

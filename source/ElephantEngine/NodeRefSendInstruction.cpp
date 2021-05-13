@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* NodeRefSendInstruction::getType() const
+    const TypeInfo* NodeRefSendInstruction::getType() const
     {
         return &E_NODEREFSENDINSTRUCTION_TYPEINFO;
     }

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eTouchSensor::getType() const
+    const TypeInfo* eTouchSensor::getType() const
     {
         return &E_TOUCHSENSOR_TYPEINFO;
     }

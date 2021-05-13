@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* GadgetInstanceWhen::getType() const
+    const TypeInfo* GadgetInstanceWhen::getType() const
     {
         return &E_GADGETINSTANCEWHEN_TYPEINFO;
     }

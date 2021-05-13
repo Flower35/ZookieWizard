@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eParticleManager::getType() const
+    const TypeInfo* eParticleManager::getType() const
     {
         return &E_PARTICLEMANAGER_TYPEINFO;
     }

@@ -173,11 +173,13 @@ namespace ZookieWizard
     void eDrawContext::useMaterial(const eMaterial* material, int32_t texture_id)
     {
         GLuint texture_bind_id = 0;
+        uint32_t test_texture_flags;
+        GLint gl_tex_param;
         eTexture* test_texture;
 
-        int32_t test_material_flags;
-        int32_t material_flags_diff;
-        int32_t blend_flags;
+        uint32_t test_material_flags;
+        uint32_t material_flags_diff;
+        uint32_t blend_flags;
         bool dummy_test;
         float test_alpha_ref;
 
@@ -185,12 +187,9 @@ namespace ZookieWizard
         /********************************/
         /* Comparing material and texture IDs and binding the OpenGL 2D texture */
 
-        if (previousMaterial == material)
+        if ((previousMaterial == material) && (previousTextureID == texture_id))
         {
-            if (previousTextureID == texture_id)
-            {
-                return;
-            }
+            return;
         }
 
         bool textures_enabled = (GUI::drawFlags::DRAW_FLAG_TEXTURES & drawFlags);
@@ -219,6 +218,17 @@ namespace ZookieWizard
                     if (textures_enabled && (nullptr != test_texture))
                     {
                         glBindTexture(GL_TEXTURE_2D, test_texture->getTextureId());
+
+                        test_texture_flags = test_texture->getTextureFlags();
+
+                        gl_tex_param = (0x01 & test_texture_flags) ? 0x812F /*GL_CLAMP_TO_EDGE*/ : GL_REPEAT;
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gl_tex_param);
+
+                        gl_tex_param = (0x02 & test_texture_flags) ? 0x812F /*GL_CLAMP_TO_EDGE*/ : GL_REPEAT;
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gl_tex_param);
+
+                        gl_tex_param = (0x04 & test_texture_flags) ? GL_LINEAR : GL_NEAREST;
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_param);
 
                         /* Empty `eAnimate` object will reset the Texture Mapping matrix */
 

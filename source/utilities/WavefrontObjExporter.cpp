@@ -51,7 +51,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     bool WavefrontObjExporter::openObj(eString filename, eObject* target)
     {
-        TypeInfo* test_typeinfo;
+        const TypeInfo* type_info;
         char* text = filename.getText();
 
         if (nullptr == target)
@@ -65,13 +65,13 @@ namespace ZookieWizard
             return false;
         }
 
-        test_typeinfo = target->getType();
+        type_info = target->getType();
 
-        if (test_typeinfo->checkHierarchy(&E_GROUP_TYPEINFO))
+        if (type_info->checkHierarchy(&E_GROUP_TYPEINFO))
         {
             meshGroup = (eGroup*)target;
         }
-        else if ((&E_TRIMESH_TYPEINFO) == test_typeinfo)
+        else if ((&E_TRIMESH_TYPEINFO) == type_info)
         {
             meshTrimesh = (eTriMesh*)target;
         }
@@ -225,7 +225,7 @@ namespace ZookieWizard
         int i;
         bool result = file_opened;
         eNode* child_node;
-        TypeInfo* test_typeinfo;
+        const TypeInfo* type_info;
 
         if (nullptr == current_group)
         {
@@ -236,13 +236,13 @@ namespace ZookieWizard
         {
             child_node = (eNode*)current_group->getIthChild(i);
 
-            test_typeinfo = child_node->getType();
+            type_info = child_node->getType();
 
-            if (test_typeinfo->checkHierarchy(&E_GROUP_TYPEINFO))
+            if (type_info->checkHierarchy(&E_GROUP_TYPEINFO))
             {
                 result |= writeMaterialInfoFromGroup((eGroup*)child_node, result);
             }
-            else if ((&E_TRIMESH_TYPEINFO) == test_typeinfo)
+            else if ((&E_TRIMESH_TYPEINFO) == type_info)
             {
                 result |= writeMaterialInfo((eTriMesh*)child_node, result);
             }
@@ -374,7 +374,7 @@ namespace ZookieWizard
     {
         int i;
         eNode* child_node;
-        TypeInfo* test_typeinfo;
+        const TypeInfo* type_info;
 
         eTransform* dummy_xform;
         eMatrix4x4 current_matrix = parent_matrix;
@@ -395,13 +395,13 @@ namespace ZookieWizard
         {
             child_node = (eNode*)current_group->getIthChild(i);
 
-            test_typeinfo = child_node->getType();
+            type_info = child_node->getType();
 
-            if (test_typeinfo->checkHierarchy(&E_GROUP_TYPEINFO))
+            if (type_info->checkHierarchy(&E_GROUP_TYPEINFO))
             {
                 writeModelDataFromGroup((eGroup*)child_node, current_matrix);
             }
-            else if ((&E_TRIMESH_TYPEINFO) == test_typeinfo)
+            else if ((&E_TRIMESH_TYPEINFO) == type_info)
             {
                 writeModelData((eTriMesh*)child_node, current_matrix);
             }
@@ -450,10 +450,10 @@ namespace ZookieWizard
             /********************************/
             /* Get required data */
 
-            vertices = geo->getVerticesArray();
+            vertices = geo->getVerticesArray(0);
             colors = geo->getColorsArray();
-            normals = geo->getNormalsArray();
-            mapping = geo->getTextureCoordsArray();
+            normals = geo->getNormalsArray(0);
+            mapping = geo->getTextureCoordsArray(0);
             indices_offsets = geo->getIndicesOffsets();
             indices = geo->getIndicesArray();
 

@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eFSSprite::getType() const
+    const TypeInfo* eFSSprite::getType() const
     {
         return &E_FSSPRITE_TYPEINFO;
     }

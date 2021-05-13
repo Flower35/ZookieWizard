@@ -139,7 +139,7 @@ namespace ZookieWizard
             int32_t expectFullProperty(const char* current_msg, TxtParsingNodeProp* result);
 
             void collectPropertiesInParentheses(const char* current_msg, bool full_props);
-            void parseTypeInfoAndIdentifier(bool can_name_be_empty, const char* current_msg, TypeInfo* &returned_type, eString &returned_name);
+            void parseTypeInfoAndIdentifier(bool can_name_be_empty, const char* current_msg, const TypeInfo* &returned_type, eString &returned_name);
 
     };
 

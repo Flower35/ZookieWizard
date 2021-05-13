@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eObserver::getType() const
+    const TypeInfo* eObserver::getType() const
     {
         return &E_OBSERVER_TYPEINFO;
     }
@@ -154,23 +154,30 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void eObserver::serialize(Archive &ar)
     {
-        /* Serialize "eNode" and "eTransform" (without "eGroup!") */
-
-        eNode::serialize(ar);
-
-        if (ar.isInWriteMode())
+        if (ar.getVersion() >= 0x9A)
         {
-            deserializationCorrection();
+            eTransform::serialize(ar);
         }
-
-        defaultTransform.serialize(ar);
-        worldTransform.serialize(ar);
-
-        ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
-
-        if (ar.isInReadMode())
+        else
         {
-            setXForm(defaultTransform);
+            /* Serialize "eNode" and "eTransform" (without "eGroup!") */
+
+            eNode::serialize(ar);
+
+            if (ar.isInWriteMode())
+            {
+                deserializationCorrection();
+            }
+
+            defaultTransform.serialize(ar);
+            worldTransform.serialize(ar);
+
+            ArFunctions::serialize_eRefCounter(ar, (eRefCounter**)&ctrl, &E_CTRL_ESRP_TYPEINFO);
+
+            if (ar.isInReadMode())
+            {
+                setXForm(defaultTransform);
+            }
         }
 
         /* [0x0151] unknown */

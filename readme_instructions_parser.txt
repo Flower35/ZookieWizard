@@ -1,6 +1,17 @@
 
 ================================================================
 ================================================================
+<< [Zookie Wizard, Launch options] >>
+
+ * "/AUTOPARSER <path>"
+  -> launches ZookieWizard (Elephant Engine Editor) in auto-parsing mode.
+   The text file from `<path>` is opened by the "ArCustomParser" module.
+   The program exits after all the messages have been parsed,
+   or if an error has occurred.
+
+
+================================================================
+================================================================
 << [Kao the Kangaroo: Round 2]: How "NodeRefLinker" masks work >>
 
   - starts with '/' sign :
@@ -99,12 +110,38 @@
      `0x04` = makes all the materials 2-sided;
      (default is ALL FLAGS ENABLED = `0x07`)
   -> [4] float       // the scale of the imported models (default is `1`)
+  -> [5] floatTriple OR floatQuadruple
+       // the XYZ rotation angles (default is `[0 0 0]`)
+       // or XYZW Quaternion (default is `[0 0 0 1]`)
   -> [5] floatTriple // the XYZ rotation angles (default is `[0 0 0]`)
   -> [6] floatTriple // the XYZ offset (defaut is `[0 0 0]`)
 
  * `OptimizeBitmaps`
  * `OptimizeTextures`
  * `OptimizeMaterials nodeRef`
+
+ * `IgnoreCurrentSymbols`
+
+ * `SwitchAr (parameters)`
+  -> first argument is required, others are optional
+  -> [1] string      // path to the ".ar" file,
+     either absolute or relative to the current script file
+  -> [2] string      // path to the "Media" directory,
+     overrides current Editor setting
+
+ * `SaveAr (parameters)`
+  -> first argument is required, others are optional
+  -> [1] string      // path to the ".ar" file,
+     either absolute or relative to the current script file
+  -> [2] integer     // saved AR version override,
+     default is the version the current archive had when it wa loaded
+
+ * `CloseAr`
+
+ * `GenerateEmptyScene (parameters)`
+  -> all arguments are optional
+  -> [1] string      // path to the "Media" directory,
+     overrides current Editor setting
 
  * `#include string`
   -> temporarily close current textfile and open a sub-textfile containing
@@ -429,7 +466,9 @@
 
   pos = floatTriple // XYZ position, default is [0 0 0]
 
-  rot = floatTriple // XYZ Euler angles, default is [0 0 0]
+  rot = floatTriple OR floatQuadruple
+      // XYZ Euler angles, default is [0 0 0]
+      // or XYZW Quaternion, default is [0 0 0 1]
 
   scl = float // scale, default is 1.0
 
@@ -443,7 +482,8 @@
 
   setRot
   (
-    floatTriple // new "eSRP" rotation, XYZ Euler angles
+    floatTriple OR floatQuadruple // new "eSRP" rotation
+                                  // XYZ Euler angles or XYZW Quaternion
   )
 
   setScl
@@ -463,7 +503,7 @@
 
   ctrlSetStaticRotation
   (
-    floatTriple // static rotation for all animations
+    floatTriple OR floatQuadruple // static rotation for all animations
   )
 
   ctrlSetStaticPosition
@@ -488,7 +528,8 @@
     float // time in keyframes (animations run at 30 fps)
 
     floatTriple // new XYZ position
-    floatTriple // new XYZ Euler rotation
+    floatTriple OR floatQuadruple // new XYZ Euler rotation
+                                  // or new XYZW Quaternion (more precise)
     float // new scale
 
     integer // argument selection: 1 for Scale, 2 for Rotation,
@@ -623,6 +664,9 @@
     string // should contain the archive (stream/level) name
            // (full path or file extensions are optional)
   )
+
+  clearVisPortals
+  ()
 
 
 ****************************************************************

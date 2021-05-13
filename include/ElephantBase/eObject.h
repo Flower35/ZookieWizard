@@ -34,7 +34,7 @@ namespace ZookieWizard
 
             /* << eObject >> */
 
-            /*[[vptr]+0x00]*/ virtual TypeInfo* getType() const;
+            /*[[vptr]+0x00]*/ virtual const TypeInfo* getType() const;
             /*[[vptr]+0x08]*/ virtual void serialize(Archive &ar);
 
             virtual eString getStringRepresentation() const;

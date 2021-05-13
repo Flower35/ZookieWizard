@@ -52,7 +52,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eBitmap::getType() const
+    const TypeInfo* eBitmap::getType() const
     {
         return &E_BITMAP_TYPEINFO;
     }
@@ -60,7 +60,7 @@ namespace ZookieWizard
     eBitmap::eBitmap()
     : eRefCounter()
     {
-        /* Only "kao_tw" supports external bitmaps */
+        /* Only "Kao Challengers" and later engines support external bitmaps */
         isLoadedFromExternalFile = false;
 
         /*[0x08]*/ virtualWidth = 0;
@@ -71,6 +71,8 @@ namespace ZookieWizard
         /*[0x1C]*/ pixels = nullptr;
         /*[0x20]*/ palette = nullptr;
         /*[0x24]*/ type = (-1);
+
+        /*[0x34]*/ unknown_34 = 0x00;
 
         GUI::materialsManager_InsertBitmap(this);
     }
@@ -111,6 +113,8 @@ namespace ZookieWizard
 
         path = other.path;
         GUI::materialsManager_UpdateBitmapPath(this);
+
+        unknown_34 = other.unknown_34;
 
         isLoadedFromExternalFile = other.isLoadedFromExternalFile;
 
@@ -236,6 +240,42 @@ namespace ZookieWizard
             {
                 ar.readOrWrite(&width, 0x04);
                 ar.readOrWrite(&height, 0x04);
+            }
+        }
+
+        /* Unknown parametrs */
+
+        if (ar.getVersion() >= 0xA0)
+        {
+            a = 0x01;
+            ar.readOrWrite(&a, 0x04);
+            if (0x01 != a)
+            {
+                throw ErrorMessage
+                (
+                    "eBitmap::serialize()\n" \
+                    "not supported setting! (ar version >= 160)"
+                );
+            }
+        }
+
+        if (ar.getVersion() >= 0x9C)
+        {
+            ar.readOrWrite(&unknown_34, 0x01);
+
+            a = 0;
+            ar.readOrWrite(&a, 0x04);
+            if (0 == a)
+            {
+                ar.readOrWrite(&a, 0x04);
+            }
+            if (0 != a)
+            {
+                throw ErrorMessage
+                (
+                    "eBitmap::serialize()\n" \
+                    "not supported setting! (ar version >= 156)"
+                );
             }
         }
 

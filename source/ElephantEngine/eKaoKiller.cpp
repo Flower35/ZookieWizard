@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eKaoKiller::getType() const
+    const TypeInfo* eKaoKiller::getType() const
     {
         return &E_KAOKILLER_TYPEINFO;
     }

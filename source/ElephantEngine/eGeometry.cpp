@@ -26,7 +26,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eGeometry::getType() const
+    const TypeInfo* eGeometry::getType() const
     {
         return &E_GEOMETRY_TYPEINFO;
     }

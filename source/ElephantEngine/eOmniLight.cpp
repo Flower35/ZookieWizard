@@ -24,7 +24,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eOmniLight::getType() const
+    const TypeInfo* eOmniLight::getType() const
     {
         return &E_OMNILIGHT_TYPEINFO;
     }

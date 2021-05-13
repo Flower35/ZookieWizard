@@ -23,7 +23,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* StringSection::getType() const
+    const TypeInfo* StringSection::getType() const
     {
         return &E_STRINGSECTION_TYPEINFO;
     }
@@ -55,7 +55,7 @@ namespace ZookieWizard
     // <kao2.005962A0>: Group template
     ////////////////////////////////////////////////////////////////
 
-    void ArFunctions::serialize_StringSection(Archive &ar, eRefCounter** o, TypeInfo* t)
+    void ArFunctions::serialize_StringSection(Archive &ar, eRefCounter** o, const TypeInfo* t)
     {
         serializeKnownObject<StringSection>(ar, o, t);
     }

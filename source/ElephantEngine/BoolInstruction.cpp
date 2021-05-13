@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* BoolInstruction::getType() const
+    const TypeInfo* BoolInstruction::getType() const
     {
         return &E_BOOLINSTRUCTION_TYPEINFO;
     }

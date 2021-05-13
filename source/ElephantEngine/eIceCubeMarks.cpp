@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eIceCubeMarks::getType() const
+    const TypeInfo* eIceCubeMarks::getType() const
     {
         return &E_ICECUBEMARKS_TYPEINFO;
     }

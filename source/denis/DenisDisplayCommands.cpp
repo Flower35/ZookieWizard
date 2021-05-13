@@ -349,11 +349,11 @@ namespace ZookieWizard
             test_uv_array->setup(total_vertices, text_uv_data);
             test_colors_array->setup(total_vertices, test_colors_data);
 
-            test_geoset->setVerticesArray(test_vertices_array);
-            test_geoset->setNormalsArray(test_normals_array);
+            test_geoset->setVerticesArray(0, test_vertices_array);
+            test_geoset->setNormalsArray(0, test_normals_array);
             test_geoset->setIndicesOffsets(test_indices_offsets);
             test_geoset->setIndicesArray(test_indices_array);
-            test_geoset->setTextureCoordsArray(test_uv_array);
+            test_geoset->setTextureCoordsArray(0, test_uv_array);
             test_geoset->setColorsArray(test_colors_array);
 
             /********************************/

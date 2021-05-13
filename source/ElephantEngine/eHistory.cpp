@@ -21,7 +21,7 @@ namespace ZookieWizard
         }
     );
 
-    TypeInfo* eHistory::getType() const
+    const TypeInfo* eHistory::getType() const
     {
         return &E_HISTORY_TYPEINFO;
     }
