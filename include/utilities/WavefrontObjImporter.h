@@ -2,7 +2,7 @@
 #define H_WAVEFRONTOBJ_IMPORTER
 
 #include <ZookieWizard/ZookieWizard.h>
-#include <kao2ar/kao2ar.h>
+#include <ElephantBase/kao2ar.h>
 
 namespace ZookieWizard
 {

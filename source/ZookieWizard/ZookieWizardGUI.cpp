@@ -1,8 +1,8 @@
 #include <ZookieWizard/ZookieWizard.h>
 #include <ZookieWizard/WindowsManager.h>
 
-#include <kao2ar/Archive.h>
-#include <kao2engine/eNode.h>
+#include <ElephantBase/Archive.h>
+#include <ElephantEngine/eNode.h>
 
 namespace ZookieWizard
 {
@@ -943,7 +943,7 @@ namespace ZookieWizard
             theWindowsManager.updateReturningPosition();
 
             /********************************/
-            /* [PAGE 0] (0 – 16) Create checkboxes */
+            /* [PAGE 0] (0 ï¿½ 16) Create checkboxes */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_AUTOCHECKBOX);
@@ -1334,7 +1334,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [PAGE 2] (2 – 4) Create action switching buttons */
+            /* [PAGE 2] (2 ï¿½ 4) Create action switching buttons */
 
             nodesList_CurrentAction = 0;
 
@@ -1364,7 +1364,7 @@ namespace ZookieWizard
             theWindowsManager.getCurrentPosition(&x, &y);
 
             /********************************/
-            /* [PAGE 2] (5 – 23) Create buttons */
+            /* [PAGE 2] (5 ï¿½ 23) Create buttons */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON | BS_MULTILINE);
@@ -1563,7 +1563,7 @@ namespace ZookieWizard
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
 
             /********************************/
-            /* [PAGE 3] (2 – 3) Create buttons */
+            /* [PAGE 3] (2 ï¿½ 3) Create buttons */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_DEFPUSHBUTTON);
@@ -1620,7 +1620,7 @@ namespace ZookieWizard
             }
 
             /********************************/
-            /* [PAGE 3] (7 – 38) Create checkboxes */
+            /* [PAGE 3] (7 ï¿½ 38) Create checkboxes */
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | BS_AUTOCHECKBOX);

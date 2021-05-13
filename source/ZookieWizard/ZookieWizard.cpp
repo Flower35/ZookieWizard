@@ -1,13 +1,13 @@
 #include <ZookieWizard/ZookieWizard.h>
 #include <ZookieWizard/WindowsManager.h>
 
-#include <kao2ar/TypeInfo.h>
-#include <kao2ar/StaticPool.h>
+#include <ElephantBase/TypeInfo.h>
+#include <ElephantBase/StaticPool.h>
 
 namespace ZookieWizard
 {
-    const char* MESSAGE_TITLE_INFO = "Zookie Wizard — info";
-    const char* MESSAGE_TITLE_ERROR = "Zookie Wizard — error";
+    const char* MESSAGE_TITLE_INFO = "Zookie Wizard ï¿½ info";
+    const char* MESSAGE_TITLE_ERROR = "Zookie Wizard ï¿½ error";
 
     ////////////////////////////////////////////////////////////////
     // File Operator functions

@@ -9,7 +9,7 @@
 #include <denis/DenisLevelBillboard.h>
 #include <denis/DenisLevelBonus.h>
 
-#include <kao2engine/eMaterial.h>
+#include <ElephantEngine/eMaterial.h>
 
 namespace ZookieWizard
 {

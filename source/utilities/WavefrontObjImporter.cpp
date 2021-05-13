@@ -1,16 +1,16 @@
 #include <utilities/WavefrontObjImporter.h>
 
-#include <kao2engine/Log.h>
+#include <ElephantEngine/Log.h>
 
-#include <kao2engine/eGroup.h>
-#include <kao2engine/eTriMesh.h>
-#include <kao2engine/eGeoSet.h>
+#include <ElephantEngine/eGroup.h>
+#include <ElephantEngine/eTriMesh.h>
+#include <ElephantEngine/eGeoSet.h>
 
 #include <ZookieWizard/ZookieWizardMaterials.h>
-#include <kao2engine/eMaterial.h>
-#include <kao2engine/eMaterialState.h>
-#include <kao2engine/eTexture.h>
-#include <kao2engine/eBitmap.h>
+#include <ElephantEngine/eMaterial.h>
+#include <ElephantEngine/eMaterialState.h>
+#include <ElephantEngine/eTexture.h>
+#include <ElephantEngine/eBitmap.h>
 
 namespace ZookieWizard
 {

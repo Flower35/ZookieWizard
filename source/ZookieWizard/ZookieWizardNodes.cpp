@@ -1,9 +1,9 @@
 #include <ZookieWizard/ZookieWizard.h>
 #include <ZookieWizard/WindowsManager.h>
 
-#include <kao2engine/eALBox.h>
-#include <kao2engine/eGroup.h>
-#include <kao2engine/eXRefTarget.h>
+#include <ElephantEngine/eALBox.h>
+#include <ElephantEngine/eGroup.h>
+#include <ElephantEngine/eXRefTarget.h>
 
 namespace ZookieWizard
 {

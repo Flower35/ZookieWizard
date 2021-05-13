@@ -1,11 +1,11 @@
 #include <ZookieWizard/ZookieWizard.h>
 #include <ZookieWizard/WindowsManager.h>
 
-#include <kao2ar/Archive.h>
-#include <kao2engine/Log.h>
+#include <ElephantBase/Archive.h>
+#include <ElephantEngine/Log.h>
 
-#include <kao2engine/eScene.h>
-#include <kao2engine/eEnvironment.h>
+#include <ElephantEngine/eScene.h>
+#include <ElephantEngine/eEnvironment.h>
 #include <denis/DenisLevelMap.h>
 
 namespace ZookieWizard
@@ -425,7 +425,7 @@ namespace ZookieWizard
             {
                 msg = "Nice, you have selected:\n\n" \
                     "\"Kangurek Kao: Runda 2\" [PL, Retail]\n\n" \
-                    "ar versions: 0x67 (103) — 0x87 (135)";
+                    "ar versions: 0x67 (103) ï¿½ 0x87 (135)";
                 break;
             }
 
@@ -433,7 +433,7 @@ namespace ZookieWizard
             {
                 msg = "Nice, you have selected:\n\n" \
                     "\"Kao the Kangaroo: Round 2\" [EUR/USA, Digital]\n\n" \
-                    "ar versions: 0x67 (103) — 0x89 (137)";
+                    "ar versions: 0x67 (103) ï¿½ 0x89 (137)";
                 break;
             }
 
@@ -441,7 +441,7 @@ namespace ZookieWizard
             {
                 msg = "Nice, you have selected:\n\n" \
                     "\"Kangurek Kao: Tajemnica Wulkanu\"\n\n" \
-                    "ar versions: 0x8B (139) — 0x90 (144)";
+                    "ar versions: 0x8B (139) ï¿½ 0x90 (144)";
                 break;
             }
 
@@ -449,7 +449,7 @@ namespace ZookieWizard
             {
                 msg = "Nice, you have selected:\n\n" \
                     "\"Asterix & Obelix XXL 2: Mission Wifix\"\n\n" \
-                    "ar versions: 0x8B (139) — 0x93 (147)";
+                    "ar versions: 0x8B (139) ï¿½ 0x93 (147)";
                 break;
             }
 

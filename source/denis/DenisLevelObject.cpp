@@ -1,12 +1,12 @@
 #include <denis/DenisLevelObject.h>
 #include <denis/DenisLevelTrack.h>
 
-#include <kao2engine/eGroup.h>
-#include <kao2engine/eMaterial.h>
-#include <kao2engine/eGeoArray.h>
+#include <ElephantEngine/eGroup.h>
+#include <ElephantEngine/eMaterial.h>
+#include <ElephantEngine/eGeoArray.h>
 
-#include <kao2engine/eTriMesh.h>
-#include <kao2engine/eGeoSet.h>
+#include <ElephantEngine/eTriMesh.h>
+#include <ElephantEngine/eGeoSet.h>
 
 namespace ZookieWizard
 {

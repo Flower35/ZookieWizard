@@ -1,10 +1,10 @@
 #include <denis/DenisDisplayCommands.h>
 
-#include <kao2engine/eGroup.h>
-#include <kao2engine/eMaterial.h>
-#include <kao2engine/eLeafCtrl.h>
-#include <kao2engine/eTriMesh.h>
-#include <kao2engine/eGeoSet.h>
+#include <ElephantEngine/eGroup.h>
+#include <ElephantEngine/eMaterial.h>
+#include <ElephantEngine/eLeafCtrl.h>
+#include <ElephantEngine/eTriMesh.h>
+#include <ElephantEngine/eGeoSet.h>
 
 namespace ZookieWizard
 {

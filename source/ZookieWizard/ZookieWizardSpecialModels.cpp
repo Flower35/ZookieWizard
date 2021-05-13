@@ -1,7 +1,7 @@
 #include <ZookieWizard/ZookieWizard.h>
 
-#include <kao2engine/eGeoSet.h>
-#include <kao2engine/eBitmap.h>
+#include <ElephantEngine/eGeoSet.h>
+#include <ElephantEngine/eBitmap.h>
 
 namespace ZookieWizard
 {

@@ -1,16 +1,16 @@
 #include <ZookieWizard/ZookieWizard.h>
 #include <ZookieWizard/WindowsManager.h>
 
-#include <kao2ar/Archive.h>
-#include <kao2engine/Log.h>
+#include <ElephantBase/Archive.h>
+#include <ElephantEngine/Log.h>
 
-#include <kao2engine/eMaterial.h>
-#include <kao2engine/eMaterialState.h>
-#include <kao2engine/eTexture.h>
-#include <kao2engine/eTexTransform.h>
-#include <kao2engine/eLeafCtrl.h>
-#include <kao2engine/eBitmap.h>
-#include <kao2engine/eGeometry.h>
+#include <ElephantEngine/eMaterial.h>
+#include <ElephantEngine/eMaterialState.h>
+#include <ElephantEngine/eTexture.h>
+#include <ElephantEngine/eTexTransform.h>
+#include <ElephantEngine/eLeafCtrl.h>
+#include <ElephantEngine/eBitmap.h>
+#include <ElephantEngine/eGeometry.h>
 
 namespace ZookieWizard
 {

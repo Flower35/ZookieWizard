@@ -1,8 +1,8 @@
 #include <denis/DenisLevelTexture.h>
 
-#include <kao2engine/eMaterial.h>
-#include <kao2engine/eTexture.h>
-#include <kao2engine/eBitmap.h>
+#include <ElephantEngine/eMaterial.h>
+#include <ElephantEngine/eTexture.h>
+#include <ElephantEngine/eBitmap.h>
 
 namespace ZookieWizard
 {

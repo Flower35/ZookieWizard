@@ -9,10 +9,10 @@
 #include <denis/DenisLevelBillboard.h>
 #include <denis/DenisLevelBonus.h>
 
-#include <kao2engine/eScene.h>
-#include <kao2engine/eMaterial.h>
-#include <kao2engine/eEnvironment.h>
-#include <kao2engine/eProxy.h>
+#include <ElephantEngine/eScene.h>
+#include <ElephantEngine/eMaterial.h>
+#include <ElephantEngine/eEnvironment.h>
+#include <ElephantEngine/eProxy.h>
 
 namespace ZookieWizard
 {

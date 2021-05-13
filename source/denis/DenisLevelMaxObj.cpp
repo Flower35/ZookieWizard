@@ -2,7 +2,7 @@
 
 #include <denis/DenisLevelWObj.h>
 
-#include <kao2engine/eProxy.h>
+#include <ElephantEngine/eProxy.h>
 
 namespace ZookieWizard
 {

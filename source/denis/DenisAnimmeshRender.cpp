@@ -1,12 +1,12 @@
 #include <denis/DenisAnimmesh.h>
-#include <kao2ar/kao2ar.h>
+#include <ElephantBase/kao2ar.h>
 
-#include <kao2engine/eGroup.h>
-#include <kao2engine/eMaterial.h>
-#include <kao2engine/eTexture.h>
-#include <kao2engine/eBitmap.h>
-#include <kao2engine/eTriMesh.h>
-#include <kao2engine/eGeoSet.h>
+#include <ElephantEngine/eGroup.h>
+#include <ElephantEngine/eMaterial.h>
+#include <ElephantEngine/eTexture.h>
+#include <ElephantEngine/eBitmap.h>
+#include <ElephantEngine/eTriMesh.h>
+#include <ElephantEngine/eGeoSet.h>
 
 namespace ZookieWizard
 {

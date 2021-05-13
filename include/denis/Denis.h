@@ -2,7 +2,7 @@
 #define H_DENIS_MAIN
 
 #include <ZookieWizard/ZookieWizard.h>
-#include <kao2ar/eString.h>
+#include <ElephantBase/eString.h>
 
 namespace ZookieWizard
 {
