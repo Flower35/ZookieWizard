@@ -15,8 +15,10 @@ namespace ZookieWizard
         const char* WINDOW_CLASS_NAME_3 = "ZookieWizard::GUI::WindowClass3";
         const char* WINDOW_CLASS_NAME_4 = "ZookieWizard::GUI::WindowClass4";
         const char* WINDOW_CLASS_NAME_5 = "ZookieWizard::GUI::WindowClass5";
+		const char* WINDOW_CLASS_NAME_6 = "ZookieWizard::GUI::WindowClass6";
 
         static int verticalScrollingCurrentPos = 0;
+		static int verticalScrollingOfNodeTreeCurrentPos = 0;
         static int verticalScrollingLimit = 0;
 
 
@@ -180,12 +182,22 @@ namespace ZookieWizard
                         MoveWindow
                         (
                             theWindowsManager.getScrollWindow(),
-                            0,
-                            RECT_TABS_Y1 + 24,
+                            SCROLL_WINDOW_X,
+                            SCROLL_WINDOW_Y + 24,
                             RECT_LOGO_X2,
                             new_height - RECT_TABS_Y1 - 24,
                             FALSE
                         );
+
+						MoveWindow
+						(
+							theWindowsManager.getNodeTreeWindow(),
+							NODE_TREE_X1,
+							NODE_TREE_Y1,
+							RECT_LOGO_X2,
+							new_height - RECT_LOGO_Y2,
+							FALSE
+						);
 
                         setPerspective((new_width - RECT_RENDER_X1), new_height);
 
@@ -615,6 +627,169 @@ namespace ZookieWizard
         }
 
 
+		////////////////////////////////////////////////////////////////
+		// STATIC FUNCTION: Node tree window procedure
+		////////////////////////////////////////////////////////////////
+		LRESULT CALLBACK procedureOfNodeTreeWindow(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+		{
+			SCROLLINFO scroll_info;
+			int32_t new_scroll_pos = verticalScrollingOfNodeTreeCurrentPos;
+			int32_t new_height, i;
+
+			switch (Msg)
+			{
+				/********************************/
+				/* Checking buttons and menus */
+
+			case WM_COMMAND:
+			{
+				i = LOWORD(wParam) - WINDOWS_MANAGER_MENU_ID;
+
+				theWindowsManager.runStaticFunction(i, wParam, lParam);
+
+				break;
+			}
+
+			case WM_VKEYTOITEM:
+			{
+				return theWindowsManager.overriddenListboxKeyDispatch((HWND)lParam, LOWORD(wParam));
+			}
+
+
+			/********************************/
+			/* Scrolling vertically */
+
+			case WM_SIZE:
+			{
+				new_height = HIWORD(lParam);
+
+				verticalScrollingLimit = max(WINDOWS_MANAGER_SCROLL_HEIGHT - new_height, 0);
+
+				if (verticalScrollingOfNodeTreeCurrentPos > verticalScrollingLimit)
+				{
+					/* This occurs when scroll box was moved to the bottom and user maximizes the window */
+					i = verticalScrollingOfNodeTreeCurrentPos - verticalScrollingLimit;
+					verticalScrollingOfNodeTreeCurrentPos -= i;
+
+					ScrollWindowEx(hWnd, 0, i, NULL, NULL, NULL, NULL, (SW_ERASE | SW_INVALIDATE | SW_SCROLLCHILDREN));
+				}
+
+				scroll_info.cbSize = sizeof(SCROLLINFO);
+				scroll_info.fMask = (SIF_RANGE | SIF_PAGE | SIF_POS);
+				scroll_info.nMin = 0;
+				scroll_info.nMax = WINDOWS_MANAGER_SCROLL_HEIGHT;
+				scroll_info.nPage = new_height;
+				scroll_info.nPos = verticalScrollingOfNodeTreeCurrentPos;
+
+				SetScrollInfo(hWnd, SB_VERT, &scroll_info, TRUE);
+
+				RedrawWindow(hWnd, NULL, NULL, (RDW_ERASE | RDW_INVALIDATE));
+
+				break;
+			}
+
+			case WM_MOUSEWHEEL:
+			{
+				/* Proper 16-bit to 32-bit sign extend */
+				i = (int16_t)HIWORD(wParam);
+
+				if (i > 0)
+				{
+					/* Mouse wheel scrolled up */
+
+					new_scroll_pos = verticalScrollingOfNodeTreeCurrentPos - 32;
+				}
+				else if (i < 0)
+				{
+					/* Mouse wheel scrolled down */
+
+					new_scroll_pos = verticalScrollingOfNodeTreeCurrentPos + 32;
+				}
+
+				break;
+			}
+
+			case WM_VSCROLL:
+			{
+				switch (LOWORD(wParam))
+				{
+					/* User clicked the scroll bar shaft above the scroll box */
+				case SB_PAGEUP:
+				{
+					new_scroll_pos = verticalScrollingOfNodeTreeCurrentPos - 32;
+					break;
+				}
+
+				/* User clicked the scroll bar shaft below the scroll box */
+				case SB_PAGEDOWN:
+				{
+					new_scroll_pos = verticalScrollingOfNodeTreeCurrentPos + 32;
+					break;
+				}
+
+				/* User clicked the top arrow */
+				case SB_LINEUP:
+				{
+					new_scroll_pos = verticalScrollingOfNodeTreeCurrentPos - 8;
+					break;
+				}
+
+				/* User clicked the bottom arrow */
+				case SB_LINEDOWN:
+				{
+					new_scroll_pos = verticalScrollingOfNodeTreeCurrentPos + 8;
+					break;
+				}
+
+				/* User dragged the scroll box */
+				case SB_THUMBPOSITION:
+				case SB_THUMBTRACK:
+				{
+					new_scroll_pos = HIWORD(wParam);
+					break;
+				}
+
+				default:
+				{
+					new_scroll_pos = verticalScrollingOfNodeTreeCurrentPos;
+				}
+				}
+
+				break;
+			}
+
+			}
+
+			if (new_scroll_pos != verticalScrollingOfNodeTreeCurrentPos)
+			{
+				if (new_scroll_pos < 0)
+				{
+					new_scroll_pos = 0;
+				}
+				else if (new_scroll_pos > verticalScrollingLimit)
+				{
+					new_scroll_pos = verticalScrollingLimit;
+				}
+
+				/* How many pixels should the window be scrolled */
+				i = verticalScrollingOfNodeTreeCurrentPos - new_scroll_pos;
+
+				verticalScrollingOfNodeTreeCurrentPos = new_scroll_pos;
+
+				ScrollWindowEx(hWnd, 0, i, NULL, NULL, NULL, NULL, (SW_ERASE | SW_INVALIDATE | SW_SCROLLCHILDREN));
+				UpdateWindow(hWnd);
+
+				scroll_info.cbSize = sizeof(SCROLLINFO);
+				scroll_info.fMask = SIF_POS;
+				scroll_info.nPos = verticalScrollingOfNodeTreeCurrentPos;
+
+				SetScrollInfo(hWnd, SB_VERT, &scroll_info, TRUE);
+			}
+
+			return DefWindowProc(hWnd, Msg, wParam, lParam);
+		}
+
+
         ////////////////////////////////////////////////////////////////
         // WindowsManagerPage: constructor and destructor
         ////////////////////////////////////////////////////////////////
@@ -723,6 +898,7 @@ namespace ZookieWizard
         {
             pagesCount = 0;
             pages = nullptr;
+			treeListPage = new WindowsManagerPage();
             currentPageNumber = (-1);
 
             staticFunctionsCount = 0;
@@ -738,10 +914,10 @@ namespace ZookieWizard
 
             currentPaddingX = 0;
             currentPaddingY = 0;
-            widthLimit = RECT_LOGO_X2;
+            widthLimit = (2 * RECT_LOGO_X2);
             useEdges = false;
 
-            std::memset(mainWindows, 0x00, 4 * sizeof(HWND));
+            std::memset(mainWindows, 0x00, 5 * sizeof(HWND));
         }
 
         WindowsManager::~WindowsManager()
@@ -764,6 +940,13 @@ namespace ZookieWizard
                 delete[](staticFunctions);
                 staticFunctions = nullptr;
             }
+
+			if (nullptr != treeListPage)
+			{
+				treeListPage->close();
+				delete (treeListPage);
+				staticFunctions = nullptr;
+			}
         }
 
 
@@ -990,7 +1173,7 @@ namespace ZookieWizard
 
             if (0x02 & position_flags)
             {
-                currentPosX = ((widthLimit - width) / 2);
+                currentPosX = ((RECT_LOGO_X2 - width) / 2);
             }
 
             if (0x04 & position_flags)
@@ -1062,6 +1245,11 @@ namespace ZookieWizard
                 pages[currentPageNumber].addWindow(result);
             }
 
+			if (currentPageNumber == -2)
+			{
+				treeListPage->addWindow(result);
+			}
+
             return result;
         }
 
@@ -1072,7 +1260,7 @@ namespace ZookieWizard
         bool WindowsManager::createMainWindows()
         {
             int32_t a;
-            WNDCLASSEX window_class[5];
+            WNDCLASSEX window_class[6];
             HBRUSH window_background;
 
             const int WINDOW_HEIGHT = 24;
@@ -1081,7 +1269,7 @@ namespace ZookieWizard
             /********************************/
             /* Register window classes */
 
-            for (a = 0; a < 5; a++)
+            for (a = 0; a < 6; a++)
             {
                 ZeroMemory(&(window_class[a]), sizeof(WNDCLASSEX));
                 window_class[a].cbSize = sizeof(WNDCLASSEX);
@@ -1092,6 +1280,7 @@ namespace ZookieWizard
                 {
                     case 0: // main
                     case 2: // scroll
+					case 5: // node tree
                     {
                         window_background = (HBRUSH)(1 + COLOR_BTNFACE);
                         break;
@@ -1124,7 +1313,10 @@ namespace ZookieWizard
             window_class[4].lpfnWndProc = procedureOfObjectRotatingWindow;
             window_class[4].lpszClassName = WINDOW_CLASS_NAME_5;
 
-            for (a = 0; a < 5; a++)
+			window_class[5].lpfnWndProc = procedureOfNodeTreeWindow;
+			window_class[5].lpszClassName = WINDOW_CLASS_NAME_6;
+
+            for (a = 0; a < 6; a++)
             {
                 if (false == RegisterClassEx(&(window_class[a])))
                 {
@@ -1168,7 +1360,7 @@ namespace ZookieWizard
 
             setCurrentClassName("BUTTON");
             setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON);
-            setCurrentPosition(RECT_TABS_X1, RECT_TABS_Y1 - 8);
+            setCurrentPosition(RECT_TABS_X1 + RECT_LOGO_X2, RECT_TABS_Y1 - 8);
             setCurrentPadding(8, 0);
 
             if (0 == addWindow("<<", 24, 20, staticFuncSwitchPages, (void*)(-2), 0))
@@ -1199,7 +1391,7 @@ namespace ZookieWizard
 
             setCurrentClassName(WINDOW_CLASS_NAME_3);
             setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | WS_VSCROLL);
-            setCurrentPosition(0, RECT_TABS_Y1 + WINDOW_HEIGHT);
+            setCurrentPosition(SCROLL_WINDOW_X, SCROLL_WINDOW_Y + WINDOW_HEIGHT);
 
             mainWindows[3] = addWindow("", RECT_LOGO_X2, RECT_WINDOW_Y - RECT_TABS_Y1 - WINDOW_HEIGHT, nullptr, 0, 0);
 
@@ -1208,14 +1400,28 @@ namespace ZookieWizard
                 return false;
             }
 
+			/********************************/
+			/* Create node tree window */
+
+			setCurrentClassName(WINDOW_CLASS_NAME_6);
+			setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | WS_VSCROLL);
+			setCurrentPosition(NODE_TREE_X1, NODE_TREE_Y1);
+
+			mainWindows[4] = addWindow("", NODE_TREE_X2, NODE_TREE_Y2, nullptr, 0, 0);
+
+			if (0 == mainWindows[4])
+			{
+				return false;
+			}
+
             /********************************/
             /* Create line decoration */
 
             setCurrentClassName("STATIC");
             setCurrentStyleFlags(WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ);
-            setCurrentPosition(0, RECT_TABS_Y1 + WINDOW_HEIGHT - 2);
+            setCurrentPosition(RECT_LOGO_X2, RECT_TABS_Y1 + WINDOW_HEIGHT - 2);
 
-            if (0 == addWindow("", widthLimit, 2, nullptr, 0, 0))
+            if (0 == addWindow("", RECT_LOGO_X2, 2, nullptr, 0, 0))
             {
                 return false;
             }
@@ -1323,6 +1529,11 @@ namespace ZookieWizard
             return mainWindows[3];
         }
 
+		HWND WindowsManager::getNodeTreeWindow() const
+		{
+			return mainWindows[4];
+		}
+
 
         ////////////////////////////////////////////////////////////////
         // WindowsManager: get specific window
@@ -1341,6 +1552,19 @@ namespace ZookieWizard
                     return pages[page].windows[place];
                 }
             }
+
+			if (page == -2)
+			{
+				if (place < 0)
+				{
+					place = treeListPage->windowsCount + place;
+				}
+
+				if ((place >= 0) && (place < treeListPage->windowsCount))
+				{
+					return treeListPage->windows[place];
+				}
+			}
 
             return 0;
         }

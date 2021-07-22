@@ -62,6 +62,7 @@ namespace ZookieWizard
 
                 int32_t pagesCount;
                 WindowsManagerPage* pages;
+				WindowsManagerPage* treeListPage;
                 int32_t currentPageNumber;
 
                 int32_t staticFunctionsCount;
@@ -79,7 +80,7 @@ namespace ZookieWizard
                 int32_t widthLimit;
                 bool useEdges;
 
-                HWND mainWindows[4];
+                HWND mainWindows[5];
 
             /* Methods */
 
@@ -122,6 +123,7 @@ namespace ZookieWizard
                 HWND getRenderWindow() const;
                 HWND getPageLabelWindow() const;
                 HWND getScrollWindow() const;
+				HWND getNodeTreeWindow() const;
 
                 HWND getSpecificWindow(int32_t page, int32_t place) const;
 

@@ -529,7 +529,7 @@ namespace ZookieWizard
             char bufor[64];
 
             const int EDITBOXES_COUNT = 7;
-            const int PAGE_ID = 5;
+            const int PAGE_ID = 4;
 
             float output[EDITBOXES_COUNT];
             HWND dummy_editbox;
