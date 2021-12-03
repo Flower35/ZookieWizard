@@ -36,11 +36,11 @@
 // MACROS
 ////////////////////////////////////////////////////////////////
 
-#define DEG2RAD(angle) ((angle) * 180.0 / (double)M_PI)
-#define RAD2DEG(angle) ((angle) * (double)M_PI / 180.0)
+#define DEG2RAD(angle) ((angle) * (double)M_PI / 180.0)
+#define RAD2DEG(angle) ((angle) * 180.0 / (double)M_PI)
 
-#define DEG2RAD_F(angle) ((angle) * 180.0f / (float)M_PI)
-#define RAD2DEG_F(angle) ((angle) * (float)M_PI / 180.0f)
+#define DEG2RAD_F(angle) ((angle) * (float)M_PI / 180.0f)
+#define RAD2DEG_F(angle) ((angle) * 180.0f / (float)M_PI)
 
 
 ////////////////////////////////////////////////////////////////
