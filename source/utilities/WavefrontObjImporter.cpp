@@ -94,7 +94,7 @@ namespace ZookieWizard
         parentGroup = nullptr;
         appendNameToMeshes = true;
         regroupMeshesWithMaterials = true;
-        makeMaterialsTwoSided = true;
+        makeMaterialsTwoSided = false;
 
         objVertices = nullptr;
         objVerticesCount = 0;

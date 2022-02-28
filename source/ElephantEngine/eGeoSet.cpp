@@ -632,6 +632,13 @@ namespace ZookieWizard
         texCoordsCount = 0;
     }
 
+    void eGeoSet::setTexMappingType(int32_t i, int32_t mapping_type)
+    {
+        if (i > 3) i = 3; else if (i < 0) i = 0;
+
+        texMappingTypes[i] = mapping_type;
+    }
+
     void eGeoSet::setColorsArray(eGeoArray<ePoint4>* new_colors_array)
     {
         if (colorsArray != new_colors_array)
@@ -697,10 +704,16 @@ namespace ZookieWizard
 
     eGeoArray<ePoint2>* eGeoSet::getTextureCoordsArray(int32_t i) const
     {
-        if (i >= texCoordsCount) i = texCoordsCount - 1;
-        else if (i < 0) i = 0;
+        if (i > 3) i = 3; else if (i < 0) i = 0;
 
         return texCoordsArray[i];
+    }
+
+    int32_t eGeoSet::getTexMappingType(int32_t i) const
+    {
+        if (i > 3) i = 3; else if (i < 0) i = 0;
+
+        return texMappingTypes[i];
     }
 
     eGeoArray<ePoint4>* eGeoSet::getColorsArray() const

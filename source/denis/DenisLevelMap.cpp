@@ -256,480 +256,451 @@ namespace ZookieWizard
         {
             throw ErrorMessage
             (
-                "Could not open file: \n" \
+                "Could not open file:\n" \
                 "\"%s\"",
                 file.fileName.getText()
             );
         }
 
-        /********************************/
-        /* Main Map magic */
-
-        i = *(int32_t*)"T8LM";
-
-        file.readOrWrite(&i, 0x04);
-
-        if (file.isInReadMode())
+        try
         {
-            if (*(int32_t*)"T8LM" != i)
-            {
-                throw ErrorMessage
-                (
-                    "\"%s\": invalid main map magic.",
-                    file.fileName.getText()
-                );
-            }
-        }
+            /********************************/
+            /* Main Map magic */
 
-        /********************************/
-        /* File version */
+            i = *(int32_t*)"T8LM";
 
-        i = 70;
-
-        file.readOrWrite(&i, 0x04);
-
-        if (file.isInReadMode())
-        {
-            if (70 != i)
-            {
-                throw ErrorMessage
-                (
-                    "\"%s\": wrong file version.\n" \
-                    "(got %i, expected %i)",
-                    file.fileName.getText(),
-                    i, 70
-                );
-            }
-        }
-
-        /********************************/
-        /* Texture names */
-
-        i = *(int32_t*)"TEXN";
-
-        file.readOrWrite(&i, 0x04);
-
-        if (file.isInReadMode())
-        {
-            if (*(int32_t*)"TEXN" != i)
-            {
-                throw ErrorMessage
-                (
-                    "\"%s\": invalid texture names magic.",
-                    file.fileName.getText()
-                );
-            }
-        }
-
-        if (file.isInReadMode())
-        {
-            if (nullptr != textures)
-            {
-                delete[](textures);
-                texturesMaxLength = 0;
-                texturesCount = 0;
-            }
-
-            file.readOrWrite(&texturesMaxLength, 0x04);
-
-            textures = new DenisLevelTexture [texturesMaxLength];
-
-            for (i = 0; i < texturesMaxLength; i++)
-            {
-                textures[i].serialize(file);
-
-                texturesCount = (i + 1);
-            }
-        }
-        else
-        {
-            file.readOrWrite(&texturesCount, 0x04);
-
-            for (i = 0; i < texturesCount; i++)
-            {
-                textures[i].serialize(file);
-            }
-        }
-
-        /********************************/
-        /* Ambient samples */
-
-        i = *(int32_t*)"smpl";
-
-        file.readOrWrite(&i, 0x04);
-
-        if (file.isInReadMode())
-        {
-            if (*(int32_t*)"smpl" != i)
-            {
-                throw ErrorMessage
-                (
-                    "\"%s\": invalid samples magic.",
-                    file.fileName.getText()
-                );
-            }
-        }
-
-        if (file.isInReadMode())
-        {
-            if (nullptr != ambientSamples)
-            {
-                delete[](ambientSamples);
-                ambientSamplesMaxLength = 0;
-                ambientSamplesCount = 0;
-            }
-
-            file.readOrWrite(&ambientSamplesMaxLength, 0x04);
-
-            ambientSamples = new DenisLevelSample [ambientSamplesMaxLength];
-
-            for (i = 0; i < ambientSamplesMaxLength; i++)
-            {
-                ambientSamples[i].serialize(file);
-
-                ambientSamplesCount = (i + 1);
-            }
-        }
-        else
-        {
-            file.readOrWrite(&ambientSamplesCount, 0x04);
-
-            for (i = 0; i < ambientSamplesCount; i++)
-            {
-                ambientSamples[i].serialize(file);
-            }
-        }
-
-        /********************************/
-        /* World Objects magic */
-
-        i = *(int32_t*)"WOBJ";
-
-        file.readOrWrite(&i, 0x04);
-
-        if (file.isInReadMode())
-        {
-            if (*(int32_t*)"WOBJ" != i)
-            {
-                throw ErrorMessage
-                (
-                    "\"%s\": invalid WOBJ magic.",
-                    file.fileName.getText()
-                );
-            }
-        }
-
-        /********************************/
-        /* Objects serialization */
-
-        if (file.isInReadMode())
-        {
-            if (nullptr != worldObjects)
-            {
-                delete[](worldObjects);
-                worldObjectsMaxLength = 0;
-                worldObjectsCount = 0;
-            }
-
-            for (i = 0; i < DENIS_LEVEL_OBJECT_TYPES; i++)
-            {
-                if (nullptr != objects[DENIS_LEVEL_OBJECT_ID[i]])
-                {
-                    delete[](objects[DENIS_LEVEL_OBJECT_ID[i]]);
-                    objectsMaxLength[DENIS_LEVEL_OBJECT_ID[i]] = 0;
-                    objectsCount[DENIS_LEVEL_OBJECT_ID[i]] = 0;
-                }
-            }
-
-            if (nullptr != proxies)
-            {
-                delete[](proxies);
-                proxiesMaxLength = 0;
-                proxiesCount = 0;
-            }
-
-            /* Read number of each objects group [5 numbers] */
-
-            file.readOrWrite(&worldObjectsMaxLength, 0x04);
-
-            for (i = 0; i < DENIS_LEVEL_OBJECT_TYPES; i++)
-            {
-                file.readOrWrite(&(objectsMaxLength[DENIS_LEVEL_OBJECT_ID[i]]), 0x04);
-            }
-
-            file.readOrWrite(&proxiesMaxLength, 0x04);
-
-            /* Allocate size and load objects */
-
-            worldObjects = new DenisLevelWObj [worldObjectsMaxLength];
-
-            for (i = 0; i < worldObjectsMaxLength; i++)
-            {
-                worldObjects[i].serialize(file);
-
-                worldObjectsCount = (i + 1);
-            }
-
-            for (i = 0; i < DENIS_LEVEL_OBJECT_TYPES; i++)
-            {
-                objects[DENIS_LEVEL_OBJECT_ID[i]] = new DenisLevelObject [objectsMaxLength[DENIS_LEVEL_OBJECT_ID[i]]];
-
-                for (j = 0; j < objectsMaxLength[DENIS_LEVEL_OBJECT_ID[i]]; j++)
-                {
-                    objects[DENIS_LEVEL_OBJECT_ID[i]][j].serialize(file, DENIS_LEVEL_OBJECT_ID[i]);
-
-                    objectsCount[DENIS_LEVEL_OBJECT_ID[i]] = (j + 1);
-                }
-            }
-
-            proxies = new DenisLevelMaxObj [proxiesMaxLength];
-
-            for (i = 0; i < proxiesMaxLength; i++)
-            {
-                proxies[i].serialize(file, worldObjects, worldObjectsCount);
-
-                proxiesCount = (i + 1);
-            }
-        }
-        else
-        {
-            /* Write number of each objects group [5 numbers] */
-
-            file.readOrWrite(&worldObjectsCount, 0x04);
-
-            for (i = 0; i < DENIS_LEVEL_OBJECT_TYPES; i++)
-            {
-                file.readOrWrite(&(objectsCount[DENIS_LEVEL_OBJECT_ID[i]]), 0x04);
-            }
-
-            file.readOrWrite(&proxiesCount, 0x04);
-
-            /* Save objects */
-
-            for (i = 0; i < worldObjectsCount; i++)
-            {
-                worldObjects[i].serialize(file);
-            }
-
-            for (i = 0; i < DENIS_LEVEL_OBJECT_TYPES; i++)
-            {
-                for (j = 0; j < objectsCount[DENIS_LEVEL_OBJECT_ID[i]]; j++)
-                {
-                    objects[DENIS_LEVEL_OBJECT_ID[i]][j].serialize(file, DENIS_LEVEL_OBJECT_ID[i]);
-                }
-            }
-
-            for (i = 0; i < proxiesCount; i++)
-            {
-                proxies[i].serialize(file, worldObjects, worldObjectsCount);
-            }
-        }
-
-        /********************************/
-        /* Moving lights */
-
-        i = *(int32_t*)"LGHT";
-
-        file.readOrWrite(&i, 0x04);
-
-        if (file.isInReadMode())
-        {
-            if (*(int32_t*)"LGHT" != i)
-            {
-                throw ErrorMessage
-                (
-                    "\"%s\": invalid wlight magic.",
-                    file.fileName.getText()
-                );
-            }
-        }
-
-        i = 0;
-
-        for (j = 0; j < 4; j++)
-        {
             file.readOrWrite(&i, 0x04);
 
             if (file.isInReadMode())
             {
-                if (0 != i)
+                if (*(int32_t*)"T8LM" != i)
+                {
+                    throw ErrorMessage("invalid main map magic.");
+                }
+            }
+
+            /********************************/
+            /* File version */
+
+            i = 70;
+
+            file.readOrWrite(&i, 0x04);
+
+            if (file.isInReadMode())
+            {
+                if (70 != i)
                 {
                     throw ErrorMessage
                     (
-                        "\"%s\": non-empty lights section is not supported.",
-                        file.fileName.getText()
+                        "wrong file version.\n" \
+                        "(got %i, expected %i)",
+                        i, 70
                     );
                 }
             }
+
+            /********************************/
+            /* Texture names */
+
+            i = *(int32_t*)"TEXN";
+
+            file.readOrWrite(&i, 0x04);
+
+            if (file.isInReadMode())
+            {
+                if (*(int32_t*)"TEXN" != i)
+                {
+                    throw ErrorMessage("invalid texture names magic.");
+                }
+            }
+
+            if (file.isInReadMode())
+            {
+                if (nullptr != textures)
+                {
+                    delete[](textures);
+                    texturesMaxLength = 0;
+                    texturesCount = 0;
+                }
+
+                file.readOrWrite(&texturesMaxLength, 0x04);
+
+                textures = new DenisLevelTexture [texturesMaxLength];
+
+                for (i = 0; i < texturesMaxLength; i++)
+                {
+                    textures[i].serialize(file);
+
+                    texturesCount = (i + 1);
+                }
+            }
+            else
+            {
+                file.readOrWrite(&texturesCount, 0x04);
+
+                for (i = 0; i < texturesCount; i++)
+                {
+                    textures[i].serialize(file);
+                }
+            }
+
+            /********************************/
+            /* Ambient samples */
+
+            i = *(int32_t*)"smpl";
+
+            file.readOrWrite(&i, 0x04);
+
+            if (file.isInReadMode())
+            {
+                if (*(int32_t*)"smpl" != i)
+                {
+                    throw ErrorMessage("invalid samples magic.");
+                }
+            }
+
+            if (file.isInReadMode())
+            {
+                if (nullptr != ambientSamples)
+                {
+                    delete[](ambientSamples);
+                    ambientSamplesMaxLength = 0;
+                    ambientSamplesCount = 0;
+                }
+
+                file.readOrWrite(&ambientSamplesMaxLength, 0x04);
+
+                ambientSamples = new DenisLevelSample [ambientSamplesMaxLength];
+
+                for (i = 0; i < ambientSamplesMaxLength; i++)
+                {
+                    ambientSamples[i].serialize(file);
+
+                    ambientSamplesCount = (i + 1);
+                }
+            }
+            else
+            {
+                file.readOrWrite(&ambientSamplesCount, 0x04);
+
+                for (i = 0; i < ambientSamplesCount; i++)
+                {
+                    ambientSamples[i].serialize(file);
+                }
+            }
+
+            /********************************/
+            /* World Objects magic */
+
+            i = *(int32_t*)"WOBJ";
+
+            file.readOrWrite(&i, 0x04);
+
+            if (file.isInReadMode())
+            {
+                if (*(int32_t*)"WOBJ" != i)
+                {
+                    throw ErrorMessage("invalid WOBJ magic.");
+                }
+            }
+
+            /********************************/
+            /* Objects serialization */
+
+            if (file.isInReadMode())
+            {
+                if (nullptr != worldObjects)
+                {
+                    delete[](worldObjects);
+                    worldObjectsMaxLength = 0;
+                    worldObjectsCount = 0;
+                }
+
+                for (i = 0; i < DENIS_LEVEL_OBJECT_TYPES; i++)
+                {
+                    if (nullptr != objects[DENIS_LEVEL_OBJECT_ID[i]])
+                    {
+                        delete[](objects[DENIS_LEVEL_OBJECT_ID[i]]);
+                        objectsMaxLength[DENIS_LEVEL_OBJECT_ID[i]] = 0;
+                        objectsCount[DENIS_LEVEL_OBJECT_ID[i]] = 0;
+                    }
+                }
+
+                if (nullptr != proxies)
+                {
+                    delete[](proxies);
+                    proxiesMaxLength = 0;
+                    proxiesCount = 0;
+                }
+
+                /* Read number of each objects group [5 numbers] */
+
+                file.readOrWrite(&worldObjectsMaxLength, 0x04);
+
+                for (i = 0; i < DENIS_LEVEL_OBJECT_TYPES; i++)
+                {
+                    file.readOrWrite(&(objectsMaxLength[DENIS_LEVEL_OBJECT_ID[i]]), 0x04);
+                }
+
+                file.readOrWrite(&proxiesMaxLength, 0x04);
+
+                /* Allocate size and load objects */
+
+                worldObjects = new DenisLevelWObj [worldObjectsMaxLength];
+
+                for (i = 0; i < worldObjectsMaxLength; i++)
+                {
+                    worldObjects[i].serialize(file);
+
+                    worldObjectsCount = (i + 1);
+                }
+
+                for (i = 0; i < DENIS_LEVEL_OBJECT_TYPES; i++)
+                {
+                    objects[DENIS_LEVEL_OBJECT_ID[i]] = new DenisLevelObject [objectsMaxLength[DENIS_LEVEL_OBJECT_ID[i]]];
+
+                    for (j = 0; j < objectsMaxLength[DENIS_LEVEL_OBJECT_ID[i]]; j++)
+                    {
+                        objects[DENIS_LEVEL_OBJECT_ID[i]][j].serialize(file, DENIS_LEVEL_OBJECT_ID[i]);
+
+                        objectsCount[DENIS_LEVEL_OBJECT_ID[i]] = (j + 1);
+                    }
+                }
+
+                proxies = new DenisLevelMaxObj [proxiesMaxLength];
+
+                for (i = 0; i < proxiesMaxLength; i++)
+                {
+                    proxies[i].serialize(file, worldObjects, worldObjectsCount);
+
+                    proxiesCount = (i + 1);
+                }
+            }
+            else
+            {
+                /* Write number of each objects group [5 numbers] */
+
+                file.readOrWrite(&worldObjectsCount, 0x04);
+
+                for (i = 0; i < DENIS_LEVEL_OBJECT_TYPES; i++)
+                {
+                    file.readOrWrite(&(objectsCount[DENIS_LEVEL_OBJECT_ID[i]]), 0x04);
+                }
+
+                file.readOrWrite(&proxiesCount, 0x04);
+
+                /* Save objects */
+
+                for (i = 0; i < worldObjectsCount; i++)
+                {
+                    worldObjects[i].serialize(file);
+                }
+
+                for (i = 0; i < DENIS_LEVEL_OBJECT_TYPES; i++)
+                {
+                    for (j = 0; j < objectsCount[DENIS_LEVEL_OBJECT_ID[i]]; j++)
+                    {
+                        objects[DENIS_LEVEL_OBJECT_ID[i]][j].serialize(file, DENIS_LEVEL_OBJECT_ID[i]);
+                    }
+                }
+
+                for (i = 0; i < proxiesCount; i++)
+                {
+                    proxies[i].serialize(file, worldObjects, worldObjectsCount);
+                }
+            }
+
+            /********************************/
+            /* Moving lights */
+
+            i = *(int32_t*)"LGHT";
+
+            file.readOrWrite(&i, 0x04);
+
+            if (file.isInReadMode())
+            {
+                if (*(int32_t*)"LGHT" != i)
+                {
+                    throw ErrorMessage("invalid wlight magic.");
+                }
+            }
+
+            i = 0;
+
+            for (j = 0; j < 4; j++)
+            {
+                file.readOrWrite(&i, 0x04);
+
+                if (file.isInReadMode())
+                {
+                    if (0 != i)
+                    {
+                        throw ErrorMessage("non-empty lights section is not supported.");
+                    }
+                }
+            }
+
+            /********************************/
+            /* Event zones */
+
+            i = *(int32_t*)"EVNZ";
+
+            file.readOrWrite(&i, 0x04);
+
+            if (file.isInReadMode())
+            {
+                if (*(int32_t*)"EVNZ" != i)
+                {
+                    throw ErrorMessage("invalid event zones magic.");
+                }
+            }
+
+            if (file.isInReadMode())
+            {
+                if (nullptr != eventZones)
+                {
+                    delete[](eventZones);
+                    eventZonesMaxLength = 0;
+                    eventZonesCount = 0;
+                }
+
+                file.readOrWrite(&eventZonesMaxLength, 0x04);
+
+                eventZones = new DenisLevelZone [eventZonesMaxLength];
+
+                for (i = 0; i < eventZonesMaxLength; i++)
+                {
+                    eventZones[i].serialize(file);
+
+                    eventZonesCount = (i + 1);
+                }
+            }
+            else
+            {
+                file.readOrWrite(&eventZonesCount, 0x04);
+
+                for (i = 0; i < eventZonesCount; i++)
+                {
+                    eventZones[i].serialize(file);
+                }
+            }
+
+            /********************************/
+            /* Billboards */
+
+            i = *(int32_t*)"bb2d";
+
+            file.readOrWrite(&i, 0x04);
+
+            if (file.isInReadMode())
+            {
+                if (*(int32_t*)"bb2d" != i)
+                {
+                    throw ErrorMessage("invalid billboards magic.");
+                }
+            }
+
+            if (file.isInReadMode())
+            {
+                if (nullptr != billboards)
+                {
+                    delete[](billboards);
+                    billboardsMaxLength = 0;
+                    billboardsCount = 0;
+                }
+
+                file.readOrWrite(&billboardsMaxLength, 0x04);
+
+                billboards = new DenisLevelBillboard [billboardsMaxLength];
+
+                for (i = 0; i < billboardsMaxLength; i++)
+                {
+                    billboards[i].serialize(file);
+
+                    billboardsCount = (i + 1);
+                }
+            }
+            else
+            {
+                file.readOrWrite(&billboardsCount, 0x04);
+
+                for (i = 0; i < billboardsCount; i++)
+                {
+                    billboards[i].serialize(file);
+                }
+            }
+
+            /********************************/
+            /* Bonuses */
+
+            i = *(int32_t*)"bns!";
+
+            file.readOrWrite(&i, 0x04);
+
+            if (file.isInReadMode())
+            {
+                if (*(int32_t*)"bns!" != i)
+                {
+                    throw ErrorMessage("invalid bonuses magic.");
+                }
+            }
+
+            if (file.isInReadMode())
+            {
+                if (nullptr != bonuses)
+                {
+                    delete[](bonuses);
+                    bonusesMaxLength = 0;
+                    bonusesCount = 0;
+                }
+
+                file.readOrWrite(&bonusesMaxLength, 0x04);
+
+                bonuses = new DenisLevelBonus [bonusesMaxLength];
+
+                for (i = 0; i < bonusesMaxLength; i++)
+                {
+                    bonuses[i].serialize(file);
+
+                    bonusesCount = (i + 1);
+                }
+            }
+            else
+            {
+                file.readOrWrite(&bonusesCount, 0x04);
+
+                for (i = 0; i < bonusesCount; i++)
+                {
+                    bonuses[i].serialize(file);
+                }
+            }
+
+            /********************************/
+            /* Finish magic */
+
+            i = *(int32_t*)"FINI";
+
+            file.readOrWrite(&i, 0x04);
+
+            if (file.isInReadMode())
+            {
+                if (*(int32_t*)"FINI" != i)
+                {
+                    throw ErrorMessage("invalid finish magic.");
+                }
+            }
+
+            file.close();
         }
-
-        /********************************/
-        /* Event zones */
-
-        i = *(int32_t*)"EVNZ";
-
-        file.readOrWrite(&i, 0x04);
-
-        if (file.isInReadMode())
+        catch (ErrorMessage &err)
         {
-            if (*(int32_t*)"EVNZ" != i)
+            if (!err.wasHeaderAppended())
             {
-                throw ErrorMessage
-                (
-                    "\"%s\": invalid event zones magic.",
-                    file.fileName.getText()
-                );
+                err.appendHeader("[%s]\n(offset 0x%08X)", file.myFile.currentPath, file.myFile.getPointer());
             }
+
+            throw;
         }
-
-        if (file.isInReadMode())
-        {
-            if (nullptr != eventZones)
-            {
-                delete[](eventZones);
-                eventZonesMaxLength = 0;
-                eventZonesCount = 0;
-            }
-
-            file.readOrWrite(&eventZonesMaxLength, 0x04);
-
-            eventZones = new DenisLevelZone [eventZonesMaxLength];
-
-            for (i = 0; i < eventZonesMaxLength; i++)
-            {
-                eventZones[i].serialize(file);
-
-                eventZonesCount = (i + 1);
-            }
-        }
-        else
-        {
-            file.readOrWrite(&eventZonesCount, 0x04);
-
-            for (i = 0; i < eventZonesCount; i++)
-            {
-                eventZones[i].serialize(file);
-            }
-        }
-
-        /********************************/
-        /* Billboards */
-
-        i = *(int32_t*)"bb2d";
-
-        file.readOrWrite(&i, 0x04);
-
-        if (file.isInReadMode())
-        {
-            if (*(int32_t*)"bb2d" != i)
-            {
-                throw ErrorMessage
-                (
-                    "\"%s\": invalid billboards magic.",
-                    file.fileName.getText()
-                );
-            }
-        }
-
-        if (file.isInReadMode())
-        {
-            if (nullptr != billboards)
-            {
-                delete[](billboards);
-                billboardsMaxLength = 0;
-                billboardsCount = 0;
-            }
-
-            file.readOrWrite(&billboardsMaxLength, 0x04);
-
-            billboards = new DenisLevelBillboard [billboardsMaxLength];
-
-            for (i = 0; i < billboardsMaxLength; i++)
-            {
-                billboards[i].serialize(file);
-
-                billboardsCount = (i + 1);
-            }
-        }
-        else
-        {
-            file.readOrWrite(&billboardsCount, 0x04);
-
-            for (i = 0; i < billboardsCount; i++)
-            {
-                billboards[i].serialize(file);
-            }
-        }
-
-        /********************************/
-        /* Bonuses */
-
-        i = *(int32_t*)"bns!";
-
-        file.readOrWrite(&i, 0x04);
-
-        if (file.isInReadMode())
-        {
-            if (*(int32_t*)"bns!" != i)
-            {
-                throw ErrorMessage
-                (
-                    "\"%s\": invalid bonuses magic.",
-                    file.fileName.getText()
-                );
-            }
-        }
-
-        if (file.isInReadMode())
-        {
-            if (nullptr != bonuses)
-            {
-                delete[](bonuses);
-                bonusesMaxLength = 0;
-                bonusesCount = 0;
-            }
-
-            file.readOrWrite(&bonusesMaxLength, 0x04);
-
-            bonuses = new DenisLevelBonus [bonusesMaxLength];
-
-            for (i = 0; i < bonusesMaxLength; i++)
-            {
-                bonuses[i].serialize(file);
-
-                bonusesCount = (i + 1);
-            }
-        }
-        else
-        {
-            file.readOrWrite(&bonusesCount, 0x04);
-
-            for (i = 0; i < bonusesCount; i++)
-            {
-                bonuses[i].serialize(file);
-            }
-        }
-
-        /********************************/
-        /* Finish magic */
-
-        i = *(int32_t*)"FINI";
-
-        file.readOrWrite(&i, 0x04);
-
-        if (file.isInReadMode())
-        {
-            if (*(int32_t*)"FINI" != i)
-            {
-                throw ErrorMessage
-                (
-                    "\"%s\": invalid finish magic.",
-                    file.fileName.getText()
-                );
-            }
-        }
-
-        file.close();
 
         /********************************/
         /* Denis starting position */

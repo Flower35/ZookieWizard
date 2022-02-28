@@ -90,6 +90,11 @@ namespace ZookieWizard
 
             eTransform* getArmatureParent() const;
 
+            /* << ePhyTriMesh >> */
+
+            eMorpherMod* getMorpherModifier() const;
+            void setMorpherModifier(eMorpherMod* new_morpher_mod);
+
         private:
 
             /* << ePhyTriMesh >> */

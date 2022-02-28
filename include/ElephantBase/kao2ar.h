@@ -59,7 +59,7 @@ namespace ZookieWizard
 
     typedef uint16_t ushort;
 
-    /* used-defined assignment */
+    /* user-defined assignment */
     struct ePoint3;
     struct ePoint4;
 
@@ -68,6 +68,10 @@ namespace ZookieWizard
     {
         float u;
         float v;
+
+        ePoint2();
+        ePoint2(float initializer);
+        ePoint2(float, float);
 
         bool operator == (const ePoint2&) const;
     };

@@ -178,7 +178,8 @@ namespace ZookieWizard
         int32_t a;
         eNode* child_node;
 
-        char bufor[128];
+        char bufor[32];
+        const char* test_cat_name;
 
         /* "eTransform": parent class */
 
@@ -188,20 +189,36 @@ namespace ZookieWizard
 
         if (!(targetFile.isEmpty()))
         {
-            if ('?' != targetFile.getText()[0])
-            {
-                sprintf_s
-                (
-                    bufor, 128,
-                    " - proxy target: [%d] \"%s\"",
-                    category,
-                    targetFile.getText()
-                );
+            ArFunctions::writeIndentation(file, indentation);
+            
+            sprintf_s(bufor, 32, " - proxy target: [%d (", category);
 
-                ArFunctions::writeIndentation(file, indentation);
-                file << bufor;
+            file << bufor;
+
+            test_cat_name = proxyCatNameFromId(category);
+
+            file << ((nullptr == test_cat_name) ? "unknown" : test_cat_name);
+
+            file << ")] ";
+
+            if ('?' == targetFile.getText()[0])
+            {
+                file << "(multiline):";
                 ArFunctions::writeNewLine(file, 0);
+                file << "```";
+                ArFunctions::writeNewLine(file, 0);
+                file << targetFile;
+                ArFunctions::writeNewLine(file, 0);
+                file << "```";
             }
+            else
+            {
+                file << ": \"";
+                file << targetFile;
+                file << "\"";
+            }
+
+            ArFunctions::writeNewLine(file, 0);
         }
 
         /****************/
@@ -387,38 +404,16 @@ namespace ZookieWizard
 
             property.getValue(&dummy_str);
 
-            if (dummy_str.compareExact("particle", true))
-            {
-                category = 0;
-            }
-            else if (dummy_str.compareExact("hero", true))
-            {
-                category = 1;
-            }
-            else if (dummy_str.compareExact("powerup", true))
-            {
-                category = 2;
-            }
-            else if (dummy_str.compareExact("enemy", true))
-            {
-                category = 3;
-            }
-            else if (dummy_str.compareExact("fluff", true))
-            {
-                category = 4;
-            }
-            else if (dummy_str.compareExact("geoproxy", true))
-            {
-                category = 5;
-            }
-            else if (dummy_str.compareExact("object", true))
-            {
-                category = 6;
-            }
-            else
+            test = proxyCatIdFromName(dummy_str);
+
+            if (test < 0)
             {
                 sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Unknown proxy category for \"category\" property!");
                 return 2;
+            }
+            else
+            {
+                category = test;
             }
 
             return 0;
@@ -465,38 +460,16 @@ namespace ZookieWizard
 
             params[1].getValue(&dummy_str);
 
-            if (dummy_str.compareExact("particle", true))
-            {
-                category = 0;
-            }
-            else if (dummy_str.compareExact("hero", true))
-            {
-                category = 1;
-            }
-            else if (dummy_str.compareExact("powerup", true))
-            {
-                category = 2;
-            }
-            else if (dummy_str.compareExact("enemy", true))
-            {
-                category = 3;
-            }
-            else if (dummy_str.compareExact("fluff", true))
-            {
-                category = 4;
-            }
-            else if (dummy_str.compareExact("geoproxy", true))
-            {
-                category = 5;
-            }
-            else if (dummy_str.compareExact("object", true))
-            {
-                category = 6;
-            }
-            else
+            test = proxyCatIdFromName(dummy_str);
+
+            if (test < 0)
             {
                 sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setLinkAndCategory\" message: unknown proxy category!");
                 return 2;
+            }
+            else
+            {
+                category = test;
             }
 
             /********************************/
@@ -632,6 +605,91 @@ namespace ZookieWizard
     void eProxy::setTargetName(eString new_target_name)
     {
         targetFile = new_target_name;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eProxy: get category id from its name
+    ////////////////////////////////////////////////////////////////
+    int32_t eProxy::proxyCatIdFromName(const eString &name)
+    {
+        if (name.compareExact("particle", true))
+        {
+            return 0;
+        }
+        else if (name.compareExact("hero", true))
+        {
+            return 1;
+        }
+        else if (name.compareExact("powerup", true))
+        {
+            return 2;
+        }
+        else if (name.compareExact("enemy", true))
+        {
+            return 3;
+        }
+        else if (name.compareExact("fluff", true))
+        {
+            return 4;
+        }
+        else if (name.compareExact("geoproxy", true))
+        {
+            return 5;
+        }
+        else if (name.compareExact("object", true))
+        {
+            return 6;
+        }
+
+        return (-1);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eProxy: get static category name from category id
+    ////////////////////////////////////////////////////////////////
+    const char* eProxy::proxyCatNameFromId(int32_t cat)
+    {
+        switch (cat)
+        {
+            case 0:
+            {
+                return "particle";
+            }
+
+            case 1:
+            {
+                return "hero";
+            }
+
+            case 2:
+            {
+                return "powerup";
+            }
+
+            case 3:
+            {
+                return "enemy";
+            }
+
+            case 4:
+            {
+                return "fluff";
+            }
+
+            case 5:
+            {
+                return "geoproxy";
+            }
+
+            case 6:
+            {
+                return "object";
+            }
+        }
+
+        return nullptr;
     }
 
 }

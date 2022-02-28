@@ -655,6 +655,31 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // ePhyTriMesh: get or ser the Morpher Modifier
+    ////////////////////////////////////////////////////////////////
+
+    eMorpherMod* ePhyTriMesh::getMorpherModifier() const
+    {
+        return morph;
+    }
+
+    void ePhyTriMesh::setMorpherModifier(eMorpherMod* new_morpher_mod)
+    {
+        if (new_morpher_mod != morph)
+        {
+            morph->decRef();
+
+            morph = new_morpher_mod;
+
+            if (nullptr != morph)
+            {
+                morph->incRef();
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // ePhyTriMesh: clear this object
     ////////////////////////////////////////////////////////////////
     void ePhyTriMesh::clearNewPhyTriMesh(eTriMesh* x, eGeoSet* y)

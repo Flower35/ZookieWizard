@@ -9,6 +9,20 @@ namespace ZookieWizard
     // Kao2 data structure: ePoint2
     ////////////////////////////////////////////////////////////////
 
+    ePoint2::ePoint2()
+    {
+        u = 0;
+        v = 0;
+    }
+
+    ePoint2::ePoint2(float initializer)
+    : u(initializer), v(initializer)
+    {}
+
+    ePoint2::ePoint2(float _u, float _v)
+    : u(_u), v(_v)
+    {}
+
     bool ePoint2::operator == (const ePoint2 &point) const
     {
         return (point.u == u) && (point.v == v);
@@ -34,7 +48,6 @@ namespace ZookieWizard
     ePoint3::ePoint3(float _x, float _y, float _z)
     : x(_x), y(_y), z(_z)
     {}
-
 
     bool ePoint3::operator == (const ePoint3 &point) const
     {

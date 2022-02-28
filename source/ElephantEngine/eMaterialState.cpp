@@ -60,7 +60,7 @@ namespace ZookieWizard
         specular[3] = 1.0f;
 
         /*[0x48]*/ shininess = 0;
-        /*[0x4C]*/ useGlobalAmbientLight = true;
+        /*[0x4C]*/ useGlobalAmbientLight = false;
 
     }
 

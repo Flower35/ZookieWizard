@@ -157,36 +157,35 @@ namespace ZookieWizard
         eNode* child_node;
         eString test_str;
 
-        char bufor[512];
-
         /* "ePivot": parent class */
 
         ePivot::writeStructureToTextFile(file, indentation, true);
 
         /* "Actor": additional info */
 
+        ArFunctions::writeIndentation(file, indentation);
+
         if (!(scriptPath.isEmpty()))
         {
             if ('?' == scriptPath.getText()[0])
             {
-                test_str = "<?>";
+                file << " - script (multiline):";
+                ArFunctions::writeNewLine(file, 0);
+                file << "```";
+                ArFunctions::writeNewLine(file, 0);
+                file << scriptPath;
+                ArFunctions::writeNewLine(file, 0);
+                file << "```";
             }
             else
             {
-                test_str = scriptPath;
+                file << " - script: \"";
+                file << scriptPath;
+                file << "\"";
             }
+
+            ArFunctions::writeNewLine(file, 0);
         }
-
-        sprintf_s
-        (
-            bufor, 512,
-            " - script: \"%s\"",
-            test_str.getText()
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
 
         /****************/
 

@@ -358,226 +358,228 @@ namespace ZookieWizard
             );
         }
 
-        /********************************/
-        /* Anim Mesh magic */
-
-        i = *(int32_t*)"T83d";
-
-        file.readOrWrite(&i, 0x04);
-
-        if (file.isInReadMode())
+        try
         {
-            if (*(int32_t*)"T83d" != i)
+            /********************************/
+            /* Anim Mesh magic */
+
+            i = *(int32_t*)"T83d";
+
+            file.readOrWrite(&i, 0x04);
+
+            if (file.isInReadMode())
             {
-                throw ErrorMessage
-                (
-                    "\"%s\": invalid animmesh magic.",
-                    file.fileName.getText()
-                );
+                if (*(int32_t*)"T83d" != i)
+                {
+                    throw ErrorMessage("invalid animmesh magic.");
+                }
             }
-        }
 
-        /********************************/
-        /* File version */
+            /********************************/
+            /* File version */
 
-        i = 12;
+            i = 12;
         
-        file.readOrWrite(&i, 0x04);
+            file.readOrWrite(&i, 0x04);
 
-        if (file.isInReadMode())
-        {
-            if (12 != i)
+            if (file.isInReadMode())
             {
-                throw ErrorMessage
-                (
-                    "\"%s\": wrong file version.\n" \
-                    "(got %i, expected %i)",
-                    file.fileName.getText(),
-                    i, 12
-                );
+                if (12 != i)
+                {
+                    throw ErrorMessage
+                    (
+                        "wrong file version.\n" \
+                        "(got %i, expected %i)",
+                        i, 12
+                    );
+                }
             }
-        }
 
-        /********************************/
-        /* Anim Mesh Header */
+            /********************************/
+            /* Anim Mesh Header */
         
-        file.readOrWrite(&type, 0x04);
+            file.readOrWrite(&type, 0x04);
 
-        file.readOrWrite(&objectsCount, 0x04);
+            file.readOrWrite(&objectsCount, 0x04);
 
-        if (file.isInReadMode())
-        {
-            if ((objectsCount < 0) || (objectsCount > 64))
+            if (file.isInReadMode())
             {
-                throw ErrorMessage
-                (
-                    "\"%s\": wrong number of objects!" \
-                    "(got %i, max %i)",
-                    file.fileName.getText(),
-                    i, 64
-                );
+                if ((objectsCount < 0) || (objectsCount > 64))
+                {
+                    throw ErrorMessage
+                    (
+                        "wrong number of objects!" \
+                        "(got %i, max %i)",
+                        i, 64
+                    );
+                }
             }
-        }
 
-        file.readOrWrite(&facesCount, 0x04);
+            file.readOrWrite(&facesCount, 0x04);
 
-        file.readOrWrite(&motionsCount, 0x04);
+            file.readOrWrite(&motionsCount, 0x04);
 
-        file.readOrWrite(&(commandsCount[0]), 0x04);
-        file.readOrWrite(&(commandsCount[1]), 0x04);
-        file.readOrWrite(&(commandsCount[2]), 0x04);
+            file.readOrWrite(&(commandsCount[0]), 0x04);
+            file.readOrWrite(&(commandsCount[1]), 0x04);
+            file.readOrWrite(&(commandsCount[2]), 0x04);
 
-        if (file.isInReadMode())
-        {
-            commandsCount[3] = commandsCount[0] + commandsCount[1];
-        }
+            if (file.isInReadMode())
+            {
+                commandsCount[3] = commandsCount[0] + commandsCount[1];
+            }
 
-        boundBox.serialize(file);
+            boundBox.serialize(file);
 
-        /********************************/
-        /* Objects (Vertex Groups info) */
+            /********************************/
+            /* Objects (Vertex Groups info) */
 
-        if (file.isInReadMode())
-        {
-            objects = new DenisAnimmeshObject [objectsCount];
-        }
+            if (file.isInReadMode())
+            {
+                objects = new DenisAnimmeshObject [objectsCount];
+            }
 
-        for (i = 0; i < objectsCount; i++)
-        {
-            objects[i].serialize(file);
-        }
+            for (i = 0; i < objectsCount; i++)
+            {
+                objects[i].serialize(file);
+            }
 
-        /********************************/
-        /* Faces (unknown purpose) */
+            /********************************/
+            /* Faces (unknown purpose) */
 
-        if (file.isInReadMode())
-        {
-            faces = new DenisAnimmeshFace [facesCount];
-        }
+            if (file.isInReadMode())
+            {
+                faces = new DenisAnimmeshFace [facesCount];
+            }
 
-        for (i = 0; i < facesCount; i++)
-        {
-            faces[i].serialize(file);
-        }
+            for (i = 0; i < facesCount; i++)
+            {
+                faces[i].serialize(file);
+            }
 
-        /********************************/
-        /* Vertex Groups and Vertices */
+            /********************************/
+            /* Vertex Groups and Vertices */
 
-        if (file.isInReadMode())
-        {
-            totalVertices = 0;
-        }
+            if (file.isInReadMode())
+            {
+                totalVertices = 0;
+            }
 
-        for (i = 0; i < objectsCount; i++)
-        {
-            objects[i].serializeVertices(file, totalVertices);
-        }
+            for (i = 0; i < objectsCount; i++)
+            {
+                objects[i].serializeVertices(file, totalVertices);
+            }
 
-        if (file.isInReadMode())
-        {
-            vertices = new DenisVertex [totalVertices];
-        }
+            if (file.isInReadMode())
+            {
+                vertices = new DenisVertex [totalVertices];
+            }
 
-        /********************************/
-        /* Animations and Keyframes */
+            /********************************/
+            /* Animations and Keyframes */
 
-        if (file.isInReadMode())
-        {
-            motions = new DenisAnimmeshMotion [motionsCount];
+            if (file.isInReadMode())
+            {
+                motions = new DenisAnimmeshMotion [motionsCount];
 
-            totalKeyframes = 0;
-        }
+                totalKeyframes = 0;
+            }
 
-        for (i = 0; i < motionsCount; i++)
-        {
-            motions[i].serialize(file, totalKeyframes);
-        }
+            for (i = 0; i < motionsCount; i++)
+            {
+                motions[i].serialize(file, totalKeyframes);
+            }
 
-        if (file.isInReadMode())
-        {
-            keyframes = new DenisAnimmeshKeyframe* [totalKeyframes];
+            if (file.isInReadMode())
+            {
+                keyframes = new DenisAnimmeshKeyframe* [totalKeyframes];
+
+                for (i = 0; i < totalKeyframes; i++)
+                {
+                    keyframes[i] = nullptr;
+                }
+            }
 
             for (i = 0; i < totalKeyframes; i++)
             {
-                keyframes[i] = nullptr;
-            }
-        }
+                if (file.isInReadMode())
+                {
+                    keyframes[i] = new DenisAnimmeshKeyframe [objectsCount];
+                }
 
-        for (i = 0; i < totalKeyframes; i++)
-        {
+                for (j = 0; j < objectsCount; j++)
+                {
+                    keyframes[i][j].serialize(file);
+                }
+            }
+
+            /********************************/
+            /* Keyframes unknown entries */
+
             if (file.isInReadMode())
             {
-                keyframes[i] = new DenisAnimmeshKeyframe [objectsCount];
+                keyframesUnknown = new DenisVertex [totalKeyframes];
             }
 
-            for (j = 0; j < objectsCount; j++)
+            for (i = 0; i < totalKeyframes; i++)
             {
-                keyframes[i][j].serialize(file);
+                keyframesUnknown[i].serialize(file);
             }
-        }
 
-        /********************************/
-        /* Keyframes unknown entries */
+            /********************************/
+            /* Keyframes bounding boxes */
 
-        if (file.isInReadMode())
-        {
-            keyframesUnknown = new DenisVertex [totalKeyframes];
-        }
+            if (file.isInReadMode())
+            {
+                keyframesBoundBoxes = new DenisBoundBox2 [totalKeyframes];
+            }
 
-        for (i = 0; i < totalKeyframes; i++)
-        {
-            keyframesUnknown[i].serialize(file);
-        }
+            for (i = 0; i < totalKeyframes; i++)
+            {
+                keyframesBoundBoxes[i].serialize(file);
+            }
 
-        /********************************/
-        /* Keyframes bounding boxes */
+            /********************************/
+            /* Render commands */
 
-        if (file.isInReadMode())
-        {
-            keyframesBoundBoxes = new DenisBoundBox2 [totalKeyframes];
-        }
+            if (file.isInReadMode())
+            {
+                commands = new DenisAnimmeshDisplayCommand [commandsCount[3]];
+            }
 
-        for (i = 0; i < totalKeyframes; i++)
-        {
-            keyframesBoundBoxes[i].serialize(file);
-        }
-
-        /********************************/
-        /* Render commands */
-
-        if (file.isInReadMode())
-        {
-            commands = new DenisAnimmeshDisplayCommand [commandsCount[3]];
-        }
-
-        for (i = 0; i < commandsCount[3]; i++)
-        {
-            commands[i].serialize(file);
-        }
+            for (i = 0; i < commandsCount[3]; i++)
+            {
+                commands[i].serialize(file);
+            }
         
-        /********************************/
-        /* Finish magic */
+            /********************************/
+            /* Finish magic */
 
-        i = *(int32_t*)"T83d";
+            i = *(int32_t*)"T83d";
 
-        file.readOrWrite(&i, 0x04);
+            file.readOrWrite(&i, 0x04);
 
-        if (file.isInReadMode())
-        {
-            if (*(int32_t*)"T83d" != i)
+            if (file.isInReadMode())
             {
-                throw ErrorMessage
-                (
-                    "\"%s\": invalid finish magic.",
-                    file.fileName.getText()
-                );
+                if (*(int32_t*)"T83d" != i)
+                {
+                    throw ErrorMessage("invalid finish magic.");
+                }
             }
+
+            file.close();
+
+            /********************************/
+            /* Denis Anim Mesh reading complete! :) */
         }
+        catch (ErrorMessage &err)
+        {
+            if (!err.wasHeaderAppended())
+            {
+                err.appendHeader("[%s]\n(offset 0x%08X)", file.fileName, file.myFile.getPointer());
+            }
 
-        file.close();
-
-        /********************************/
-        /* Denis Anim Mesh reading complete! :) */
+            throw;
+        }
     }
 
 }

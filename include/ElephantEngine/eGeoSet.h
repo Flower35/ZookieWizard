@@ -77,6 +77,7 @@ namespace ZookieWizard
             void setIndicesOffsets(eGeoArray<ushort>* new_indices_offets);
             void setIndicesArray(eGeoArray<ushort>* new_indices_array);
             void setTextureCoordsArray(int32_t i, eGeoArray<ePoint2>* new_uv_array);
+            void setTexMappingType(int32_t i, int32_t mapping_type);
             void setColorsArray(eGeoArray<ePoint4>* new_colors_array);
             void setPhyTriMesh(ePhyTriMesh* new_modifier);
             void setTwoIntegers(int32_t a, int32_t b);
@@ -85,6 +86,7 @@ namespace ZookieWizard
             eGeoArray<ePoint4>* getNormalsArray(int32_t i) const;
             eGeoArray<ePhyVertex>* getPhyVertices() const;
             eGeoArray<ePoint2>* getTextureCoordsArray(int32_t i) const;
+            int32_t getTexMappingType(int32_t i) const;
             eGeoArray<ePoint4>* getColorsArray() const;
             eGeoArray<ushort>* getIndicesOffsets() const;
             eGeoArray<ushort>* getIndicesArray() const;

@@ -146,8 +146,8 @@ namespace ZookieWizard
                 {
                     throw ErrorMessage
                     (
-                        "\"%s\": invalid keys magic.",
-                        file.fileName.getText()
+                        "level object \"%s\": invalid keys magic.",
+                        name
                     );
                 }
             }
@@ -169,8 +169,8 @@ namespace ZookieWizard
                 {
                     throw ErrorMessage
                     (
-                        "\"%s\": no tracks...",
-                        file.fileName.getText()
+                        "level object \"%s\": no tracks...",
+                        name
                     );
                 }
 
