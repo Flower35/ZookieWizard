@@ -432,7 +432,7 @@ namespace ZookieWizard
 
         GUI::closeWindows();
 
-        if (nullptr != autoparser_path)
+        if (nullptr == autoparser_path)
         {
             saveEditorSettings();
         }
