@@ -533,6 +533,7 @@ namespace ZookieWizard
     {
         int32_t test;
         float dummy_floats[3];
+        ePivot* dummy_pivot = nullptr;
 
         if (1 != (test = ePivot::parsingCustomMessage(result_msg, message, params_count, params)))
         {
@@ -643,6 +644,58 @@ namespace ZookieWizard
 
             visSetB_maxLength = 0;
             visSetB_count = 0;
+
+            return 0;
+        }
+        else if (message.compareExact("unregisterPivots", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "unregisterPivots", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            unknown0194.clear();
+
+            return 0;
+        }
+        else if (message.compareExact("registerPivot", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "registerPivot", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "registerPivot", 0, TXT_PARSING_NODE_PROPTYPE_NODEREF);
+            }
+
+            params[0].getValue(&dummy_pivot);
+
+            if (nullptr == dummy_pivot)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"registerPivot\" message: noderef is not set!");
+                return 2;
+            }
+
+            if (!(dummy_pivot->getType()->checkHierarchy(&E_PIVOT_TYPEINFO)))
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"registerPivot\" message: expected the noderef to be a child of \"ePivot\"!");
+                return 2;
+            }
+
+            /********************************/
+
+            unknown0194.findAndDeleteChild(dummy_pivot);
+            unknown0194.appendChild(dummy_pivot);
+
+            return 0;
         }
 
         return 1;

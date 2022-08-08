@@ -688,6 +688,14 @@
   clearVisPortals
   ()
 
+  unregisterPivots
+  ()
+
+  registerPivot
+  (
+    nodeRef // "ePivot" type
+  )
+
 
 ****************************************************************
 [eNode::eGroup::eTransform::eProxy]
