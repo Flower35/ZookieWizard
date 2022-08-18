@@ -135,6 +135,30 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eGeometry: dump object tree as a JSON value
+    ////////////////////////////////////////////////////////////////
+    void eGeometry::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
+    {
+        /* "eNode": parent class */
+
+        eNode::dumpTreeAsJsonValue(output, false);
+
+        JsonObject * jsonObjectRef = (JsonObject *) output.getValue();
+
+        /* "eGeometry": material */
+
+        if (nullptr != material)
+        {
+            JsonValue jsonMaterial;
+
+            material->dumpTreeAsJsonValue(jsonMaterial, true);
+
+            jsonObjectRef->appendKeyValue("material", jsonMaterial);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eGeometry: create collision entry
     ////////////////////////////////////////////////////////////////
     bool eGeometry::createCollisionEntry()

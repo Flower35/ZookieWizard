@@ -178,26 +178,25 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTriMesh: export readable structure
+    // eTriMesh: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eTriMesh::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eTriMesh::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
-        ePhyTriMesh* phy;
-
         /* "eGeometry": parent class */
 
-        eGeometry::writeStructureToTextFile(file, indentation, true);
+        eGeometry::dumpTreeAsJsonValue(output, false);
+
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
 
         /* "eTriMesh": additional info */
 
         if (nullptr != geo)
         {
-            phy = geo->getPhyTriMesh();
+            JsonValue jsonGeo;
 
-            if (nullptr != phy)
-            {
-                phy->writeStructureToTextFile(file, indentation, true);
-            }
+            geo->dumpTreeAsJsonValue(jsonGeo, true);
+
+            jsonObjectRef->appendKeyValue("geo", jsonGeo);
         }
     }
 

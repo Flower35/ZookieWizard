@@ -129,46 +129,49 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eZone: export readable structure
+    // eZone: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eZone::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eZone::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
-        char bufor[64];
+        JsonArray jsonArray;
 
         /* "eNode": parent class */
 
-        eNode::writeStructureToTextFile(file, indentation, true);
+        eNode::dumpTreeAsJsonValue(output, false);
 
-        /* "eZone": additional info */
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
 
-        sprintf_s(bufor, 64, " - boxBoundMin: (%f, %f, %f)", boxBoundMin.x, boxBoundMin.y, boxBoundMin.z);
+        /* "eZone": box bound min */
 
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
+        jsonArray.appendValue(boxBoundMin.x);
+        jsonArray.appendValue(boxBoundMin.y);
+        jsonArray.appendValue(boxBoundMin.z);
+        jsonObjectRef->appendKeyValue("boxBoundMin", jsonArray);
 
-        sprintf_s(bufor, 64, " - boxBoundMax: (%f, %f, %f)", boxBoundMax.x, boxBoundMax.y, boxBoundMax.z);
+        /* "eZone": box bound max */
 
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
+        jsonArray.clear();
+        jsonArray.appendValue(boxBoundMax.x);
+        jsonArray.appendValue(boxBoundMax.y);
+        jsonArray.appendValue(boxBoundMax.z);
+        jsonObjectRef->appendKeyValue("boxBoundMax", jsonArray);
+
+        /* "eZone": enter actions */
 
         if (enterActions.getActionsCount() > 0)
         {
-            ArFunctions::writeIndentation(file, indentation);
-            file << " - enter actions:";
-            ArFunctions::writeNewLine(file, 0);
-
-            enterActions.writeStructureToTextFile(file, indentation, true);
+            JsonValue jsonActions;
+            enterActions.dumpTreeAsJsonValue(jsonActions, false);
+            jsonObjectRef->appendKeyValue("enterActions", jsonActions);
         }
+
+        /* "eZone": leave actions */
 
         if (leaveActions.getActionsCount() > 0)
         {
-            ArFunctions::writeIndentation(file, indentation);
-            file << " - leave actions:";
-            ArFunctions::writeNewLine(file, 0);
-
-            leaveActions.writeStructureToTextFile(file, indentation, true);
+            JsonValue jsonActions;
+            leaveActions.dumpTreeAsJsonValue(jsonActions, false);
+            jsonObjectRef->appendKeyValue("leaveActions", jsonActions);
         }
     }
 

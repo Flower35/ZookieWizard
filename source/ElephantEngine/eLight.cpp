@@ -139,36 +139,35 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eLight: export readable structure
+    // eLight: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eLight::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eLight::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
-        char bufor[128];
+        char bufor[16];
         const float* color_values[3] = {diffuse, ambient, specular};
         const char* color_names[3] = {"diffuse", "ambient", "specular"};
 
         /* "eNode": parent class */
 
-        eNode::writeStructureToTextFile(file, indentation, true);
+        eNode::dumpTreeAsJsonValue(output, false);
 
-        /* "eLight": additional info */
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
+
+        /* "eLight": colors */
+
+        JsonArray jsonColor;
 
         for (int32_t a = 0; a < 3; a++)
         {
-            sprintf_s
-            (
-                bufor, 128,
-                " - %s color: (%.6f, %.6f, %.6f, %.6f)",
-                color_names[a],
-                color_values[a][0],
-                color_values[a][1],
-                color_values[a][2],
-                color_values[a][3]
-            );
+            jsonColor.clear();
 
-            ArFunctions::writeIndentation(file, indentation);
-            file << bufor;
-            ArFunctions::writeNewLine(file, 0);
+            for (int b = 0; b < 4; b++)
+            {
+                jsonColor.appendValue(color_values[a][b]);
+            }
+
+            snprintf(bufor, sizeof(bufor), "%sColor", color_names[a]);
+            jsonObjectRef->appendKeyValue(bufor, jsonColor);
         }
     }
 

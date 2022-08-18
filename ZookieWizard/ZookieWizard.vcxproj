@@ -20,13 +20,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -417,6 +417,7 @@
     <ClCompile Include="..\source\ElephantEngine\When.cpp" />
     <ClCompile Include="..\source\ElephantEngine\WorldWhen.cpp" />
     <ClCompile Include="..\source\utilities\ColladaExporter.cpp" />
+    <ClCompile Include="..\source\utilities\Json.cpp" />
     <ClCompile Include="..\source\utilities\WavefrontObjExporter.cpp" />
     <ClCompile Include="..\source\utilities\WavefrontObjImporter.cpp" />
     <ClCompile Include="..\source\ZookieWizard\WindowsManager.cpp" />

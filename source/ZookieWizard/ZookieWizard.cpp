@@ -136,11 +136,11 @@ namespace ZookieWizard
         return false;
     }
 
-    bool FileOperator::write(void* pointer, int size)
+    bool FileOperator::write(const void* pointer, int size)
     {
         if (file.is_open())
         {
-            file.write((char*)pointer, size);
+            file.write((const char*)pointer, size);
 
             return file.good();
         }

@@ -171,61 +171,41 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eProxy: export readable structure
+    // eProxy: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eProxy::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eProxy::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
         int32_t a;
         eNode* child_node;
 
-        char bufor[32];
-        const char* test_cat_name;
-
         /* "eTransform": parent class */
 
-        eTransform::writeStructureToTextFile(file, indentation, true);
+        eTransform::dumpTreeAsJsonValue(output, false);
 
-        /* "eProxy": additional info */
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
 
-        if (!(targetFile.isEmpty()))
-        {
-            ArFunctions::writeIndentation(file, indentation);
-            
-            sprintf_s(bufor, 32, " - proxy target: [%d (", category);
+        /* "eProxy": target category */
 
-            file << bufor;
+        jsonObjectRef->appendKeyValue("proxyCategory", proxyCatNameFromId(category));
 
-            test_cat_name = proxyCatNameFromId(category);
+        /* "eProxy": target file (or script) */
 
-            file << ((nullptr == test_cat_name) ? "unknown" : test_cat_name);
-
-            file << ")] ";
-
-            if ('?' == targetFile.getText()[0])
-            {
-                file << "(multiline):";
-                ArFunctions::writeNewLine(file, 0);
-                file << "```";
-                ArFunctions::writeNewLine(file, 0);
-                file << targetFile;
-                ArFunctions::writeNewLine(file, 0);
-                file << "```";
-            }
-            else
-            {
-                file << ": \"";
-                file << targetFile;
-                file << "\"";
-            }
-
-            ArFunctions::writeNewLine(file, 0);
-        }
+        jsonObjectRef->appendKeyValue("proxyTarget", targetFile);
 
         /****************/
 
-        if (!group_written)
+        if (dumpChildNodes)
         {
-            MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->writeStructureToTextFile(file, (indentation + 1), false); })
+            JsonArray jsonNodes;
+            JsonValue jsonNode;
+
+            MACRO_KAO2_GROUP_FOREACH_NODE
+            ({
+                child_node->dumpTreeAsJsonValue(jsonNode, true);
+                jsonNodes.appendValue(jsonNode);
+            })
+
+            jsonObjectRef->appendKeyValue("nodes", jsonNodes);
         }
     }
 

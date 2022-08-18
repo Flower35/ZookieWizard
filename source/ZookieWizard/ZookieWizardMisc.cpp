@@ -1156,9 +1156,9 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // miscellaneous: Write Ar structure
+    // miscellaneous: Dump Ar Tree
     ////////////////////////////////////////////////////////////////
-    void ArMenuOptions_WriteStructureToTextFile()
+    void ArMenuOptions_WriteTreeToJsonFile()
     {
         char bufor[LARGE_BUFFER_SIZE];
         eString filename;
@@ -1172,17 +1172,17 @@ namespace ZookieWizard
 
             if (!empty_name)
             {
-                sprintf_s(bufor, LARGE_BUFFER_SIZE, "%s.log", denisLevelName);
+                sprintf_s(bufor, LARGE_BUFFER_SIZE, "%s.json", denisLevelName);
             }
             else
             {
-                sprintf_s(bufor, LARGE_BUFFER_SIZE, "ar.log");
+                sprintf_s(bufor, LARGE_BUFFER_SIZE, "ar.json");
             }
 
             ofn.lpstrFile = bufor;
             ofn.nMaxFile = LARGE_BUFFER_SIZE;
             ofn.lpstrTitle = "Select your destination...";
-            ofn.lpstrFilter = "Text files (*.log;*.def;*.txt)\0*.log;*.def;*.txt\0All files (*.*)\0*.*\0";
+            ofn.lpstrFilter = "JSON files (*.json)\0*.json\0All files (*.*)\0*.*\0";
             ofn.Flags = OFN_OVERWRITEPROMPT;
 
             if (0 == GetSaveFileName(&ofn))
@@ -1192,14 +1192,37 @@ namespace ZookieWizard
 
             filename = bufor;
 
-            if ((!filename.hasExtension("log")) && (!filename.hasExtension("txt")))
+            if ((1 == ofn.nFilterIndex) && !filename.hasExtension("json"))
             {
-                filename += ".log";
+                filename += ".json";
             }
 
-            myARs[currentArId].writeStructureToTextFile(filename.getText());
+            theLog.print
+            (
+                "================================\n" \
+                "==       JSON EXPORTING       ==\n" \
+                "==            BEGIN           ==\n" \
+                "================================\n"
+            );
 
-            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, "Text file saved.");
+            myARs[currentArId].writeTreeToJsonFile(filename.getText());
+
+            theLog.print
+            (
+                "================================\n" \
+                "==       JSON EXPORTING       ==\n" \
+                "==          FINISHED          ==\n" \
+                "================================\n"
+            );
+
+            sprintf_s
+            (
+                bufor, LARGE_BUFFER_SIZE,
+                "<\"%s\">\n\nJSON document exported successfully! :)",
+                filename.getText()
+            );
+
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
         }
         catch (ErrorMessage &e)
         {
@@ -1235,7 +1258,7 @@ namespace ZookieWizard
 
             filename = bufor;
 
-            if (false == filename.hasExtension("dae"))
+            if ((1 == ofn.nFilterIndex) && !filename.hasExtension("dae"))
             {
                 filename += ".dae";
             }
@@ -1248,7 +1271,7 @@ namespace ZookieWizard
                 "================================\n"
             );
 
-            myARs[currentArId].writeStructureToXmlFile(filename);
+            myARs[currentArId].writeTreeToXmlFile(filename);
 
             theLog.print
             (
@@ -1309,7 +1332,7 @@ namespace ZookieWizard
 
             filename = bufor;
 
-            if (false == filename.hasExtension("obj"))
+            if ((1 == ofn.nFilterIndex) && !filename.hasExtension("obj"))
             {
                 filename += ".obj";
             }

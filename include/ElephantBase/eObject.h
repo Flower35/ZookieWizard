@@ -2,6 +2,7 @@
 #define H_KAO2AR_OBJECT
 
 #include <ElephantBase/TypeInfo.h>
+#include <utilities/Json.h>
 
 namespace ZookieWizard
 {
@@ -40,7 +41,7 @@ namespace ZookieWizard
             virtual eString getStringRepresentation() const;
             virtual eString generateScriptText() const;
             virtual eString getLogPrintMessage() const;
-            virtual void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const;
+            virtual void dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const;
             virtual void writeNodeToXmlFile(ColladaExporter &exporter) const;
     };
 

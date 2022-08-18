@@ -129,78 +129,64 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTransform: export readable structure
+    // eTransform: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eTransform::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eTransform::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
         int32_t a;
         eNode* child_node;
-
-        char bufor[128];
+        JsonArray jsonArray;
 
         /* "eGroup": parent class */
 
-        eGroup::writeStructureToTextFile(file, indentation, true);
+        eGroup::dumpTreeAsJsonValue(output, false);
 
-        /* "eTransform": additional info */
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
 
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform pos: (%f, %f, %f)",
-            defaultTransform.pos.x,
-            defaultTransform.pos.y,
-            defaultTransform.pos.z
-        );
+        /* "eTransform": position */
 
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
+        jsonArray.appendValue(defaultTransform.pos.x);
+        jsonArray.appendValue(defaultTransform.pos.y);
+        jsonArray.appendValue(defaultTransform.pos.z);
 
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform rot: (%f, %f, %f, %f)",
-            defaultTransform.rot.x,
-            defaultTransform.rot.y,
-            defaultTransform.rot.z,
-            defaultTransform.rot.w
-        );
+        jsonObjectRef->appendKeyValue("xformPos", jsonArray);
 
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
+        /* "eTransform": rotation */
 
-        sprintf_s
-        (
-            bufor, 128,
-            " - xform scl: (%f)",
-            defaultTransform.scale
-        );
+        jsonArray.clear();
 
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
+        jsonArray.appendValue(defaultTransform.rot.x);
+        jsonArray.appendValue(defaultTransform.rot.y);
+        jsonArray.appendValue(defaultTransform.rot.z);
+        jsonArray.appendValue(defaultTransform.rot.w);
+
+        jsonObjectRef->appendKeyValue("xformRot", jsonArray);
+
+        /* "eTransform": scale */
+
+        jsonObjectRef->appendKeyValue("xformScl", defaultTransform.scale);
+
+        /* "eTransform": ctrl */
 
         if (nullptr != ctrl)
         {
-            sprintf_s
-            (
-                bufor, 128,
-                " - xform ctrl: [%s]",
-                ctrl->getType()->name
-            );
-
-            ArFunctions::writeIndentation(file, indentation);
-            file << bufor;
-            ArFunctions::writeNewLine(file, 0);
+            jsonObjectRef->appendKeyValue("ctrlType", ctrl->getType()->name);
         }
 
         /****************/
 
-        if (!group_written)
+        if (dumpChildNodes)
         {
-            MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->writeStructureToTextFile(file, (indentation + 1), false); })
+            JsonArray jsonNodes;
+            JsonValue jsonNode;
+
+            MACRO_KAO2_GROUP_FOREACH_NODE
+            ({
+                child_node->dumpTreeAsJsonValue(jsonNode, true);
+                jsonNodes.appendValue(jsonNode);
+            })
+
+            jsonObjectRef->appendKeyValue("nodes", jsonNodes);
         }
     }
 

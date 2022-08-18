@@ -349,60 +349,56 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // ePhyTriMesh: export readable structure
+    // ePhyTriMesh: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void ePhyTriMesh::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void ePhyTriMesh::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
         int32_t a, b;
-        char bufor[2 * LARGE_BUFFER_SIZE];
         eNode* trimesh_parent = trimeshLink->getParentNode();
-        eString bone_path;
 
-        for (a = 0; a < bonesCount; a++)
+        output.setType(JSON_VALUETYPE_OBJECT);
+        JsonObject* jsonObjectRef = (JsonObject *) output.getValue();
+
+        /* "ePhyTriMesh": bones */
+
+        if (bonesCount > 0)
         {
-            /* 1. Print bone path relative to "eTriMesh" parent */
+            JsonArray jsonBones;
+            JsonObject jsonBone;
 
-            bone_path = bones[a].xform->getArchivePath(trimesh_parent);
+            JsonArray jsonMatrixCols;
+            JsonArray jsonMatrixRow;
 
-            sprintf_s
-            (
-                bufor, (2 * LARGE_BUFFER_SIZE),
-                " - bone [%d]: \"%s\"",
-                a,
-                bone_path.getText()
-            );
-
-            ArFunctions::writeIndentation(file, indentation);
-            file << bufor;
-            ArFunctions::writeNewLine(file, 0);
-
-            /* 2. Print the Inverse Bind Matrix */
-
-            ArFunctions::writeIndentation(file, indentation);
-            file << " - inv bind matrix: [";
-
-            for (b = 0; b < 4; b++)
+            for (a = 0; a < bonesCount; a++)
             {
-                sprintf_s
-                (
-                    bufor, (2 * LARGE_BUFFER_SIZE),
-                    "[%f, %f, %f, %f]",
-                    bones[a].matrix.m[b][0],
-                    bones[a].matrix.m[b][1],
-                    bones[a].matrix.m[b][2],
-                    bones[a].matrix.m[b][3]
-                );
+                jsonBone.clear();
 
-                file << bufor;
+                /* Bone path relative to "eTriMesh" parent */
 
-                if (b < 3)
+                jsonBone.appendKeyValue("path", bones[a].xform->getArchivePath(trimesh_parent));
+
+                /* Inverse Bind Matrix */
+
+                jsonMatrixCols.clear();
+
+                for (b = 0; b < 4; b++)
                 {
-                    file << ", ";
-                }
-            }
+                    jsonMatrixRow.clear();
 
-            file << "]";
-            ArFunctions::writeNewLine(file, 0);
+                    jsonMatrixRow.appendValue(bones[a].matrix.m[b][0]);
+                    jsonMatrixRow.appendValue(bones[a].matrix.m[b][1]);
+                    jsonMatrixRow.appendValue(bones[a].matrix.m[b][2]);
+                    jsonMatrixRow.appendValue(bones[a].matrix.m[b][3]);
+
+                    jsonMatrixCols.appendValue(jsonMatrixRow);
+                }
+
+                jsonBone.appendKeyValue("invBindMatrix", jsonMatrixCols);
+
+                jsonBones.appendValue(jsonBone);
+            }
+            
+            jsonObjectRef->appendKeyValue("bones", jsonBones);
         }
     }
 

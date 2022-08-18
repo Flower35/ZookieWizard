@@ -157,6 +157,33 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eTexture: dump object tree as a JSON value
+    ////////////////////////////////////////////////////////////////
+    void eTexture::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
+    {
+        output.setType(JSON_VALUETYPE_OBJECT);
+        JsonObject * jsonObjectRef = (JsonObject *) output.getValue();
+
+        /* "eTexture": transform */
+
+        if (nullptr != form)
+        {
+            JsonValue dummy_value;
+            dummy_value.setType(JSON_VALUETYPE_TRUE);
+
+            jsonObjectRef->appendKeyValue("animated", dummy_value);
+        }
+
+        /* "eTexture": bitmap path */
+
+        if (nullptr != bmp)
+        {
+            jsonObjectRef->appendKeyValue("path", bmp->getPath());
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eTexture: COLLADA exporting
     ////////////////////////////////////////////////////////////////
     void eTexture::writeNodeToXmlFile(ColladaExporter &exporter) const
@@ -231,7 +258,7 @@ namespace ZookieWizard
 
             if (result > 0)
             {
-                loaded_flag_test = (bmp->getLoadedFromExternalFileFlag() | other.bmp->getLoadedFromExternalFileFlag());
+                loaded_flag_test = (bmp->getLoadedFromExternalFileFlag() || other.bmp->getLoadedFromExternalFileFlag());
 
                 if (2 == result)
                 {

@@ -287,6 +287,67 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eMaterial: dump object tree as a JSON value
+    ////////////////////////////////////////////////////////////////
+    void eMaterial::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
+    {
+        int i;
+        const char * dummy_name;
+
+        output.setType(JSON_VALUETYPE_OBJECT);
+        JsonObject * jsonObjectRef = (JsonObject *) output.getValue();
+
+        /* "eMaterial": textures */
+
+        if (textures.getSize() > 0)
+        {
+            JsonArray jsonTextures;
+            JsonValue jsonTexture;
+
+            for (int i = 0; i < textures.getSize(); i++)
+            {
+                textures.getIthChild(i)->dumpTreeAsJsonValue(jsonTexture, true);
+                jsonTextures.appendValue(jsonTexture);
+            }
+
+            jsonObjectRef->appendKeyValue("textures", jsonTextures);
+        }
+
+        /* "eMaterial": collision */
+
+        dummy_name = nullptr;
+
+        for (i = 0; (i < KAO2_MATERIAL_TYPES_COUNT) && (nullptr == dummy_name); i++)
+        {
+            if (theMaterialTypes[i].id == collisionType)
+            {
+                dummy_name = theMaterialTypes[i].name;
+            }
+        }
+
+        jsonObjectRef->appendKeyValue("collisionType", dummy_name);
+
+        /* "eMaterial": sound */
+
+        dummy_name = nullptr;
+
+        for (i = 0; (i < KAO2_MATERIAL_SOUNDS_COUNT) && (nullptr == dummy_name); i++)
+        {
+            if (theMaterialSounds[i].id == soundType)
+            {
+                dummy_name = theMaterialSounds[i].name;
+            }
+        }
+
+        jsonObjectRef->appendKeyValue("soundType", dummy_name);
+
+        /* "eMaterial": name */
+
+        jsonObjectRef->appendKeyValue("name", name);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eMaterial: COLLADA exporting
     ////////////////////////////////////////////////////////////////
     void eMaterial::writeNodeToXmlFile(ColladaExporter &exporter) const

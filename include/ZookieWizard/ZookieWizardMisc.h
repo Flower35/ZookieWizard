@@ -49,7 +49,7 @@ namespace ZookieWizard
         void ArMenuOptions_ExportProxies();
         void ArMenuOptions_ReloadProxies();
         void ArMenuOptions_BulkArchiveConverter();
-        void ArMenuOptions_WriteStructureToTextFile();
+        void ArMenuOptions_WriteTreeToJsonFile();
         void ArMenuOptions_ExportArToCollada();
         void ArMenuOptions_ExportTrimeshToObj();
         void ArMenuOptions_ImportTrimeshFromObj();

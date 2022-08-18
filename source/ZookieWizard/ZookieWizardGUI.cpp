@@ -94,7 +94,7 @@ namespace ZookieWizard
                     ArMenuOptions_BulkArchiveConverter();
                     return;
                 case MENUFUNC_ARMENUBAR_SAVESTRUCT:
-                    ArMenuOptions_WriteStructureToTextFile();
+                    ArMenuOptions_WriteTreeToJsonFile();
                     return;
                 case MENUFUNC_ARMENUBAR_SAVECOLLADA:
                     ArMenuOptions_ExportArToCollada();
@@ -1026,7 +1026,7 @@ namespace ZookieWizard
             AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_SAVEXREF),    "Export Proxies");
             AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_LOADXREF),    "Reload Proxies");
             AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_BULKCONVERT), "Bulk Archive Converter");
-            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_SAVESTRUCT),  "Export readable structure");
+            AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_SAVESTRUCT),  "Export JSON document");
             AppendMenu(test_menu, MF_STRING, (UINT_PTR)theWindowsManager.addStaticFunction(menuFunc_ArMenuBar, (void*)MENUFUNC_ARMENUBAR_SAVECOLLADA), "Export COLLADA dae");
             AppendMenu(menu_bar, MF_POPUP, (UINT_PTR)test_menu, "Kao the Kangaroo: Round 2");
 

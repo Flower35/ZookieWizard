@@ -176,8 +176,8 @@ namespace ZookieWizard
             void exportScripts() const;
             void exportProxies(int32_t version_override) const;
             void reloadProxies(int32_t version_override) const;
-            void writeStructureToTextFile(const char* output_path) const;
-            void writeStructureToXmlFile(eString filename) const;
+            void writeTreeToJsonFile(const char* output_path) const;
+            void writeTreeToXmlFile(eString filename) const;
             void writeSelectedObjectToObjFile(eString filename) const;
             void appendToSelectedObjectFromObjFile(eString filename);
             int32_t appendNodesFromTxtFile(const char* filename);

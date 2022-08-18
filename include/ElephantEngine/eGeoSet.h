@@ -64,6 +64,8 @@ namespace ZookieWizard
             const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
+            void dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const override;
+
             /* << eGeoSet >> */
 
             void draw(int32_t draw_flags, int32_t texID) const;

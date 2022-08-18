@@ -196,6 +196,22 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eCollisionMgr: dump object tree as a JSON value
+    ////////////////////////////////////////////////////////////////
+    void eCollisionMgr::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
+    {
+        output.setType(JSON_VALUETYPE_OBJECT);
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
+
+        /* "eCollisionMgr": counters */
+
+        jsonObjectRef->appendKeyValue("indiciesArrayLength", ((float) availableIndices_Count));
+        jsonObjectRef->appendKeyValue("largestBoxId", ((float) largestBoxCount));
+        jsonObjectRef->appendKeyValue("boxesArrayLength", ((float) seriesB_Count));
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eCollisionMgr: prepare ALBox sub-structures
     // <kao2.00499560>
     ////////////////////////////////////////////////////////////////

@@ -81,7 +81,7 @@ namespace ZookieWizard
             void close();
 
             bool read(void* pointer, int size);
-            bool write(void* pointer, int size);
+            bool write(const void* pointer, int size);
             bool peek(char &next_char);
 
             void setDir(char* filename);

@@ -148,93 +148,83 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eEnvironment: export readable structure
+    // eEnvironment: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eEnvironment::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eEnvironment::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
-        int32_t a, b;
+        int32_t a;
         float dummy_floats[3];
         eNode* child_node;
-        eString light_path;
-        const char* light_type;
-        char bufor[LARGE_BUFFER_SIZE];
 
         /* "eGroup": parent class */
 
-        eGroup::writeStructureToTextFile(file, indentation, true);
+        eGroup::dumpTreeAsJsonValue(output, false);
 
-        /* "eEnvironment": additional info */
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
 
-        b = lights.getSize();
+        /* "eEnvironment": lights */
 
-        for (a = 0; a < b; a++)
+        if (lights.getSize() > 0)
         {
-            if (nullptr != (child_node = (eNode*)lights.getIthChild(a)))
+            JsonArray jsonLights;
+            JsonArray jsonLight;
+
+            for (a = 0; a < lights.getSize(); a++)
             {
-                light_path = child_node->getArchivePath();
-                light_type = child_node->getType()->name;
-            }
-            else
-            {
-                light_path = "<EMPTY>";
-                light_type = "";
+                if (nullptr != (child_node = (eNode*)lights.getIthChild(a)))
+                {
+                    jsonLight.clear();
+
+                    jsonLight.appendValue(child_node->getType()->name);
+                    jsonLight.appendValue(child_node->getArchivePath());
+
+                    jsonLights.appendValue(jsonLight);
+                }
             }
 
-            sprintf_s
-            (
-                bufor, LARGE_BUFFER_SIZE,
-                " - light [%d/%d]: (%s) \"%s\"",
-                (a + 1),
-                b,
-                light_type,
-                light_path.getText()
-            );
-
-            ArFunctions::writeIndentation(file, indentation);
-            file << bufor;
-            ArFunctions::writeNewLine(file, 0);
+            jsonObjectRef->appendKeyValue("lights", jsonLights);
         }
+
+        /* "eEnvironment": fog */
 
         if (nullptr != fog)
         {
+            JsonArray jsonColor;
+            JsonObject jsonFog;
+
             fog->getFogColor(dummy_floats);
 
-            sprintf_s
-            (
-                bufor, LARGE_BUFFER_SIZE,
-                " - fog color: (%.6f, %.6f, %.6f)",
-                dummy_floats[0],
-                dummy_floats[1],
-                dummy_floats[2]
-            );
+            jsonColor.appendValue(dummy_floats[0]);
+            jsonColor.appendValue(dummy_floats[1]);
+            jsonColor.appendValue(dummy_floats[2]);
 
-            ArFunctions::writeIndentation(file, indentation);
-            file << bufor;
-            ArFunctions::writeNewLine(file, 0);
+            jsonFog.appendKeyValue("color", jsonColor);
 
             dummy_floats[0] = fog->getFogStart();
             dummy_floats[1] = fog->getFogEnd();
             dummy_floats[2] = fog->getFogMax();
 
-            sprintf_s
-            (
-                bufor, LARGE_BUFFER_SIZE,
-                " - fog start, end, max: (%.6f, %.6f, %.6f)",
-                dummy_floats[0],
-                dummy_floats[1],
-                dummy_floats[2]
-            );
+            jsonFog.appendKeyValue("start", dummy_floats[0]);
+            jsonFog.appendKeyValue("end",   dummy_floats[1]);
+            jsonFog.appendKeyValue("max",   dummy_floats[2]);
 
-            ArFunctions::writeIndentation(file, indentation);
-            file << bufor;
-            ArFunctions::writeNewLine(file, 0);
+            jsonObjectRef->appendKeyValue("fog", jsonFog);
         }
 
         /****************/
 
-        if (!group_written)
+        if (dumpChildNodes)
         {
-            MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->writeStructureToTextFile(file, (indentation + 1), false); })
+            JsonArray jsonNodes;
+            JsonValue jsonNode;
+
+            MACRO_KAO2_GROUP_FOREACH_NODE
+            ({
+                child_node->dumpTreeAsJsonValue(jsonNode, true);
+                jsonNodes.appendValue(jsonNode);
+            })
+
+            jsonObjectRef->appendKeyValue("nodes", jsonNodes);
         }
     }
 

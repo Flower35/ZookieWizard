@@ -121,7 +121,7 @@ namespace ZookieWizard
 
             eString getStringRepresentation() const override;
             eString getLogPrintMessage() const override;
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
+            void dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const override;
 
             /* << eNode >> */
 

@@ -46,9 +46,9 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Archive: show scene as a structured text file
+    // Archive: show scene as a structured JSON file
     ////////////////////////////////////////////////////////////////
-    void Archive::writeStructureToTextFile(const char* output_path) const
+    void Archive::writeTreeToJsonFile(const char* output_path) const
     {
         FileOperator text_file;
 
@@ -61,13 +61,16 @@ namespace ZookieWizard
             {
                 throw ErrorMessage
                 (
-                    "Archive::writeStructureToTextFile():\n\n" \
+                    "Archive::writeTreeToJsonFile():\n\n" \
                     "Could not open file: \"%s\"",
                     output_path
                 );
             }
 
-            parentObject->writeStructureToTextFile(text_file, 0, false);
+            JsonValue jsonOutput;
+            parentObject->dumpTreeAsJsonValue(jsonOutput, true);
+            jsonOutput.dump(text_file, 0, false);
+            text_file << "\n";
         }
     }
 
@@ -75,7 +78,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Archive: show scene as XML file
     ////////////////////////////////////////////////////////////////
-    void Archive::writeStructureToXmlFile(eString filename) const
+    void Archive::writeTreeToXmlFile(eString filename) const
     {
         eNode* test_node;
         ColladaExporter exporter;

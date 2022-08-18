@@ -102,18 +102,15 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eObject: export readable structure
+    // eObject: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eObject::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eObject::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
-        char bufor[64];
+        output.setType(JSON_VALUETYPE_OBJECT);
+        JsonObject * jsonObjectRef = (JsonObject *) output.getValue();
+
         const TypeInfo* info = getType();
-
-        sprintf_s(bufor, 64, "[%08X] %s", info->id, info->name);
-
-        ArFunctions::writeNewLine(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
+        jsonObjectRef->appendKeyValue("type", info->name);
     }
 
 

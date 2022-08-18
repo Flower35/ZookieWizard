@@ -455,6 +455,31 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eGeoSet: dump object tree as a JSON value
+    ////////////////////////////////////////////////////////////////
+    void eGeoSet::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
+    {
+        output.setType(JSON_VALUETYPE_OBJECT);
+        JsonObject * jsonObjectRef = (JsonObject *) output.getValue();
+
+        /* "eGeoSet": vertices */
+
+        jsonObjectRef->appendKeyValue("vertexCount", ((float) defaultVertexCount));
+
+        /* "eGeoSet": "ePhyTriMesh" */
+
+        if (nullptr != modifier)
+        {
+            JsonValue jsonPhy;
+
+            modifier->dumpTreeAsJsonValue(jsonPhy, true);
+
+            jsonObjectRef->appendKeyValue("phy", jsonPhy);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eGeoSet: draw
     ////////////////////////////////////////////////////////////////
     void eGeoSet::draw(int32_t draw_flags, int32_t texID) const

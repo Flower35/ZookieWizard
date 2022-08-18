@@ -435,6 +435,77 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eScene: dump object tree as a JSON value
+    ////////////////////////////////////////////////////////////////
+    void eScene::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
+    {
+        int32_t a;
+        eNode* child_node;
+        JsonArray jsonColor;
+
+        /* "ePivot": parent class */
+
+        ePivot::dumpTreeAsJsonValue(output, false);
+
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
+
+        /* "eScene": background color */
+
+        jsonColor.appendValue(color[0]);
+        jsonColor.appendValue(color[1]);
+        jsonColor.appendValue(color[2]);
+
+        jsonObjectRef->appendKeyValue("backgroundColor", jsonColor);
+
+        /* "eScene": ambient color */
+
+        jsonColor.clear();
+
+        jsonColor.appendValue(ambient[0]);
+        jsonColor.appendValue(ambient[1]);
+        jsonColor.appendValue(ambient[2]);
+        jsonColor.appendValue(ambient[3]);
+
+        jsonObjectRef->appendKeyValue("ambientColor", jsonColor);
+
+        /* "eScene": compile strings */
+
+        jsonColor.clear();
+
+        jsonColor.appendValue(compileStrA);
+        jsonColor.appendValue(compileStrB);
+
+        jsonObjectRef->appendKeyValue("compilerInfo", jsonColor);
+
+        /* "eScene": Collision Manager */
+
+        {
+            JsonValue jsonCollision;
+
+            collision.dumpTreeAsJsonValue(jsonCollision, true);
+
+            jsonObjectRef->appendKeyValue("collisionMgr", jsonCollision);
+        }
+
+        /****************/
+
+        if (dumpChildNodes)
+        {
+            JsonArray jsonNodes;
+            JsonValue jsonNode;
+
+            MACRO_KAO2_GROUP_FOREACH_NODE
+            ({
+                child_node->dumpTreeAsJsonValue(jsonNode, true);
+                jsonNodes.appendValue(jsonNode);
+            })
+
+            jsonObjectRef->appendKeyValue("nodes", jsonNodes);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eScene: COLLADA exporting
     ////////////////////////////////////////////////////////////////
     void eScene::writeNodeToXmlFile(ColladaExporter &exporter) const

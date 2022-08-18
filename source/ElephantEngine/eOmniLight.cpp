@@ -99,43 +99,35 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eOmniLight: export readable structure
+    // eOmniLight: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eOmniLight::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eOmniLight::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
-        char bufor[128];
+        JsonArray jsonArray;
 
         /* "eLight": parent class */
 
-        eLight::writeStructureToTextFile(file, indentation, true);
+        eLight::dumpTreeAsJsonValue(output, false);
 
-        /* "eOmniLight": additional info */
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
 
-        sprintf_s
-        (
-            bufor, 128,
-            " - light pos: (%f, %f, %f)",
-            position.x,
-            position.y,
-            position.z
-        );
+        /* "eOmniLight": position */
 
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
+        jsonArray.appendValue(position.x);
+        jsonArray.appendValue(position.y);
+        jsonArray.appendValue(position.z);
 
-        sprintf_s
-        (
-            bufor, 128,
-            " - attenuation: (%.6f, %.6f, %.6f)",
-            attenuationConstant,
-            attenuationLinear,
-            attenuationQuadratic
-        );
+        jsonObjectRef->appendKeyValue("lightPosition", jsonArray);
 
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
+        /* "eOmniLight": attenuation */
+
+        jsonArray.clear();
+
+        jsonArray.appendValue(attenuationConstant);
+        jsonArray.appendValue(attenuationLinear);
+        jsonArray.appendValue(attenuationQuadratic);
+
+        jsonObjectRef->appendKeyValue("attenuation", jsonArray);
     }
 
 
