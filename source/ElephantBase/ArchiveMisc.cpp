@@ -344,7 +344,16 @@ namespace ZookieWizard
             {
                 if (nullptr != test_node)
                 {
-                    test_node->editingClearCollision(false);
+                    if (markedChildId >= 0)
+                    {
+                        test_group = (eGroup*)selectedObject;
+                        test_node = test_group->getIthChild(markedChildId);
+
+                        if (nullptr != test_node)
+                        {
+                            test_node->editingClearCollision(false);
+                        }
+                    }
                 }
 
                 break;
@@ -354,7 +363,16 @@ namespace ZookieWizard
             {
                 if (nullptr != test_node)
                 {
-                    test_node->editingRebuildCollision();
+                    if (markedChildId >= 0)
+                    {
+                        test_group = (eGroup*)selectedObject;
+                        test_node = test_group->getIthChild(markedChildId);
+
+                        if (nullptr != test_node)
+                        {
+                            test_node->editingRebuildCollision();
+                        }
+                    }
                 }
 
                 break;

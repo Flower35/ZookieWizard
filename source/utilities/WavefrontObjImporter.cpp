@@ -779,7 +779,7 @@ namespace ZookieWizard
                         if (makeMaterialsTwoSided)
                         {
                             /* 0x01 = "2-sided" */
-                            dummy_obj_mtl.material->setMaterialFlags(0x01);
+                            //dummy_obj_mtl.material->setMaterialFlags(0x01);
                         }
                     }
                 }

@@ -1960,12 +1960,12 @@ namespace ZookieWizard
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 19] = theWindowsManager.addWindow("(F9)\nRebuild Collision Data", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0)))
+			if (0 == (nodesList_Windows[1 + 19] = theWindowsManager.addWindow("(F9)\nRebuild Collision of\nHighlighted Node", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0)))
 			{
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 20] = theWindowsManager.addWindow("(F11)\nClear Collision Data", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01)))
+			if (0 == (nodesList_Windows[1 + 20] = theWindowsManager.addWindow("(F11)\nClear Collision of\nHighlighted Node", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01)))
 			{
 				return false;
 			}
