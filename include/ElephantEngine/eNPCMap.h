@@ -69,6 +69,9 @@ namespace ZookieWizard
 
             void renderNode(eDrawContext &draw_context) const override;
 
+            int32_t parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property) override;
+            int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
+
             /* << eNPCMap >> */
 
             void customMapSetup(ePoint3 &box_min, ePoint3 &box_max, int32_t navis_in_group);

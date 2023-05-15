@@ -307,6 +307,113 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eNPCMap: custom TXT parser methods
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eNPCMap::parsingSetProperty(char* result_msg, const TxtParsingNodeProp &property)
+    {
+        int32_t test;
+        float dummy_floats[3];
+        eString prop_name;
+
+        if (1 != (test = eGroup::parsingSetProperty(result_msg, property)))
+        {
+            return test;
+        }
+
+        prop_name = property.getName();
+
+        if (prop_name.compareExact("min", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "min", TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            property.getValue(dummy_floats);
+
+            boxBoundMin.x = dummy_floats[0];
+            boxBoundMin.y = dummy_floats[1];
+            boxBoundMin.z = dummy_floats[2];
+            return 0;
+        }
+        else if (prop_name.compareExact("max", true))
+        {
+            if (!property.checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorPropType(result_msg, "max", TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            property.getValue(dummy_floats);
+
+            boxBoundMax.x = dummy_floats[0];
+            boxBoundMax.y = dummy_floats[1];
+            boxBoundMax.z = dummy_floats[2];
+            return 0;
+        }
+
+        return 1;
+    }
+
+    int32_t eNPCMap::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test;
+        float dummy_floats[3];
+
+        if (1 != (test = eGroup::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test;
+        }
+
+        if (message.compareExact("setBoundaryBox", true))
+        {
+            if (2 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setBoundaryBox", 2);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setBoundaryBox", 1, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[0].getValue(dummy_floats);
+
+            boxBoundMin.x = dummy_floats[0];
+            boxBoundMin.y = dummy_floats[1];
+            boxBoundMin.z = dummy_floats[2];
+
+            /********************************/
+
+            if (!params[1].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setBoundaryBox", 2, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+                return 2;
+            }
+
+            params[1].getValue(dummy_floats);
+
+            boxBoundMax.x = dummy_floats[0];
+            boxBoundMax.y = dummy_floats[1];
+            boxBoundMax.z = dummy_floats[2];
+
+            /********************************/
+
+            customMapSetup(boxBoundMin, boxBoundMax, 8);
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eNPCMap: custom Map setup
     ////////////////////////////////////////////////////////////////
     void eNPCMap::customMapSetup(ePoint3 &box_min, ePoint3 &box_max, int32_t navis_in_group)

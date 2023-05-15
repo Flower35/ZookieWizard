@@ -242,13 +242,15 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eActionTable: export readable structure
+    // eActionTable: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eActionTable::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eActionTable::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
-        eString target_name;
+        output.setType(JSON_VALUETYPE_ARRAY);
+        JsonArray * jsonArrayRef = (JsonArray *) output.getValue();
 
-        char bufor[LARGE_BUFFER_SIZE];
+        JsonArray jsonAction;
+        eString target_name;
 
         for (int i = 0; i < actionsCount; i++)
         {
@@ -261,24 +263,11 @@ namespace ZookieWizard
                 target_name = actions[i].actorName;
             }
 
-            if (target_name.isEmpty())
-            {
-                target_name = "<UNNAMED TARGET>";
-            }
+            jsonAction.clear();
+            jsonAction.appendValue(target_name);
+            jsonAction.appendValue(actions[i].message);
 
-            sprintf_s
-            (
-                bufor, LARGE_BUFFER_SIZE,
-                "    [%d/%d]: \"%s\".%s()",
-                (i + 1),
-                actionsCount,
-                target_name.getText(),
-                actions[i].message.getText()
-            );
-
-            ArFunctions::writeIndentation(file, indentation);
-            file << bufor;
-            ArFunctions::writeNewLine(file, 0);
+            jsonArrayRef->appendValue(jsonAction);
         }
     }
 

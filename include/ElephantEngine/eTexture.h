@@ -56,6 +56,7 @@ namespace ZookieWizard
             const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
+            void dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const override;
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             /* << eTexture >> */

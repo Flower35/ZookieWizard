@@ -45,7 +45,7 @@ namespace ZookieWizard
             const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
+            void dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const override;
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             /* << eNode >> */
@@ -57,6 +57,8 @@ namespace ZookieWizard
             void editingRebuildCollision() override;
             void editingClearCollision(bool create_empty_pointer) override;
             void editingApplyNewTransform(eSRP &new_transform, int32_t marked_id) override;
+
+            int32_t parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params) override;
 
             /* << eTriMesh >> */
 

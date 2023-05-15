@@ -9,6 +9,186 @@ namespace ZookieWizard
 
     namespace StringFunctions
     {
+        char nibbleToHex(const char nibble)
+        {
+            if (nibble > 0x0F)
+            {
+                return '0';
+            }
+            if (nibble >= 0x0A)
+            {
+                return nibble - 0x0A + 'a';
+            }
+            
+            return nibble + '0';
+        }
+
+        void appendEscapedUTF8(eString& destination, const wchar_t unicodeChar)
+        {
+            char appended_chars[1 + 4 + 1] = {0};
+
+            if (unicodeChar >= 0x0800)
+            {
+                appended_chars[0] = 0xE0 | ((unicodeChar >> 12) & 0x0F);
+                destination += appended_chars;
+
+                appended_chars[0] = 0x80 | ((unicodeChar >> 6) & 0x3F);
+                destination += appended_chars;
+
+                appended_chars[0] = 0x80 | ((unicodeChar >> 0) & 0x3F);
+                destination += appended_chars;
+            }
+            else if (unicodeChar >= 0x0080)
+            {
+                appended_chars[0] = 0xC0 | ((unicodeChar >> 6) & 0x1F);
+                destination += appended_chars;
+
+                appended_chars[0] = 0x80 | ((unicodeChar >> 0) & 0x3F);
+                destination += appended_chars;
+            }
+            else if (('\\' == unicodeChar) || ('"' == unicodeChar) || (unicodeChar < 0x20))
+            {
+                appended_chars[0] = '\\';
+                appended_chars[1] = 0;
+
+                switch (unicodeChar)
+                {
+                    case '\\':
+                    {
+                        appended_chars[1] = '\\';
+                        break;
+                    }
+                    case '"':
+                    {
+                        appended_chars[1] = '"';
+                        break;
+                    }
+                    case '\0':
+                    {
+                        appended_chars[1] = '0';
+                        break;
+                    }
+                    case '\b':
+                    {
+                        appended_chars[1] = 'b';
+                        break;
+                    }
+                    case '\t':
+                    {
+                        appended_chars[1] = 't';
+                        break;
+                    }
+                    case '\n':
+                    {
+                        appended_chars[1] = 'n';
+                        break;
+                    }
+                    case '\v':
+                    {
+                        appended_chars[1] = 'v';
+                        break;
+                    }
+                    case '\f':
+                    {
+                        appended_chars[1] = 'f';
+                        break;
+                    }
+                    case '\r':
+                    {
+                        appended_chars[1] = 'r';
+                        break;
+                    }
+                }
+
+                if (0 != appended_chars[1])
+                {
+                    appended_chars[2] = 0;
+                }
+                else
+                {
+                    appended_chars[1] = 'u';
+                    appended_chars[2] = nibbleToHex((unicodeChar >> 12) & 0x0F);
+                    appended_chars[3] = nibbleToHex((unicodeChar >>  8) & 0x0F);
+                    appended_chars[4] = nibbleToHex((unicodeChar >>  4) & 0x0F);
+                    appended_chars[5] = nibbleToHex((unicodeChar >>  0) & 0x0F);
+                }
+
+                destination += appended_chars;
+                appended_chars[1] = 0;
+            }
+            else
+            {
+                appended_chars[0] = unicodeChar;
+                destination += appended_chars;
+            }
+        }
+
+        bool convertChar(char& ansiDestination, const wchar_t unicodeSource)
+        {
+            if ((unicodeSource >= 0x0000) && (unicodeSource <= 0x007F))
+            {
+                ansiDestination = (char)unicodeSource;
+            }
+            else switch (unicodeSource)
+            {
+                case 0x0104: ansiDestination = (char)0xA5; break; // LATIN CAPITAL LETTER A WITH OGONEK
+                case 0x0105: ansiDestination = (char)0xB9; break; // LATIN SMALL LETTER A WITH OGONEK
+                case 0x0106: ansiDestination = (char)0xC6; break; // LATIN CAPITAL LETTER C WITH ACUTE
+                case 0x0107: ansiDestination = (char)0xE6; break; // LATIN SMALL LETTER C WITH ACUTE
+                case 0x0118: ansiDestination = (char)0xCA; break; // LATIN CAPITAL LETTER E WITH OGONEK
+                case 0x0119: ansiDestination = (char)0xEA; break; // LATIN SMALL LETTER E WITH OGONEK
+                case 0x0141: ansiDestination = (char)0xA3; break; // LATIN CAPITAL LETTER L WITH STROKE
+                case 0x0142: ansiDestination = (char)0xB3; break; // LATIN SMALL LETTER L WITH STROKE
+                case 0x0143: ansiDestination = (char)0xD1; break; // LATIN CAPITAL LETTER N WITH ACUTE
+                case 0x0144: ansiDestination = (char)0xF1; break; // LATIN SMALL LETTER N WITH ACUTE
+                case 0x00D3: ansiDestination = (char)0xD3; break; // LATIN CAPITAL LETTER O WITH ACUTE
+                case 0x00F3: ansiDestination = (char)0xF3; break; // LATIN SMALL LETTER O WITH ACUTE
+                case 0x015A: ansiDestination = (char)0x8C; break; // LATIN CAPITAL LETTER S WITH ACUTE
+                case 0x015B: ansiDestination = (char)0x9C; break; // LATIN SMALL LETTER S WITH ACUTE
+                case 0x0179: ansiDestination = (char)0x8F; break; // LATIN CAPITAL LETTER Z WITH ACUTE
+                case 0x017A: ansiDestination = (char)0x9F; break; // LATIN SMALL LETTER Z WITH ACUTE
+                case 0x017B: ansiDestination = (char)0xAF; break; // LATIN CAPITAL LETTER Z WITH DOT ABOVE
+                case 0x017C: ansiDestination = (char)0xBF; break; // LATIN SMALL LETTER Z WITH DOT ABOVE
+
+                default: return false;
+            }
+
+            return true;
+        }
+
+        bool convertChar(wchar_t& unicodeDestination, const char ansiSource)
+        {
+            if ((ansiSource >= 0x00) && (ansiSource <= 0x7F))
+            {
+                unicodeDestination = ansiSource;
+            }
+            else switch (ansiSource)
+            {
+                case (char)0xA5: unicodeDestination = 0x0104; break; // LATIN CAPITAL LETTER A WITH OGONEK
+                case (char)0xB9: unicodeDestination = 0x0105; break; // LATIN SMALL LETTER A WITH OGONEK
+                case (char)0xC6: unicodeDestination = 0x0106; break; // LATIN CAPITAL LETTER C WITH ACUTE
+                case (char)0xE6: unicodeDestination = 0x0107; break; // LATIN SMALL LETTER C WITH ACUTE
+                case (char)0xCA: unicodeDestination = 0x0118; break; // LATIN CAPITAL LETTER E WITH OGONEK
+                case (char)0xEA: unicodeDestination = 0x0119; break; // LATIN SMALL LETTER E WITH OGONEK
+                case (char)0xA3: unicodeDestination = 0x0141; break; // LATIN CAPITAL LETTER L WITH STROKE
+                case (char)0xB3: unicodeDestination = 0x0142; break; // LATIN SMALL LETTER L WITH STROKE
+                case (char)0xD1: unicodeDestination = 0x0143; break; // LATIN CAPITAL LETTER N WITH ACUTE
+                case (char)0xF1: unicodeDestination = 0x0144; break; // LATIN SMALL LETTER N WITH ACUTE
+                case (char)0xD3: unicodeDestination = 0x00D3; break; // LATIN CAPITAL LETTER O WITH ACUTE
+                case (char)0xF3: unicodeDestination = 0x00F3; break; // LATIN SMALL LETTER O WITH ACUTE
+                case (char)0x8C: unicodeDestination = 0x015A; break; // LATIN CAPITAL LETTER S WITH ACUTE
+                case (char)0x9C: unicodeDestination = 0x015B; break; // LATIN SMALL LETTER S WITH ACUTE
+                case (char)0x8F: unicodeDestination = 0x0179; break; // LATIN CAPITAL LETTER Z WITH ACUTE
+                case (char)0x9F: unicodeDestination = 0x017A; break; // LATIN SMALL LETTER Z WITH ACUTE
+                case (char)0xAF: unicodeDestination = 0x017B; break; // LATIN CAPITAL LETTER Z WITH DOT ABOVE
+                case (char)0xBF: unicodeDestination = 0x017C; break; // LATIN SMALL LETTER Z WITH DOT ABOVE
+
+                default: return false;
+            }
+
+            return true;
+        }
+
         void convertString(eString& destination, const eUnicodeString& source)
         {
             int other_count = source.getLength();
@@ -20,32 +200,9 @@ namespace ZookieWizard
             /* Check the diactric marks */
             for (int i = 0; i < other_count; i++)
             {
-                if ((other_text[i] >= 0x0000) && (other_text[i] <= 0x007F))
+                if (!convertChar(my_text[i], other_text[i]))
                 {
-                    my_text[i] = (char)other_text[i];
-                }
-                else switch (other_text[i])
-                {
-                    case 0x0104: my_text[i] = (char)0xA5; break; // LATIN CAPITAL LETTER A WITH OGONEK
-                    case 0x0105: my_text[i] = (char)0xB9; break; // LATIN SMALL LETTER A WITH OGONEK
-                    case 0x0106: my_text[i] = (char)0xC6; break; // LATIN CAPITAL LETTER C WITH ACUTE
-                    case 0x0107: my_text[i] = (char)0xE6; break; // LATIN SMALL LETTER C WITH ACUTE
-                    case 0x0118: my_text[i] = (char)0xCA; break; // LATIN CAPITAL LETTER E WITH OGONEK
-                    case 0x0119: my_text[i] = (char)0xEA; break; // LATIN SMALL LETTER E WITH OGONEK
-                    case 0x0141: my_text[i] = (char)0xA3; break; // LATIN CAPITAL LETTER L WITH STROKE
-                    case 0x0142: my_text[i] = (char)0xB3; break; // LATIN SMALL LETTER L WITH STROKE
-                    case 0x0143: my_text[i] = (char)0xD1; break; // LATIN CAPITAL LETTER N WITH ACUTE
-                    case 0x0144: my_text[i] = (char)0xF1; break; // LATIN SMALL LETTER N WITH ACUTE
-                    case 0x00D3: my_text[i] = (char)0xD3; break; // LATIN CAPITAL LETTER O WITH ACUTE
-                    case 0x00F3: my_text[i] = (char)0xF3; break; // LATIN SMALL LETTER O WITH ACUTE
-                    case 0x015A: my_text[i] = (char)0x8C; break; // LATIN CAPITAL LETTER S WITH ACUTE
-                    case 0x015B: my_text[i] = (char)0x9C; break; // LATIN SMALL LETTER S WITH ACUTE
-                    case 0x0179: my_text[i] = (char)0x8F; break; // LATIN CAPITAL LETTER Z WITH ACUTE
-                    case 0x017A: my_text[i] = (char)0x9F; break; // LATIN SMALL LETTER Z WITH ACUTE
-                    case 0x017B: my_text[i] = (char)0xAF; break; // LATIN CAPITAL LETTER Z WITH DOT ABOVE
-                    case 0x017C: my_text[i] = (char)0xBF; break; // LATIN SMALL LETTER Z WITH DOT ABOVE
-
-                    default: my_text[i] = '?';
+                    my_text[i] = '_';
                 }
             }
         }
@@ -61,28 +218,9 @@ namespace ZookieWizard
             /* Check the diactric marks */
             for (int i = 0; i < other_count; i++)
             {
-                switch (other_text[i])
+                if (!convertChar(my_text[i], other_text[i]))
                 {
-                    case (char)0xA5: my_text[i] = 0x0104; break; // LATIN CAPITAL LETTER A WITH OGONEK
-                    case (char)0xB9: my_text[i] = 0x0105; break; // LATIN SMALL LETTER A WITH OGONEK
-                    case (char)0xC6: my_text[i] = 0x0106; break; // LATIN CAPITAL LETTER C WITH ACUTE
-                    case (char)0xE6: my_text[i] = 0x0107; break; // LATIN SMALL LETTER C WITH ACUTE
-                    case (char)0xCA: my_text[i] = 0x0118; break; // LATIN CAPITAL LETTER E WITH OGONEK
-                    case (char)0xEA: my_text[i] = 0x0119; break; // LATIN SMALL LETTER E WITH OGONEK
-                    case (char)0xA3: my_text[i] = 0x0141; break; // LATIN CAPITAL LETTER L WITH STROKE
-                    case (char)0xB3: my_text[i] = 0x0142; break; // LATIN SMALL LETTER L WITH STROKE
-                    case (char)0xD1: my_text[i] = 0x0143; break; // LATIN CAPITAL LETTER N WITH ACUTE
-                    case (char)0xF1: my_text[i] = 0x0144; break; // LATIN SMALL LETTER N WITH ACUTE
-                    case (char)0xD3: my_text[i] = 0x00D3; break; // LATIN CAPITAL LETTER O WITH ACUTE
-                    case (char)0xF3: my_text[i] = 0x00F3; break; // LATIN SMALL LETTER O WITH ACUTE
-                    case (char)0x8C: my_text[i] = 0x015A; break; // LATIN CAPITAL LETTER S WITH ACUTE
-                    case (char)0x9C: my_text[i] = 0x015B; break; // LATIN SMALL LETTER S WITH ACUTE
-                    case (char)0x8F: my_text[i] = 0x0179; break; // LATIN CAPITAL LETTER Z WITH ACUTE
-                    case (char)0x9F: my_text[i] = 0x017A; break; // LATIN SMALL LETTER Z WITH ACUTE
-                    case (char)0xAF: my_text[i] = 0x017B; break; // LATIN CAPITAL LETTER Z WITH DOT ABOVE
-                    case (char)0xBF: my_text[i] = 0x017C; break; // LATIN SMALL LETTER Z WITH DOT ABOVE
-
-                    default: my_text[i] = other_text[i];
+                    my_text[i] = '_';
                 }
             }
         }
@@ -809,6 +947,42 @@ namespace ZookieWizard
         }
 
         return getSubstring(start, (end - my_length));
+    }
+
+    eStringPtrBase<char> eStringPtrBase<wchar_t>::escapedUTF8() const
+    {
+        eStringPtrBase<char> result;
+
+        const int length = getLength();
+        const wchar_t* text = getText();
+
+        for (int i = 0; i < length; i++)
+        {
+            StringFunctions::appendEscapedUTF8(result, text[i]);
+        }
+
+        return result;
+    }
+
+    eStringPtrBase<char> eStringPtrBase<char>::escapedUTF8() const
+    {
+        eStringPtrBase<char> result;
+        wchar_t unicode_char;
+
+        const int length = getLength();
+        const char* text = getText();
+
+        for (int i = 0; i < length; i++)
+        {
+            if (!StringFunctions::convertChar(unicode_char, text[i]))
+            {
+                unicode_char = '_';
+            }
+
+            StringFunctions::appendEscapedUTF8(result, unicode_char);
+        }
+
+        return result;
     }
 
     template <typename charT>

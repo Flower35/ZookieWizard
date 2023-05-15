@@ -111,48 +111,57 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // ePivot: export readable structure
+    // ePivot: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void ePivot::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void ePivot::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
         int32_t a;
         eNode* child_node;
         eTrack* test_track;
 
-        char bufor[128];
-        eString test_str;
-
         /* "eTransform": parent class */
 
-        eTransform::writeStructureToTextFile(file, indentation, true);
+        eTransform::dumpTreeAsJsonValue(output, false);
 
-        /* "ePivot": additional info */
+        JsonObject* jsonObjectRef = (JsonObject *) output.getValue();
 
-        for (a = 0; a < animations.tracks.getSize(); a++)
+        /* "ePivot": tracks */
+
+        if (animations.tracks.getSize() > 0)
         {
-            if (nullptr != (test_track = (eTrack*)animations.tracks.getIthChild(a)))
-            {
-                sprintf_s
-                (
-                    bufor, 128,
-                    " - track [%d]: \"%s\" [%.2f, %.2f]",
-                    a,
-                    test_track->getStringRepresentation().getText(),
-                    test_track->getStartFrame(),
-                    test_track->getEndFrame()
-                );
+            JsonArray jsonTracks;
+            JsonObject jsonTrack;
 
-                ArFunctions::writeIndentation(file, indentation);
-                file << bufor;
-                ArFunctions::writeNewLine(file, 0);
+            for (a = 0; a < animations.tracks.getSize(); a++)
+            {
+                if (nullptr != (test_track = (eTrack*)animations.tracks.getIthChild(a)))
+                {
+                    jsonTrack.clear();
+                    jsonTrack.appendKeyValue("name", test_track->getStringRepresentation());
+                    jsonTrack.appendKeyValue("startFrame", test_track->getStartFrame());
+                    jsonTrack.appendKeyValue("endFrame", test_track->getEndFrame());
+
+                    jsonTracks.appendValue(jsonTrack);
+                }
             }
+
+            jsonObjectRef->appendKeyValue("tracks", jsonTracks);
         }
 
         /****************/
 
-        if (!group_written)
+        if (dumpChildNodes)
         {
-            MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->writeStructureToTextFile(file, (indentation + 1), false); })
+            JsonArray jsonNodes;
+            JsonValue jsonNode;
+
+            MACRO_KAO2_GROUP_FOREACH_NODE
+            ({
+                child_node->dumpTreeAsJsonValue(jsonNode, true);
+                jsonNodes.appendValue(jsonNode);
+            })
+
+            jsonObjectRef->appendKeyValue("nodes", jsonNodes);
         }
     }
 

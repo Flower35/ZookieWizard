@@ -82,6 +82,7 @@ namespace ZookieWizard
             void serialize(Archive &ar) override;
 
             eString getStringRepresentation() const override;
+            void dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const override;
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             /* << eMaterial >> */

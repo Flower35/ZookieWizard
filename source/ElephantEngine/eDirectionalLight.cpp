@@ -103,47 +103,36 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eDirectionalLight: export readable structure
+    // eDirectionalLight: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eDirectionalLight::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eDirectionalLight::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
-        char bufor[1024];
-        const TypeInfo* type_info;
+        JsonArray jsonArray;
 
         /* "eLight": parent class */
 
-        eLight::writeStructureToTextFile(file, indentation, true);
+        eLight::dumpTreeAsJsonValue(output, false);
 
-        /* "eDirectionalLight": additional info */
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
 
-        sprintf_s
-        (
-            bufor, 1024,
-            " - light pos: (%f, %f, %f)",
-            position.x,
-            position.y,
-            position.z
-        );
+        /* "eDirectionalLight": position */
 
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
+        jsonArray.appendValue(position.x);
+        jsonArray.appendValue(position.y);
+        jsonArray.appendValue(position.z);
+
+        jsonObjectRef->appendKeyValue("lightPosition", jsonArray);
+
+        /* "eDirectionalLight": target */
 
         if (nullptr != target)
         {
-            type_info = target->getType();
+            jsonArray.clear();
 
-            sprintf_s
-            (
-                bufor, 1024,
-                " - light target: (%s) \"%s\"",
-                type_info->name,
-                target->getArchivePath().getText()
-            );
+            jsonArray.appendValue(target->getType()->name);
+            jsonArray.appendValue(target->getArchivePath());
 
-            ArFunctions::writeIndentation(file, indentation);
-            file << bufor;
-            ArFunctions::writeNewLine(file, 0);
+            jsonObjectRef->appendKeyValue("lightTarget", jsonArray);
         }
     }
 

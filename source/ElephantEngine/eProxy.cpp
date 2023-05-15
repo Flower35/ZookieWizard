@@ -171,44 +171,41 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eProxy: export readable structure
+    // eProxy: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eProxy::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eProxy::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
         int32_t a;
         eNode* child_node;
 
-        char bufor[128];
-
         /* "eTransform": parent class */
 
-        eTransform::writeStructureToTextFile(file, indentation, true);
+        eTransform::dumpTreeAsJsonValue(output, false);
 
-        /* "eProxy": additional info */
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
 
-        if (!(targetFile.isEmpty()))
-        {
-            if ('?' != targetFile.getText()[0])
-            {
-                sprintf_s
-                (
-                    bufor, 128,
-                    " - proxy target: [%d] \"%s\"",
-                    category,
-                    targetFile.getText()
-                );
+        /* "eProxy": target category */
 
-                ArFunctions::writeIndentation(file, indentation);
-                file << bufor;
-                ArFunctions::writeNewLine(file, 0);
-            }
-        }
+        jsonObjectRef->appendKeyValue("proxyCategory", proxyCatNameFromId(category));
+
+        /* "eProxy": target file (or script) */
+
+        jsonObjectRef->appendKeyValue("proxyTarget", targetFile);
 
         /****************/
 
-        if (!group_written)
+        if (dumpChildNodes)
         {
-            MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->writeStructureToTextFile(file, (indentation + 1), false); })
+            JsonArray jsonNodes;
+            JsonValue jsonNode;
+
+            MACRO_KAO2_GROUP_FOREACH_NODE
+            ({
+                child_node->dumpTreeAsJsonValue(jsonNode, true);
+                jsonNodes.appendValue(jsonNode);
+            })
+
+            jsonObjectRef->appendKeyValue("nodes", jsonNodes);
         }
     }
 
@@ -387,38 +384,16 @@ namespace ZookieWizard
 
             property.getValue(&dummy_str);
 
-            if (dummy_str.compareExact("particle", true))
-            {
-                category = 0;
-            }
-            else if (dummy_str.compareExact("hero", true))
-            {
-                category = 1;
-            }
-            else if (dummy_str.compareExact("powerup", true))
-            {
-                category = 2;
-            }
-            else if (dummy_str.compareExact("enemy", true))
-            {
-                category = 3;
-            }
-            else if (dummy_str.compareExact("fluff", true))
-            {
-                category = 4;
-            }
-            else if (dummy_str.compareExact("geoproxy", true))
-            {
-                category = 5;
-            }
-            else if (dummy_str.compareExact("object", true))
-            {
-                category = 6;
-            }
-            else
+            test = proxyCatIdFromName(dummy_str);
+
+            if (test < 0)
             {
                 sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Unknown proxy category for \"category\" property!");
                 return 2;
+            }
+            else
+            {
+                category = test;
             }
 
             return 0;
@@ -465,38 +440,16 @@ namespace ZookieWizard
 
             params[1].getValue(&dummy_str);
 
-            if (dummy_str.compareExact("particle", true))
-            {
-                category = 0;
-            }
-            else if (dummy_str.compareExact("hero", true))
-            {
-                category = 1;
-            }
-            else if (dummy_str.compareExact("powerup", true))
-            {
-                category = 2;
-            }
-            else if (dummy_str.compareExact("enemy", true))
-            {
-                category = 3;
-            }
-            else if (dummy_str.compareExact("fluff", true))
-            {
-                category = 4;
-            }
-            else if (dummy_str.compareExact("geoproxy", true))
-            {
-                category = 5;
-            }
-            else if (dummy_str.compareExact("object", true))
-            {
-                category = 6;
-            }
-            else
+            test = proxyCatIdFromName(dummy_str);
+
+            if (test < 0)
             {
                 sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setLinkAndCategory\" message: unknown proxy category!");
                 return 2;
+            }
+            else
+            {
+                category = test;
             }
 
             /********************************/
@@ -632,6 +585,91 @@ namespace ZookieWizard
     void eProxy::setTargetName(eString new_target_name)
     {
         targetFile = new_target_name;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eProxy: get category id from its name
+    ////////////////////////////////////////////////////////////////
+    int32_t eProxy::proxyCatIdFromName(const eString &name)
+    {
+        if (name.compareExact("particle", true))
+        {
+            return 0;
+        }
+        else if (name.compareExact("hero", true))
+        {
+            return 1;
+        }
+        else if (name.compareExact("powerup", true))
+        {
+            return 2;
+        }
+        else if (name.compareExact("enemy", true))
+        {
+            return 3;
+        }
+        else if (name.compareExact("fluff", true))
+        {
+            return 4;
+        }
+        else if (name.compareExact("geoproxy", true))
+        {
+            return 5;
+        }
+        else if (name.compareExact("object", true))
+        {
+            return 6;
+        }
+
+        return (-1);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // eProxy: get static category name from category id
+    ////////////////////////////////////////////////////////////////
+    const char* eProxy::proxyCatNameFromId(int32_t cat)
+    {
+        switch (cat)
+        {
+            case 0:
+            {
+                return "particle";
+            }
+
+            case 1:
+            {
+                return "hero";
+            }
+
+            case 2:
+            {
+                return "powerup";
+            }
+
+            case 3:
+            {
+                return "enemy";
+            }
+
+            case 4:
+            {
+                return "fluff";
+            }
+
+            case 5:
+            {
+                return "geoproxy";
+            }
+
+            case 6:
+            {
+                return "object";
+            }
+        }
+
+        return nullptr;
     }
 
 }

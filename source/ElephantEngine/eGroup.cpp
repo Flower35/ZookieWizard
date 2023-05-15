@@ -121,22 +121,33 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eGroup: export readable structure
+    // eGroup: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eGroup::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eGroup::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
         int32_t a;
         eNode* child_node;
 
         /* "eNode": parent class */
 
-        eNode::writeStructureToTextFile(file, indentation, true);
+        eNode::dumpTreeAsJsonValue(output, false);
+
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
 
         /****************/
 
-        if (!group_written)
+        if (dumpChildNodes)
         {
-            MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->writeStructureToTextFile(file, (indentation + 1), false); })
+            JsonArray jsonNodes;
+            JsonValue jsonNode;
+
+            MACRO_KAO2_GROUP_FOREACH_NODE
+            ({
+                child_node->dumpTreeAsJsonValue(jsonNode, true);
+                jsonNodes.appendValue(jsonNode);
+            })
+
+            jsonObjectRef->appendKeyValue("nodes", jsonNodes);
         }
     }
 

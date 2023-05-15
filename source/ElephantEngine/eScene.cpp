@@ -435,6 +435,77 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eScene: dump object tree as a JSON value
+    ////////////////////////////////////////////////////////////////
+    void eScene::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
+    {
+        int32_t a;
+        eNode* child_node;
+        JsonArray jsonColor;
+
+        /* "ePivot": parent class */
+
+        ePivot::dumpTreeAsJsonValue(output, false);
+
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
+
+        /* "eScene": background color */
+
+        jsonColor.appendValue(color[0]);
+        jsonColor.appendValue(color[1]);
+        jsonColor.appendValue(color[2]);
+
+        jsonObjectRef->appendKeyValue("backgroundColor", jsonColor);
+
+        /* "eScene": ambient color */
+
+        jsonColor.clear();
+
+        jsonColor.appendValue(ambient[0]);
+        jsonColor.appendValue(ambient[1]);
+        jsonColor.appendValue(ambient[2]);
+        jsonColor.appendValue(ambient[3]);
+
+        jsonObjectRef->appendKeyValue("ambientColor", jsonColor);
+
+        /* "eScene": compile strings */
+
+        jsonColor.clear();
+
+        jsonColor.appendValue(compileStrA);
+        jsonColor.appendValue(compileStrB);
+
+        jsonObjectRef->appendKeyValue("compilerInfo", jsonColor);
+
+        /* "eScene": Collision Manager */
+
+        {
+            JsonValue jsonCollision;
+
+            collision.dumpTreeAsJsonValue(jsonCollision, true);
+
+            jsonObjectRef->appendKeyValue("collisionMgr", jsonCollision);
+        }
+
+        /****************/
+
+        if (dumpChildNodes)
+        {
+            JsonArray jsonNodes;
+            JsonValue jsonNode;
+
+            MACRO_KAO2_GROUP_FOREACH_NODE
+            ({
+                child_node->dumpTreeAsJsonValue(jsonNode, true);
+                jsonNodes.appendValue(jsonNode);
+            })
+
+            jsonObjectRef->appendKeyValue("nodes", jsonNodes);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eScene: COLLADA exporting
     ////////////////////////////////////////////////////////////////
     void eScene::writeNodeToXmlFile(ColladaExporter &exporter) const
@@ -533,6 +604,7 @@ namespace ZookieWizard
     {
         int32_t test;
         float dummy_floats[3];
+        ePivot* dummy_pivot = nullptr;
 
         if (1 != (test = ePivot::parsingCustomMessage(result_msg, message, params_count, params)))
         {
@@ -643,6 +715,58 @@ namespace ZookieWizard
 
             visSetB_maxLength = 0;
             visSetB_count = 0;
+
+            return 0;
+        }
+        else if (message.compareExact("unregisterPivots", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "unregisterPivots", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            unknown0194.clear();
+
+            return 0;
+        }
+        else if (message.compareExact("registerPivot", true))
+        {
+            if (1 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "registerPivot", 1);
+                return 2;
+            }
+
+            /********************************/
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "registerPivot", 0, TXT_PARSING_NODE_PROPTYPE_NODEREF);
+            }
+
+            params[0].getValue(&dummy_pivot);
+
+            if (nullptr == dummy_pivot)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"registerPivot\" message: noderef is not set!");
+                return 2;
+            }
+
+            if (!(dummy_pivot->getType()->checkHierarchy(&E_PIVOT_TYPEINFO)))
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"registerPivot\" message: expected the noderef to be a child of \"ePivot\"!");
+                return 2;
+            }
+
+            /********************************/
+
+            unknown0194.findAndDeleteChild(dummy_pivot);
+            unknown0194.appendChild(dummy_pivot);
+
+            return 0;
         }
 
         return 1;

@@ -178,26 +178,25 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eTriMesh: export readable structure
+    // eTriMesh: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eTriMesh::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eTriMesh::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
-        ePhyTriMesh* phy;
-
         /* "eGeometry": parent class */
 
-        eGeometry::writeStructureToTextFile(file, indentation, true);
+        eGeometry::dumpTreeAsJsonValue(output, false);
+
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
 
         /* "eTriMesh": additional info */
 
         if (nullptr != geo)
         {
-            phy = geo->getPhyTriMesh();
+            JsonValue jsonGeo;
 
-            if (nullptr != phy)
-            {
-                phy->writeStructureToTextFile(file, indentation, true);
-            }
+            geo->dumpTreeAsJsonValue(jsonGeo, true);
+
+            jsonObjectRef->appendKeyValue("geo", jsonGeo);
         }
     }
 
@@ -387,6 +386,128 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // eTriMesh: custom TXT parser
+    ////////////////////////////////////////////////////////////////
+
+    int32_t eTriMesh::parsingCustomMessage(char* result_msg, const eString &message, int32_t params_count, const TxtParsingNodeProp* params)
+    {
+        int32_t test[2];
+        eGeoArray<ePoint4>* vertices = nullptr;
+        eGeoArray<ePoint2>* uv_mapping = nullptr;
+        ePhyTriMesh* phy;
+
+        if (1 != (test[0] = eGeometry::parsingCustomMessage(result_msg, message, params_count, params)))
+        {
+            return test[0];
+        }
+
+        if (message.compareExact("assertTextureMappingTypes", true))
+        {
+            if ((params_count < 0) || (params_count > 4))
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "assertTextureMappingTypes", 4);
+                return 2;
+            }
+
+            /********************************/
+
+            if (nullptr == geo)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"assertTextureMappingTypes\" message: `GeoSet` is empty!");
+                return 2;
+            }
+
+            if (nullptr != (uv_mapping = geo->getTextureCoordsArray(0)))
+            {
+                test[1] = uv_mapping->getLength();
+            }
+            else
+            {
+                test[1] = 0;
+            }
+
+            if (0 == test[1])
+            {
+                if (nullptr != (vertices = geo->getVerticesArray(0)))
+                {
+                    test[1] = vertices->getLength();
+                }
+                else
+                {
+                    test[1] = 0;
+                }
+            }
+
+            if (nullptr == uv_mapping)
+            {
+                uv_mapping = new eGeoArray<ePoint2>();
+                uv_mapping->setup(test[1], new ePoint2 [test[1]]);
+            }
+
+            uv_mapping->incRef();
+
+            for (test[0] = 0; test[0] < params_count; test[0]++)
+            {
+                if (!params[test[0]].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+                {
+                    TxtParsingNode_ErrorArgType(result_msg, "assertTextureMappingTypes", test[0], TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                    return 2;
+                }
+
+                params[test[0]].getValue(&(test[1]));
+
+                if (nullptr == geo->getTextureCoordsArray(test[0]))
+                {
+                    geo->setTextureCoordsArray(test[0], uv_mapping);
+                }
+
+                geo->setTexMappingType(test[0], test[1]);
+            }
+
+            uv_mapping->decRef();
+
+            for (test[0] = params_count; test[0] < 4; test[0]++)
+            {
+                geo->setTextureCoordsArray(test[0], nullptr);
+                geo->setTexMappingType(test[0], 0);
+            }
+
+            return 0;
+        }
+        else if (message.compareExact("clearMorpherModifier", true))
+        {
+            if (0 != params_count)
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "clearMorpherModifier", 0);
+                return 2;
+            }
+
+            /********************************/
+
+            if (nullptr == geo)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"clearMorpherModifier\" message: `GeoSet` is empty!");
+                return 2;
+            }
+
+            phy = geo->getPhyTriMesh();
+
+            if (nullptr == phy)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"clearMorpherModifier\" message: `PhyTriMesh` is empty!");
+                return 2;
+            }
+
+            phy->setMorpherModifier(nullptr);
+
+            return 0;
+        }
+
+        return 1;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // eTriMesh: get or set the GeoSet
     ////////////////////////////////////////////////////////////////
 
@@ -399,10 +520,7 @@ namespace ZookieWizard
     {
         if (geo != new_geo)
         {
-            if (nullptr != geo)
-            {
-                geo->decRef();
-            }
+            geo->decRef();
 
             geo = new_geo;
 

@@ -459,6 +459,26 @@
 
 
 ****************************************************************
+[eNode::eGroup::eNPCMap]
+
+ - - - - - - - - - - - - - - - -
+ * `AddNode` creation parameters:
+
+  min = floatTriple // Boundary Box corner, XYZ
+
+  max = floatTriple // Boundary Box corner, XYZ
+
+ - - - - - - - - - - - - - - - -
+ * `NodeMsg` custom messages:
+
+  setBoundaryBox
+  (
+    floatTriple // XYZ min
+    floatTriple // XYZ max
+  )
+
+
+****************************************************************
 [eNode::eGroup::eTransform]
 
  - - - - - - - - - - - - - - - -
@@ -668,6 +688,14 @@
   clearVisPortals
   ()
 
+  unregisterPivots
+  ()
+
+  registerPivot
+  (
+    nodeRef // "ePivot" type
+  )
+
 
 ****************************************************************
 [eNode::eGroup::eTransform::eProxy]
@@ -762,6 +790,26 @@
   (
     floatTriple // new XYZ position
   )
+
+
+****************************************************************
+[eNode::eTriMesh]
+
+ - - - - - - - - - - - - - - - -
+ * `NodeMsg` custom messages:
+
+  assertTextureMappingTypes
+  (
+    integer // parameters are optional: when run with no params, all texture mappings
+    integer // are removed. when running with 2 or 3 args, later texture mappings
+    integer // are removed. when run with more args than the GeoSet has texture mapping,
+    integer // new texture mappings will be appended. Accepted values are:
+            //  [0] = normal UV
+            //  [1] = reflection (env) mapping
+  )
+
+  clearMorpherModifier
+  ()
 
 
 ****************************************************************

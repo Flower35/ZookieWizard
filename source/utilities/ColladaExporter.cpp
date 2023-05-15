@@ -351,11 +351,11 @@ namespace ZookieWizard
             }
         }
 
-        if (tagsCount >= tagsMaxLength)
+        if ((tagsCount + 1) > tagsMaxLength)
         {
             temp_tags = new ColladaExporterTag [tagsMaxLength + 1];
 
-            for (i = 0; i < tagsMaxLength; i++)
+            for (i = 0; i < tagsCount; i++)
             {
                 temp_tags[i] = tags[i];
             }

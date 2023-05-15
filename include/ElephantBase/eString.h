@@ -98,6 +98,7 @@ namespace ZookieWizard
             eStringPtrBase<charT> getPath() const;
             eStringPtrBase<charT> getFilename(bool with_extesion) const;
             eStringPtrBase<charT> trimWhitespace() const;
+            eStringPtrBase<char> escapedUTF8() const;
             void assertPath();
             bool isRooted() const;
     };
@@ -117,6 +118,12 @@ namespace ZookieWizard
 
     namespace StringFunctions
     {
+        char nibbleToHex(const char nibble);
+        void appendEscapedUTF8(eString& destination, const wchar_t unicodeChar);
+
+        bool convertChar(char& ansiDestination, const wchar_t unicodeSource);
+        bool convertChar(wchar_t& unicodeDestination, const char ansiSource);
+
         void convertString(eString& destination, const eUnicodeString& source);
         void convertString(eUnicodeString& destination, const eString& source);
 

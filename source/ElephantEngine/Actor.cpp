@@ -149,50 +149,37 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // Actor: export readable structure
+    // Actor: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void Actor::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void Actor::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
         int32_t a;
         eNode* child_node;
-        eString test_str;
-
-        char bufor[512];
 
         /* "ePivot": parent class */
 
-        ePivot::writeStructureToTextFile(file, indentation, true);
+        ePivot::dumpTreeAsJsonValue(output, false);
 
-        /* "Actor": additional info */
+        JsonObject* jsonObjectRef = (JsonObject*)output.getValue();
 
-        if (!(scriptPath.isEmpty()))
-        {
-            if ('?' == scriptPath.getText()[0])
-            {
-                test_str = "<?>";
-            }
-            else
-            {
-                test_str = scriptPath;
-            }
-        }
+        /* "Actor": script path */
 
-        sprintf_s
-        (
-            bufor, 512,
-            " - script: \"%s\"",
-            test_str.getText()
-        );
-
-        ArFunctions::writeIndentation(file, indentation);
-        file << bufor;
-        ArFunctions::writeNewLine(file, 0);
+        jsonObjectRef->appendKeyValue("script", scriptPath);
 
         /****************/
 
-        if (!group_written)
+        if (dumpChildNodes)
         {
-            MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->writeStructureToTextFile(file, (indentation + 1), false); })
+            JsonArray jsonNodes;
+            JsonValue jsonNode;
+
+            MACRO_KAO2_GROUP_FOREACH_NODE
+            ({
+                child_node->dumpTreeAsJsonValue(jsonNode, true);
+                jsonNodes.appendValue(jsonNode);
+            })
+
+            jsonObjectRef->appendKeyValue("nodes", jsonNodes);
         }
     }
 

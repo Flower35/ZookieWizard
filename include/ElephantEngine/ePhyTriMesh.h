@@ -76,7 +76,7 @@ namespace ZookieWizard
             const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
+            void dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const override;
             void writeNodeToXmlFile(ColladaExporter &exporter) const override;
 
             /* << ePhyTriMesh >> */
@@ -89,6 +89,11 @@ namespace ZookieWizard
             void animateVertices();
 
             eTransform* getArmatureParent() const;
+
+            /* << ePhyTriMesh >> */
+
+            eMorpherMod* getMorpherModifier() const;
+            void setMorpherModifier(eMorpherMod* new_morpher_mod);
 
         private:
 

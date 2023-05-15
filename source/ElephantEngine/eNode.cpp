@@ -706,73 +706,44 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
-    // eNode: export readable structure
+    // eNode: dump object tree as a JSON value
     ////////////////////////////////////////////////////////////////
-    void eNode::writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const
+    void eNode::dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const
     {
-        char bufor[1024];
-        const TypeInfo* type_info = getType();
+        char bufor[16];
+        JsonArray jsonArray;
 
-        sprintf_s
-        (
-            bufor, 1024,
-            "[%08X] %s (\"%s\")",
-            type_info->id,
-            type_info->name,
-            getDebugName(1024 - 64).getText()
-        );
+        /* "eObject": parent class */
 
-        ArFunctions::writeNewLine(file, indentation);
-        file << bufor;
+        eObject::dumpTreeAsJsonValue(output, false);
 
-        sprintf_s
-        (
-            bufor, 1024,
-            " - flags: %08X %08X %04X (visGroup: %d)",
-            unknown_0C,
-            flags,
-            flagsCollisionResponse,
-            visGroup
-        );
+        JsonObject * jsonObjectRef = (JsonObject *) output.getValue();
 
-        ArFunctions::writeNewLine(file, indentation);
-        file << bufor;
+        /* "eNode": name */
 
-        if (nullptr != parent)
-        {
-            type_info = parent->getType();
+        jsonObjectRef->appendKeyValue("name", name);
 
-            sprintf_s
-            (
-                bufor, 1024,
-                " - parent: [%08X] %s (\"%s\")",
-                type_info->id,
-                type_info->name,
-                parent->getStringRepresentation().getText()
-            );
+        /* "eNode": flags */
 
-            ArFunctions::writeNewLine(file, indentation);
-            file << bufor;
-        }
+        snprintf(bufor, sizeof(bufor), "0x%08X", unknown_0C);
+        jsonArray.appendValue(bufor);
+
+        snprintf(bufor, sizeof(bufor), "0x%08X", flags);
+        jsonArray.appendValue(bufor);
+
+        snprintf(bufor, sizeof(bufor), "0x%04X", flagsCollisionResponse);
+        jsonArray.appendValue(bufor);
+
+        jsonObjectRef->appendKeyValue("flags", jsonArray);
+
+        /* "eNode": Axis List Box */
 
         if (nullptr != axisListBox)
         {
-            type_info = axisListBox->getType();
+            const TypeInfo * type_info = axisListBox->getType();
 
-            sprintf_s
-            (
-                bufor, 1024,
-                " - albox: [%08X] %s (id=%08X)",
-                type_info->id,
-                type_info->name,
-                axisListBox->getCollisionId()
-            );
-
-            ArFunctions::writeNewLine(file, indentation);
-            file << bufor;
+            jsonObjectRef->appendKeyValue("albox", type_info->name);
         }
-
-        ArFunctions::writeNewLine(file, 0);
     }
 
 

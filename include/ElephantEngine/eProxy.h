@@ -53,7 +53,7 @@ namespace ZookieWizard
             const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
+            void dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const override;
 
             /* << eNode >> */
 
@@ -76,6 +76,9 @@ namespace ZookieWizard
 
             void setCategory(int32_t new_category);
             void setTargetName(eString new_target_name);
+
+            static int32_t proxyCatIdFromName(const eString &name);
+            static const char* proxyCatNameFromId(int32_t cat);
     };
 
 

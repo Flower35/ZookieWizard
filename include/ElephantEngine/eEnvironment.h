@@ -45,7 +45,7 @@ namespace ZookieWizard
             const TypeInfo* getType() const override;
             void serialize(Archive &ar) override;
 
-            void writeStructureToTextFile(FileOperator &file, int32_t indentation, bool group_written) const override;
+            void dumpTreeAsJsonValue(JsonValue& output, bool dumpChildNodes) const override;
 
             /* << eNode >> */
 
