@@ -641,6 +641,84 @@ namespace ZookieWizard
 
                         return (-2);
                     }
+
+
+                    case VK_DELETE:
+                    {
+                        myARs[currentArId].changeSelectedObject(NODES_LISTBOX_DELETE_SELECTED, nullptr);
+                        
+                        return (-2);
+                    }
+
+                    case VK_F1:
+                    {
+                        myARs[currentArId].changeSelectedObject(NODES_LISTBOX_MOVE_UP, nullptr);
+
+                        return (-2);
+                    }
+
+                    case VK_F2:
+                    {
+                        myARs[currentArId].changeSelectedObject(NODES_LISTBOX_MOVE_DOWN, nullptr);
+
+                        return (-2);
+                    }
+
+                    case VK_F3:
+                    {
+                        myARs[currentArId].changeSelectedObject(NODES_LISTBOX_MOVE_IN, nullptr);
+
+                        return (-2);
+                    }
+
+                    case VK_F4:
+                    {
+                        myARs[currentArId].changeSelectedObject(NODES_LISTBOX_MOVE_OUT, nullptr);
+
+                        return (-2);
+                    }
+
+                    case VK_F5:
+                    {
+                        myARs[currentArId].changeSelectedObject(NODES_EDITING_CLONE_SELECTED, nullptr);
+
+                        return (-2);
+                    }
+
+                    case VK_F6:
+                    {
+                        myARs[currentArId].changeSelectedObject(NODES_EDITING_CLONE_PASTING, nullptr);
+
+                        return (-2);
+                    }
+
+                    case VK_F7:
+                    {
+                        myARs[currentArId].changeSelectedObject(NODES_EDITING_MATERIAL_CLONE, nullptr);
+
+                        return (-2);
+                    }
+
+                    case VK_F8:
+                    {
+                        myARs[currentArId].changeSelectedObject(NODES_EDITING_MATERIAL_CHANGE, nullptr);
+
+                        return (-2);
+                    }
+
+                    case VK_F9:
+                    {
+                        myARs[currentArId].changeSelectedObject(NODES_LISTBOX_COLLISION_REBUILD, nullptr);
+
+                        return (-2);
+                    }
+
+                    case VK_F11:
+                    {
+                        myARs[currentArId].changeSelectedObject(NODES_LISTBOX_COLLISION_CLEAR, nullptr);
+
+                        return (-2);
+                    }
                 }
             }
 
@@ -1786,22 +1864,22 @@ namespace ZookieWizard
 			nodesList_ActionIds[1][0] = 3;
 			nodesList_ActionIds[1][1] = 6;
 
-			if (0 == (nodesList_Windows[1 + 3] = theWindowsManager.addWindow("Move Higlighted Node UP", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_UP, 0)))
+			if (0 == (nodesList_Windows[1 + 3] = theWindowsManager.addWindow("(F1)\nMove Higlighted Node UP", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_UP, 0)))
 			{
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 4] = theWindowsManager.addWindow("Move Higlighted Node DOWN", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_DOWN, 0x01)))
+			if (0 == (nodesList_Windows[1 + 4] = theWindowsManager.addWindow("(F2)\nMove Higlighted Node DOWN", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_DOWN, 0x01)))
 			{
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 5] = theWindowsManager.addWindow("Highlighted Node\nOUTSIDE the Current Group", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_OUT, 0)))
+			if (0 == (nodesList_Windows[1 + 5] = theWindowsManager.addWindow("(F4)\nMove Highlighted\nNode OUTSIDE", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_OUT, 0)))
 			{
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 6] = theWindowsManager.addWindow("Highlighted Node\nINTO the Group entry ontop", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_IN, 0x01)))
+			if (0 == (nodesList_Windows[1 + 6] = theWindowsManager.addWindow("(F3)\nMove INTO the\nGroup entry ontop", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_IN, 0x01)))
 			{
 				return false;
 			}
@@ -1820,7 +1898,7 @@ namespace ZookieWizard
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 9] = theWindowsManager.addWindow("Delete\nHighlighted Node\n(from the list)", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE_SELECTED, 0x01)))
+			if (0 == (nodesList_Windows[1 + 9] = theWindowsManager.addWindow("(DEL)\nDelete\nHighlighted Node", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_DELETE_SELECTED, 0x01)))
 			{
 				return false;
 			}
@@ -1834,12 +1912,12 @@ namespace ZookieWizard
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 11] = theWindowsManager.addWindow("Clone\nHighlighted Node\n(from the list)", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_CLONE_SELECTED, 0x01)))
+			if (0 == (nodesList_Windows[1 + 11] = theWindowsManager.addWindow("(F5)\nClone\nHighlighted Node", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_CLONE_SELECTED, 0x01)))
 			{
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 12] = theWindowsManager.addWindow("Paste Cloned\nNode into\nCurrent Group\n", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_CLONE_PASTING, 0x01)))
+			if (0 == (nodesList_Windows[1 + 12] = theWindowsManager.addWindow("(F6)\nPaste Cloned\nNode here", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_CLONE_PASTING, 0x01)))
 			{
 				return false;
 			}
@@ -1848,7 +1926,7 @@ namespace ZookieWizard
 			nodesList_ActionIds[4][0] = 13;
 			nodesList_ActionIds[4][1] = 16;
 
-			if (0 == (nodesList_Windows[1 + 13] = theWindowsManager.addWindow("Clone or Create\na new Material", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_MATERIAL_CLONE, 0)))
+			if (0 == (nodesList_Windows[1 + 13] = theWindowsManager.addWindow("(F7)\nClone or Create\na new Material", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_MATERIAL_CLONE, 0)))
 			{
 				return false;
 			}
@@ -1858,7 +1936,7 @@ namespace ZookieWizard
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 15] = theWindowsManager.addWindow("Apply a Material from Materials Manager", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_MATERIAL_CHANGE, 0)))
+			if (0 == (nodesList_Windows[1 + 15] = theWindowsManager.addWindow("(F8)\nApply Material from Manager", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_MATERIAL_CHANGE, 0)))
 			{
 				return false;
 			}
@@ -1882,12 +1960,12 @@ namespace ZookieWizard
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 19] = theWindowsManager.addWindow("Rebuild Collision Data", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0)))
+			if (0 == (nodesList_Windows[1 + 19] = theWindowsManager.addWindow("(F9)\nRebuild Collision Data", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0)))
 			{
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 20] = theWindowsManager.addWindow("Clear Collision Data", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01)))
+			if (0 == (nodesList_Windows[1 + 20] = theWindowsManager.addWindow("(F11)\nClear Collision Data", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01)))
 			{
 				return false;
 			}
