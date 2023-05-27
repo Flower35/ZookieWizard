@@ -1,6 +1,7 @@
 #include <ElephantEngine/eNPCMap.h>
 #include <ElephantBase/Archive.h>
 #include <ElephantBase/eDrawContext.h>
+#include <sstream>
 
 namespace ZookieWizard
 {
@@ -408,6 +409,114 @@ namespace ZookieWizard
             customMapSetup(boxBoundMin, boxBoundMax, 8);
             return 0;
         }
+		else if (message.compareExact("relocateBox", true))
+		{
+			ePoint3 new_center_pos;
+			ePoint3 old_center_pos;
+			ePoint3 center_offset;
+
+			if (2 != params_count)
+			{
+				TxtParsingNode_ErrorArgCount(result_msg, "relocateBox", 2);
+				return 2;
+			}
+
+			/********************************/
+
+			if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+			{
+				TxtParsingNode_ErrorArgType(result_msg, "relocateBox", 1, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+				return 2;
+			}
+
+			params[0].getValue(dummy_floats);
+
+			new_center_pos.x = dummy_floats[0];
+			new_center_pos.y = dummy_floats[1];
+			new_center_pos.z = dummy_floats[2];
+
+			/********************************/
+
+			if (!params[1].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+			{
+				TxtParsingNode_ErrorArgType(result_msg, "relocateBox", 1, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+				return 2;
+			}
+
+			params[1].getValue(dummy_floats);
+
+			unknown_AC.x = dummy_floats[0];
+			unknown_AC.y = dummy_floats[1];
+			unknown_AC.z = dummy_floats[2];
+
+			/********************************/
+
+			old_center_pos = (boxBoundMin + boxBoundMax) * 0.5f;
+			center_offset = old_center_pos - boxBoundMin;
+
+			boxBoundMin = new_center_pos - center_offset;
+			boxBoundMax = new_center_pos + center_offset;
+
+			return 0;
+		}
+		else if (message.compareExact("setStartPoint", true))
+		{
+			if (1 != params_count)
+			{
+				TxtParsingNode_ErrorArgCount(result_msg, "setStartPoint", 1);
+				return 2;
+			}
+
+			/********************************/
+
+			if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_FLOAT3))
+			{
+				TxtParsingNode_ErrorArgType(result_msg, "setStartPoint", 1, TXT_PARSING_NODE_PROPTYPE_FLOAT3);
+				return 2;
+			}
+
+			params[0].getValue(dummy_floats);
+
+			std::stringstream ss1;
+			ss1 << "boxBoundMin: " << boxBoundMin.x << " " << boxBoundMin.y << " " << boxBoundMin.z << std::endl;
+
+			std::stringstream ss2;
+			ss2 << "boxBoundMax: " << boxBoundMax.x << " " << boxBoundMax.y << " " << boxBoundMax.z << std::endl;
+
+			/*for (int a = 0; a < unknown_4C * unknown_50; a++)
+			{
+				ss2 << unknown_60[a] << std::endl;
+			}*/
+			
+
+			std::stringstream ss3;
+			ss3 << "box size: " << (boxBoundMax.x - boxBoundMin.x) << " " << (boxBoundMax.y - boxBoundMin.y) << " " << (boxBoundMax.z - boxBoundMin.z) << std::endl;
+
+			std::stringstream ss4;
+			ss4 << "(0x4C): " << unknown_4C << " (0x50): " << unknown_50 << std::endl;
+
+			std::stringstream ss5;
+			ss5 << "(0x54): " << unknown_54 << " (0x58): " << unknown_58 << " (0x5C): " << unknown_5C << std::endl;
+
+			OutputDebugString(ss1.str().c_str());
+			OutputDebugString(ss2.str().c_str());
+			OutputDebugString(ss3.str().c_str());
+			OutputDebugString(ss4.str().c_str());
+			OutputDebugString(ss5.str().c_str());
+
+			unknown_AC.x = dummy_floats[0];
+			unknown_AC.y = dummy_floats[1];
+			unknown_AC.z = dummy_floats[2];
+
+			unknown_54 = 48;
+			unknown_58 = 32;
+			unknown_5C = 64;
+
+			/********************************/
+
+			//customStartPointSetup(unknown_AC);
+			return 0;
+		}
 
         return 1;
     }

@@ -75,6 +75,7 @@ namespace ZookieWizard
             /* << eNPCMap >> */
 
             void customMapSetup(ePoint3 &box_min, ePoint3 &box_max, int32_t navis_in_group);
+			void customStartPointSetup(ePoint3& start_pos);
     };
 
 
