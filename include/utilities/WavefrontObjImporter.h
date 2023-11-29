@@ -7,6 +7,7 @@
 namespace ZookieWizard
 {
     class eGroup;
+    class eTriMesh;
     class eMaterial;
 
     ////////////////////////////////////////////////////////////////
@@ -136,7 +137,8 @@ namespace ZookieWizard
             WavefrontObjImporter();
             ~WavefrontObjImporter();
 
-            void begin(eString obj_fullpath, eGroup* target, int32_t flags, eSRP &srp);
+            void importTriMeshFromObj(eString obj_fullpath, eGroup* target, int32_t flags, eSRP &srp);
+            void updateTriMeshVerticesFromObj(eString obj_fullpath, eNode* target, int32_t flags, eSRP& srp);
 
         protected:
 
@@ -153,6 +155,7 @@ namespace ZookieWizard
             void readModelData();
             void readMaterialInfo(eString filename);
             void constructTriMeshes();
+            void reconstructTriMesh(eTriMesh* target);
 
             bool groupHasMultipleMaterials(const int32_t g_id) const;
     };

@@ -53,6 +53,7 @@ namespace ZookieWizard
         void ArMenuOptions_ExportArToCollada();
         void ArMenuOptions_ExportTrimeshToObj();
         void ArMenuOptions_ImportTrimeshFromObj();
+        void ArMenuOptions_UpdateVerticesFromObj();
         void ArMenuOptions_ChangeNodesWithTxt();
 
         void DenisMenuOptions_OpenDenisLevel();

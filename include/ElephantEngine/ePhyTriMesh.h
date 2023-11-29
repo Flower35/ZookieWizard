@@ -81,6 +81,12 @@ namespace ZookieWizard
 
             /* << ePhyTriMesh >> */
 
+            void setDefaultVerticesArray(eGeoArray<ePoint4>* new_vertices_array);
+            void setDefaultNormalsArray(eGeoArray<ePoint4>* new_normals_array);
+
+            eGeoArray<ePoint4>* getDefaultVerticesArray() const;
+            eGeoArray<ePoint4>* getDefaultNormalsArray() const;
+
             void deleteBones();
 
             void transformVertices(eSRP &new_transform);

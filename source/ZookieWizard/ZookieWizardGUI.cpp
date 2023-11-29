@@ -17,7 +17,7 @@ namespace ZookieWizard
 
         bool updatingEditboxesNotByUser = false;
 
-        static const int32_t nodesList_ButtonsCount = 23;
+        static const int32_t nodesList_ButtonsCount = 24;
         static const int32_t nodesList_ActionsCount = 7;
         int32_t nodesList_CurrentAction;
         static HWND nodesList_Windows[1 + nodesList_ButtonsCount];
@@ -26,7 +26,7 @@ namespace ZookieWizard
         static const char* nodesList_ActionNames[nodesList_ActionsCount] =
         {
             "Browsing the Archive", "Moving Nodes", "Deleting Nodes", "Cloning Nodes",
-            "Managing Materials", "Modifying 3D meshes", "Modifying Groups"
+            "Managing Materials", "Modifying 3D meshes", "Other"
         };
 
 
@@ -1972,7 +1972,7 @@ namespace ZookieWizard
 
 			theWindowsManager.setCurrentPosition(x, y);
 			nodesList_ActionIds[6][0] = 21;
-			nodesList_ActionIds[6][1] = 22;
+			nodesList_ActionIds[6][1] = 23;
 
 			if (0 == (nodesList_Windows[1 + 21] = theWindowsManager.addWindow("Update \"DrawPass\" flags", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_DPFLAGS, 0)))
 			{
@@ -1983,6 +1983,11 @@ namespace ZookieWizard
 			{
 				return false;
 			}
+
+            if (0 == (nodesList_Windows[1 + 23] = theWindowsManager.addWindow("Reconstruct eTriMesh\nvertices", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_UPDATEMESH, 0)))
+            {
+                return false;
+            }
 
 			theWindowsManager.setCurrentPosition(x, (y + 2 * (NODES_BUTTON_HEIGHT + WINDOW_PADDING_SMALL)));
 			theWindowsManager.setCurrentPadding(0, 0);

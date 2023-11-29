@@ -347,6 +347,54 @@ namespace ZookieWizard
         }
     }
 
+    ////////////////////////////////////////////////////////////////
+    // ePhyTriMesh: set arrays and properties
+    ////////////////////////////////////////////////////////////////
+
+    void ePhyTriMesh::setDefaultVerticesArray(eGeoArray<ePoint4>* new_vertices_array)
+    {
+        if (defaultVertices != new_vertices_array)
+        {
+            defaultVertices->decRef();
+
+            defaultVertices = new_vertices_array;
+
+            if (nullptr != defaultVertices)
+            {
+                defaultVertices->incRef();
+            }
+        }
+    }
+
+    void ePhyTriMesh::setDefaultNormalsArray(eGeoArray<ePoint4>* new_normals_array)
+    {
+        if (defaultNormals != new_normals_array)
+        {
+            defaultNormals->decRef();
+
+            defaultNormals = new_normals_array;
+
+            if (nullptr != defaultNormals)
+            {
+                defaultNormals->incRef();
+            }
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // ePhyTriMesh: get arrays
+    ////////////////////////////////////////////////////////////////
+
+    eGeoArray<ePoint4>* ePhyTriMesh::getDefaultVerticesArray() const
+    {
+        return defaultVertices;
+    }
+
+    eGeoArray<ePoint4>* ePhyTriMesh::getDefaultNormalsArray() const
+    {
+        return defaultNormals;
+    }
+
 
     ////////////////////////////////////////////////////////////////
     // ePhyTriMesh: dump object tree as a JSON value

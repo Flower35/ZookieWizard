@@ -5,6 +5,7 @@
 #include <ElephantEngine/eGroup.h>
 #include <ElephantEngine/eTriMesh.h>
 #include <ElephantEngine/eGeoSet.h>
+#include <ElephantEngine/ePhyTriMesh.h>
 
 #include <ZookieWizard/ZookieWizardMaterials.h>
 #include <ElephantEngine/eMaterial.h>
@@ -182,7 +183,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WavefrontObjImporter: prepare to import the mesh
     ////////////////////////////////////////////////////////////////
-    void WavefrontObjImporter::begin(eString obj_fullpath, eGroup* target, int32_t flags, eSRP &srp)
+    void WavefrontObjImporter::importTriMeshFromObj(eString obj_fullpath, eGroup* target, int32_t flags, eSRP &srp)
     {
         char bufor[LARGE_BUFFER_SIZE];
 
@@ -192,7 +193,7 @@ namespace ZookieWizard
         {
             throw ErrorMessage
             (
-                "WavefrontObjImporter::begin():\n" \
+                "WavefrontObjImporter::importTriMeshFromObj():\n" \
                 "Selected object is not a \"eGroup\" type!"
             );
         }
@@ -240,6 +241,124 @@ namespace ZookieWizard
             importedMeshes = 0;
 
             constructTriMeshes();
+
+            /****************/
+
+            sprintf_s
+            (
+                bufor, LARGE_BUFFER_SIZE,
+                " WavefrontObjImporter finished: %d vertices in %d meshes.\n",
+                importedVertices,
+                importedMeshes
+            );
+
+            theLog.print(bufor);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // WavefrontObjImporter: prepare to import and update existing mesh
+    ////////////////////////////////////////////////////////////////
+    void WavefrontObjImporter::updateTriMeshVerticesFromObj(eString obj_fullpath, eNode* target, int32_t flags, eSRP& srp)
+    {
+        char bufor[LARGE_BUFFER_SIZE];
+        eGeoSet* test_geo;
+        ePhyTriMesh* test_phytrimesh;
+
+        /****************/
+
+        if (!target->getType()->checkHierarchy(&E_TRIMESH_TYPEINFO))
+        {
+            throw ErrorMessage
+            (
+                "WavefrontObjImporter::updateTriMeshVerticesFromObj():\n" \
+                "Target object is not a \"eTriMesh\" type!"
+            );
+        }
+
+        /****************/
+
+        appendNameToMeshes = ((0x01 << 0) & flags);
+        regroupMeshesWithMaterials = ((0x01 << 1) & flags);
+        makeMaterialsTwoSided = ((0x01 << 2) & flags);
+
+        appliedTransform = srp;
+
+        /****************/
+
+        sprintf_s
+        (
+            bufor, LARGE_BUFFER_SIZE,
+            " WavefrontObjImporter(\"%s\").\n",
+            obj_fullpath.getText()
+        );
+
+        theLog.print(bufor);
+
+        /****************/
+
+        if (openObj(obj_fullpath))
+        {
+            workingDirectory = obj_fullpath.getPath();
+            fileName = obj_fullpath.getFilename(false);
+
+            /****************/
+
+            objVerticesCount = 0;
+            objMappingCount = 0;
+            objNormalsCount = 0;
+            objFacesCount = 0;
+            objMaterialsCount = 0;
+            objGroupsCount = 0;
+
+            readModelData();
+
+            if (((eTriMesh*)target)->getGeoset() == nullptr || ((eTriMesh*)target)->getGeoset()->getPhyTriMesh() == nullptr)
+            {
+                throw ErrorMessage
+                (
+                    "WavefrontObjImporter::updateTriMeshVerticesFromObj():\n" \
+                    "Target object does not have a \"ePhyTriMesh\" object!"
+                );
+            }
+
+            if (objGroupsCount >= 2 || objMaterialsCount >= 2)
+            {
+                throw ErrorMessage
+                (
+                    "WavefrontObjImporter::updateTriMeshVerticesFromObj():\n" \
+                    "Imported obj must contain a single mesh!"
+                );
+            }
+
+            test_geo = ((eTriMesh*)target)->getGeoset();
+            test_phytrimesh = test_geo->getPhyTriMesh();
+            //int geoSetNormals = test_geo->getVerticesArray(0)->getLength();
+            //int phyTriMeshNormals = test_phytrimesh->getDefaultVerticesArray()->getLength();
+
+            if (objVerticesCount != test_geo->getVerticesArray(0)->getLength() || objVerticesCount != test_phytrimesh->getDefaultVerticesArray()->getLength())
+            {
+                throw ErrorMessage
+                (
+                    "WavefrontObjImporter::updateTriMeshVerticesFromObj():\n" \
+                    "Number of vertices of imported mesh must match the target eTriMesh!"
+                );
+            }
+
+            /*if (objNormalsCount != test_geo->getNormalsArray(0)->getLength() || objNormalsCount != test_phytrimesh->getDefaultNormalsArray()->getLength())
+            {
+                throw ErrorMessage
+                (
+                    "WavefrontObjImporter::updateTriMeshVerticesFromObj():\n" \
+                    "Number of normals of imported mesh must match the target eTriMesh!"
+                );
+            }*/
+
+            importedVertices = 0;
+            importedMeshes = 0;
+
+            reconstructTriMesh((eTriMesh*)target);
 
             /****************/
 
@@ -1337,6 +1456,365 @@ namespace ZookieWizard
                 test_group->decRef();
                 test_group = nullptr;
             }
+        }
+
+        if (nullptr != referencedVertices)
+        {
+            delete[](referencedVertices);
+            referencedVertices = nullptr;
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // WavefrontObjImporter: update existing "eTriMesh" object with new vertices
+    ////////////////////////////////////////////////////////////////
+    void WavefrontObjImporter::reconstructTriMesh(eTriMesh* target)
+    {
+        int32_t j, k, l, m;
+        int32_t total_indices, total_vertices, total_normals, total_mappings;
+        float dummy_floats[3];
+        ePoint3 dummy_vectors[2];
+
+        uint16_t temp_id[4];
+        bool temp_tests[3];
+
+        eGroup* test_group = nullptr;
+        eTriMesh* test_trimesh = nullptr;
+        eGeoSet* test_geoset = nullptr;
+        eMaterialState* dummy_mtl_state = nullptr;
+
+        eGeoArray<ePoint4>* test_vertices_array = nullptr;
+        eGeoArray<ushort>* test_indices_offsets = nullptr;
+        eGeoArray<ushort>* test_indices_array = nullptr;
+        eGeoArray<ePoint2>* test_uv_array = nullptr;
+        eGeoArray<ePoint4>* test_normals_array = nullptr;
+        eGeoArray<ePoint4>* test_colors_array = nullptr;
+
+        ePoint4* test_vertices_data = nullptr;
+        //ushort* test_indices_offsets_data = nullptr;
+        //ushort* test_indices_array_data = nullptr;
+        ePoint2* test_uv_data = nullptr;
+        ePoint4* test_normals_data = nullptr;
+        ePoint4* test_colors_data = nullptr;
+
+        eGeoArray<ePoint4>* vertices_data = nullptr;
+        eGeoArray<ePoint2>* uv_data = nullptr;
+        eGeoArray<ePoint4>* colors_data = nullptr;
+
+        eMatrix4x4 model_matrix = appliedTransform.getMatrix();
+
+        theLog.print(" Updating 3D object, please wait...\n");
+
+        if (nullptr != referencedVertices)
+        {
+            delete[](referencedVertices);
+        }
+
+        referencedVertices = new uint16_t[4 * (3 * objFacesCount)];
+
+        /********************************/
+        /* Reposition "v", "vt", "vn" and "f" */
+
+        for (j = 0; j < objVerticesCount; j++)
+        {
+            dummy_floats[0] = objVertices[j].y;
+            dummy_floats[1] = objVertices[j].z;
+            objVertices[j].y = (-dummy_floats[1]);
+            objVertices[j].z = dummy_floats[0];
+
+            objVertices[j].applyMatrix(model_matrix);
+        }
+
+        for (j = 0; j < objMappingCount; j++)
+        {
+            objMapping[j].v = (1.0f - objMapping[j].v);
+        }
+
+        for (j = 0; j < objNormalsCount; j++)
+        {
+            dummy_floats[0] = objNormals[j].y;
+            dummy_floats[1] = objNormals[j].z;
+            objNormals[j].y = (-dummy_floats[1]);
+            objNormals[j].z = dummy_floats[0];
+
+            objNormals[j] = model_matrix * objNormals[j];
+        }
+
+        for (j = 0; j < objFacesCount; j++)
+        {
+            for (k = 0; k < 3; k++)
+            {
+                objFaces[j].v_id[k]--;
+                objFaces[j].vt_id[k]--;
+                objFaces[j].vn_id[k]--;
+
+                /* Using same IDs for "duplicated" v/vt/vn entries */
+
+                m = objFaces[j].v_id[k];
+
+                if (m < objVerticesCount)
+                {
+                    for (l = 0; l < m; l++)
+                    {
+                        if (objVertices[l] == objVertices[m])
+                        {
+                            objFaces[j].v_id[k] = l;
+
+                            l = m; // explicit break
+                        }
+                    }
+                }
+
+                m = objFaces[j].vt_id[k];
+
+                if (m < objMappingCount)
+                {
+                    for (l = 0; l < m; l++)
+                    {
+                        if (objMapping[l] == objMapping[m])
+                        {
+                            objFaces[j].vt_id[k] = l;
+
+                            l = m; // explicit break
+                        }
+                    }
+                }
+
+                m = objFaces[j].vn_id[k];
+
+                if (m < objNormalsCount)
+                {
+                    for (l = 0; l < m; l++)
+                    {
+                        if (objNormals[l] == objNormals[m])
+                        {
+                            objFaces[j].vn_id[k] = l;
+
+                            l = m; // explicit break
+                        }
+                    }
+                }
+            }
+        }
+
+        total_vertices = 0;
+        total_indices = 0;
+        total_normals = 0;
+        total_mappings = 0;
+
+        /********************************/
+        /* Checking which vertices will be used */
+
+        for (j = 0; j < objFacesCount; j++)
+        {
+            //if (objFaces[j].matchesSetting(group_id, mat_id))
+            //{
+            for (k = 0; k < 3; k++)
+            {
+                temp_id[0] = objFaces[j].v_id[k];
+                temp_id[1] = objFaces[j].vt_id[k];
+                temp_id[2] = objFaces[j].vn_id[k];
+
+                temp_tests[0] = (temp_id[0] >= 0) && (temp_id[0] < objVerticesCount);
+                temp_tests[1] = (temp_id[1] >= 0) && (temp_id[1] < objMappingCount);
+                temp_tests[2] = (temp_id[2] >= 0) && (temp_id[2] < objNormalsCount);
+
+                if (temp_tests[0])
+                {
+                    m = 0;
+
+                    /* `3 == m` and the loop breaks only when a vertex with exact params existed */
+
+                    for (l = 0; (l < total_vertices) && (m < 3); l++)
+                    {
+                        if (referencedVertices[4 * l + 0] == temp_id[0])
+                        {
+                            m = 1;
+
+                            if (temp_tests[1])
+                            {
+                                if (referencedVertices[4 * l + 1] == temp_id[1])
+                                {
+                                    m++;
+                                }
+                            }
+                            else
+                            {
+                                m++;
+                            }
+
+                            if (temp_tests[2])
+                            {
+                                if (m >= 2) // UV mapping must be matching too.
+                                {
+                                    temp_id[3] = referencedVertices[4 * l + 2];
+
+                                    if (temp_id[3] != temp_id[2])
+                                    {
+                                        if ((temp_id[3] >= 0) && (temp_id[3] < objNormalsCount))
+                                        {
+                                            objNormals[temp_id[3]] += objNormals[temp_id[2]];
+                                            objNormals[temp_id[3]].normalize();
+
+                                            m++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        m++;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                m++;
+                            }
+                        }
+                        else
+                        {
+                            m = 0;
+                        }
+                    }
+
+                    if (m < 3)
+                    {
+                        /* Inserting another vertex parameters because it differs */
+
+                        referencedVertices[4 * total_vertices + 0] = temp_id[0];
+
+                        if (temp_tests[1])
+                        {
+                            referencedVertices[4 * total_vertices + 1] = temp_id[1];
+
+                            total_mappings++;
+                        }
+
+                        if (temp_tests[2])
+                        {
+                            referencedVertices[4 * total_vertices + 2] = temp_id[2];
+
+                            total_normals++;
+                        }
+                        else
+                        {
+                            /* marking Normal ID as invalid, so it cannot be used for addition */
+                            referencedVertices[4 * total_vertices + 2] = (-1);
+                        }
+
+                        total_vertices++;
+                    }
+                    else
+                    {
+                        /* Last matching vertex ID before loop counter was increased */
+                        l--;
+                    }
+
+                    referencedVertices[4 * total_indices + 3] = l;
+
+                    total_indices++;
+                }
+            }
+            //}
+        }
+
+        /********************************/
+        /* Continue if model is not empty */
+
+        if (total_vertices > 65535)
+        {
+            ErrorMessage
+            (
+                "WavefrontObjImporter::reconstructTriMesh():\n"
+                "too many vertices! (max 65535 per object)"
+            ).display();
+        }
+        else if (total_vertices > 0)
+        {
+            //test_trimesh = selected new eTriMesh();
+            //test_trimesh->incRef();
+
+            test_geoset = target->getGeoset();
+            vertices_data = test_geoset->getPhyTriMesh()->getDefaultVerticesArray();
+
+            colors_data = test_geoset->getColorsArray();
+
+            if (total_mappings > 0)
+            {
+                test_uv_data = new ePoint2[total_vertices];
+                test_uv_array = new eGeoArray<ePoint2>;
+                test_uv_array->setup(total_vertices, test_uv_data);
+                test_geoset->setTextureCoordsArray(0, test_uv_array);
+            }
+            else
+            {
+                test_geoset->setTextureCoordsArray(0, nullptr);
+            }
+
+            total_normals = 0; // DELETE THIS TO RE-ENABLE RECONSTRUCTING NORMALS ARRAYS
+
+            if (total_normals > 0)
+            {
+                test_normals_data = new ePoint4[total_vertices];
+                test_normals_array = new eGeoArray<ePoint4>();
+                test_normals_array->setup(total_vertices, test_normals_data);
+                test_geoset->getPhyTriMesh()->setDefaultNormalsArray(test_normals_array);
+            }
+
+            /********************************/
+            /* Fill arrays: indices, vertices, colors, UV mapping, normals */
+
+            /*for (j = 0; j < total_indices; j++)
+            {
+                test_indices_array_data[j] = referencedVertices[4 * j + 3];
+            }*/
+
+            for (j = 0; j < total_vertices; j++)
+            {
+                k = referencedVertices[4 * j + 0];
+
+                //ePoint4 vertex = vertices_data->getData()[j];
+
+                vertices_data->getData()[j].x = objVertices[j].x;
+                vertices_data->getData()[j].y = objVertices[j].y;
+                vertices_data->getData()[j].z = objVertices[j].z;
+
+                //ePoint4 vertexColor = colors_data->getData()[j];
+
+                colors_data->getData()[j].x = objVertices[j].r;
+                colors_data->getData()[j].y = objVertices[j].g;
+                colors_data->getData()[j].z = objVertices[j].b;
+
+
+                //test_vertices_data[j] = { objVertices[k].x, objVertices[k].y, objVertices[k].z, 1.0f };
+
+                //test_colors_data[j] = { objVertices[k].r, objVertices[k].g, objVertices[k].b, 1.0f };
+
+                if (total_mappings > 0)
+                {
+                    k = referencedVertices[4 * j + 1];
+
+                    test_uv_data[j] = objMapping[j];
+                }
+
+                if (total_normals > 0)
+                {
+                    k = referencedVertices[4 * j + 2];
+
+                    test_normals_data[j] = { objNormals[j].x, objNormals[j].y, objNormals[j].z, 0 };
+                }
+            }
+
+            /********************************/
+            /* View result in editor's window :) */
+
+            test_geoset->prepareForDrawing();
+
+            importedVertices += total_vertices;
+            importedMeshes++;
+
+            //test_geoset->decRef();
+            //test_trimesh->decRef();
         }
 
         if (nullptr != referencedVertices)

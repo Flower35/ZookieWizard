@@ -79,6 +79,7 @@ namespace ZookieWizard
     #define NODES_EDITING_MATERIAL_OPTIMIZE (-28)
     #define NODES_EDITING_GROUPS_DPFLAGS    (-29)
     #define NODES_EDITING_GROUPS_UNREF      (-30)
+    #define NODES_EDITING_GROUPS_UPDATEMESH (-31)
 
     class Archive
     {
@@ -180,6 +181,7 @@ namespace ZookieWizard
             void writeTreeToXmlFile(eString filename) const;
             void writeSelectedObjectToObjFile(eString filename) const;
             void appendToSelectedObjectFromObjFile(eString filename);
+            void updateVerticesFromObjFile(eString filename);
             int32_t appendNodesFromTxtFile(const char* filename);
             int32_t changeNodesWithTxtFile(const char* filename);
 

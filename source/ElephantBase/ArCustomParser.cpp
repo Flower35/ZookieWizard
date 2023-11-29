@@ -702,7 +702,7 @@ namespace ZookieWizard
                                 lastString = includedFiles[includedFileId].fileName.getPath() + lastString;
                             }
 
-                            obj_importer.begin(lastString, dummy_parent, test[1], dummy_srp);
+                            obj_importer.importTriMeshFromObj(lastString, dummy_parent, test[1], dummy_srp);
 
                             /********************************/
                             /* "ImportWavefrontOBJ": finished */

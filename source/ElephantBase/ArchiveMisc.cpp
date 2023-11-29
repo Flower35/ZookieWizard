@@ -808,6 +808,12 @@ namespace ZookieWizard
                 break;
             }
 
+            case NODES_EDITING_GROUPS_UPDATEMESH:
+            {
+                ArMenuOptions_UpdateVerticesFromObj();
+                break;
+            }
+
             case NODES_EDITING_GROUPS_UNREF:
             {
                 if (nullptr != test_node)
