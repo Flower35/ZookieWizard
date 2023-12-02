@@ -12,6 +12,7 @@
 #include <ElephantEngine/eMaterialState.h>
 #include <ElephantEngine/eTexture.h>
 #include <ElephantEngine/eBitmap.h>
+using namespace std;
 
 namespace ZookieWizard
 {
@@ -1492,8 +1493,6 @@ namespace ZookieWizard
         eGeoArray<ePoint4>* test_colors_array = nullptr;
 
         ePoint4* test_vertices_data = nullptr;
-        //ushort* test_indices_offsets_data = nullptr;
-        //ushort* test_indices_array_data = nullptr;
         ePoint2* test_uv_data = nullptr;
         ePoint4* test_normals_data = nullptr;
         ePoint4* test_colors_data = nullptr;
@@ -1548,53 +1547,6 @@ namespace ZookieWizard
                 objFaces[j].v_id[k]--;
                 objFaces[j].vt_id[k]--;
                 objFaces[j].vn_id[k]--;
-
-                /* Using same IDs for "duplicated" v/vt/vn entries */
-
-                m = objFaces[j].v_id[k];
-
-                if (m < objVerticesCount)
-                {
-                    for (l = 0; l < m; l++)
-                    {
-                        if (objVertices[l] == objVertices[m])
-                        {
-                            objFaces[j].v_id[k] = l;
-
-                            l = m; // explicit break
-                        }
-                    }
-                }
-
-                m = objFaces[j].vt_id[k];
-
-                if (m < objMappingCount)
-                {
-                    for (l = 0; l < m; l++)
-                    {
-                        if (objMapping[l] == objMapping[m])
-                        {
-                            objFaces[j].vt_id[k] = l;
-
-                            l = m; // explicit break
-                        }
-                    }
-                }
-
-                m = objFaces[j].vn_id[k];
-
-                if (m < objNormalsCount)
-                {
-                    for (l = 0; l < m; l++)
-                    {
-                        if (objNormals[l] == objNormals[m])
-                        {
-                            objFaces[j].vn_id[k] = l;
-
-                            l = m; // explicit break
-                        }
-                    }
-                }
             }
         }
 
@@ -1608,8 +1560,6 @@ namespace ZookieWizard
 
         for (j = 0; j < objFacesCount; j++)
         {
-            //if (objFaces[j].matchesSetting(group_id, mat_id))
-            //{
             for (k = 0; k < 3; k++)
             {
                 temp_id[0] = objFaces[j].v_id[k];
@@ -1719,6 +1669,30 @@ namespace ZookieWizard
         }
 
         /********************************/
+        /* Ordering faces by existing vertices */
+        int32_t* mappingsOrdered = new int32_t[objVerticesCount];
+
+        try
+        {
+            for (j = 0; j < objFacesCount; j++)
+            {
+                for (k = 2; k >= 0; k--)
+                {
+                    l = objFaces[j].v_id[k];
+                    mappingsOrdered[l] = objFaces[j].vt_id[k];
+                }
+            }
+        }
+        catch (...)
+        {
+            throw ErrorMessage
+            (
+                "WavefrontObjImporter::reconstructTriMesh():\n"
+                "error when reordering faces"
+            );
+        }
+
+        /********************************/
         /* Continue if model is not empty */
 
         if (total_vertices > 65535)
@@ -1731,77 +1705,69 @@ namespace ZookieWizard
         }
         else if (total_vertices > 0)
         {
-            //test_trimesh = selected new eTriMesh();
-            //test_trimesh->incRef();
-
             test_geoset = target->getGeoset();
             vertices_data = test_geoset->getPhyTriMesh()->getDefaultVerticesArray();
 
             colors_data = test_geoset->getColorsArray();
-
-            if (total_mappings > 0)
-            {
-                test_uv_data = new ePoint2[total_vertices];
-                test_uv_array = new eGeoArray<ePoint2>;
-                test_uv_array->setup(total_vertices, test_uv_data);
-                test_geoset->setTextureCoordsArray(0, test_uv_array);
-            }
-            else
-            {
-                test_geoset->setTextureCoordsArray(0, nullptr);
-            }
+            uv_data = test_geoset->getTextureCoordsArray(0);
+            k = uv_data->getLength();
 
             total_normals = 0; // DELETE THIS TO RE-ENABLE RECONSTRUCTING NORMALS ARRAYS
 
             if (total_normals > 0)
             {
-                test_normals_data = new ePoint4[total_vertices];
+                test_normals_data = new ePoint4[objVerticesCount];
                 test_normals_array = new eGeoArray<ePoint4>();
-                test_normals_array->setup(total_vertices, test_normals_data);
+                test_normals_array->setup(objVerticesCount, test_normals_data);
                 test_geoset->getPhyTriMesh()->setDefaultNormalsArray(test_normals_array);
             }
 
             /********************************/
-            /* Fill arrays: indices, vertices, colors, UV mapping, normals */
+            /* Fill arrays: vertices, colors, UV mapping, normals */
 
-            /*for (j = 0; j < total_indices; j++)
-            {
-                test_indices_array_data[j] = referencedVertices[4 * j + 3];
-            }*/
+            int countBadUV = 0;
 
-            for (j = 0; j < total_vertices; j++)
+            for (j = 0; j < objVerticesCount; j++)
             {
                 k = referencedVertices[4 * j + 0];
-
-                //ePoint4 vertex = vertices_data->getData()[j];
-
                 vertices_data->getData()[j].x = objVertices[j].x;
                 vertices_data->getData()[j].y = objVertices[j].y;
                 vertices_data->getData()[j].z = objVertices[j].z;
-
-                //ePoint4 vertexColor = colors_data->getData()[j];
 
                 colors_data->getData()[j].x = objVertices[j].r;
                 colors_data->getData()[j].y = objVertices[j].g;
                 colors_data->getData()[j].z = objVertices[j].b;
 
 
-                //test_vertices_data[j] = { objVertices[k].x, objVertices[k].y, objVertices[k].z, 1.0f };
-
-                //test_colors_data[j] = { objVertices[k].r, objVertices[k].g, objVertices[k].b, 1.0f };
-
                 if (total_mappings > 0)
                 {
-                    k = referencedVertices[4 * j + 1];
+                    char bufor[LARGE_BUFFER_SIZE];
+                    sprintf_s
+                    (
+                        bufor, LARGE_BUFFER_SIZE,
+                        "oldU: %f\tnewU: %f\n",
+                        uv_data->getData()[j].u,
+                        objMapping[j].u
+                    );
 
-                    test_uv_data[j] = objMapping[j];
-                }
+                    theLog.print(bufor);
 
-                if (total_normals > 0)
-                {
-                    k = referencedVertices[4 * j + 2];
+                    k = mappingsOrdered[j];
+                    if (k >= 0 && k < objVerticesCount)
+                    {
+                        if (abs(uv_data->getData()[j].u - objMapping[k].u) > 0.01f || abs(uv_data->getData()[j].v - objMapping[k].v) > 0.01f)
+                        {
+                            countBadUV++;
+                            float beforeU = uv_data->getData()[j].u;
+                            float beforeV = uv_data->getData()[j].v;
+                            float afterU = objMapping[k].u;
+                            float afterV = objMapping[k].v;
+                            int a = 1;
+                        }
 
-                    test_normals_data[j] = { objNormals[j].x, objNormals[j].y, objNormals[j].z, 0 };
+                        uv_data->getData()[j].u = objMapping[k].u;
+                        uv_data->getData()[j].v = objMapping[k].v;
+                    }
                 }
             }
 
@@ -1810,17 +1776,20 @@ namespace ZookieWizard
 
             test_geoset->prepareForDrawing();
 
-            importedVertices += total_vertices;
+            importedVertices += objVerticesCount;
             importedMeshes++;
-
-            //test_geoset->decRef();
-            //test_trimesh->decRef();
         }
 
         if (nullptr != referencedVertices)
         {
             delete[](referencedVertices);
             referencedVertices = nullptr;
+        }
+
+        if (nullptr != mappingsOrdered)
+        {
+            delete[](mappingsOrdered);
+            mappingsOrdered = nullptr;
         }
     }
 
