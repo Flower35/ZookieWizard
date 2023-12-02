@@ -1688,7 +1688,7 @@ namespace ZookieWizard
             throw ErrorMessage
             (
                 "WavefrontObjImporter::reconstructTriMesh():\n"
-                "error when reordering faces"
+                "could not match vertices with UV mappings"
             );
         }
 
@@ -1725,8 +1725,6 @@ namespace ZookieWizard
             /********************************/
             /* Fill arrays: vertices, colors, UV mapping, normals */
 
-            int countBadUV = 0;
-
             for (j = 0; j < objVerticesCount; j++)
             {
                 k = referencedVertices[4 * j + 0];
@@ -1741,30 +1739,9 @@ namespace ZookieWizard
 
                 if (total_mappings > 0)
                 {
-                    char bufor[LARGE_BUFFER_SIZE];
-                    sprintf_s
-                    (
-                        bufor, LARGE_BUFFER_SIZE,
-                        "oldU: %f\tnewU: %f\n",
-                        uv_data->getData()[j].u,
-                        objMapping[j].u
-                    );
-
-                    theLog.print(bufor);
-
                     k = mappingsOrdered[j];
                     if (k >= 0 && k < objVerticesCount)
                     {
-                        if (abs(uv_data->getData()[j].u - objMapping[k].u) > 0.01f || abs(uv_data->getData()[j].v - objMapping[k].v) > 0.01f)
-                        {
-                            countBadUV++;
-                            float beforeU = uv_data->getData()[j].u;
-                            float beforeV = uv_data->getData()[j].v;
-                            float afterU = objMapping[k].u;
-                            float afterV = objMapping[k].v;
-                            int a = 1;
-                        }
-
                         uv_data->getData()[j].u = objMapping[k].u;
                         uv_data->getData()[j].v = objMapping[k].v;
                     }
