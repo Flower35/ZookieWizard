@@ -474,6 +474,101 @@ namespace ZookieWizard
 
             return 0;
         }
+        else if (message.compareExact("setEnvMapUV", true))
+        {
+            if ((params_count < 2) || (params_count > 2))
+            {
+                TxtParsingNode_ErrorArgCount(result_msg, "setEnvMapUV", 2);
+                return 2;
+            }
+
+            if (!params[0].checkType(TXT_PARSING_NODE_PROPTYPE_NODEREF))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setEnvMapUV", 0, TXT_PARSING_NODE_PROPTYPE_NODEREF);
+                return 2;
+            }
+
+            eTriMesh* envMappingTriMesh = nullptr;
+            params[0].getValue(&envMappingTriMesh);
+
+            if (nullptr == envMappingTriMesh)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Noderef for \"envMappingTriMesh\" property is not set!");
+                return 2;
+            }
+
+            if (!(envMappingTriMesh->getType()->checkHierarchy(&E_TRIMESH_TYPEINFO)))
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "Expected the noderef of \"envMappingTriMesh\" property to be a \"eTriMesh\" or its child!");
+                return 2;
+            }
+
+            if (!params[1].checkType(TXT_PARSING_NODE_PROPTYPE_INTEGER))
+            {
+                TxtParsingNode_ErrorArgType(result_msg, "setEnvMapUV", 1, TXT_PARSING_NODE_PROPTYPE_INTEGER);
+                return 2;
+            }
+
+            int32_t mappingType;
+            params[1].getValue(&(mappingType));
+
+            /********************************/
+
+            if (nullptr == geo)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setEnvMapUV\" message: `GeoSet` is empty!");
+                return 2;
+            }
+
+            eGeoSet* envMappingGeo = envMappingTriMesh->getGeoset();
+            if (nullptr == envMappingGeo)
+            {
+                sprintf_s(result_msg, LARGE_BUFFER_SIZE, "\"setEnvMapUV\" message: `GeoSet` of \"envMappingTriMesh\" is empty!");
+                return 2;
+            }
+
+            if (nullptr != (uv_mapping = envMappingGeo->getTextureCoordsArray(0)))
+            {
+                test[1] = uv_mapping->getLength();
+            }
+            else
+            {
+                test[1] = 0;
+            }
+
+            if (0 == test[1])
+            {
+                if (nullptr != (vertices = envMappingGeo->getVerticesArray(0)))
+                {
+                    test[1] = vertices->getLength();
+                }
+                else
+                {
+                    test[1] = 0;
+                }
+            }
+
+            if (nullptr == uv_mapping)
+            {
+                uv_mapping = new eGeoArray<ePoint2>();
+                uv_mapping->setup(test[1], new ePoint2[test[1]]);
+            }
+
+            uv_mapping->incRef();
+
+            geo->setTextureCoordsArray(1, uv_mapping);
+            geo->setTexMappingType(1, mappingType);
+
+            uv_mapping->decRef();
+
+            //for (test[0] = params_count; test[0] < 4; test[0]++)
+            //{
+            //    geo->setTextureCoordsArray(test[0], nullptr);
+            //    geo->setTexMappingType(test[0], 0);
+            //}
+
+            return 0;
+        }
         else if (message.compareExact("clearMorpherModifier", true))
         {
             if (0 != params_count)
