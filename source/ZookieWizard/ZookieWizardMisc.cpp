@@ -1520,6 +1520,76 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // miscellaneous: Add env map from WAVEFRONT "*.obj" into existing TriMesh
+    ////////////////////////////////////////////////////////////////
+    void ArMenuOptions_AddEnvMapFromObj()
+    {
+        eString filename;
+        char bufor[LARGE_BUFFER_SIZE];
+
+        try
+        {
+            bufor[0] = 0x00;
+
+            ofn.lpstrFile = bufor;
+            ofn.nMaxFile = LARGE_BUFFER_SIZE;
+            ofn.lpstrTitle = "Opening OBJ document...";
+            ofn.lpstrFilter = "Wavefront OBJ document (*.obj)\0*.obj\0All files (*.*)\0*.*\0";
+            ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
+
+            if (0 == GetOpenFileName(&ofn))
+            {
+                return;
+            }
+
+            /* Set filename and read OBJ document */
+
+            filename = bufor;
+
+            theLog.print
+            (
+                "================================\n" \
+                "==   WAVEFRONT OBJ IMPORTING  ==\n" \
+                "==            BEGIN           ==\n" \
+                "================================\n"
+            );
+
+            myARs[currentArId].addEnvMapFromObjFile(filename);
+
+            theLog.print
+            (
+                "================================\n" \
+                "==   WAVEFRONT OBJ IMPORTING  ==\n" \
+                "==          FINISHED          ==\n" \
+                "================================\n"
+            );
+
+            sprintf_s
+            (
+                bufor, LARGE_BUFFER_SIZE,
+                "<\"%s\">\n\nOBJ document imported successfully! :)\n\n" \
+                "Remember to optimize your materials after you adjust them!",
+                filename.getText()
+            );
+
+            GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+        }
+        catch (ErrorMessage& e)
+        {
+            theLog.print
+            (
+                "================================\n" \
+                "==   WAVEFRONT OBJ IMPORTING  ==\n" \
+                "==            oops!           ==\n" \
+                "================================\n"
+            );
+
+            e.display();
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // miscellaneous: Change Kao2 Nodes with a "*.txt" file
     ////////////////////////////////////////////////////////////////
     void ArMenuOptions_ChangeNodesWithTxt()

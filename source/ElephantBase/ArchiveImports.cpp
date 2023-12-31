@@ -168,6 +168,39 @@ namespace ZookieWizard
 
 
     ////////////////////////////////////////////////////////////////
+    // Archive: add env map to highlighted TriMesh from OBJ file
+    ////////////////////////////////////////////////////////////////
+    void Archive::addEnvMapFromObjFile(eString filename)
+    {
+        WavefrontObjImporter importer;
+        eSRP default_srp;
+        eNode* test_node = nullptr;
+        eGroup* test_group = nullptr;
+
+        if ((nullptr != selectedObject) && (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO)))
+        {
+            test_node = (eNode*)selectedObject;
+        }
+
+        if (nullptr != test_node)
+        {
+            if (markedChildId >= 0)
+            {
+                test_group = (eGroup*)selectedObject;
+                test_node = test_group->getIthChild(markedChildId);
+
+                if (nullptr != test_node)
+                {
+                    importer.addEnvMapCoordinatesFromObj(filename, test_node, WAVEFRONT_OBJ_IMPORTER_DEFAULT_FLAGS, default_srp);
+
+                    changeSelectedObject(NODES_LISTBOX_UPDATE_CURRENT, nullptr);
+                }
+            }
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////
     // Archive: change Nodes with specific instructions from a TXT file
     ////////////////////////////////////////////////////////////////
     int32_t Archive::changeNodesWithTxtFile(const char* filename)

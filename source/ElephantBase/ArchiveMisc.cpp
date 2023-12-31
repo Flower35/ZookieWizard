@@ -814,6 +814,12 @@ namespace ZookieWizard
                 break;
             }
 
+            case NODES_EDITING_GROUPS_ADD_ENVMAP:
+            {
+                ArMenuOptions_AddEnvMapFromObj();
+                break;
+            }
+
             case NODES_EDITING_GROUPS_UNREF:
             {
                 if (nullptr != test_node)
