@@ -10,9 +10,9 @@ namespace ZookieWizard
 {
     const char* theTextureFlags[KAO2_TEXTURE_FLAGS_COUNT] =
     {
-        "WRAP_S: Clamp to Edge\n / Repeat",
-        "WRAP_T: Clamp to Edge\n / Repeat",
-        "MAG_FILTER: Linear\n / Nearest"
+        "WRAP_S: Edge Clamp/Repeat",
+        "WRAP_T: Edge Clamp/Repeat",
+        "MAG_FILTER: Linear/Nearest"
     };
 
 

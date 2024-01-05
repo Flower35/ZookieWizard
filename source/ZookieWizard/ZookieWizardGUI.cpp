@@ -995,7 +995,7 @@ namespace ZookieWizard
         bool createWindow_linePause()
         {
             int32_t y;
-            const int WINDOW_PADDING_SMALL = 8;
+            const int WINDOW_PADDING_SMALL = 4;
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD | SS_ETCHEDHORZ);
@@ -1019,20 +1019,13 @@ namespace ZookieWizard
             HMENU menu_bar, test_menu;
             HWND main_window, scroll_window, dummy_window;
 
-            const int WINDOW_HEIGHT = 24;
-            const int WINDOW_PADDING = 16;
-            const int WINDOW_PADDING_SMALL = 8;
+            const int WINDOW_HEIGHT = 22;
+            const int WINDOW_PADDING = 8;
+            const int WINDOW_PADDING_SMALL = 4;
             const int TOP_OFFSET = 8;
-            const int NODES_BUTTON_HEIGHT = (int)(2.25 * WINDOW_HEIGHT);
+            const int NODES_BUTTON_HEIGHT = (int)(2.3 * WINDOW_HEIGHT);
             const int LARGE_BUTTON_WIDTH = ((RECT_TABS_X2 - (2 - 1) * WINDOW_PADDING_SMALL) / 2);
             const int SMALL_EDITBOX_WIDTH = ((RECT_TABS_X2 - (3 - 1) * WINDOW_PADDING_SMALL) / 3);
-
-            const char* WELCOME_MESSAGE = \
-                "Camera movement:\n" \
-                " - LMB for rotation\n" \
-                " - RMB or [W][A][S][D] for strafing\n" \
-                "\n" \
-                "This project is in alpha stage.";
 
             /********************************/
             /* Prepare manager (1/2) */
@@ -1155,7 +1148,7 @@ namespace ZookieWizard
 
             for (a = 0; a < RENDER_FLAGS_COUNT; a++)
             {
-                if (0 == (dummy_window = theWindowsManager.addWindow(render_flags_names[a], RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_RenderFlags, (void*)a, 0x01)))
+                if (0 == (dummy_window = theWindowsManager.addWindow(render_flags_names[a], RECT_TABS_X2, WINDOW_HEIGHT-2, buttonFunc_RenderFlags, (void*)a, 0x01)))
                 {
                     return false;
                 }
@@ -1346,25 +1339,6 @@ namespace ZookieWizard
             }
 
             theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING);
-
-            /********************************/
-            /* [PAGE 0] (33) Create line decoration */
-
-            if (!createWindow_linePause())
-            {
-                return false;
-            }
-
-            /********************************/
-            /* [PAGE 0] (34) Create dummy label */
-
-            theWindowsManager.setCurrentClassName("STATIC");
-            theWindowsManager.setCurrentStyleFlags(WS_CHILD);
-
-            if (0 == theWindowsManager.addWindow(WELCOME_MESSAGE, RECT_TABS_X2, (5 * WINDOW_HEIGHT), nullptr, nullptr, 0))
-            {
-                return false;
-            }
 
             /********************************/
             /* [PAGE 1] */
@@ -1645,7 +1619,7 @@ namespace ZookieWizard
                 b = (0x01 << a);
                 sprintf_s(bufor, 64, "(0x%08X) %s", b, theNodeFlagNames[a]);
 
-                if (0 == theWindowsManager.addWindow(bufor, RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_NodeFlags, (void*)b, 0x01))
+                if (0 == theWindowsManager.addWindow(bufor, RECT_TABS_X2, WINDOW_HEIGHT - 2, buttonFunc_NodeFlags, (void*)b, 0x01))
                 {
                     return false;
                 }
@@ -2005,7 +1979,7 @@ namespace ZookieWizard
 			theWindowsManager.setCurrentStyleFlags(WS_CHILD | WS_HSCROLL | WS_VSCROLL | LBS_DISABLENOSCROLL | LBS_HASSTRINGS | LBS_NOTIFY | LBS_WANTKEYBOARDINPUT | WS_VISIBLE);
 
 			theWindowsManager.addEdgesToNextWindow();
-			if (0 == (dummy_window = theWindowsManager.addWindow("", RECT_TABS_X2, 384, buttonFunc_NodesListChild, nullptr, 0x01)))
+			if (0 == (dummy_window = theWindowsManager.addWindow("", RECT_TABS_X2, 432, buttonFunc_NodesListChild, nullptr, 0x01)))
 			{
 				return false;
 			}

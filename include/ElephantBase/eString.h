@@ -98,6 +98,7 @@ namespace ZookieWizard
             eStringPtrBase<charT> getPath() const;
             eStringPtrBase<charT> getFilename(bool with_extesion) const;
             eStringPtrBase<charT> trimWhitespace() const;
+            eStringPtrBase<charT> fixFilename() const;
             eStringPtrBase<char> escapedUTF8() const;
             void assertPath();
             bool isRooted() const;

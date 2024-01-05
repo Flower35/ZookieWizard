@@ -184,10 +184,10 @@ namespace ZookieWizard
 
         static const char* matMgr_SubpageNames[4] =
         {
-            "Statistics and Optimizations",
-            "\"Materials\" (contain \"Textures\")",
-            "\"Textures\" (contain \"Bitmaps\")",
-            "\"Bitmaps\" (actual 2D Images)"
+            "Optimizations",
+            "\"Materials\"",
+            "\"Textures\"",
+            "\"Bitmaps\""
         };
 
 
@@ -3224,7 +3224,7 @@ namespace ZookieWizard
                 theLog.print
                 (
                     "================================\n" \
-                    "==  BULK TEXTURES REMPORTING  ==\n" \
+                    "== BULK TEXTURES REIMPORTING  ==\n" \
                     "==            BEGIN           ==\n" \
                     "================================\n"
                 );
@@ -3935,8 +3935,8 @@ namespace ZookieWizard
             int32_t a, b, x, y;
             char bufor[64];
 
-            const int WINDOW_HEIGHT = 24;
-            const int WINDOW_PADDING_SMALL = 8;
+            const int WINDOW_HEIGHT = 22;
+            const int WINDOW_PADDING_SMALL = 4;
             const int TOP_OFFSET = 8;
             const int LARGE_BUTTON_WIDTH = ((RECT_TABS_X2 - (2 - 1) * WINDOW_PADDING_SMALL) / 2);
             const int SMALL_EDITBOX_WIDTH = ((RECT_TABS_X2 - (3 - 1) * WINDOW_PADDING_SMALL) / 3);
@@ -3945,7 +3945,7 @@ namespace ZookieWizard
 
             const char* MATERIAL_STATE_COLORS[4] =
             {
-                "Ambient color (RGB):", "Diffuse color (RGB):", "Emissive color (RGB):", "Specular color (RGB):"
+                "Ambient", "Diffuse", "Emit", "Specular"
             };
 
             for (int a = 0; a < MATMGR_WINDOWS_COUNT; a++)
@@ -3981,7 +3981,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
-            if (0 == (matMgr_Windows[MATMGR_WINDOW_SUBPAGENAME] = theWindowsManager.addWindow("", (RECT_TABS_X2 - 2 * (24 + WINDOW_PADDING_SMALL)), 2 * WINDOW_HEIGHT, nullptr, nullptr, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_WINDOW_SUBPAGENAME] = theWindowsManager.addWindow("", (RECT_TABS_X2 - 2 * (24 + WINDOW_PADDING_SMALL)), WINDOW_HEIGHT, nullptr, nullptr, 0x01)))
             {
                 return false;
             }
@@ -4074,7 +4074,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentStyleFlags(LISTBOX_STYLES | WS_HSCROLL);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_LIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 256, buttonFunc_MaterialsManagerListing, (void*)MATMGR_MATERIALS_WINDOW_LIST, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_LIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 206, buttonFunc_MaterialsManagerListing, (void*)MATMGR_MATERIALS_WINDOW_LIST, 0x01)))
             {
                 return false;
             }
@@ -4084,15 +4084,10 @@ namespace ZookieWizard
             /********************************/
             /* Create label - Textures of the material */
 
-            if (false == materialsManager_AddLinePauseWindow(MATMGR_MATERIALS_WINDOW_TEXLIST_PAUSE))
-            {
-                return false;
-            }
-
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXLIST_LABEL] = theWindowsManager.addWindow("Textures within selected Material:", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXLIST_LABEL] = theWindowsManager.addWindow("Textures within selected Material:", RECT_TABS_X2, WINDOW_HEIGHT-2, nullptr, nullptr, 0x01)))
             {
                 return false;
             }
@@ -4104,7 +4099,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentStyleFlags(WS_DISABLED | LISTBOX_STYLES | WS_HSCROLL);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXLIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 128, buttonFunc_MaterialsManagerListing, (void*)MATMGR_MATERIALS_WINDOW_TEXLIST, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXLIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 76, buttonFunc_MaterialsManagerListing, (void*)MATMGR_MATERIALS_WINDOW_TEXLIST, 0x01)))
             {
                 return false;
             }
@@ -4119,27 +4114,27 @@ namespace ZookieWizard
 
             theWindowsManager.setCurrentPadding(WINDOW_PADDING_SMALL, WINDOW_PADDING_SMALL);
 
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXTBTNS_CREATE] = theWindowsManager.addWindow("Append a New Texture", LARGE_BUTTON_WIDTH, 2 * WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_TEXTBTNS_CREATE, 0)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXTBTNS_CREATE] = theWindowsManager.addWindow("Append Texture", LARGE_BUTTON_WIDTH, WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_TEXTBTNS_CREATE, 0)))
             {
                 return false;
             }
 
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXTBTNS_REMOVE] = theWindowsManager.addWindow("Remove Selected Texture", LARGE_BUTTON_WIDTH, 2 * WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_TEXTBTNS_REMOVE, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXTBTNS_REMOVE] = theWindowsManager.addWindow("Remove Texture", LARGE_BUTTON_WIDTH, WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_TEXTBTNS_REMOVE, 0x01)))
             {
                 return false;
             }
 
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXTBTNS_MOVEUP] = theWindowsManager.addWindow("Move Selected Texture Up", LARGE_BUTTON_WIDTH, 2 * WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_TEXTBTNS_MOVEUP, 0)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXTBTNS_MOVEUP] = theWindowsManager.addWindow("Move Up", LARGE_BUTTON_WIDTH, WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_TEXTBTNS_MOVEUP, 0)))
             {
                 return false;
             }
 
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXTBTNS_MOVEDOWN] = theWindowsManager.addWindow("Move Selected Texture Down", LARGE_BUTTON_WIDTH, 2 * WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_TEXTBTNS_MOVEDOWN, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXTBTNS_MOVEDOWN] = theWindowsManager.addWindow("Move Down", LARGE_BUTTON_WIDTH, WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_TEXTBTNS_MOVEDOWN, 0x01)))
             {
                 return false;
             }
 
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXTBTNS_REPLACE] = theWindowsManager.addWindow("Replace selected with a Texture from other list", RECT_TABS_X2, 2 * WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_TEXTBTNS_REPLACE, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_TEXTBTNS_REPLACE] = theWindowsManager.addWindow("Replace with Texture from other list", RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_TEXTBTNS_REPLACE, 0x01)))
             {
                 return false;
             }
@@ -4154,12 +4149,12 @@ namespace ZookieWizard
                 return false;
             }
 
-            theWindowsManager.setCurrentPadding(0, WINDOW_PADDING_SMALL);
+            theWindowsManager.setCurrentPadding(0, 0);
 
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_DISABLED | WS_CHILD | BS_AUTOCHECKBOX);
 
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_STATECHECK_USED] = theWindowsManager.addWindow("Is using \"MaterialState\"", RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_STATECHECK_USED, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_STATECHECK_USED] = theWindowsManager.addWindow("Is using \"MaterialState\"", RECT_TABS_X2, WINDOW_HEIGHT-2, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_STATECHECK_USED, 0x01)))
             {
                 return false;
             }
@@ -4172,7 +4167,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_STATE_STATUS] = theWindowsManager.addWindow("", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_STATE_STATUS] = theWindowsManager.addWindow("", RECT_TABS_X2, 2, nullptr, nullptr, 0x01)))
             {
                 return false;
             }
@@ -4202,30 +4197,30 @@ namespace ZookieWizard
                 theWindowsManager.setCurrentClassName("STATIC");
                 theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
-                if (0 == (matMgr_Windows[(b + 0)] = theWindowsManager.addWindow(MATERIAL_STATE_COLORS[a], RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01)))
+                if (0 == (matMgr_Windows[(b + 0)] = theWindowsManager.addWindow(MATERIAL_STATE_COLORS[a], SMALL_EDITBOX_WIDTH-30, WINDOW_HEIGHT - 2, nullptr, nullptr, 0)))
                 {
                     return false;
                 }
 
-                theWindowsManager.setCurrentPadding(WINDOW_PADDING_SMALL, WINDOW_PADDING_SMALL);
+                theWindowsManager.setCurrentPadding(WINDOW_PADDING_SMALL, 0);
 
                 theWindowsManager.setCurrentClassName("EDIT");
                 theWindowsManager.setCurrentStyleFlags(WS_DISABLED | WS_CHILD | ES_AUTOHSCROLL);
 
                 theWindowsManager.addEdgesToNextWindow();
-                if (0 == (matMgr_Windows[(b + 1)] = theWindowsManager.addWindow("", SMALL_EDITBOX_WIDTH, WINDOW_HEIGHT, buttonFunc_MaterialsManagerEditing, (void*)(b + 1), 0)))
+                if (0 == (matMgr_Windows[(b + 1)] = theWindowsManager.addWindow("", SMALL_EDITBOX_WIDTH-16, WINDOW_HEIGHT - 2, buttonFunc_MaterialsManagerEditing, (void*)(b + 1), 0)))
                 {
                     return false;
                 }
 
                 theWindowsManager.addEdgesToNextWindow();
-                if (0 == (matMgr_Windows[(b + 2)] = theWindowsManager.addWindow("", SMALL_EDITBOX_WIDTH, WINDOW_HEIGHT, buttonFunc_MaterialsManagerEditing, (void*)(b + 2), 0)))
+                if (0 == (matMgr_Windows[(b + 2)] = theWindowsManager.addWindow("", SMALL_EDITBOX_WIDTH-16, WINDOW_HEIGHT - 2, buttonFunc_MaterialsManagerEditing, (void*)(b + 2), 0)))
                 {
                     return false;
                 }
 
                 theWindowsManager.addEdgesToNextWindow();
-                if (0 == (matMgr_Windows[(b + 3)] = theWindowsManager.addWindow("", SMALL_EDITBOX_WIDTH, WINDOW_HEIGHT, buttonFunc_MaterialsManagerEditing, (void*)(b + 3), 0x01)))
+                if (0 == (matMgr_Windows[(b + 3)] = theWindowsManager.addWindow("", SMALL_EDITBOX_WIDTH-16, WINDOW_HEIGHT - 2, buttonFunc_MaterialsManagerEditing, (void*)(b + 3), 0x01)))
                 {
                     return false;
                 }
@@ -4241,18 +4236,18 @@ namespace ZookieWizard
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_STATE_48_LABEL] = theWindowsManager.addWindow("Shininess:", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_STATE_48_LABEL] = theWindowsManager.addWindow("Shine", SMALL_EDITBOX_WIDTH - 30, WINDOW_HEIGHT - 2, nullptr, nullptr, 0)))
             {
                 return false;
             }
 
-            theWindowsManager.setCurrentPadding(0, WINDOW_PADDING_SMALL);
+            theWindowsManager.setCurrentPadding(WINDOW_PADDING_SMALL, WINDOW_PADDING_SMALL);
 
             theWindowsManager.setCurrentClassName("EDIT");
             theWindowsManager.setCurrentStyleFlags(WS_DISABLED | WS_CHILD | ES_AUTOHSCROLL);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_STATEEDIT_48] = theWindowsManager.addWindow("", SMALL_EDITBOX_WIDTH, WINDOW_HEIGHT, buttonFunc_MaterialsManagerEditing, (void*)MATMGR_MATERIALS_WINDOW_STATEEDIT_48, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_STATEEDIT_48] = theWindowsManager.addWindow("", SMALL_EDITBOX_WIDTH - 16, WINDOW_HEIGHT - 2, buttonFunc_MaterialsManagerEditing, (void*)MATMGR_MATERIALS_WINDOW_STATEEDIT_48, 0)))
             {
                 return false;
             }
@@ -4263,7 +4258,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentClassName("BUTTON");
             theWindowsManager.setCurrentStyleFlags(WS_DISABLED | WS_CHILD | BS_AUTOCHECKBOX);
 
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_STATECHECK_4C] = theWindowsManager.addWindow("Global Ambient Lights", RECT_TABS_X2, 2 * WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_STATECHECK_4C, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_STATECHECK_4C] = theWindowsManager.addWindow("Global Lights", RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_MATERIALS_WINDOW_STATECHECK_4C, 0x01)))
             {
                 return false;
             }
@@ -4271,20 +4266,10 @@ namespace ZookieWizard
             /********************************/
             /* Create label - Material Flags */
 
-            theWindowsManager.offsetCurrentPosition(0, (0 - WINDOW_PADDING_SMALL));
-
-            if (false == materialsManager_AddLinePauseWindow(MATMGR_MATERIALS_WINDOW_FLAGS_PAUSE))
-            {
-                return false;
-            }
+            theWindowsManager.offsetCurrentPosition(0, WINDOW_PADDING_SMALL);
 
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
-
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_FLAGS_LABEL] = theWindowsManager.addWindow("Selected material's Flags:", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01)))
-            {
-                return false;
-            }
 
             /********************************/
             /* Create checkboxes - Material Flags */
@@ -4298,7 +4283,7 @@ namespace ZookieWizard
             {
                 sprintf_s(bufor, 64, "0x%02X: \"%s\"", (0x01 << a), theMaterialFlags[a]);
 
-                if (0 == (matMgr_Windows[b] = theWindowsManager.addWindow(bufor, RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)(b), 0x01)))
+                if (0 == (matMgr_Windows[b] = theWindowsManager.addWindow(bufor, RECT_TABS_X2, (WINDOW_HEIGHT/2)+1, buttonFunc_MaterialsManagerClicking, (void*)(b), 0x01)))
                 {
                     return false;
                 }
@@ -4317,7 +4302,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_COLLIST_LABEL] = theWindowsManager.addWindow("Selected material's Collision type:", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_COLLIST_LABEL] = theWindowsManager.addWindow("Selected material's Collision type:", RECT_TABS_X2, WINDOW_HEIGHT-4, nullptr, nullptr, 0x01)))
             {
                 return false;
             }
@@ -4329,7 +4314,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentStyleFlags(WS_DISABLED | LISTBOX_STYLES);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_COLLIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 128, buttonFunc_MaterialsManagerListing, (void*)MATMGR_MATERIALS_WINDOW_COLLIST, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_COLLIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 96, buttonFunc_MaterialsManagerListing, (void*)MATMGR_MATERIALS_WINDOW_COLLIST, 0x01)))
             {
                 return false;
             }
@@ -4343,15 +4328,10 @@ namespace ZookieWizard
             /********************************/
             /* Create label - Material Sound */
 
-            if (false == materialsManager_AddLinePauseWindow(MATMGR_MATERIALS_WINDOW_SNDLIST_PAUSE))
-            {
-                return false;
-            }
-
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_SNDLIST_LABEL] = theWindowsManager.addWindow("Selected material's Sound:", RECT_TABS_X2, WINDOW_HEIGHT, nullptr, nullptr, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_SNDLIST_LABEL] = theWindowsManager.addWindow("Selected material's Sound:", RECT_TABS_X2, WINDOW_HEIGHT-4, nullptr, nullptr, 0x01)))
             {
                 return false;
             }
@@ -4363,7 +4343,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentStyleFlags(WS_DISABLED | LISTBOX_STYLES);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_SNDLIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 128, buttonFunc_MaterialsManagerListing, (void*)MATMGR_MATERIALS_WINDOW_SNDLIST, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_MATERIALS_WINDOW_SNDLIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 96, buttonFunc_MaterialsManagerListing, (void*)MATMGR_MATERIALS_WINDOW_SNDLIST, 0x01)))
             {
                 return false;
             }
@@ -4436,7 +4416,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentStyleFlags(LISTBOX_STYLES | WS_HSCROLL);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_LIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 256, buttonFunc_MaterialsManagerListing, (void*)MATMGR_TEXTURES_WINDOW_LIST, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_LIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 160, buttonFunc_MaterialsManagerListing, (void*)MATMGR_TEXTURES_WINDOW_LIST, 0x01)))
             {
                 return false;
             }
@@ -4454,7 +4434,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentClassName("STATIC");
             theWindowsManager.setCurrentStyleFlags(WS_CHILD);
 
-            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_FLAGS_LABEL] = theWindowsManager.addWindow("Selected texture's Flags:\n(when set / when unset)", RECT_TABS_X2, (int)(1.5 * WINDOW_HEIGHT), nullptr, nullptr, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_FLAGS_LABEL] = theWindowsManager.addWindow("Selected texture's Flags:", RECT_TABS_X2, WINDOW_HEIGHT-2, nullptr, nullptr, 0x01)))
             {
                 return false;
             }
@@ -4469,9 +4449,9 @@ namespace ZookieWizard
 
             for (a = 0; a < KAO2_TEXTURE_FLAGS_COUNT; a++)
             {
-                sprintf_s(bufor, 64, "0x%02X: \"%s\"", (0x01 << a), theTextureFlags[a]);
+                sprintf_s(bufor, 64, "0x%02X: %s", (0x01 << a), theTextureFlags[a]);
 
-                if (0 == (matMgr_Windows[b] = theWindowsManager.addWindow(bufor, RECT_TABS_X2, (int)(1.5 * WINDOW_HEIGHT), buttonFunc_MaterialsManagerClicking, (void*)(b), 0x01)))
+                if (0 == (matMgr_Windows[b] = theWindowsManager.addWindow(bufor, RECT_TABS_X2+2, WINDOW_HEIGHT-2, buttonFunc_MaterialsManagerClicking, (void*)(b), 0x01)))
                 {
                     return false;
                 }
@@ -4492,17 +4472,17 @@ namespace ZookieWizard
 
             theWindowsManager.setCurrentPadding(WINDOW_PADDING_SMALL, WINDOW_PADDING_SMALL);
 
-            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_BMPBTNS_CREATE] = theWindowsManager.addWindow("Create New Bitmap", LARGE_BUTTON_WIDTH, 2 * WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_TEXTURES_WINDOW_BMPBTNS_CREATE, 0)))
+            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_BMPBTNS_CREATE] = theWindowsManager.addWindow("Create Bitmap", LARGE_BUTTON_WIDTH, WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_TEXTURES_WINDOW_BMPBTNS_CREATE, 0)))
             {
                 return false;
             }
 
-            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_BMPBTNS_REMOVE] = theWindowsManager.addWindow("Remove Bitmap from this Texture", LARGE_BUTTON_WIDTH, 2 * WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_TEXTURES_WINDOW_BMPBTNS_REMOVE, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_BMPBTNS_REMOVE] = theWindowsManager.addWindow("Remove Bitmap", LARGE_BUTTON_WIDTH, WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_TEXTURES_WINDOW_BMPBTNS_REMOVE, 0x01)))
             {
                 return false;
             }
 
-            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_BMPBTNS_REPLACE] = theWindowsManager.addWindow("Replace with a Bitmap from other list", RECT_TABS_X2, 2 * WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_TEXTURES_WINDOW_BMPBTNS_REPLACE, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_BMPBTNS_REPLACE] = theWindowsManager.addWindow("Replace with a Bitmap from other list", RECT_TABS_X2, WINDOW_HEIGHT, buttonFunc_MaterialsManagerClicking, (void*)MATMGR_TEXTURES_WINDOW_BMPBTNS_REPLACE, 0x01)))
             {
                 return false;
             }
@@ -4549,7 +4529,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentStyleFlags(WS_DISABLED | LISTBOX_STYLES | WS_HSCROLL);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_FORMKEYS] = theWindowsManager.addWindow("", RECT_TABS_X2, 128, buttonFunc_MaterialsManagerListing, (void*)MATMGR_TEXTURES_WINDOW_FORMKEYS, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_FORMKEYS] = theWindowsManager.addWindow("", RECT_TABS_X2, 112, buttonFunc_MaterialsManagerListing, (void*)MATMGR_TEXTURES_WINDOW_FORMKEYS, 0x01)))
             {
                 return false;
             }
@@ -4586,19 +4566,17 @@ namespace ZookieWizard
             /* Create listbox - Out of Range Types */
 
             theWindowsManager.setCurrentClassName("LISTBOX");
-            theWindowsManager.setCurrentStyleFlags(WS_DISABLED | LISTBOX_STYLES | WS_HSCROLL);
+            theWindowsManager.setCurrentStyleFlags(WS_DISABLED | LISTBOX_STYLES);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_FORM_OORTLIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 128, buttonFunc_MaterialsManagerListing, (void*)MATMGR_TEXTURES_WINDOW_FORM_OORTLIST, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_TEXTURES_WINDOW_FORM_OORTLIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 96, buttonFunc_MaterialsManagerListing, (void*)MATMGR_TEXTURES_WINDOW_FORM_OORTLIST, 0x01)))
             {
                 return false;
             }
 
-            SendMessage(matMgr_Windows[MATMGR_TEXTURES_WINDOW_FORM_OORTLIST], LB_SETHORIZONTALEXTENT, (WPARAM)512, 0);
-
             for (a = 0; a < KAO2_LEAFKEY_OORT_COUNT; a++)
             {
-                sprintf_s(bufor, 64, " Out of Range Type %d: \"%s\"", a, theLeafOoRT[a]);
+                sprintf_s(bufor, 64, "Type %d: \"%s\"", a, theLeafOoRT[a]);
                 SendMessage(matMgr_Windows[MATMGR_TEXTURES_WINDOW_FORM_OORTLIST], LB_ADDSTRING, 0, (LPARAM)bufor);
             }
 
@@ -4650,7 +4628,7 @@ namespace ZookieWizard
             theWindowsManager.setCurrentStyleFlags(LISTBOX_STYLES | WS_HSCROLL);
 
             theWindowsManager.addEdgesToNextWindow();
-            if (0 == (matMgr_Windows[MATMGR_BITMAPS_WINDOW_LIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 256, buttonFunc_MaterialsManagerListing, (void*)MATMGR_BITMAPS_WINDOW_LIST, 0x01)))
+            if (0 == (matMgr_Windows[MATMGR_BITMAPS_WINDOW_LIST] = theWindowsManager.addWindow("", RECT_TABS_X2, 160, buttonFunc_MaterialsManagerListing, (void*)MATMGR_BITMAPS_WINDOW_LIST, 0x01)))
             {
                 return false;
             }

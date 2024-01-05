@@ -1263,8 +1263,8 @@ namespace ZookieWizard
             WNDCLASSEX window_class[6];
             HBRUSH window_background;
 
-            const int WINDOW_HEIGHT = 24;
-            const int WINDOW_PADDING = 16;
+            const int WINDOW_HEIGHT = 22;
+            const int WINDOW_PADDING = 8;
 
             /********************************/
             /* Register window classes */
@@ -1443,22 +1443,9 @@ namespace ZookieWizard
         {
             int32_t a;
 
-            const int WINDOW_HEIGHT = 20;
-            const int WINDOW_PADDING = 8;
+            const int WINDOW_HEIGHT = 18;
+            const int WINDOW_PADDING = 4;
             const int BOX_WIDTH = 256;
-
-            const char* description[3] =
-            {
-                "<< BUTTONS >>\n" \
-                  "(option 1): [RMB] or [A][D][S][W]\n" \
-                  "(option 2): [LMB] or [A][D][Q][E]",
-                "<< MOVEMENT >>\n" \
-                  "(1): [x/y]\n" \
-                  "(2): [x/z]",
-                "<< ROTATION >>\n" \
-                  "(1): [z-axis / strafe-axis]\n" \
-                  "(2): [z-axis / look-axis]"
-            };
 
             const char* class_name[2] = {WINDOW_CLASS_NAME_4, WINDOW_CLASS_NAME_5};
 
@@ -1470,15 +1457,9 @@ namespace ZookieWizard
                 /* Create dummy label */
 
                 setCurrentClassName("STATIC");
-
-                if (0 == addWindow(description[a], RECT_TABS_X2, (3 * WINDOW_HEIGHT), nullptr, nullptr, 0x01))
-                {
-                    return false;
-                }
-
                 if (0 == a)
                 {
-                    offsetCurrentPosition(0, WINDOW_PADDING);
+                    offsetCurrentPosition(0, 0);
                 }
 
                 if (a > 0)
@@ -1489,7 +1470,7 @@ namespace ZookieWizard
                     setCurrentClassName(class_name[a - 1]);
 
                     addEdgesToNextWindow();
-                    if (0 == addWindow("", BOX_WIDTH, BOX_WIDTH, nullptr, nullptr, 0x03))
+                    if (0 == addWindow("", BOX_WIDTH, BOX_WIDTH - 64, nullptr, nullptr, 0x03))
                     {
                         return false;
                     }

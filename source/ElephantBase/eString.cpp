@@ -1,4 +1,5 @@
 #include <ElephantBase/eString.h>
+#include <string>
 
 namespace ZookieWizard
 {
@@ -947,6 +948,41 @@ namespace ZookieWizard
         }
 
         return getSubstring(start, (end - my_length));
+    }
+
+    template <typename charT>
+    eStringPtrBase<charT> eStringPtrBase<charT>::fixFilename() const
+    {
+        int my_length = getLength();
+
+        if (my_length <= 0)
+        {
+            return eStringPtrBase<charT>();
+        }
+
+        /****************/
+
+        //char* output = nullptr;
+        //char test[] = "edia\\";
+        //output = std::strstr(getText(), test);
+        std::string phrase("edia\\");
+        std::string str(getText());
+        int found = str.find(phrase);
+        if (found > 0)
+        {
+            int index = found + 5;
+            eStringPtrBase<charT> result(my_length - index);
+            charT* result_text = result.getText();
+            charT* my_text = &(getText()[index]);
+
+            std::memcpy(result_text, my_text, sizeof(charT) * (my_length - index));
+
+            return result;
+        }
+        else
+        {
+            return (*this);
+        }
     }
 
     eStringPtrBase<char> eStringPtrBase<wchar_t>::escapedUTF8() const

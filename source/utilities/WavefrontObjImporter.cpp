@@ -1076,10 +1076,17 @@ namespace ZookieWizard
                             keywords[1] += keywords[i];
                         }
 
+                        keywords[1] = keywords[1].fixFilename();
+
                         try
                         {
                             dummy_bitmap->setPath(keywords[1]);
-                            dummy_bitmap->loadFromFile(workingDirectory, false);
+
+                            eString workingDir = getEditorString(1, false);
+                            workingDir = workingDir.trimWhitespace();
+                            workingDir.assertPath();
+
+                            dummy_bitmap->loadFromFile(workingDir, false);
                         }
                         catch (ErrorMessage &err)
                         {
