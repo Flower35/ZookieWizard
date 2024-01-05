@@ -1950,7 +1950,7 @@ namespace ZookieWizard
 			nodesList_ActionIds[5][0] = 17;
 			nodesList_ActionIds[5][1] = 20;
 
-			if (0 == (nodesList_Windows[1 + 17] = theWindowsManager.addWindow("Export 3D Meshes to Wavefront OBJ", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)0, 0)))
+			if (0 == (nodesList_Windows[1 + 17] = theWindowsManager.addWindow("Export transparency to Wavefront OBJ", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)0, 0)))
 			{
 				return false;
 			}
@@ -1984,7 +1984,7 @@ namespace ZookieWizard
 				return false;
 			}
 
-            if (0 == (nodesList_Windows[1 + 23] = theWindowsManager.addWindow("Reconstruct eTriMesh\nvertices", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_UPDATEMESH, 0)))
+            if (0 == (nodesList_Windows[1 + 23] = theWindowsManager.addWindow("Import transparency from\nWavefront OBJ", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_UPDATEMESH, 0)))
             {
                 return false;
             }

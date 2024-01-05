@@ -486,9 +486,9 @@ namespace ZookieWizard
                             dummy_vertex.x,
                             dummy_vertex.z,
                             (- dummy_vertex.y),
-                            array_data4[1][a].x,
-                            array_data4[1][a].y,
-                            array_data4[1][a].z
+                            0.0f,
+                            array_data4[1][a].w,
+                            0.0f
                         );
                     }
                     else

@@ -315,15 +315,6 @@ namespace ZookieWizard
 
             readModelData();
 
-            if (((eTriMesh*)target)->getGeoset() == nullptr || ((eTriMesh*)target)->getGeoset()->getPhyTriMesh() == nullptr)
-            {
-                throw ErrorMessage
-                (
-                    "WavefrontObjImporter::updateTriMeshVerticesFromObj():\n" \
-                    "Target object does not have a \"ePhyTriMesh\" object!"
-                );
-            }
-
             if (objGroupsCount >= 2 || objMaterialsCount >= 2)
             {
                 throw ErrorMessage
@@ -338,7 +329,7 @@ namespace ZookieWizard
             //int geoSetNormals = test_geo->getVerticesArray(0)->getLength();
             //int phyTriMeshNormals = test_phytrimesh->getDefaultVerticesArray()->getLength();
 
-            if (objVerticesCount != test_geo->getVerticesArray(0)->getLength() || objVerticesCount != test_phytrimesh->getDefaultVerticesArray()->getLength())
+            if (objVerticesCount != test_geo->getVerticesArray(0)->getLength())
             {
                 throw ErrorMessage
                 (
@@ -1706,7 +1697,7 @@ namespace ZookieWizard
         else if (total_vertices > 0)
         {
             test_geoset = target->getGeoset();
-            vertices_data = test_geoset->getPhyTriMesh()->getDefaultVerticesArray();
+            vertices_data = test_geoset->getVerticesArray(0);
 
             colors_data = test_geoset->getColorsArray();
             uv_data = test_geoset->getTextureCoordsArray(0);
@@ -1719,7 +1710,7 @@ namespace ZookieWizard
                 test_normals_data = new ePoint4[objVerticesCount];
                 test_normals_array = new eGeoArray<ePoint4>();
                 test_normals_array->setup(objVerticesCount, test_normals_data);
-                test_geoset->getPhyTriMesh()->setDefaultNormalsArray(test_normals_array);
+                test_geoset->setNormalsArray(0, test_normals_array);
             }
 
             /********************************/
@@ -1732,9 +1723,7 @@ namespace ZookieWizard
                 vertices_data->getData()[j].y = objVertices[j].y;
                 vertices_data->getData()[j].z = objVertices[j].z;
 
-                colors_data->getData()[j].x = objVertices[j].r;
-                colors_data->getData()[j].y = objVertices[j].g;
-                colors_data->getData()[j].z = objVertices[j].b;
+                colors_data->getData()[j].w = objVertices[j].g;
 
 
                 if (total_mappings > 0)
