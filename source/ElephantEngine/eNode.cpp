@@ -736,6 +736,11 @@ namespace ZookieWizard
 
         jsonObjectRef->appendKeyValue("flags", jsonArray);
 
+        /* "eNode": vis group */
+
+        snprintf(bufor, sizeof(bufor), "0x%08X", visGroup);
+        jsonObjectRef->appendKeyValue("visGroup", bufor);
+
         /* "eNode": Axis List Box */
 
         if (nullptr != axisListBox)
