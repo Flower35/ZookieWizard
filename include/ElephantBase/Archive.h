@@ -81,6 +81,7 @@ namespace ZookieWizard
     #define NODES_EDITING_GROUPS_UNREF      (-30)
     #define NODES_EDITING_GROUPS_UPDATEMESH (-31)
     #define NODES_EDITING_GROUPS_ADD_ENVMAP (-32)
+    #define NODES_EDITING_GROUPS_SET_GRASS  (-33)
 
     class Archive
     {

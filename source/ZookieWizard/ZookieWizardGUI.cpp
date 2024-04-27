@@ -17,7 +17,7 @@ namespace ZookieWizard
 
         bool updatingEditboxesNotByUser = false;
 
-        static const int32_t nodesList_ButtonsCount = 25;
+        static const int32_t nodesList_ButtonsCount = 26;
         static const int32_t nodesList_ActionsCount = 7;
         int32_t nodesList_CurrentAction;
         static HWND nodesList_Windows[1 + nodesList_ButtonsCount];
@@ -716,6 +716,13 @@ namespace ZookieWizard
                     case VK_F11:
                     {
                         myARs[currentArId].changeSelectedObject(NODES_LISTBOX_COLLISION_CLEAR, nullptr);
+
+                        return (-2);
+                    }
+
+                    case VK_F12:
+                    {
+                        myARs[currentArId].changeSelectedObject(NODES_EDITING_GROUPS_SET_GRASS, nullptr);
 
                         return (-2);
                     }
@@ -1946,24 +1953,29 @@ namespace ZookieWizard
 
 			theWindowsManager.setCurrentPosition(x, y);
 			nodesList_ActionIds[6][0] = 21;
-			nodesList_ActionIds[6][1] = 24;
+			nodesList_ActionIds[6][1] = 25;
 
-			if (0 == (nodesList_Windows[1 + 21] = theWindowsManager.addWindow("Update \"DrawPass\" flags", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_DPFLAGS, 0)))
+			if (0 == (nodesList_Windows[1 + 21] = theWindowsManager.addWindow("Update \"DrawPass\" flags", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_DPFLAGS, 0)))
 			{
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 22] = theWindowsManager.addWindow("Remove empty and unreferenced Groups", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_UNREF, 0x01)))
+			if (0 == (nodesList_Windows[1 + 22] = theWindowsManager.addWindow("Remove empty Groups", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_UNREF, 0x01)))
 			{
 				return false;
 			}
 
-            if (0 == (nodesList_Windows[1 + 23] = theWindowsManager.addWindow("Reconstruct eTriMesh\nvertices", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_UPDATEMESH, 0)))
+            if (0 == (nodesList_Windows[1 + 23] = theWindowsManager.addWindow("Reconstruct eTriMesh", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_UPDATEMESH, 0)))
             {
                 return false;
             }
 
-            if (0 == (nodesList_Windows[1 + 24] = theWindowsManager.addWindow("Apply env map", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_ADD_ENVMAP, 0x01)))
+            if (0 == (nodesList_Windows[1 + 24] = theWindowsManager.addWindow("Apply env map", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_ADD_ENVMAP, 0x01)))
+            {
+                return false;
+            }
+
+            if (0 == (nodesList_Windows[1 + 25] = theWindowsManager.addWindow("(F12)\r\nApply grass colors", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_SET_GRASS, 0)))
             {
                 return false;
             }

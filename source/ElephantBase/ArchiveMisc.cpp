@@ -9,6 +9,7 @@
 #include <ElephantEngine/eXRefProxy.h>
 #include <ElephantEngine/eGeometry.h>
 #include <ElephantEngine/eMaterial.h>
+#include <utilities/WavefrontObjImporter.h>
 
 namespace ZookieWizard
 {
@@ -817,6 +818,56 @@ namespace ZookieWizard
             case NODES_EDITING_GROUPS_ADD_ENVMAP:
             {
                 ArMenuOptions_AddEnvMapFromObj();
+                break;
+            }
+
+            case NODES_EDITING_GROUPS_SET_GRASS:
+            {
+                if ((nullptr != selectedObject) && (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO)))
+                {
+                    test_node = (eNode*)selectedObject;
+                }
+
+                if (nullptr != test_node)
+                {
+                    if (markedChildId >= 0)
+                    {
+                        test_group = (eGroup*)selectedObject;
+                        test_node = test_group->getIthChild(markedChildId);
+
+                        if (nullptr != test_node)
+                        {
+                            WavefrontObjImporter importer;
+                            eSRP default_srp;
+
+                            try
+                            {
+                                importer.applyGrassVertexColors(test_node, WAVEFRONT_OBJ_IMPORTER_DEFAULT_FLAGS, default_srp);
+
+                                sprintf_s
+                                (
+                                    bufor, LARGE_BUFFER_SIZE,
+                                    "Vertex colors updated successfully! :)"
+                                );
+
+                                GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+                            }
+                            catch (ErrorMessage& e)
+                            {
+                                theLog.print
+                                (
+                                    "================================\n" \
+                                    "==    SETTING GRASS COLORS    ==\n" \
+                                    "==            oops!           ==\n" \
+                                    "================================\n"
+                                );
+
+                                e.display();
+                            }
+                        }
+                    }
+                }
+
                 break;
             }
 
