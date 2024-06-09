@@ -274,12 +274,6 @@ namespace ZookieWizard
 
         /* unknown values */
 
-        unknown_54 = 100.0f;
-        unknown_58 = 100.0f;
-        unknown_5C = 100.0f;
-        unknown_60 = 100.0f;
-        unknown_64 = 100.0f;
-
         ar.readOrWrite(&unknown_54, 0x04);//-1.71793866
         ar.readOrWrite(&unknown_58, 0x04);//42.8847466
         ar.readOrWrite(&unknown_5C, 0x04);//132.013535
