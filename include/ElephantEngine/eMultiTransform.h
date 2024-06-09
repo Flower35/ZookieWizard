@@ -15,19 +15,21 @@ namespace ZookieWizard
 
         public:
 
-            /*[0x00-0x08]*/ float unknown_00[3];
-            /*[0x0C]*/ uint8_t unknown_0C[4];
-            /*[0x10-0x18]*/ float unknown_10[3];
-            /*[0x1C]*/ float unknown_1C;
+            /*[0x00-0x08]*/ float dummy_rotationA[3];
+            /*[0x0C]*/ uint8_t color[4];
+            /*[0x10-0x18]*/ float dummy_rotationB[3];
+            /*[0x1C]*/ float unknown_1C; //always 0?
 
-            /*[0x20-0x2C]*/ float unknown_20[4];
-            /*[0x30-0x3C]*/ float unknown_30[4];
+            /*[0x20-0x28]*/ float rotation[3];
+            /*[0x2C]*/ float unknown_2C; //always 0?
+            /*[0x30-0x38]*/ float position[3];
+            /*[0x3C]*/ float scale;
 
         /*** Methods ***/
 
         public:
 
-            void serializeTransform(Archive &ar);
+            void serializeTransform(Archive& ar);
     };
 
 

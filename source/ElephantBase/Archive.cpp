@@ -3,6 +3,7 @@
 
 #include <ElephantEngine/Log.h>
 #include <ElephantEngine/eScene.h>
+#include <ElephantEngine/eMultiTransformNode.h>
 
 namespace ZookieWizard
 {
@@ -599,6 +600,12 @@ namespace ZookieWizard
                     {
                         /* Check if objet ID already exists */
 
+                        current_type = (*o)->getType();
+                        if (current_type->checkHierarchy(&E_MULTITRANSFORMNODE_TYPEINFO))
+                        {
+                            return;
+                        }
+
                         a = findItem(*o);
 
                         if (a < 0)
@@ -606,8 +613,6 @@ namespace ZookieWizard
                             /* Item was not found and it needs to be serialized */
 
                             addItem((*o), AR_ITEM_TYPE_OBJECT);
-
-                            current_type = (*o)->getType();
 
                             has_node_type = current_type->checkHierarchy(&E_NODE_TYPEINFO);
 

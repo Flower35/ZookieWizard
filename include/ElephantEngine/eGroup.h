@@ -92,6 +92,7 @@ namespace ZookieWizard
             /* << eGroup >> */
 
             int32_t getNodesCount() const;
+            int32_t getNonVirtualNodesCount() const;
             int32_t findChildId(eNode* o) const;
             eNode* getIthChild(int32_t i) const;
 

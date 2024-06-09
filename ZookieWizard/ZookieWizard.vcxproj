@@ -258,6 +258,7 @@
     <ClCompile Include="..\source\ElephantEngine\eMultiCtrl.cpp" />
     <ClCompile Include="..\source\ElephantEngine\eMultiTargetThrower.cpp" />
     <ClCompile Include="..\source\ElephantEngine\eMultiTransform.cpp" />
+    <ClCompile Include="..\source\ElephantEngine\eMultiTransformNode.cpp" />
     <ClCompile Include="..\source\ElephantEngine\eMusicManager.cpp" />
     <ClCompile Include="..\source\ElephantEngine\eNaviCtrl.cpp" />
     <ClCompile Include="..\source\ElephantEngine\eNaviPoint.cpp" />

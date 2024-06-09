@@ -120,6 +120,7 @@ namespace ZookieWizard
 #include <ElephantEngine/eXRefProxy.h>
 #include <ElephantEngine/eXRefManager.h>
 #include <ElephantEngine/eMultiTransform.h>
+#include <ElephantEngine/eMultiTransformNode.h>
 #include <ElephantEngine/ePhyTriMesh.h>
 #include <ElephantEngine/eTrack.h>
 #include <ElephantEngine/eAnimState.h>
@@ -443,6 +444,7 @@ namespace ZookieWizard
         registerTypeInfo(&E_XREFPROXY_TYPEINFO);
         registerTypeInfo(&E_XREFMANAGER_TYPEINFO);
         registerTypeInfo(&E_MULTITRANSFORM_TYPEINFO);
+        registerTypeInfo(&E_MULTITRANSFORMNODE_TYPEINFO);
         registerTypeInfo(&E_PHYTRIMESH_TYPEINFO);
         registerTypeInfo(&E_GEOARRAY_EPHYVERTEX_TYPEINFO);
         registerTypeInfo(&E_TRACK_TYPEINFO);

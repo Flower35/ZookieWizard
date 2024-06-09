@@ -589,6 +589,14 @@ namespace ZookieWizard
         return nodes.getSize();
     }
 
+    ////////////////////////////////////////////////////////////////
+    // eGroup: get non-virtual nodes count
+    ////////////////////////////////////////////////////////////////
+    int32_t eGroup::getNonVirtualNodesCount() const
+    {
+        return nodes.getNonVirtualCount();
+    }
+
 
     ////////////////////////////////////////////////////////////////
     // eGroup: find child index (if it exist in this group)

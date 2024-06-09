@@ -2,6 +2,7 @@
 
 #include <ElephantBase/Archive.h>
 #include <ElephantEngine/eRefCounter.h>
+#include <ElephantEngine/eMultiTransformNode.h>
 
 namespace ZookieWizard
 {
@@ -215,11 +216,20 @@ namespace ZookieWizard
         }
         else
         {
-            ar.readOrWrite(&count, 0x04);
+            int32_t non_virtual_count = getNonVirtualCount();
+            if (count != non_virtual_count)
+            {
+                int a = 1;
+            }
+
+            ar.readOrWrite(&non_virtual_count, 0x04);
 
             for (i = 0; i < count; i++)
             {
-                Func(ar, &(children[i]), t);
+                if (!children[i]->getType()->checkHierarchy(&E_MULTITRANSFORMNODE_TYPEINFO))
+                {
+                    Func(ar, &(children[i]), t);
+                }
             }
         }
     }
@@ -232,6 +242,25 @@ namespace ZookieWizard
     int32_t Collection<Func>::getSize() const
     {
         return count;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Collection: Get group size of non-virtual children
+    ////////////////////////////////////////////////////////////////
+    template <void (*Func)(Archive&, eRefCounter**, const TypeInfo*)>
+    int32_t Collection<Func>::getNonVirtualCount() const
+    {
+        int32_t result = count;
+        for (int i = 0; i < count; i++)
+        {
+            if (children[i]->getType()->checkHierarchy(&E_MULTITRANSFORMNODE_TYPEINFO))
+            {
+                result--;
+            }
+        }
+
+        return result;
     }
 
 

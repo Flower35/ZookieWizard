@@ -1,5 +1,7 @@
 #include <ElephantEngine/eMultiTransform.h>
 #include <ElephantBase/Archive.h>
+#include <ElephantEngine/Log.h>
+#include <ElephantEngine/eMultiTransformNode.h>
 
 namespace ZookieWizard
 {
@@ -115,29 +117,76 @@ namespace ZookieWizard
     // <kao2.004B14FC> (serialization)
     ////////////////////////////////////////////////////////////////
 
-    void eMultiTransformBase::serializeTransform(Archive &ar)
+    void eMultiTransformBase::serializeTransform(Archive& ar)
     {
-        ar.readOrWrite(&(unknown_00[0]), 0x04);
-        ar.readOrWrite(&(unknown_00[1]), 0x04);
-        ar.readOrWrite(&(unknown_00[2]), 0x04);
+        int i;
 
-        ar.readOrWrite(&(unknown_0C[0]), 0x04);
+        /*byte unknownAll[0x40];
+        ar.readOrWrite(&(unknownAll[0]), 0x040);
 
-        ar.readOrWrite(&(unknown_10[0]), 0x04);
-        ar.readOrWrite(&(unknown_10[1]), 0x04);
-        ar.readOrWrite(&(unknown_10[2]), 0x04);
+        char hexstr[301];
+        for (i = 0; i < 0x40; i++)
+        {
+            sprintf_s(hexstr + i * 3, sizeof(hexstr + i * 3), "%02x ", unknownAll[i]);
+        }
+        hexstr[i * 3] = 0;
+
+        eString message;
+        message += hexstr;
+        theLog.print(message);*/
+
+        ar.readOrWrite(&(dummy_rotationA[0]), 0x04);
+        ar.readOrWrite(&(dummy_rotationA[1]), 0x04);
+        ar.readOrWrite(&(dummy_rotationA[2]), 0x04);
+
+        ar.readOrWrite(&color, 0x04);
+
+        ar.readOrWrite(&(dummy_rotationB[0]), 0x04);
+        ar.readOrWrite(&(dummy_rotationB[1]), 0x04);
+        ar.readOrWrite(&(dummy_rotationB[2]), 0x04);
 
         ar.readOrWrite(&unknown_1C, 0x04);
 
-        ar.readOrWrite(&(unknown_20[0]), 0x04);
-        ar.readOrWrite(&(unknown_20[1]), 0x04);
-        ar.readOrWrite(&(unknown_20[2]), 0x04);
-        ar.readOrWrite(&(unknown_20[3]), 0x04);
+        ar.readOrWrite(&(rotation[0]), 0x04);
+        ar.readOrWrite(&(rotation[1]), 0x04);
+        ar.readOrWrite(&(rotation[2]), 0x04);
 
-        ar.readOrWrite(&(unknown_30[0]), 0x04);
-        ar.readOrWrite(&(unknown_30[1]), 0x04);
-        ar.readOrWrite(&(unknown_30[2]), 0x04);
-        ar.readOrWrite(&(unknown_30[3]), 0x04);
+        ar.readOrWrite(&unknown_2C, 0x04);
+
+        ar.readOrWrite(&(position[0]), 0x04);
+        ar.readOrWrite(&(position[1]), 0x04);
+        ar.readOrWrite(&(position[2]), 0x04);
+
+        ar.readOrWrite(&scale, 0x04);
+
+        /*char hexstr[1029];
+        int i = 0;
+        int columnLength = 11;
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_00[0]);
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_00[1]);
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_00[2]);
+
+        sprintf_s(hexstr + columnLength * i++, 19, "////////// ", unknown_0C);
+
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_10[0]);
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_10[1]);
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_10[2]);
+
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_1C);
+
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_20[0]);
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_20[1]);
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_20[2]);
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_20[3]);
+
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_30[0]);
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_30[1]);
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_30[2]);
+        sprintf_s(hexstr + columnLength * i++, 19, "%10.3f ", unknown_30[3]);
+        hexstr[columnLength * i] = 0;
+        eString message;
+        message += hexstr;
+        theLog.print(message);*/
     }
 
 
@@ -148,6 +197,9 @@ namespace ZookieWizard
     void eMultiTransform::serialize(Archive &ar)
     {
         int32_t i;
+        eNode* test_node;
+        eMultiTransformNode* instance;
+        eMultiTransformBase* temp_transform;
 
         eGroup::serialize(ar);
 
@@ -170,25 +222,69 @@ namespace ZookieWizard
                 transforms[i].serializeTransform(ar);
 
                 transformsCount = (i+1);
+
+                TypeInfo* test_typeinfo = &E_MULTITRANSFORMNODE_TYPEINFO;
+                instance = (eMultiTransformNode*)test_typeinfo->create();
+
+                if (nullptr != instance)
+                {
+                    appendChild(instance);
+                    instance->editingNewNodeSetup();
+                    instance->setupInstance(transforms[i]);
+                }
             }
         }
         else
         {
-            ar.readOrWrite(&transformsCount, 0x04);
+            /*ar.readOrWrite(&transformsCount, 0x04);
 
             for (i = 0; i < transformsCount; i++)
             {
-                transforms[i].serializeTransform(ar);
+                transforms[i].serializeTransform(ar, *this);
+            }*/
+
+            int32_t nodesCount = getNodesCount();
+            int32_t instancesCount = nodesCount - getNonVirtualNodesCount();
+
+            /*for (i = 0; i < nodesCount; i++)
+            {
+                test_node = getIthChild(i);
+                if (test_node != nullptr && test_node->getType()->checkHierarchy(&E_MULTITRANSFORMNODE_TYPEINFO))
+                {
+                    instancesCount++;
+                }
+            }*/
+
+            ar.readOrWrite(&instancesCount, 0x04);
+
+            for (i = 0; i < nodesCount; i++)
+            {
+                test_node = getIthChild(i);
+                if (test_node != nullptr && test_node->getType()->checkHierarchy(&E_MULTITRANSFORMNODE_TYPEINFO))
+                {
+                    instance = (eMultiTransformNode*)test_node;
+                    temp_transform = new eMultiTransformBase();
+                    instance->setupBase(*temp_transform);
+
+                    temp_transform->serializeTransform(ar);
+                    delete temp_transform;
+                }
             }
         }
 
         /* unknown values */
 
-        ar.readOrWrite(&unknown_54, 0x04);
-        ar.readOrWrite(&unknown_58, 0x04);
-        ar.readOrWrite(&unknown_5C, 0x04);
-        ar.readOrWrite(&unknown_60, 0x04);
-        ar.readOrWrite(&unknown_64, 0x04);
+        unknown_54 = 100.0f;
+        unknown_58 = 100.0f;
+        unknown_5C = 100.0f;
+        unknown_60 = 100.0f;
+        unknown_64 = 100.0f;
+
+        ar.readOrWrite(&unknown_54, 0x04);//-1.71793866
+        ar.readOrWrite(&unknown_58, 0x04);//42.8847466
+        ar.readOrWrite(&unknown_5C, 0x04);//132.013535
+        ar.readOrWrite(&unknown_60, 0x04);//249.311020
+        ar.readOrWrite(&unknown_64, 0x04);//2
     }
 
 }
