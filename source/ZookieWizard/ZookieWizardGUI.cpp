@@ -17,7 +17,7 @@ namespace ZookieWizard
 
         bool updatingEditboxesNotByUser = false;
 
-        static const int32_t nodesList_ButtonsCount = 26;
+        static const int32_t nodesList_ButtonsCount = 27;
         static const int32_t nodesList_ActionsCount = 7;
         int32_t nodesList_CurrentAction;
         static HWND nodesList_Windows[1 + nodesList_ButtonsCount];
@@ -1953,7 +1953,7 @@ namespace ZookieWizard
 
 			theWindowsManager.setCurrentPosition(x, y);
 			nodesList_ActionIds[6][0] = 21;
-			nodesList_ActionIds[6][1] = 25;
+			nodesList_ActionIds[6][1] = 26;
 
 			if (0 == (nodesList_Windows[1 + 21] = theWindowsManager.addWindow("Update \"DrawPass\" flags", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_DPFLAGS, 0)))
 			{
@@ -1976,6 +1976,11 @@ namespace ZookieWizard
             }
 
             if (0 == (nodesList_Windows[1 + 25] = theWindowsManager.addWindow("(F12)\r\nApply grass colors", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_SET_GRASS, 0)))
+            {
+                return false;
+            }
+
+            if (0 == (nodesList_Windows[1 + 26] = theWindowsManager.addWindow("Remove overlapping nodes", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_OPTIMIZE, 0x01)))
             {
                 return false;
             }

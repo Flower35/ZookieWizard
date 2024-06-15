@@ -132,6 +132,11 @@ namespace ZookieWizard
         return sqrtf((x * x) + (y * y) + (z * z));
     }
 
+    float ePoint3::getDistance(const ePoint3& point) const
+    {
+        return sqrtf(pow(x - point.x, 2) + pow(y - point.y, 2) + pow(z - point.z, 2));
+    }
+
     void ePoint3::normalize()
     {
         float length = getLength();

@@ -140,7 +140,6 @@ namespace ZookieWizard
             void importTriMeshFromObj(eString obj_fullpath, eGroup* target, int32_t flags, eSRP &srp);
             void updateTriMeshVerticesFromObj(eString obj_fullpath, eNode* target, int32_t flags, eSRP& srp);
             void addEnvMapCoordinatesFromObj(eString obj_fullpath, eNode* target, int32_t flags, eSRP& srp);
-            void applyGrassVertexColors(eNode* target, int32_t flags, eSRP& srp);
 
         protected:
 
@@ -159,7 +158,6 @@ namespace ZookieWizard
             void constructTriMeshes();
             void reconstructTriMesh(eTriMesh* target);
             void applyEnvMap(eTriMesh* target);
-            void modifyTriMeshWithGrassColors(eTriMesh* target);
 
             bool groupHasMultipleMaterials(const int32_t g_id) const;
     };

@@ -104,6 +104,7 @@ namespace ZookieWizard
             void swapBackward(int32_t i);
 
             void deleteNodesWithMultiRefs(bool can_be_invalid, eGroup* root_node);
+            void deleteOverlappingNodes();
     };
 
 

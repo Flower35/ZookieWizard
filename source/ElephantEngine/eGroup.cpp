@@ -743,4 +743,82 @@ namespace ZookieWizard
         })
     }
 
+    ////////////////////////////////////////////////////////////////
+    // eGroup: remove overlapping nodes
+    ////////////////////////////////////////////////////////////////
+    void eGroup::deleteOverlappingNodes()
+    {
+        int32_t i, j;
+        eNode* child_node;
+        eNode* child_node_to_compare;
+        eTransform* test_transform;
+        eTransform* test_transform_to_compare;
+        eGroup* test_root;
+        eSRP test_srp, test_srp_to_compare;
+        float distance;
+
+        for (i = 0; i < nodes.getSize(); i++)
+        {
+            if (nullptr != (child_node = (eNode*)nodes.getIthChild(i)))
+            {
+                if (child_node->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+                {
+                    test_transform = (eTransform*)child_node;
+                    test_srp = test_transform->getXForm(false);
+
+                    for (j = i + 1; j < nodes.getSize(); j++)
+                    {
+                        if (nullptr != (child_node_to_compare = (eNode*)nodes.getIthChild(j)))
+                        {
+                            if (child_node_to_compare->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+                            {
+                                test_transform_to_compare = (eTransform*)child_node_to_compare;
+                                test_srp_to_compare = test_transform_to_compare->getXForm(false);
+
+                                distance = test_srp.pos.getDistance(test_srp_to_compare.pos);
+                                if (distance < 40)
+                                {
+                                    if (nullptr != (test_root = getRootNode()))
+                                    {
+                                        test_transform_to_compare->deleteNodesWithMultiRefs(false, test_root);
+                                        test_root->findAndDereference(test_transform_to_compare);
+                                    }
+
+                                    deleteIthChild(j);
+                                    j--;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /*MACRO_KAO2_GROUP_FOREACH_NODE
+        ({
+            if (child_node->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+            {
+                test_transform = (eTransform*)child_node;
+                test_srp = test_transform->getXForm(false);
+
+                for (j = 0; j < nodes.getSize(); j++)
+                {
+                    if (nullptr != (child_node_to_compare = (eNode*)nodes.getIthChild(j)))
+                    {
+                        if (child_node_to_compare->getType()->checkHierarchy(&E_TRANSFORM_TYPEINFO))
+                        {
+                            test_transform_to_compare = (eTransform*)child_node_to_compare;
+                            test_srp_to_compare = test_transform_to_compare->getXForm(false);
+
+                            distance = test_srp.pos.getDistance(test_srp_to_compare.pos);
+                            if (distance < 32)
+                            {
+                                findAndDereference(child_node_to_compare);
+                            }
+                        }
+                    }
+                }
+            }
+        })*/
+    }
 }

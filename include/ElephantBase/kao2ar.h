@@ -100,6 +100,7 @@ namespace ZookieWizard
         ePoint3& operator -= (const ePoint4&);
 
         float getLength() const;
+        float getDistance(const ePoint3&) const;
         void normalize();
 
         void serialize(Archive &ar);

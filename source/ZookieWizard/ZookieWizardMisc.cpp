@@ -7,6 +7,9 @@
 #include <ElephantEngine/eScene.h>
 #include <ElephantEngine/eEnvironment.h>
 #include <denis/DenisLevelMap.h>
+#include <ElephantEngine/eTriMesh.h>
+#include <ElephantEngine/eGeoArray.h>
+#include <ElephantEngine/eGeoSet.h>
 
 namespace ZookieWizard
 {
@@ -1761,4 +1764,104 @@ namespace ZookieWizard
         }
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // miscellaneous: Apply grass vertex colors
+    ////////////////////////////////////////////////////////////////
+    void applyGrassVertexColors(eNode* target)
+    {
+        char bufor[LARGE_BUFFER_SIZE];
+        eGeoSet* test_geo;
+        ePhyTriMesh* test_phytrimesh;
+
+        /****************/
+
+        if (!target->getType()->checkHierarchy(&E_TRIMESH_TYPEINFO))
+        {
+            throw ErrorMessage
+            (
+                "applyGrassVertexColors():\n" \
+                "Target object is not a \"eTriMesh\" type!"
+            );
+        }
+
+        /****************/
+
+        sprintf_s
+        (
+            bufor, LARGE_BUFFER_SIZE,
+            "Applying grass vertex colors"
+        );
+
+        theLog.print(bufor);
+
+        /****************/
+
+        test_geo = ((eTriMesh*)target)->getGeoset();
+
+        modifyTriMeshWithGrassColors((eTriMesh*)target);
+
+        /****************/
+
+        sprintf_s
+        (
+            bufor, LARGE_BUFFER_SIZE,
+            "Applying grass vertex colors finished.\n"
+        );
+
+        theLog.print(bufor);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // miscellaneous: apply grass colors to existing "eTriMesh"
+    ////////////////////////////////////////////////////////////////
+    void modifyTriMeshWithGrassColors(eTriMesh* target)
+    {
+        int32_t j, k;
+        float avg, offset, r, g, b;
+
+        eGeoSet* test_geoset = nullptr;
+
+        eGeoArray<ePoint4>* colors_data = nullptr;
+
+        theLog.print(" Updating 3D object with new vertex colors, please wait...\n");
+
+        test_geoset = target->getGeoset();
+
+        colors_data = test_geoset->getColorsArray();
+        k = colors_data->getLength();
+
+        /********************************/
+        /* Fill color arrays */
+
+        for (j = 0; j < k; j++)
+        {
+            avg = (colors_data->getData()[j].x + colors_data->getData()[j].y + colors_data->getData()[j].z) / 3.0f;
+            if (avg < 0.27f)
+            {
+                avg = 0.27f;
+            }
+
+            //avg *= 1.07f;
+
+            if (avg > 1.0f)
+            {
+                avg = 1.0f;
+            }
+
+            r = avg;
+            g = avg;
+            b = avg;
+
+            colors_data->getData()[j].x = r;
+            colors_data->getData()[j].y = g;
+            colors_data->getData()[j].z = b;
+        }
+
+        /********************************/
+        /* View result in editor's window :) */
+
+        test_geoset->prepareForDrawing();
+    }
 }

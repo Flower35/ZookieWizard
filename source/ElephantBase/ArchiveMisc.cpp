@@ -837,12 +837,9 @@ namespace ZookieWizard
 
                         if (nullptr != test_node)
                         {
-                            WavefrontObjImporter importer;
-                            eSRP default_srp;
-
                             try
                             {
-                                importer.applyGrassVertexColors(test_node, WAVEFRONT_OBJ_IMPORTER_DEFAULT_FLAGS, default_srp);
+                                applyGrassVertexColors(test_node);
 
                                 sprintf_s
                                 (
@@ -858,6 +855,71 @@ namespace ZookieWizard
                                 (
                                     "================================\n" \
                                     "==    SETTING GRASS COLORS    ==\n" \
+                                    "==            oops!           ==\n" \
+                                    "================================\n"
+                                );
+
+                                e.display();
+                            }
+                        }
+                    }
+                }
+
+                break;
+            }
+
+            case NODES_EDITING_GROUPS_OPTIMIZE:
+            {
+                if ((nullptr != selectedObject) && (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO)))
+                {
+                    test_node = (eNode*)selectedObject;
+                }
+
+                if (nullptr != test_node)
+                {
+                    if (markedChildId >= 0)
+                    {
+                        test_group = (eGroup*)selectedObject;
+                        test_node = test_group->getIthChild(markedChildId);
+
+                        if (nullptr != test_node && (test_node->getType()->checkHierarchy(&E_GROUP_TYPEINFO)))
+                        {
+                            test_group = (eGroup*)test_node;
+
+                            try
+                            {
+                                int nodeCountBefore = test_group->getNodesCount();
+                                test_group->deleteOverlappingNodes();
+                                int nodeCountAfter = test_group->getNodesCount();
+
+                                int removedNodes = nodeCountBefore - nodeCountAfter;
+
+                                if (removedNodes > 0)
+                                {
+                                    sprintf_s
+                                    (
+                                        bufor, LARGE_BUFFER_SIZE,
+                                        "Removed %d overlapping nodes! :)",
+                                        removedNodes
+                                    );
+                                }
+                                else
+                                {
+                                    sprintf_s
+                                    (
+                                        bufor, LARGE_BUFFER_SIZE,
+                                        "No overlapping nodes found!"
+                                    );
+                                }
+
+                                GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
+                            }
+                            catch (ErrorMessage& e)
+                            {
+                                theLog.print
+                                (
+                                    "================================\n" \
+                                    "== REMOVING OVERLAPPING NODES ==\n" \
                                     "==            oops!           ==\n" \
                                     "================================\n"
                                 );
