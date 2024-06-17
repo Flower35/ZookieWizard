@@ -1843,11 +1843,11 @@ namespace ZookieWizard
                 avg = 0.27f;
             }
 
-            //avg *= 1.07f;
+            //avg *= 1.0f;
 
-            if (avg > 1.0f)
+            if (avg > 1.00f)
             {
-                avg = 1.0f;
+                avg = 1.00f;
             }
 
             r = avg;

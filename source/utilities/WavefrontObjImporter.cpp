@@ -1845,9 +1845,12 @@ namespace ZookieWizard
                 vertices_data->getData()[j].y = objVertices[j].y;
                 vertices_data->getData()[j].z = objVertices[j].z;
 
-                colors_data->getData()[j].x = objVertices[j].r;
-                colors_data->getData()[j].y = objVertices[j].g;
-                colors_data->getData()[j].z = objVertices[j].b;
+                if (nullptr != colors_data)
+                {
+                    colors_data->getData()[j].x = objVertices[j].r;
+                    colors_data->getData()[j].y = objVertices[j].g;
+                    colors_data->getData()[j].z = objVertices[j].b;
+                }
 
 
                 if (total_mappings > 0)
