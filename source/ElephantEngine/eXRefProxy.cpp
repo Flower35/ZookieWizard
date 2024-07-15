@@ -135,7 +135,9 @@ namespace ZookieWizard
     {
         if (nullptr != target)
         {
-            target->renderXRefScene(draw_context);
+            eDrawContext new_context(draw_context);
+            new_context.setDrawFlags(draw_context.getDrawFlags() & ~GUI::drawFlags::DRAW_FLAG_SPECIAL);
+            target->renderXRefScene(new_context);
         }
     }
 
