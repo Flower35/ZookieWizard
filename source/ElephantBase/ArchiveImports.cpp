@@ -103,15 +103,15 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Archive: export selected TriMesh to OBJ file
     ////////////////////////////////////////////////////////////////
-    void Archive::writeSelectedObjectToObjFile(eString filename) const
+    void Archive::writeSelectedObjectToObjFile(eString filename, bool includeGeoproxies) const
     {
         WavefrontObjExporter exporter;
 
         if (nullptr != selectedObject)
         {
-            if (exporter.openObj(filename, selectedObject))
+            if (exporter.openObj(filename, selectedObject, includeGeoproxies))
             {
-                exporter.begin();
+                exporter.begin(includeGeoproxies);
             }
         }
     }

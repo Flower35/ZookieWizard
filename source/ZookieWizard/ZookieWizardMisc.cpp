@@ -1311,7 +1311,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // miscellaneous: Export Kao2 Mesh to WAVEFRONT "*.obj" format
     ////////////////////////////////////////////////////////////////
-    void ArMenuOptions_ExportTrimeshToObj()
+    void ArMenuOptions_ExportTrimeshToObj(bool includeGeoproxies)
     {
         eString filename;
         char bufor[LARGE_BUFFER_SIZE];
@@ -1348,7 +1348,7 @@ namespace ZookieWizard
                 "================================\n"
             );
 
-            myARs[currentArId].writeSelectedObjectToObjFile(filename);
+            myARs[currentArId].writeSelectedObjectToObjFile(filename, includeGeoproxies);
 
             theLog.print
             (
@@ -1819,7 +1819,7 @@ namespace ZookieWizard
     void modifyTriMeshWithGrassColors(eTriMesh* target)
     {
         int32_t j, k;
-        float avg, offset, r, g, b;
+        float avg, offset, r, g, b, old_r, old_g, old_b;
 
         eGeoSet* test_geoset = nullptr;
 
@@ -1837,22 +1837,26 @@ namespace ZookieWizard
 
         for (j = 0; j < k; j++)
         {
-            avg = (colors_data->getData()[j].x + colors_data->getData()[j].y + colors_data->getData()[j].z) / 3.0f;
+            old_r = colors_data->getData()[j].x;
+            old_g = colors_data->getData()[j].y;
+            old_b = colors_data->getData()[j].z;
+
+            avg = (old_r + old_g + old_b) / 3.0f;
             if (avg < 0.27f)
             {
-                avg = 0.27f;
+                //avg = 0.27;
             }
 
-            //avg *= 1.0f;
+            //avg *= 0.8f;
 
-            if (avg > 1.00f)
+            if (avg < 0.5f)
             {
-                avg = 1.00f;
+                //avg = 0.5f;
             }
 
-            r = avg;
-            g = avg;
-            b = avg;
+            r = avg;// *0.88;// min(old_r * 1.2, 1.0);
+            g = avg;// *0.98;// old_g * 0.05;
+            b = avg;// *1.1;// old_b * 0.2;
 
             colors_data->getData()[j].x = r;
             colors_data->getData()[j].y = g;

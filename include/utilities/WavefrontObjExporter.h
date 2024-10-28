@@ -9,6 +9,7 @@ namespace ZookieWizard
     class eObject;
     class eGroup;
     class eTriMesh;
+    class eProxy;
     class eMaterial;
 
     ////////////////////////////////////////////////////////////////
@@ -44,10 +45,10 @@ namespace ZookieWizard
             WavefrontObjExporter();
             ~WavefrontObjExporter();
 
-            bool openObj(eString filename, eObject* target);
+            bool openObj(eString filename, eObject* target, bool includeGeoproxies = false);
             bool openMtl();
 
-            void begin();
+            void begin(bool includeGeoproxies = false);
 
         protected:
 
@@ -56,8 +57,8 @@ namespace ZookieWizard
             bool writeMaterialInfo(eTriMesh* current_trimesh, bool file_opened);
             void writeModelData(eTriMesh* current_trimesh, eMatrix4x4 &parent_matrix);
 
-            bool writeMaterialInfoFromGroup(eGroup* current_group, bool file_opened);
-            void writeModelDataFromGroup(eGroup* current_group, eMatrix4x4 &parent_matrix);
+            bool writeMaterialInfoFromGroup(eGroup* current_group, bool file_opened, bool includeGeoproxies = false);
+            void writeModelDataFromGroup(eGroup* current_group, eMatrix4x4 &parent_matrix, bool includeGeoproxies = false);
 
             void writeFace(int32_t params, int32_t index[3]);
     };

@@ -9,6 +9,10 @@
 #include <ElephantEngine/eMaterialState.h>
 #include <ElephantEngine/eTexture.h>
 #include <ElephantEngine/eBitmap.h>
+#include <ElephantEngine/eProxy.h>
+#include <ElephantEngine/eXrefProxy.h>
+#include <ElephantEngine/eXrefTarget.h>
+#include <ElephantEngine/eScene.h>
 
 namespace ZookieWizard
 {
@@ -49,7 +53,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WavefrontObjExporter: open file and set working directory
     ////////////////////////////////////////////////////////////////
-    bool WavefrontObjExporter::openObj(eString filename, eObject* target)
+    bool WavefrontObjExporter::openObj(eString filename, eObject* target, bool includeGeoproxies)
     {
         const TypeInfo* type_info;
         char* text = filename.getText();
@@ -144,7 +148,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WavefrontObjExporter: start exporting mesh
     ////////////////////////////////////////////////////////////////
-    void WavefrontObjExporter::begin()
+    void WavefrontObjExporter::begin(bool includeGeoproxies)
     {
         bool uses_mtl = false;
 
@@ -181,8 +185,8 @@ namespace ZookieWizard
 
         if (nullptr != meshGroup)
         {
-            uses_mtl = writeMaterialInfoFromGroup(meshGroup, false);
-        }
+            uses_mtl = writeMaterialInfoFromGroup(meshGroup, false, includeGeoproxies);
+        } 
         else if (nullptr != meshTrimesh)
         {
             uses_mtl = writeMaterialInfo(meshTrimesh, false);
@@ -206,7 +210,7 @@ namespace ZookieWizard
 
         if (nullptr != meshGroup)
         {
-            writeModelDataFromGroup(meshGroup, default_matrix);
+            writeModelDataFromGroup(meshGroup, default_matrix, includeGeoproxies);
         }
         else if (nullptr != meshTrimesh)
         {
@@ -220,7 +224,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WavefrontObjExporter: write texturing info recursively
     ////////////////////////////////////////////////////////////////
-    bool WavefrontObjExporter::writeMaterialInfoFromGroup(eGroup* current_group, bool file_opened)
+    bool WavefrontObjExporter::writeMaterialInfoFromGroup(eGroup* current_group, bool file_opened, bool includeGeoproxies)
     {
         int i;
         bool result = file_opened;
@@ -237,10 +241,14 @@ namespace ZookieWizard
             child_node = (eNode*)current_group->getIthChild(i);
 
             type_info = child_node->getType();
-
-            if (type_info->checkHierarchy(&E_GROUP_TYPEINFO))
+            
+            if (includeGeoproxies && (&E_XREFPROXY_TYPEINFO) == type_info && ((eProxy*)current_group)->getCategory() == 5)
             {
-                result |= writeMaterialInfoFromGroup((eGroup*)child_node, result);
+                result |= writeMaterialInfoFromGroup(((eXRefProxy*)child_node)->getXRefTarget()->getLocalScene(), result);
+            }
+            else if (type_info->checkHierarchy(&E_GROUP_TYPEINFO))
+            {
+                result |= writeMaterialInfoFromGroup((eGroup*)child_node, result, includeGeoproxies);
             }
             else if ((&E_TRIMESH_TYPEINFO) == type_info)
             {
@@ -370,7 +378,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WavefrontObjExporter: write model data recursively
     ////////////////////////////////////////////////////////////////
-    void WavefrontObjExporter::writeModelDataFromGroup(eGroup* current_group, eMatrix4x4 &parent_matrix)
+    void WavefrontObjExporter::writeModelDataFromGroup(eGroup* current_group, eMatrix4x4 &parent_matrix, bool includeGeoproxies)
     {
         int i;
         eNode* child_node;
@@ -397,9 +405,13 @@ namespace ZookieWizard
 
             type_info = child_node->getType();
 
-            if (type_info->checkHierarchy(&E_GROUP_TYPEINFO))
+            if (includeGeoproxies && (&E_XREFPROXY_TYPEINFO) == type_info && ((eProxy*)current_group)->getCategory() == 5)
             {
-                writeModelDataFromGroup((eGroup*)child_node, current_matrix);
+                writeModelDataFromGroup(((eXRefProxy*)child_node)->getXRefTarget()->getLocalScene(), current_matrix);
+            }
+            else if (type_info->checkHierarchy(&E_GROUP_TYPEINFO))
+            {
+                writeModelDataFromGroup((eGroup*)child_node, current_matrix, includeGeoproxies);
             }
             else if ((&E_TRIMESH_TYPEINFO) == type_info)
             {

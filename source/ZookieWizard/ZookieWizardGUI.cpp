@@ -17,7 +17,7 @@ namespace ZookieWizard
 
         bool updatingEditboxesNotByUser = false;
 
-        static const int32_t nodesList_ButtonsCount = 27;
+        static const int32_t nodesList_ButtonsCount = 28;
         static const int32_t nodesList_ActionsCount = 7;
         int32_t nodesList_CurrentAction;
         static HWND nodesList_Windows[1 + nodesList_ButtonsCount];
@@ -386,6 +386,10 @@ namespace ZookieWizard
                 else if (1 == (int32_t)custom_param)
                 {
                     ArMenuOptions_ImportTrimeshFromObj();
+                }
+                else if (2 == (int32_t)custom_param)
+                {
+                    ArMenuOptions_ExportTrimeshToObj(true);
                 }
             }
         }
@@ -1929,58 +1933,63 @@ namespace ZookieWizard
 
 			theWindowsManager.setCurrentPosition(x, y);
 			nodesList_ActionIds[5][0] = 17;
-			nodesList_ActionIds[5][1] = 20;
+			nodesList_ActionIds[5][1] = 21;
 
-			if (0 == (nodesList_Windows[1 + 17] = theWindowsManager.addWindow("Export 3D Meshes to Wavefront OBJ", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)0, 0)))
+			if (0 == (nodesList_Windows[1 + 17] = theWindowsManager.addWindow("Export to OBJ", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListObj, (void*)0, 0)))
 			{
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 18] = theWindowsManager.addWindow("Import 3D Meshes from Wavefront OBJ", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)1, 0x01)))
+			if (0 == (nodesList_Windows[1 + 18] = theWindowsManager.addWindow("Import from OBJ", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListObj, (void*)1, 0x01)))
 			{
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 19] = theWindowsManager.addWindow("(F9)\nRebuild Collision of\nHighlighted Node", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0)))
+			if (0 == (nodesList_Windows[1 + 19] = theWindowsManager.addWindow("(F9)\nRebuild Collision", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_REBUILD, 0)))
 			{
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 20] = theWindowsManager.addWindow("(F11)\nClear Collision of\nHighlighted Node", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01)))
+			if (0 == (nodesList_Windows[1 + 20] = theWindowsManager.addWindow("(F11)\nClear Collision", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_COLLISION_CLEAR, 0x01)))
 			{
 				return false;
 			}
+
+            if (0 == (nodesList_Windows[1 + 21] = theWindowsManager.addWindow("Export to OBJ\nwith Geoproxies", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListObj, (void*)2, 0)))
+            {
+                return false;
+            }
 
 			theWindowsManager.setCurrentPosition(x, y);
-			nodesList_ActionIds[6][0] = 21;
-			nodesList_ActionIds[6][1] = 26;
+			nodesList_ActionIds[6][0] = 22;
+			nodesList_ActionIds[6][1] = 27;
 
-			if (0 == (nodesList_Windows[1 + 21] = theWindowsManager.addWindow("Update \"DrawPass\" flags", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_DPFLAGS, 0)))
+			if (0 == (nodesList_Windows[1 + 22] = theWindowsManager.addWindow("Update \"DrawPass\" flags", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_DPFLAGS, 0)))
 			{
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 22] = theWindowsManager.addWindow("Remove empty Groups", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_UNREF, 0x01)))
+			if (0 == (nodesList_Windows[1 + 23] = theWindowsManager.addWindow("Remove empty Groups", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_UNREF, 0x01)))
 			{
 				return false;
 			}
 
-            if (0 == (nodesList_Windows[1 + 23] = theWindowsManager.addWindow("Reconstruct eTriMesh", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_UPDATEMESH, 0)))
+            if (0 == (nodesList_Windows[1 + 24] = theWindowsManager.addWindow("Reconstruct eTriMesh", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_UPDATEMESH, 0)))
             {
                 return false;
             }
 
-            if (0 == (nodesList_Windows[1 + 24] = theWindowsManager.addWindow("Apply env map", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_ADD_ENVMAP, 0x01)))
+            if (0 == (nodesList_Windows[1 + 25] = theWindowsManager.addWindow("Apply env map", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_ADD_ENVMAP, 0x01)))
             {
                 return false;
             }
 
-            if (0 == (nodesList_Windows[1 + 25] = theWindowsManager.addWindow("(F12)\r\nApply grass colors", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_SET_GRASS, 0)))
+            if (0 == (nodesList_Windows[1 + 26] = theWindowsManager.addWindow("(F12)\r\nApply grass colors", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_SET_GRASS, 0)))
             {
                 return false;
             }
 
-            if (0 == (nodesList_Windows[1 + 26] = theWindowsManager.addWindow("Remove overlapping nodes", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_OPTIMIZE, 0x01)))
+            if (0 == (nodesList_Windows[1 + 27] = theWindowsManager.addWindow("Remove overlapping nodes", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_OPTIMIZE, 0x01)))
             {
                 return false;
             }

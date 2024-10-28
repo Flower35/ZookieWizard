@@ -74,6 +74,8 @@ namespace ZookieWizard
 
             /* << eProxy >> */
 
+
+            int32_t getCategory();
             void setCategory(int32_t new_category);
             void setTargetName(eString new_target_name);
 

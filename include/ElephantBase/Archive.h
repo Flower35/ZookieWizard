@@ -182,7 +182,7 @@ namespace ZookieWizard
             void reloadProxies(int32_t version_override) const;
             void writeTreeToJsonFile(const char* output_path) const;
             void writeTreeToXmlFile(eString filename) const;
-            void writeSelectedObjectToObjFile(eString filename) const;
+            void writeSelectedObjectToObjFile(eString filename, bool withGeoproxies = false) const;
             void appendToSelectedObjectFromObjFile(eString filename);
             void updateVerticesFromObjFile(eString filename);
             void addEnvMapFromObjFile(eString filename);
