@@ -453,14 +453,14 @@ namespace ZookieWizard
 
             test_geo = ((eTriMesh*)target)->getGeoset();
 
-            if (objVerticesCount != test_geo->getVerticesArray(0)->getLength())
+            /*if (objVerticesCount != test_geo->getVerticesArray(0)->getLength())
             {
                 throw ErrorMessage
                 (
                     "WavefrontObjImporter::updateTriMeshVerticesFromObj():\n" \
                     "Number of vertices of imported mesh must match the target eTriMesh!"
                 );
-            }
+            }*/
 
             importedVertices = 0;
             importedMeshes = 0;
@@ -1892,7 +1892,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void WavefrontObjImporter::applyEnvMap(eTriMesh* target)
     {
-        int32_t j, k, l, m;
+        int32_t group_id, mat_id, j, k, l, m;
         int32_t total_indices, total_vertices, total_normals, total_mappings;
         float dummy_floats[3];
         ePoint3 dummy_vectors[2];
@@ -1900,7 +1900,6 @@ namespace ZookieWizard
         uint16_t temp_id[4];
         bool temp_tests[3];
 
-        eGroup* test_group = nullptr;
         eTriMesh* test_trimesh = nullptr;
         eGeoSet* test_geoset = nullptr;
         eMaterialState* dummy_mtl_state = nullptr;
@@ -1909,12 +1908,15 @@ namespace ZookieWizard
         eGeoArray<ePoint4>* test_vertices_array = nullptr;
         eGeoArray<ushort>* test_indices_offsets = nullptr;
         eGeoArray<ushort>* test_indices_array = nullptr;
+        ushort* test_indices_offsets_data = nullptr;
+        ushort* test_indices_array_data = nullptr;
         eGeoArray<ePoint2>* test_uv_array = nullptr;
         eGeoArray<ePoint4>* test_normals_array = nullptr;
         eGeoArray<ePoint4>* test_colors_array = nullptr;
 
         ePoint4* test_vertices_data = nullptr;
         ePoint2* test_uv_data = nullptr;
+        ePoint2* target_uv_data = nullptr;
         ePoint4* test_normals_data = nullptr;
         ePoint4* test_colors_data = nullptr;
 
@@ -2088,10 +2090,305 @@ namespace ZookieWizard
             }
         }
 
+
+
+
+
+
+
+
+
+        for (mat_id = 0; mat_id < objMaterialsCount; mat_id++)
+        {
+            total_vertices = 0;
+            total_indices = 0;
+            total_normals = 0;
+            total_mappings = 0;
+
+            /********************************/
+            /* Checking which vertices will be used */
+
+            for (j = 0; j < objFacesCount; j++)
+            {
+                for (k = 0; k < 3; k++)
+                {
+                    temp_id[0] = objFaces[j].v_id[k];
+                    temp_id[1] = objFaces[j].vt_id[k];
+                    temp_id[2] = objFaces[j].vn_id[k];
+
+                    temp_tests[0] = (temp_id[0] >= 0) && (temp_id[0] < objVerticesCount);
+                    temp_tests[1] = (temp_id[1] >= 0) && (temp_id[1] < objMappingCount);
+                    temp_tests[2] = (temp_id[2] >= 0) && (temp_id[2] < objNormalsCount);
+
+                    if (temp_tests[0])
+                    {
+                        m = 0;
+
+                        /* `3 == m` and the loop breaks only when a vertex with exact params existed */
+
+                        for (l = 0; (l < total_vertices) && (m < 3); l++)
+                        {
+                            if (referencedVertices[4 * l + 0] == temp_id[0])
+                            {
+                                m = 1;
+
+                                if (temp_tests[1])
+                                {
+                                    if (referencedVertices[4 * l + 1] == temp_id[1])
+                                    {
+                                        m++;
+                                    }
+                                }
+                                else
+                                {
+                                    m++;
+                                }
+
+                                if (temp_tests[2])
+                                {
+                                    if (m >= 2) // UV mapping must be matching too.
+                                    {
+                                        temp_id[3] = referencedVertices[4 * l + 2];
+
+                                        if (temp_id[3] != temp_id[2])
+                                        {
+                                            if ((temp_id[3] >= 0) && (temp_id[3] < objNormalsCount))
+                                            {
+                                                objNormals[temp_id[3]] += objNormals[temp_id[2]];
+                                                objNormals[temp_id[3]].normalize();
+
+                                                m++;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            m++;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    m++;
+                                }
+                            }
+                            else
+                            {
+                                m = 0;
+                            }
+                        }
+
+                        if (m < 3)
+                        {
+                            /* Inserting another vertex parameters because it differs */
+
+                            referencedVertices[4 * total_vertices + 0] = temp_id[0];
+
+                            if (temp_tests[1])
+                            {
+                                referencedVertices[4 * total_vertices + 1] = temp_id[1];
+
+                                total_mappings++;
+                            }
+
+                            if (temp_tests[2])
+                            {
+                                referencedVertices[4 * total_vertices + 2] = temp_id[2];
+
+                                total_normals++;
+                            }
+                            else
+                            {
+                                /* marking Normal ID as invalid, so it cannot be used for addition */
+                                referencedVertices[4 * total_vertices + 2] = (-1);
+                            }
+
+                            total_vertices++;
+                        }
+                        else
+                        {
+                            /* Last matching vertex ID before loop counter was increased */
+                            l--;
+                        }
+
+                        referencedVertices[4 * total_indices + 3] = l;
+
+                        total_indices++;
+                    }
+                }
+            }
+
+            /********************************/
+            /* Continue if model is not empty */
+
+            if (total_vertices != target->getGeoset()->getVerticesArray(0)->getLength())
+            {
+                throw ErrorMessage
+                (
+                    "WavefrontObjImporter::updateTriMeshVerticesFromObj():\n" \
+                    "Number of vertices of imported mesh must match the target eTriMesh!"
+                );
+            }
+
+            if (total_vertices > 65535)
+            {
+                ErrorMessage
+                (
+                    "WavefrontObjImporter::constructTriMeshes():\n"
+                    "too many vertices! (max 65535 per object)"
+                ).display();
+            }
+            else if (total_vertices > 0)
+            {
+                test_trimesh = new eTriMesh();
+                test_trimesh->incRef();
+
+                test_geoset = new eGeoSet();
+                test_geoset->incRef();
+                test_trimesh->setGeoset(test_geoset);
+
+                /********************************/
+                /* Set-up arrays */
+
+                test_geoset->setTwoIntegers(0x0F, total_vertices);
+
+                test_vertices_data = new ePoint4[total_vertices];
+                test_vertices_array = new eGeoArray<ePoint4>();
+                test_vertices_array->setup(total_vertices, test_vertices_data);
+                test_geoset->setVerticesArray(0, test_vertices_array);
+
+                //// test_indices_offsets_data = new ushort [total_indices / 3];
+                //// test_indices_offsets = new eGeoArray<ushort>();
+                //// test_indices_offsets->setup((total_indices / 3), test_indices_offsets_data);
+                //// test_geoset->setIndicesOffsets(test_indices_offsets);
+
+                test_indices_array_data = new ushort[total_indices];
+                test_indices_array = new eGeoArray<ushort>();
+                test_indices_array->setup(total_indices, test_indices_array_data);
+                test_geoset->setIndicesArray(test_indices_array);
+
+                test_colors_data = new ePoint4[total_vertices];
+                test_colors_array = new eGeoArray<ePoint4>();
+                test_colors_array->setup(total_vertices, test_colors_data);
+                test_geoset->setColorsArray(test_colors_array);
+
+                if (total_mappings > 0)
+                {
+                    test_uv_data = new ePoint2[total_vertices];
+                    test_uv_array = new eGeoArray<ePoint2>;
+                    test_uv_array->setup(total_vertices, test_uv_data);
+                    test_geoset->setTextureCoordsArray(0, test_uv_array);
+                }
+                else
+                {
+                    test_geoset->setTextureCoordsArray(0, nullptr);
+                }
+
+                if (total_normals > 0)
+                {
+                    test_normals_data = new ePoint4[total_vertices];
+                    test_normals_array = new eGeoArray<ePoint4>();
+                    test_normals_array->setup(total_vertices, test_normals_data);
+                    test_geoset->setNormalsArray(0, test_normals_array);
+                }
+
+                /********************************/
+                /* Fill arrays: indices, vertices, colors, UV mapping, normals */
+
+                for (j = 0; j < total_indices; j++)
+                {
+                    test_indices_array_data[j] = referencedVertices[4 * j + 3];
+                }
+
+                for (j = 0; j < total_vertices; j++)
+                {
+                    k = referencedVertices[4 * j + 0];
+
+                    test_vertices_data[j] = { objVertices[k].x, objVertices[k].y, objVertices[k].z, 1.0f };
+
+                    test_colors_data[j] = { objVertices[k].r, objVertices[k].g, objVertices[k].b, 1.0f };
+
+                    if (total_mappings > 0)
+                    {
+                        k = referencedVertices[4 * j + 1];
+
+                        test_uv_data[j] = objMapping[k];
+                    }
+
+                    if (total_normals > 0)
+                    {
+                        k = referencedVertices[4 * j + 2];
+
+                        test_normals_data[j] = { objNormals[k].x, objNormals[k].y, objNormals[k].z, 0 };
+                    }
+                }
+
+                importedVertices += total_vertices;
+                importedMeshes++;
+
+                test_geoset->decRef();
+
+
+
+
+                test_geoset = target->getGeoset();
+                uv_data = test_geoset->getTextureCoordsArray(1);
+
+                target_uv_data = new ePoint2[total_vertices];
+                test_uv_array = new eGeoArray<ePoint2>;
+                test_uv_array->setup(total_vertices, target_uv_data);
+                test_geoset->setTextureCoordsArray(1, test_uv_array);
+
+                /********************************/
+                /* Fill arrays: vertices, colors, UV mapping, normals */
+
+                for (j = 0; j < total_vertices; j++)
+                {
+                    if (total_mappings > 0)
+                    {
+                        target_uv_data[j].u = test_uv_data[j].u;
+                        target_uv_data[j].v = test_uv_data[j].v;
+                        /*k = referencedVertices[4 * j + 1];
+                        if (k >= 0 && k < total_vertices)
+                        {
+                            target_uv_data[j] = test_uv_data[k];
+                        }*/
+                    }
+                }
+
+                targetMaterial = target->getMaterial();
+                if (targetMaterial->getTexturesCount() < 2)
+                {
+                    targetMaterial->appendTexture(objMaterials[0].material->getIthTexture(0));
+                }
+
+                uint16_t materialFlags = targetMaterial->getMaterialFlags();
+                materialFlags |= 0x08;
+                targetMaterial->setMaterialFlags(materialFlags);
+
+                test_geoset->setTexMappingType(1, 0);
+
+                /********************************/
+                /* View result in editor's window :) */
+
+                test_geoset->prepareForDrawing();
+                test_trimesh->decRef();
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
         /********************************/
         /* Continue if model is not empty */
 
-        if (total_vertices > 65535)
+        /*if (total_vertices > 65535)
         {
             ErrorMessage
             (
@@ -2108,9 +2405,6 @@ namespace ZookieWizard
             test_uv_array = new eGeoArray<ePoint2>;
             test_uv_array->setup(total_vertices, test_uv_data);
             test_geoset->setTextureCoordsArray(1, test_uv_array);
-
-            /********************************/
-            /* Fill arrays: vertices, colors, UV mapping, normals */
 
             for (j = 0; j < objVerticesCount; j++)
             {
@@ -2136,14 +2430,11 @@ namespace ZookieWizard
 
             test_geoset->setTexMappingType(1, 0);
 
-            /********************************/
-            /* View result in editor's window :) */
-
             test_geoset->prepareForDrawing();
 
             importedVertices += objVerticesCount;
             importedMeshes++;
-        }
+        }*/
 
         if (nullptr != referencedVertices)
         {
