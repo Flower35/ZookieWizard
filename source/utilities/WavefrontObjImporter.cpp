@@ -241,7 +241,7 @@ namespace ZookieWizard
             importedVertices = 0;
             importedMeshes = 0;
 
-            constructTriMeshes();
+            constructTriMeshes(false);
 
             /****************/
 
@@ -379,24 +379,27 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WavefrontObjImporter: prepare to add env map to existing mesh
     ////////////////////////////////////////////////////////////////
-    void WavefrontObjImporter::addEnvMapCoordinatesFromObj(eString obj_fullpath, eNode* target, int32_t flags, eSRP& srp)
+    void WavefrontObjImporter::addEnvMapCoordinatesFromObj(eString base_obj_fullpath, eString env_obj_fullpath, eGroup* current_group, int32_t flags, eSRP& srp)
     {
         char bufor[LARGE_BUFFER_SIZE];
+        eTriMesh* target;
         eGeoSet* test_geo;
         ePhyTriMesh* test_phytrimesh;
 
         /****************/
 
-        if (!target->getType()->checkHierarchy(&E_TRIMESH_TYPEINFO))
+        if (!current_group->getType()->checkHierarchy(&E_GROUP_TYPEINFO))
         {
             throw ErrorMessage
             (
-                "WavefrontObjImporter::updateTriMeshVerticesFromObj():\n" \
-                "Target object is not a \"eTriMesh\" type!"
+                "WavefrontObjImporter::importTriMeshFromObj():\n" \
+                "Selected object is not a \"eGroup\" type!"
             );
         }
 
         /****************/
+
+        parentGroup = current_group;
 
         appendNameToMeshes = ((0x01 << 0) & flags);
         regroupMeshesWithMaterials = ((0x01 << 1) & flags);
@@ -410,17 +413,76 @@ namespace ZookieWizard
         (
             bufor, LARGE_BUFFER_SIZE,
             " WavefrontObjImporter(\"%s\").\n",
-            obj_fullpath.getText()
+            base_obj_fullpath.getText()
         );
 
         theLog.print(bufor);
 
         /****************/
 
-        if (openObj(obj_fullpath))
+        if (openObj(base_obj_fullpath))
         {
-            workingDirectory = obj_fullpath.getPath();
-            fileName = obj_fullpath.getFilename(false);
+            workingDirectory = base_obj_fullpath.getPath();
+            fileName = base_obj_fullpath.getFilename(false);
+
+            /****************/
+
+            objVerticesCount = 0;
+            objMappingCount = 0;
+            objNormalsCount = 0;
+            objFacesCount = 0;
+            objMaterialsCount = 0;
+            objGroupsCount = 0;
+
+            readModelData();
+
+            if (objGroupsCount >= 2 || objMaterialsCount >= 2)
+            {
+                throw ErrorMessage
+                (
+                    "WavefrontObjImporter::addEnvMapCoordinatesFromObj():\n" \
+                    "Imported obj must contain a single mesh!"
+                );
+            }
+
+            importedVertices = 0;
+            importedMeshes = 0;
+
+            target = constructTriMeshes(true);
+
+            if (importedMeshes != 1 || target == nullptr)
+            {
+                throw ErrorMessage
+                (
+                    "WavefrontObjImporter::addEnvMapCoordinatesFromObj():\n" \
+                    "Imported obj must contain a single mesh!"
+                );
+            }
+
+            /****************/
+
+            sprintf_s
+            (
+                bufor, LARGE_BUFFER_SIZE,
+                "Base model import finished: %d vertices.\n",
+                importedVertices
+            );
+
+            theLog.print(bufor);
+        }
+        else
+        {
+            throw ErrorMessage
+            (
+                "WavefrontObjImporter::addEnvMapCoordinatesFromObj():\n" \
+                "Base model import failed..."
+            );
+        }
+
+        if (openObj(env_obj_fullpath))
+        {
+            workingDirectory = env_obj_fullpath.getPath();
+            fileName = env_obj_fullpath.getFilename(false);
 
             /****************/
 
@@ -437,7 +499,7 @@ namespace ZookieWizard
             {
                 throw ErrorMessage
                 (
-                    "WavefrontObjImporter::updateTriMeshVerticesFromObj():\n" \
+                    "WavefrontObjImporter::addEnvMapCoordinatesFromObj():\n" \
                     "Target object does not have a \"eTriMesh\" object!"
                 );
             }
@@ -446,21 +508,12 @@ namespace ZookieWizard
             {
                 throw ErrorMessage
                 (
-                    "WavefrontObjImporter::updateTriMeshVerticesFromObj():\n" \
+                    "WavefrontObjImporter::addEnvMapCoordinatesFromObj():\n" \
                     "Imported obj must contain a single mesh!"
                 );
             }
 
             test_geo = ((eTriMesh*)target)->getGeoset();
-
-            /*if (objVerticesCount != test_geo->getVerticesArray(0)->getLength())
-            {
-                throw ErrorMessage
-                (
-                    "WavefrontObjImporter::updateTriMeshVerticesFromObj():\n" \
-                    "Number of vertices of imported mesh must match the target eTriMesh!"
-                );
-            }*/
 
             importedVertices = 0;
             importedMeshes = 0;
@@ -1129,7 +1182,7 @@ namespace ZookieWizard
     // WavefrontObjImporter: construct "eTriMesh" objects
     // Append meshes to target "eGroup"
     ////////////////////////////////////////////////////////////////
-    void WavefrontObjImporter::constructTriMeshes()
+    eTriMesh* WavefrontObjImporter::constructTriMeshes(bool skipOptimizations)
     {
         int32_t group_id, mat_id, j, k, l, m;
         int32_t total_indices, total_vertices, total_normals, total_mappings;
@@ -1142,6 +1195,7 @@ namespace ZookieWizard
 
         eGroup* test_group = nullptr;
         eTriMesh* test_trimesh = nullptr;
+        eTriMesh* result_trimesh = nullptr;
         eGeoSet* test_geoset = nullptr;
         eMaterialState* dummy_mtl_state = nullptr;
 
@@ -1324,7 +1378,7 @@ namespace ZookieWizard
 
                                         if (temp_tests[1])
                                         {
-                                            if (referencedVertices[4 * l + 1] == temp_id[1])
+                                            if (referencedVertices[4 * l + 1] == temp_id[1] && !skipOptimizations)
                                             {
                                                 m++;
                                             }
@@ -1421,8 +1475,16 @@ namespace ZookieWizard
                 }
                 else if (total_vertices > 0)
                 {
+                    if (nullptr != result_trimesh)
+                    {
+                        result_trimesh->decRef();
+                        result_trimesh = nullptr;
+                    }
+
                     test_trimesh = new eTriMesh();
                     test_trimesh->incRef();
+                    result_trimesh = test_trimesh;
+                    result_trimesh->incRef();
 
                     trimesh_name = appendNameToMeshes ? fileName : eString();
 
@@ -1576,6 +1638,17 @@ namespace ZookieWizard
         {
             delete[](referencedVertices);
             referencedVertices = nullptr;
+        }
+
+        if (skipOptimizations)
+        {
+            return result_trimesh;
+        }
+        else
+        {
+            result_trimesh->decRef();
+            result_trimesh = nullptr;
+            return nullptr;
         }
     }
 
@@ -1973,130 +2046,6 @@ namespace ZookieWizard
             }
         }
 
-        total_vertices = 0;
-        total_indices = 0;
-        total_normals = 0;
-        total_mappings = 0;
-
-        /********************************/
-        /* Checking which vertices will be used */
-
-        for (j = 0; j < objFacesCount; j++)
-        {
-            for (k = 0; k < 3; k++)
-            {
-                temp_id[0] = objFaces[j].v_id[k];
-                temp_id[1] = objFaces[j].vt_id[k];
-                temp_id[2] = objFaces[j].vn_id[k];
-
-                temp_tests[0] = (temp_id[0] >= 0) && (temp_id[0] < objVerticesCount);
-                temp_tests[1] = (temp_id[1] >= 0) && (temp_id[1] < objMappingCount);
-                temp_tests[2] = (temp_id[2] >= 0) && (temp_id[2] < objNormalsCount);
-
-                if (temp_tests[0])
-                {
-                    m = 0;
-
-                    /* `3 == m` and the loop breaks only when a vertex with exact params existed */
-
-                    for (l = 0; (l < total_vertices) && (m < 3); l++)
-                    {
-                        if (referencedVertices[4 * l + 0] == temp_id[0])
-                        {
-                            m = 1;
-
-                            if (temp_tests[1])
-                            {
-                                if (referencedVertices[4 * l + 1] == temp_id[1])
-                                {
-                                    m++;
-                                }
-                            }
-                            else
-                            {
-                                m++;
-                            }
-
-                            if (temp_tests[2])
-                            {
-                                if (m >= 2) // UV mapping must be matching too.
-                                {
-                                    temp_id[3] = referencedVertices[4 * l + 2];
-
-                                    if (temp_id[3] != temp_id[2])
-                                    {
-                                        if ((temp_id[3] >= 0) && (temp_id[3] < objNormalsCount))
-                                        {
-                                            objNormals[temp_id[3]] += objNormals[temp_id[2]];
-                                            objNormals[temp_id[3]].normalize();
-
-                                            m++;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        m++;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                m++;
-                            }
-                        }
-                        else
-                        {
-                            m = 0;
-                        }
-                    }
-
-                    if (m < 3)
-                    {
-                        /* Inserting another vertex parameters because it differs */
-
-                        referencedVertices[4 * total_vertices + 0] = temp_id[0];
-
-                        if (temp_tests[1])
-                        {
-                            referencedVertices[4 * total_vertices + 1] = temp_id[1];
-
-                            total_mappings++;
-                        }
-
-                        if (temp_tests[2])
-                        {
-                            referencedVertices[4 * total_vertices + 2] = temp_id[2];
-
-                            total_normals++;
-                        }
-                        else
-                        {
-                            /* marking Normal ID as invalid, so it cannot be used for addition */
-                            referencedVertices[4 * total_vertices + 2] = (-1);
-                        }
-
-                        total_vertices++;
-                    }
-                    else
-                    {
-                        /* Last matching vertex ID before loop counter was increased */
-                        l--;
-                    }
-
-                    referencedVertices[4 * total_indices + 3] = l;
-
-                    total_indices++;
-                }
-            }
-        }
-
-
-
-
-
-
-
-
 
         for (mat_id = 0; mat_id < objMaterialsCount; mat_id++)
         {
@@ -2134,10 +2083,6 @@ namespace ZookieWizard
 
                                 if (temp_tests[1])
                                 {
-                                    if (referencedVertices[4 * l + 1] == temp_id[1])
-                                    {
-                                        m++;
-                                    }
                                 }
                                 else
                                 {

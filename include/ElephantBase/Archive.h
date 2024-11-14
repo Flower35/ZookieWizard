@@ -185,7 +185,7 @@ namespace ZookieWizard
             void writeSelectedObjectToObjFile(eString filename, bool withGeoproxies = false) const;
             void appendToSelectedObjectFromObjFile(eString filename);
             void updateVerticesFromObjFile(eString filename);
-            void addEnvMapFromObjFile(eString filename);
+            void addEnvMapFromObjFile(eString baseModelFilename, eString envMapFilename);
             int32_t appendNodesFromTxtFile(const char* filename);
             int32_t changeNodesWithTxtFile(const char* filename);
 

@@ -1979,7 +1979,7 @@ namespace ZookieWizard
                 return false;
             }
 
-            if (0 == (nodesList_Windows[1 + 25] = theWindowsManager.addWindow("Apply env map", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_ADD_ENVMAP, 0x01)))
+            if (0 == (nodesList_Windows[1 + 25] = theWindowsManager.addWindow("Import model\nwith env map", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_ADD_ENVMAP, 0x01)))
             {
                 return false;
             }

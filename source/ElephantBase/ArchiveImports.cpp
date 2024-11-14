@@ -170,33 +170,31 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Archive: add env map to highlighted TriMesh from OBJ file
     ////////////////////////////////////////////////////////////////
-    void Archive::addEnvMapFromObjFile(eString filename)
+    void Archive::addEnvMapFromObjFile(eString baseModelFilename, eString envMapFilename)
     {
         WavefrontObjImporter importer;
         eSRP default_srp;
-        eNode* test_node = nullptr;
+
+        if (nullptr != selectedObject)
+        {
+            importer.addEnvMapCoordinatesFromObj(baseModelFilename, envMapFilename, (eGroup*)selectedObject, WAVEFRONT_OBJ_IMPORTER_DEFAULT_FLAGS, default_srp);
+
+            changeSelectedObject(NODES_LISTBOX_UPDATE_CURRENT, nullptr);
+        }
+
+
+
+
+        /*WavefrontObjImporter importer;
+        eSRP default_srp;
         eGroup* test_group = nullptr;
 
-        if ((nullptr != selectedObject) && (selectedObject->getType()->checkHierarchy(&E_NODE_TYPEINFO)))
+        if ((nullptr != selectedObject) && (selectedObject->getType()->checkHierarchy(&E_GROUP_TYPEINFO)))
         {
-            test_node = (eNode*)selectedObject;
-        }
-
-        if (nullptr != test_node)
-        {
-            if (markedChildId >= 0)
-            {
-                test_group = (eGroup*)selectedObject;
-                test_node = test_group->getIthChild(markedChildId);
-
-                if (nullptr != test_node)
-                {
-                    importer.addEnvMapCoordinatesFromObj(filename, test_node, WAVEFRONT_OBJ_IMPORTER_DEFAULT_FLAGS, default_srp);
-
-                    changeSelectedObject(NODES_LISTBOX_UPDATE_CURRENT, nullptr);
-                }
-            }
-        }
+            test_group = (eGroup*)selectedObject;
+            importer.addEnvMapCoordinatesFromObj(baseModelFilename, envMapFilename, test_group, WAVEFRONT_OBJ_IMPORTER_DEFAULT_FLAGS, default_srp);
+            changeSelectedObject(NODES_LISTBOX_UPDATE_CURRENT, nullptr);
+        }*/
     }
 
 

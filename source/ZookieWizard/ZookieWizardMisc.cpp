@@ -1527,7 +1527,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     void ArMenuOptions_AddEnvMapFromObj()
     {
-        eString filename;
+        eString baseModelFilename, envMapFilename;
         char bufor[LARGE_BUFFER_SIZE];
 
         try
@@ -1545,9 +1545,22 @@ namespace ZookieWizard
                 return;
             }
 
-            /* Set filename and read OBJ document */
+            baseModelFilename = bufor;
 
-            filename = bufor;
+            bufor[0] = 0x00;
+
+            ofn.lpstrFile = bufor;
+            ofn.nMaxFile = LARGE_BUFFER_SIZE;
+            ofn.lpstrTitle = "Opening OBJ document...";
+            ofn.lpstrFilter = "Wavefront OBJ document (*.obj)\0*.obj\0All files (*.*)\0*.*\0";
+            ofn.Flags = (OFN_FILEMUSTEXIST | OFN_HIDEREADONLY);
+
+            if (0 == GetOpenFileName(&ofn))
+            {
+                return;
+            }
+
+            envMapFilename = bufor;
 
             theLog.print
             (
@@ -1557,7 +1570,7 @@ namespace ZookieWizard
                 "================================\n"
             );
 
-            myARs[currentArId].addEnvMapFromObjFile(filename);
+            myARs[currentArId].addEnvMapFromObjFile(baseModelFilename, envMapFilename);
 
             theLog.print
             (
@@ -1570,9 +1583,8 @@ namespace ZookieWizard
             sprintf_s
             (
                 bufor, LARGE_BUFFER_SIZE,
-                "<\"%s\">\n\nOBJ document imported successfully! :)\n\n" \
-                "Remember to optimize your materials after you adjust them!",
-                filename.getText()
+                "OBJ document imported successfully! :)\n\n" \
+                "Remember to optimize your materials after you adjust them!"
             );
 
             GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_INFO, bufor);
@@ -1844,19 +1856,19 @@ namespace ZookieWizard
             avg = (old_r + old_g + old_b) / 3.0f;
             if (avg < 0.27f)
             {
-                //avg = 0.27;
+                avg = 0.27;
             }
 
-            //avg *= 0.8f;
+            //avg *= 1.035f;
 
             if (avg < 0.5f)
             {
                 //avg = 0.5f;
             }
 
-            r = avg;// *0.88;// min(old_r * 1.2, 1.0);
-            g = avg;// *0.98;// old_g * 0.05;
-            b = avg;// *1.1;// old_b * 0.2;
+            r = avg;// min(old_r * 1.2, 1.0);
+            g = avg;// old_g * 0.05;
+            b = avg;// old_b * 0.2;
 
             colors_data->getData()[j].x = r;
             colors_data->getData()[j].y = g;
