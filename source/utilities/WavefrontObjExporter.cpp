@@ -53,7 +53,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WavefrontObjExporter: open file and set working directory
     ////////////////////////////////////////////////////////////////
-    bool WavefrontObjExporter::openObj(eString filename, eObject* target, bool includeGeoproxies)
+    bool WavefrontObjExporter::openObj(eString filename, eObject* target)
     {
         const TypeInfo* type_info;
         char* text = filename.getText();
@@ -148,7 +148,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WavefrontObjExporter: start exporting mesh
     ////////////////////////////////////////////////////////////////
-    void WavefrontObjExporter::begin(bool includeGeoproxies)
+    void WavefrontObjExporter::begin(bool includeGeoproxies, bool transparencyModel)
     {
         bool uses_mtl = false;
 
@@ -210,11 +210,11 @@ namespace ZookieWizard
 
         if (nullptr != meshGroup)
         {
-            writeModelDataFromGroup(meshGroup, default_matrix, includeGeoproxies);
+            writeModelDataFromGroup(meshGroup, default_matrix, includeGeoproxies, transparencyModel);
         }
         else if (nullptr != meshTrimesh)
         {
-            writeModelData(meshTrimesh, default_matrix);
+            writeModelData(meshTrimesh, default_matrix, transparencyModel);
         }
 
         myFiles[0].close();
@@ -378,7 +378,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WavefrontObjExporter: write model data recursively
     ////////////////////////////////////////////////////////////////
-    void WavefrontObjExporter::writeModelDataFromGroup(eGroup* current_group, eMatrix4x4 &parent_matrix, bool includeGeoproxies)
+    void WavefrontObjExporter::writeModelDataFromGroup(eGroup* current_group, eMatrix4x4 &parent_matrix, bool includeGeoproxies, bool transparencyModel)
     {
         int i;
         eNode* child_node;
@@ -407,15 +407,15 @@ namespace ZookieWizard
 
             if (includeGeoproxies && (&E_XREFPROXY_TYPEINFO) == type_info && ((eProxy*)current_group)->getCategory() == 5)
             {
-                writeModelDataFromGroup(((eXRefProxy*)child_node)->getXRefTarget()->getLocalScene(), current_matrix);
+                writeModelDataFromGroup(((eXRefProxy*)child_node)->getXRefTarget()->getLocalScene(), current_matrix, false, transparencyModel);
             }
             else if (type_info->checkHierarchy(&E_GROUP_TYPEINFO))
             {
-                writeModelDataFromGroup((eGroup*)child_node, current_matrix, includeGeoproxies);
+                writeModelDataFromGroup((eGroup*)child_node, current_matrix, includeGeoproxies, transparencyModel);
             }
             else if ((&E_TRIMESH_TYPEINFO) == type_info)
             {
-                writeModelData((eTriMesh*)child_node, current_matrix);
+                writeModelData((eTriMesh*)child_node, current_matrix, transparencyModel);
             }
         }
     }
@@ -424,7 +424,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WavefrontObjExporter: write model data
     ////////////////////////////////////////////////////////////////
-    void WavefrontObjExporter::writeModelData(eTriMesh* current_trimesh, eMatrix4x4 &parent_matrix)
+    void WavefrontObjExporter::writeModelData(eTriMesh* current_trimesh, eMatrix4x4 &parent_matrix, bool transparencyModel)
     {
         int32_t a, b, c;
         int32_t f[3];
@@ -492,16 +492,32 @@ namespace ZookieWizard
 
                     if (nullptr != array_data4[1])
                     {
-                        sprintf_s
-                        (
-                            bufor, 128, "v %f %f %f %f %f %f",
-                            dummy_vertex.x,
-                            dummy_vertex.z,
-                            (- dummy_vertex.y),
-                            array_data4[1][a].x,
-                            array_data4[1][a].y,
-                            array_data4[1][a].z
-                        );
+                        if (transparencyModel)
+                        {
+                            sprintf_s
+                            (
+                                bufor, 128, "v %f %f %f %f %f %f",
+                                dummy_vertex.x,
+                                dummy_vertex.z,
+                                (-dummy_vertex.y),
+                                0.0f,
+                                array_data4[1][a].w,
+                                0.0f
+                            );
+                        }
+                        else
+                        {
+                            sprintf_s
+                            (
+                                bufor, 128, "v %f %f %f %f %f %f",
+                                dummy_vertex.x,
+                                dummy_vertex.z,
+                                (-dummy_vertex.y),
+                                array_data4[1][a].x,
+                                array_data4[1][a].y,
+                                array_data4[1][a].z
+                            );
+                        }
                     }
                     else
                     {

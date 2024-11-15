@@ -83,6 +83,7 @@ namespace ZookieWizard
     #define NODES_EDITING_GROUPS_ADD_ENVMAP (-32)
     #define NODES_EDITING_GROUPS_SET_GRASS  (-33)
     #define NODES_EDITING_GROUPS_OPTIMIZE   (-34)
+    #define NODES_EDITING_GROUPS_SET_ALPHA  (-35)
 
     class Archive
     {
@@ -182,9 +183,9 @@ namespace ZookieWizard
             void reloadProxies(int32_t version_override) const;
             void writeTreeToJsonFile(const char* output_path) const;
             void writeTreeToXmlFile(eString filename) const;
-            void writeSelectedObjectToObjFile(eString filename, bool withGeoproxies = false) const;
+            void writeSelectedObjectToObjFile(eString filename, bool withGeoproxies = false, bool transparencyModel = false) const;
             void appendToSelectedObjectFromObjFile(eString filename);
-            void updateVerticesFromObjFile(eString filename);
+            void updateVerticesFromObjFile(eString filename, bool transparencyModel = false);
             void addEnvMapFromObjFile(eString baseModelFilename, eString envMapFilename);
             int32_t appendNodesFromTxtFile(const char* filename);
             int32_t changeNodesWithTxtFile(const char* filename);

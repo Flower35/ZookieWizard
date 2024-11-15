@@ -749,7 +749,6 @@ namespace ZookieWizard
 
             case NODES_EDITING_MATERIAL_CLONE:
             case NODES_EDITING_MATERIAL_DELETE:
-            case NODES_EDITING_MATERIAL_CHANGE:
             {
                 if ((nullptr != test_node) && test_node->getType()->checkHierarchy(&E_GEOMETRY_TYPEINFO))
                 {
@@ -768,13 +767,9 @@ namespace ZookieWizard
                             test_material = new eMaterial(nullptr);
                         }
                     }
-                    else if (NODES_EDITING_MATERIAL_DELETE == child_id)
-                    {
-                        test_material = nullptr;
-                    }
                     else
                     {
-                        test_material = GUI::materialsManager_GetCurrentMaterial();
+                        test_material = nullptr;
                     }
 
                     test_geometry->setMaterial(test_material);
@@ -784,6 +779,32 @@ namespace ZookieWizard
                 else
                 {
                     GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_WARNING, "Current Node type must be \"eGeometry\" or its child type!");
+                }
+
+                break;
+            }
+
+            case NODES_EDITING_MATERIAL_CHANGE:
+            {
+                test_group = (eGroup*)test_node;
+
+                if (nodesManager_CloneChild(test_group, markedChildId))
+                {
+                    test_node = test_group->getIthChild(markedChildId);
+                    if ((nullptr != test_node) && test_node->getType()->checkHierarchy(&E_GEOMETRY_TYPEINFO))
+                    {
+                        test_geometry = (eGeometry*)test_node;
+
+                        test_material = GUI::materialsManager_GetCurrentMaterial();
+
+                        test_geometry->setMaterial(test_material);
+
+                        GUI::materialsManager_SetCurrentMaterialFromGeometry(test_geometry->getMaterial());
+                    }
+                    else
+                    {
+                        GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_WARNING, "Current Node type must be \"eGeometry\" or its child type!");
+                    }
                 }
 
                 break;
@@ -812,6 +833,12 @@ namespace ZookieWizard
             case NODES_EDITING_GROUPS_UPDATEMESH:
             {
                 ArMenuOptions_UpdateVerticesFromObj();
+                break;
+            }
+
+            case NODES_EDITING_GROUPS_SET_ALPHA:
+            {
+                ArMenuOptions_UpdateVerticesFromObj(true);
                 break;
             }
 

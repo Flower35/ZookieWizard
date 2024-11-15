@@ -45,20 +45,20 @@ namespace ZookieWizard
             WavefrontObjExporter();
             ~WavefrontObjExporter();
 
-            bool openObj(eString filename, eObject* target, bool includeGeoproxies = false);
+            bool openObj(eString filename, eObject* target);
             bool openMtl();
 
-            void begin(bool includeGeoproxies = false);
+            void begin(bool includeGeoproxies = false, bool transparencyModel = false);
 
         protected:
 
             void writeNewLine(int32_t which_file);
 
             bool writeMaterialInfo(eTriMesh* current_trimesh, bool file_opened);
-            void writeModelData(eTriMesh* current_trimesh, eMatrix4x4 &parent_matrix);
+            void writeModelData(eTriMesh* current_trimesh, eMatrix4x4 &parent_matrix, bool transparencyModel = false);
 
             bool writeMaterialInfoFromGroup(eGroup* current_group, bool file_opened, bool includeGeoproxies = false);
-            void writeModelDataFromGroup(eGroup* current_group, eMatrix4x4 &parent_matrix, bool includeGeoproxies = false);
+            void writeModelDataFromGroup(eGroup* current_group, eMatrix4x4 &parent_matrix, bool includeGeoproxies = false, bool transparencyModel = false);
 
             void writeFace(int32_t params, int32_t index[3]);
     };

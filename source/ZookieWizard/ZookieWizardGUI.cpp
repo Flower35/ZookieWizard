@@ -17,8 +17,8 @@ namespace ZookieWizard
 
         bool updatingEditboxesNotByUser = false;
 
-        static const int32_t nodesList_ButtonsCount = 28;
-        static const int32_t nodesList_ActionsCount = 7;
+        static const int32_t nodesList_ButtonsCount = 30;
+        static const int32_t nodesList_ActionsCount = 8;
         int32_t nodesList_CurrentAction;
         static HWND nodesList_Windows[1 + nodesList_ButtonsCount];
         static int32_t nodesList_ActionIds[nodesList_ActionsCount][2];
@@ -26,7 +26,7 @@ namespace ZookieWizard
         static const char* nodesList_ActionNames[nodesList_ActionsCount] =
         {
             "Browsing the Archive", "Moving Nodes", "Deleting Nodes", "Cloning Nodes",
-            "Managing Materials", "Modifying 3D meshes", "Other"
+            "Managing Materials", "Modifying 3D meshes", "Other", "Transparency"
         };
 
 
@@ -390,6 +390,10 @@ namespace ZookieWizard
                 else if (2 == (int32_t)custom_param)
                 {
                     ArMenuOptions_ExportTrimeshToObj(true);
+                }
+                else if (3 == (int32_t)custom_param)
+                {
+                    ArMenuOptions_ExportTrimeshToObj(false, true);
                 }
             }
         }
@@ -1990,6 +1994,20 @@ namespace ZookieWizard
             }
 
             if (0 == (nodesList_Windows[1 + 27] = theWindowsManager.addWindow("Remove overlapping nodes", LARGE_BUTTON_WIDTH, 33, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_OPTIMIZE, 0x01)))
+            {
+                return false;
+            }
+
+            theWindowsManager.setCurrentPosition(x, y);
+            nodesList_ActionIds[7][0] = 28;
+            nodesList_ActionIds[7][1] = 29;
+
+            if (0 == (nodesList_Windows[1 + 28] = theWindowsManager.addWindow("Export transparency to OBJ", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListObj, (void*)3, 0)))
+            {
+                return false;
+            }
+
+            if (0 == (nodesList_Windows[1 + 29] = theWindowsManager.addWindow("Import transparency from OBJ", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_GROUPS_SET_ALPHA, 0x01)))
             {
                 return false;
             }

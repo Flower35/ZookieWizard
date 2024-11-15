@@ -1311,7 +1311,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // miscellaneous: Export Kao2 Mesh to WAVEFRONT "*.obj" format
     ////////////////////////////////////////////////////////////////
-    void ArMenuOptions_ExportTrimeshToObj(bool includeGeoproxies)
+    void ArMenuOptions_ExportTrimeshToObj(bool includeGeoproxies, bool transparencyModel)
     {
         eString filename;
         char bufor[LARGE_BUFFER_SIZE];
@@ -1348,7 +1348,7 @@ namespace ZookieWizard
                 "================================\n"
             );
 
-            myARs[currentArId].writeSelectedObjectToObjFile(filename, includeGeoproxies);
+            myARs[currentArId].writeSelectedObjectToObjFile(filename, includeGeoproxies, transparencyModel);
 
             theLog.print
             (
@@ -1455,7 +1455,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // miscellaneous: Import Kao2 Mesh from WAVEFRONT "*.obj" into existing TriMesh
     ////////////////////////////////////////////////////////////////
-    void ArMenuOptions_UpdateVerticesFromObj()
+    void ArMenuOptions_UpdateVerticesFromObj(bool transparencyModel)
     {
         eString filename;
         char bufor[LARGE_BUFFER_SIZE];
@@ -1487,7 +1487,7 @@ namespace ZookieWizard
                 "================================\n"
             );
 
-            myARs[currentArId].updateVerticesFromObjFile(filename);
+            myARs[currentArId].updateVerticesFromObjFile(filename, transparencyModel);
 
             theLog.print
             (

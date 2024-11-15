@@ -261,7 +261,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WavefrontObjImporter: prepare to import and update existing mesh
     ////////////////////////////////////////////////////////////////
-    void WavefrontObjImporter::updateTriMeshVerticesFromObj(eString obj_fullpath, eNode* target, int32_t flags, eSRP& srp)
+    void WavefrontObjImporter::updateTriMeshVerticesFromObj(eString obj_fullpath, eNode* target, int32_t flags, eSRP& srp, bool transparencyModel)
     {
         char bufor[LARGE_BUFFER_SIZE];
         eGeoSet* test_geo;
@@ -315,7 +315,7 @@ namespace ZookieWizard
 
             readModelData();
 
-            if (((eTriMesh*)target)->getGeoset() == nullptr || ((eTriMesh*)target)->getGeoset()->getPhyTriMesh() == nullptr)
+            if (!transparencyModel && (((eTriMesh*)target)->getGeoset() == nullptr || ((eTriMesh*)target)->getGeoset()->getPhyTriMesh() == nullptr))
             {
                 throw ErrorMessage
                 (
@@ -338,7 +338,7 @@ namespace ZookieWizard
             //int geoSetNormals = test_geo->getVerticesArray(0)->getLength();
             //int phyTriMeshNormals = test_phytrimesh->getDefaultVerticesArray()->getLength();
 
-            if (objVerticesCount != test_geo->getVerticesArray(0)->getLength() || objVerticesCount != test_phytrimesh->getDefaultVerticesArray()->getLength())
+            if (objVerticesCount != test_geo->getVerticesArray(0)->getLength() || (!transparencyModel && objVerticesCount != test_phytrimesh->getDefaultVerticesArray()->getLength()))
             {
                 throw ErrorMessage
                 (
@@ -347,19 +347,10 @@ namespace ZookieWizard
                 );
             }
 
-            /*if (objNormalsCount != test_geo->getNormalsArray(0)->getLength() || objNormalsCount != test_phytrimesh->getDefaultNormalsArray()->getLength())
-            {
-                throw ErrorMessage
-                (
-                    "WavefrontObjImporter::updateTriMeshVerticesFromObj():\n" \
-                    "Number of normals of imported mesh must match the target eTriMesh!"
-                );
-            }*/
-
             importedVertices = 0;
             importedMeshes = 0;
 
-            reconstructTriMesh((eTriMesh*)target);
+            reconstructTriMesh((eTriMesh*)target, transparencyModel);
 
             /****************/
 
@@ -1656,7 +1647,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // WavefrontObjImporter: update existing "eTriMesh" object with new vertices
     ////////////////////////////////////////////////////////////////
-    void WavefrontObjImporter::reconstructTriMesh(eTriMesh* target)
+    void WavefrontObjImporter::reconstructTriMesh(eTriMesh* target, bool transparencyModel)
     {
         int32_t j, k, l, m;
         int32_t total_indices, total_vertices, total_normals, total_mappings;
@@ -1892,7 +1883,7 @@ namespace ZookieWizard
         else if (total_vertices > 0)
         {
             test_geoset = target->getGeoset();
-            vertices_data = test_geoset->getPhyTriMesh()->getDefaultVerticesArray();
+            vertices_data = transparencyModel ? test_geoset->getVerticesArray(0) : test_geoset->getPhyTriMesh()->getDefaultVerticesArray();
 
             colors_data = test_geoset->getColorsArray();
             uv_data = test_geoset->getTextureCoordsArray(0);
@@ -1905,7 +1896,15 @@ namespace ZookieWizard
                 test_normals_data = new ePoint4[objVerticesCount];
                 test_normals_array = new eGeoArray<ePoint4>();
                 test_normals_array->setup(objVerticesCount, test_normals_data);
-                test_geoset->getPhyTriMesh()->setDefaultNormalsArray(test_normals_array);
+
+                if (transparencyModel)
+                {
+                    test_geoset->setNormalsArray(0, test_normals_array);
+                }
+                else
+                {
+                    test_geoset->getPhyTriMesh()->setDefaultNormalsArray(test_normals_array);
+                }
             }
 
             /********************************/
@@ -1920,9 +1919,16 @@ namespace ZookieWizard
 
                 if (nullptr != colors_data)
                 {
-                    colors_data->getData()[j].x = objVertices[j].r;
-                    colors_data->getData()[j].y = objVertices[j].g;
-                    colors_data->getData()[j].z = objVertices[j].b;
+                    if (transparencyModel)
+                    {
+                        colors_data->getData()[j].w = objVertices[j].g;
+                    }
+                    else
+                    {
+                        colors_data->getData()[j].x = objVertices[j].r;
+                        colors_data->getData()[j].y = objVertices[j].g;
+                        colors_data->getData()[j].z = objVertices[j].b;
+                    }
                 }
 
 
@@ -2201,11 +2207,6 @@ namespace ZookieWizard
                 test_vertices_array->setup(total_vertices, test_vertices_data);
                 test_geoset->setVerticesArray(0, test_vertices_array);
 
-                //// test_indices_offsets_data = new ushort [total_indices / 3];
-                //// test_indices_offsets = new eGeoArray<ushort>();
-                //// test_indices_offsets->setup((total_indices / 3), test_indices_offsets_data);
-                //// test_geoset->setIndicesOffsets(test_indices_offsets);
-
                 test_indices_array_data = new ushort[total_indices];
                 test_indices_array = new eGeoArray<ushort>();
                 test_indices_array->setup(total_indices, test_indices_array_data);
@@ -2319,67 +2320,6 @@ namespace ZookieWizard
                 test_trimesh->decRef();
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-        /********************************/
-        /* Continue if model is not empty */
-
-        /*if (total_vertices > 65535)
-        {
-            ErrorMessage
-            (
-                "WavefrontObjImporter::applyEnvMap():\n"
-                "too many vertices! (max 65535 per object)"
-            ).display();
-        }
-        else if (total_vertices > 0)
-        {
-            test_geoset = target->getGeoset();
-            uv_data = test_geoset->getTextureCoordsArray(1);
-
-            test_uv_data = new ePoint2[total_vertices];
-            test_uv_array = new eGeoArray<ePoint2>;
-            test_uv_array->setup(total_vertices, test_uv_data);
-            test_geoset->setTextureCoordsArray(1, test_uv_array);
-
-            for (j = 0; j < objVerticesCount; j++)
-            {
-                if (total_mappings > 0)
-                {
-                    k = referencedVertices[4 * j + 1];
-                    if (k >= 0 && k < objVerticesCount)
-                    {
-                        test_uv_data[j] = objMapping[k];
-                    }
-                }
-            }
-
-            targetMaterial = target->getMaterial();
-            if (targetMaterial->getTexturesCount() < 2)
-            {
-                targetMaterial->appendTexture(objMaterials[0].material->getIthTexture(0));
-            }
-
-            uint16_t materialFlags = targetMaterial->getMaterialFlags();
-            materialFlags |= 0x08;
-            targetMaterial->setMaterialFlags(materialFlags);
-
-            test_geoset->setTexMappingType(1, 0);
-
-            test_geoset->prepareForDrawing();
-
-            importedVertices += objVerticesCount;
-            importedMeshes++;
-        }*/
 
         if (nullptr != referencedVertices)
         {

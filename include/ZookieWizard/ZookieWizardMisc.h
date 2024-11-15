@@ -54,9 +54,9 @@ namespace ZookieWizard
     void ArMenuOptions_BulkArchiveConverter();
     void ArMenuOptions_WriteTreeToJsonFile();
     void ArMenuOptions_ExportArToCollada();
-    void ArMenuOptions_ExportTrimeshToObj(bool includeGeoproxies = false);
+    void ArMenuOptions_ExportTrimeshToObj(bool includeGeoproxies = false, bool transparencyModel = false);
     void ArMenuOptions_ImportTrimeshFromObj();
-    void ArMenuOptions_UpdateVerticesFromObj();
+    void ArMenuOptions_UpdateVerticesFromObj(bool transparencyModel = false);
     void ArMenuOptions_AddEnvMapFromObj();
     void ArMenuOptions_ChangeNodesWithTxt();
 

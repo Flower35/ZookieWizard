@@ -138,7 +138,7 @@ namespace ZookieWizard
             ~WavefrontObjImporter();
 
             void importTriMeshFromObj(eString obj_fullpath, eGroup* target, int32_t flags, eSRP &srp);
-            void updateTriMeshVerticesFromObj(eString obj_fullpath, eNode* target, int32_t flags, eSRP& srp);
+            void updateTriMeshVerticesFromObj(eString obj_fullpath, eNode* target, int32_t flags, eSRP& srp, bool transparencyModel = false);
             void addEnvMapCoordinatesFromObj(eString base_obj_fullpath, eString env_obj_fullpath, eGroup* current_group, int32_t flags, eSRP& srp);
 
         protected:
@@ -156,7 +156,7 @@ namespace ZookieWizard
             void readModelData();
             void readMaterialInfo(eString filename);
             eTriMesh* constructTriMeshes(bool skipOptimizations);
-            void reconstructTriMesh(eTriMesh* target);
+            void reconstructTriMesh(eTriMesh* target, bool transparencyModel = false);
             void applyEnvMap(eTriMesh* target);
 
             bool groupHasMultipleMaterials(const int32_t g_id) const;

@@ -103,15 +103,15 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Archive: export selected TriMesh to OBJ file
     ////////////////////////////////////////////////////////////////
-    void Archive::writeSelectedObjectToObjFile(eString filename, bool includeGeoproxies) const
+    void Archive::writeSelectedObjectToObjFile(eString filename, bool includeGeoproxies, bool transparencyModel) const
     {
         WavefrontObjExporter exporter;
 
         if (nullptr != selectedObject)
         {
-            if (exporter.openObj(filename, selectedObject, includeGeoproxies))
+            if (exporter.openObj(filename, selectedObject))
             {
-                exporter.begin(includeGeoproxies);
+                exporter.begin(includeGeoproxies, transparencyModel);
             }
         }
     }
@@ -137,7 +137,7 @@ namespace ZookieWizard
     ////////////////////////////////////////////////////////////////
     // Archive: update vertices within highlighted TriMesh from OBJ file
     ////////////////////////////////////////////////////////////////
-    void Archive::updateVerticesFromObjFile(eString filename)
+    void Archive::updateVerticesFromObjFile(eString filename, bool transparencyModel)
     {
         WavefrontObjImporter importer;
         eSRP default_srp;
@@ -158,7 +158,7 @@ namespace ZookieWizard
 
                 if (nullptr != test_node)
                 {
-                    importer.updateTriMeshVerticesFromObj(filename, test_node, WAVEFRONT_OBJ_IMPORTER_DEFAULT_FLAGS, default_srp);
+                    importer.updateTriMeshVerticesFromObj(filename, test_node, WAVEFRONT_OBJ_IMPORTER_DEFAULT_FLAGS, default_srp, transparencyModel);
 
                     changeSelectedObject(NODES_LISTBOX_UPDATE_CURRENT, nullptr);
                 }
@@ -177,7 +177,15 @@ namespace ZookieWizard
 
         if (nullptr != selectedObject)
         {
-            importer.addEnvMapCoordinatesFromObj(baseModelFilename, envMapFilename, (eGroup*)selectedObject, WAVEFRONT_OBJ_IMPORTER_DEFAULT_FLAGS, default_srp);
+            try
+            {
+                importer.addEnvMapCoordinatesFromObj(baseModelFilename, envMapFilename, (eGroup*)selectedObject, WAVEFRONT_OBJ_IMPORTER_DEFAULT_FLAGS, default_srp);
+            }
+            catch (ErrorMessage &err)
+            {
+                changeSelectedObject(NODES_LISTBOX_UPDATE_CURRENT, nullptr);
+                throw err;
+            }
 
             changeSelectedObject(NODES_LISTBOX_UPDATE_CURRENT, nullptr);
         }
