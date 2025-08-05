@@ -40,7 +40,6 @@ namespace ZookieWizard
         public:
 
             eDrawContext();
-            eDrawContext(const eDrawContext &other);
 
             void softReset();
             void hardReset();

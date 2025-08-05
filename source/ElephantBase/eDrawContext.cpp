@@ -28,24 +28,6 @@ namespace ZookieWizard
         previousAlphaTest = (-1.0f);
     }
 
-    eDrawContext::eDrawContext(const eDrawContext& other)
-    {
-        drawFlags = other.drawFlags;
-        nodeFlags = other.nodeFlags;
-        anim = other.anim;
-        parentSRP = other.parentSRP;
-        parentMatrix = other.parentMatrix;
-        markedID = other.markedID;
-
-        lightsCount = other.lightsCount;
-
-        previousMaterial = other.previousMaterial;
-        previousTextureID = other.previousTextureID;
-        previousTexture = other.previousTexture;
-        previousMaterialFlags = other.previousMaterialFlags;
-        previousAlphaTest = other.previousAlphaTest;
-    }
-
     ////////////////////////////////////////////////////////////////
     // eDrawContext: get or set the draw flags
     ////////////////////////////////////////////////////////////////
