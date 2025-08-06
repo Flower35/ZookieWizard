@@ -421,7 +421,13 @@ namespace ZookieWizard
         int32_t a;
         eNode* child_node;
 
-        MACRO_KAO2_GROUP_FOREACH_NODE({ child_node->editingApplyNewTransform(new_transform, (-1)); })
+        if (marked_id >= 0)
+        {
+            if (nullptr != (child_node = (eNode*)nodes.getIthChild(marked_id)))
+            {
+                child_node->editingApplyNewTransform(new_transform, (-1));
+            }
+        }
     }
 
 
