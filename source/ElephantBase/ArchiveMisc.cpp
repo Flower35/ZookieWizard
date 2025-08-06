@@ -750,35 +750,41 @@ namespace ZookieWizard
             case NODES_EDITING_MATERIAL_CLONE:
             case NODES_EDITING_MATERIAL_DELETE:
             {
-                if ((nullptr != test_node) && test_node->getType()->checkHierarchy(&E_GEOMETRY_TYPEINFO))
+                test_group = (eGroup*)test_node;
+
+                if (nodesManager_CloneChild(test_group, markedChildId))
                 {
-                    test_geometry = (eGeometry*)test_node;
-
-                    if (NODES_EDITING_MATERIAL_CLONE == child_id)
+                    test_node = test_group->getIthChild(markedChildId);
+                    if ((nullptr != test_node) && test_node->getType()->checkHierarchy(&E_GEOMETRY_TYPEINFO))
                     {
-                        test_material = test_geometry->getMaterial();
+                        test_geometry = (eGeometry*)test_node;
 
-                        if (nullptr != test_material)
+                        if (NODES_EDITING_MATERIAL_CLONE == child_id)
                         {
-                            test_material = new eMaterial(*(test_material));
+                            test_material = test_geometry->getMaterial();
+
+                            if (nullptr != test_material)
+                            {
+                                test_material = new eMaterial(*(test_material));
+                            }
+                            else
+                            {
+                                test_material = new eMaterial(nullptr);
+                            }
                         }
                         else
                         {
-                            test_material = new eMaterial(nullptr);
+                            test_material = nullptr;
                         }
+
+                        test_geometry->setMaterial(test_material);
+
+                        GUI::materialsManager_SetCurrentMaterialFromGeometry(test_geometry->getMaterial());
                     }
                     else
                     {
-                        test_material = nullptr;
+                        GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_WARNING, "Current Node type must be \"eGeometry\" or its child type!");
                     }
-
-                    test_geometry->setMaterial(test_material);
-
-                    GUI::materialsManager_SetCurrentMaterialFromGeometry(test_geometry->getMaterial());
-                }
-                else
-                {
-                    GUI::theWindowsManager.displayMessage(WINDOWS_MANAGER_MESSAGE_WARNING, "Current Node type must be \"eGeometry\" or its child type!");
                 }
 
                 break;

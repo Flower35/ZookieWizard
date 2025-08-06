@@ -1868,7 +1868,7 @@ namespace ZookieWizard
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 6] = theWindowsManager.addWindow("(F3)\nMove INTO the\nGroup entry ontop", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_IN, 0x01)))
+			if (0 == (nodesList_Windows[1 + 6] = theWindowsManager.addWindow("(F3)\nMove INTO the\nGroup entry above", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_LISTBOX_MOVE_IN, 0x01)))
 			{
 				return false;
 			}
@@ -1920,7 +1920,7 @@ namespace ZookieWizard
 				return false;
 			}
 
-			if (0 == (nodesList_Windows[1 + 14] = theWindowsManager.addWindow("Remove Material from Current Node", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_MATERIAL_DELETE, 0x01)))
+			if (0 == (nodesList_Windows[1 + 14] = theWindowsManager.addWindow("Remove Material from highlighted Node", LARGE_BUTTON_WIDTH, NODES_BUTTON_HEIGHT, buttonFunc_NodesListMisc, (void*)NODES_EDITING_MATERIAL_DELETE, 0x01)))
 			{
 				return false;
 			}
