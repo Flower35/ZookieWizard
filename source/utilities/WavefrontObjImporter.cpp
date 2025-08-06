@@ -1033,6 +1033,7 @@ namespace ZookieWizard
                         dummy_obj_mtl.name = keywords[1];
 
                         dummy_bitmap = new eBitmap();
+                        dummy_bitmap->setLoadedFromExternalFileFlag(true);
                         dummy_bitmap->incRef();
 
                         dummy_texture = new eTexture(dummy_bitmap);
